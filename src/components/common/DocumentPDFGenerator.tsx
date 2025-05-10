@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
-import PrintLayoutModal from '../carregamento/enderecamento/PrintLayoutModal';
+import DocumentPrintModal from './DocumentPrintModal';
 
 interface DocumentPDFGeneratorProps {
   documentId: string;
@@ -59,10 +59,11 @@ const DocumentPDFGenerator: React.FC<DocumentPDFGeneratorProps> = ({
         </div>
       </div>
       
-      <PrintLayoutModal
+      <DocumentPrintModal
         open={printModalOpen}
         onOpenChange={setPrintModalOpen}
-        orderNumber={documentId}
+        documentId={documentId}
+        documentType={documentType}
         layoutRef={documentRef}
       />
     </>
