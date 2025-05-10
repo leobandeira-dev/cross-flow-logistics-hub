@@ -13,9 +13,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
+import EditSolicitacaoDialog from './components/EditSolicitacaoDialog';
+import { SolicitacaoColeta } from './types/coleta.types';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data
-const solicitacoes = [
+const solicitacoesIniciais = [
   { 
     id: 'COL-2023-001', 
     cliente: 'Indústria ABC Ltda', 
@@ -63,9 +66,14 @@ const solicitacoes = [
 ];
 
 const SolicitacoesColeta = () => {
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('unica');
   const [currentPage, setCurrentPage] = useState(1);
+  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoColeta[]>(solicitacoesIniciais);
+  const [editingSolicitacao, setEditingSolicitacao] = useState<SolicitacaoColeta | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
   const itemsPerPage = 10;
   
   const filters = [
@@ -97,6 +105,26 @@ const SolicitacoesColeta = () => {
   const handleFilterChange = (filter: string, value: string) => {
     console.log(`Filter ${filter} changed to ${value}`);
     // Implementar lógica de filtro
+  };
+  
+  const handleRowClick = (row: SolicitacaoColeta) => {
+    console.log('Row clicked:', row);
+    setEditingSolicitacao(row);
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleSaveSolicitacao = (updatedSolicitacao: SolicitacaoColeta) => {
+    // Atualizar a solicitação na lista
+    setSolicitacoes(prev => 
+      prev.map(sol => 
+        sol.id === updatedSolicitacao.id ? updatedSolicitacao : sol
+      )
+    );
+    
+    toast({
+      title: "Solicitação atualizada",
+      description: `A solicitação ${updatedSolicitacao.id} foi atualizada com sucesso.`
+    });
   };
 
   return (
@@ -352,10 +380,18 @@ const SolicitacoesColeta = () => {
               currentPage: currentPage,
               onPageChange: setCurrentPage
             }}
-            onRowClick={(row) => console.log('Row clicked:', row)}
+            onRowClick={handleRowClick}
           />
         </CardContent>
       </Card>
+      
+      {/* Diálogo de Edição de Solicitação */}
+      <EditSolicitacaoDialog
+        solicitacao={editingSolicitacao}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSave={handleSaveSolicitacao}
+      />
     </MainLayout>
   );
 };

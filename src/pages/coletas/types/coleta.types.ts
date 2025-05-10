@@ -1,4 +1,3 @@
-
 // Define shared types for the coletas module
 export interface SolicitacaoColetaBase {
   id: string;
@@ -32,3 +31,18 @@ export interface SolicitacaoRecusada extends SolicitacaoColetaBase {
 }
 
 export type SolicitacaoColeta = SolicitacaoPendente | SolicitacaoAprovada | SolicitacaoRecusada;
+
+export interface SolicitacaoColeta {
+  id: string;
+  cliente: string;
+  data: string;
+  origem: string;
+  destino: string;
+  status: 'pending' | 'approved' | 'rejected';
+  notas: string[];
+  volumes: number;
+  peso: string;
+  solicitante?: string;
+  prioridade?: string;
+  observacoes?: string;
+}
