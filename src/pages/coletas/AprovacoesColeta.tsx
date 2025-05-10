@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
@@ -6,10 +5,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import DataTable from '../../components/common/DataTable';
 import StatusBadge from '../../components/common/StatusBadge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, FileText } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+  FormLabel,
+} from '@/components/ui/form';
+import DocumentPDFGenerator from '@/components/common/DocumentPDFGenerator';
 
 // Mock data
 const solicitacoesPendentes = [
@@ -100,11 +112,40 @@ const historicoAprovacoes = [
   },
 ];
 
+// Schema para validação do formulário de aprovação/rejeição
+const formSchema = z.object({
+  observacoes: z.string().optional(),
+  motivoRecusa: z.string().min(10, {
+    message: "O motivo da recusa deve ter pelo menos 10 caracteres",
+  }).optional().refine(value => {
+    // Se estamos no modo de rejeição, o motivo é obrigatório
+    if (global.isRejecting && (!value || value.length < 10)) {
+      return false;
+    }
+    return true;
+  }, {
+    message: "O motivo da recusa é obrigatório para rejeições",
+  }),
+});
+
 const AprovacoesColeta = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState('pendentes');
+  const [isRejecting, setIsRejecting] = useState(false);
+  
+  // Inicializando o formulário com react-hook-form
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      observacoes: '',
+      motivoRecusa: '',
+    },
+  });
+
+  // Definição global para que o refine do schema funcione
+  global.isRejecting = isRejecting;
   
   const filters = [
     {
@@ -140,18 +181,119 @@ const AprovacoesColeta = () => {
   const openDetailDialog = (row: any) => {
     setSelectedRequest(row);
     setIsDialogOpen(true);
+    setIsRejecting(false);
+    form.reset({
+      observacoes: '',
+      motivoRecusa: '',
+    });
   };
   
-  const handleApprove = () => {
-    console.log('Aprovado:', selectedRequest);
+  const handleApprove = (data: z.infer<typeof formSchema>) => {
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
+    const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
+    
+    // Aqui seria feita a integração com a API para registrar a aprovação
+    console.log('Aprovado:', {
+      ...selectedRequest,
+      observacoes: data.observacoes,
+      dataAprovacao: formattedDate,
+      aprovador: approverName,
+      status: 'approved'
+    });
+    
+    toast({
+      title: "Coleta aprovada com sucesso!",
+      description: `A coleta ${selectedRequest.id} foi aprovada em ${formattedDate} por ${approverName}.`,
+    });
+    
     setIsDialogOpen(false);
-    // Implementar lógica de aprovação
+    form.reset();
   };
   
-  const handleReject = () => {
-    console.log('Recusado:', selectedRequest);
+  const handleReject = (data: z.infer<typeof formSchema>) => {
+    if (!data.motivoRecusa || data.motivoRecusa.length < 10) {
+      form.setError('motivoRecusa', {
+        type: 'manual',
+        message: 'O motivo da recusa é obrigatório e deve ter pelo menos 10 caracteres',
+      });
+      return;
+    }
+    
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
+    const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
+    
+    // Aqui seria feita a integração com a API para registrar a recusa
+    console.log('Recusado:', {
+      ...selectedRequest,
+      motivoRecusa: data.motivoRecusa,
+      dataAprovacao: formattedDate,
+      aprovador: approverName,
+      status: 'rejected'
+    });
+    
+    toast({
+      title: "Coleta recusada",
+      description: `A coleta ${selectedRequest.id} foi recusada em ${formattedDate} por ${approverName}.`,
+      variant: "destructive",
+    });
+    
     setIsDialogOpen(false);
-    // Implementar lógica de recusa
+    form.reset();
+  };
+
+  // Renderiza o conteúdo do documento para impressão
+  const renderAprovacaoDocument = (documentId: string) => {
+    const documento = [...solicitacoesPendentes, ...historicoAprovacoes].find(doc => doc.id === documentId);
+    
+    if (!documento) return <div>Documento não encontrado</div>;
+    
+    return (
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Detalhes da Solicitação</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm font-medium text-gray-500">Cliente</p>
+            <p>{documento.cliente}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Solicitante</p>
+            <p>{documento.solicitante}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Data Solicitação</p>
+            <p>{documento.data}</p>
+          </div>
+          {documento.dataAprovacao && (
+            <div>
+              <p className="text-sm font-medium text-gray-500">Data Aprovação</p>
+              <p>{documento.dataAprovacao}</p>
+            </div>
+          )}
+          <div>
+            <p className="text-sm font-medium text-gray-500">Status</p>
+            <p>{documento.status === 'approved' ? 'Aprovado' : documento.status === 'rejected' ? 'Recusado' : 'Pendente'}</p>
+          </div>
+          {documento.aprovador && (
+            <div>
+              <p className="text-sm font-medium text-gray-500">Aprovador</p>
+              <p>{documento.aprovador}</p>
+            </div>
+          )}
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-500">Notas Fiscais</p>
+          <p>{documento.notas.join(', ')}</p>
+        </div>
+        {documento.motivoRecusa && (
+          <div>
+            <p className="text-sm font-medium text-gray-500">Motivo da Recusa</p>
+            <p className="text-red-600">{documento.motivoRecusa}</p>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -225,6 +367,12 @@ const AprovacoesColeta = () => {
                         >
                           Revisar
                         </Button>
+                        <DocumentPDFGenerator
+                          documentId={row.id}
+                          documentType="Solicitação de Coleta"
+                          renderDocument={renderAprovacaoDocument}
+                          buttonText="Imprimir"
+                        />
                       </div>
                     )
                   }
@@ -291,10 +439,10 @@ const AprovacoesColeta = () => {
                     }
                   },
                   { 
-                    header: 'Detalhes', 
+                    header: 'Ações', 
                     accessor: '',
                     cell: (row) => (
-                      <div className="flex justify-end">
+                      <div className="flex space-x-2 justify-end">
                         <Button 
                           variant="outline" 
                           size="sm"
@@ -305,6 +453,12 @@ const AprovacoesColeta = () => {
                         >
                           Ver
                         </Button>
+                        <DocumentPDFGenerator
+                          documentId={row.id}
+                          documentType="Solicitação de Coleta"
+                          renderDocument={renderAprovacaoDocument}
+                          buttonText="Imprimir"
+                        />
                       </div>
                     )
                   }
@@ -395,28 +549,84 @@ const AprovacoesColeta = () => {
               )}
               
               {selectedRequest.status === 'pending' && (
-                <div className="pt-4">
-                  <p className="text-sm font-medium text-gray-500 mb-2">Observações (opcional)</p>
-                  <Textarea placeholder="Adicione observações ou motivo para recusa" />
-                </div>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(isRejecting ? handleReject : handleApprove)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="observacoes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Observações (opcional)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Adicione observações sobre esta aprovação" 
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {isRejecting && (
+                      <FormField
+                        control={form.control}
+                        name="motivoRecusa"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-destructive font-bold">Motivo da Recusa (obrigatório)</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Informe o motivo detalhado da recusa" 
+                                {...field}
+                                className="border-destructive focus:border-destructive"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    <DialogFooter className="mt-4">
+                      <Button variant="outline" type="button" onClick={() => setIsDialogOpen(false)}>Fechar</Button>
+                      {!isRejecting && (
+                        <Button 
+                          variant="destructive" 
+                          type="button" 
+                          onClick={() => {
+                            setIsRejecting(true);
+                            global.isRejecting = true;
+                          }}
+                        >
+                          <XCircle className="mr-2 h-4 w-4" /> Recusar
+                        </Button>
+                      )}
+                      <Button 
+                        type="submit" 
+                        className={isRejecting ? "bg-destructive hover:bg-destructive/90" : "bg-cross-success hover:bg-green-700"}
+                      >
+                        {isRejecting ? (
+                          <>
+                            <XCircle className="mr-2 h-4 w-4" /> Confirmar Recusa
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="mr-2 h-4 w-4" /> Aprovar
+                          </>
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
               )}
             </div>
             
-            <DialogFooter>
-              {selectedRequest.status === 'pending' ? (
-                <>
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Fechar</Button>
-                  <Button variant="destructive" onClick={handleReject}>
-                    <XCircle className="mr-2 h-4 w-4" /> Recusar
-                  </Button>
-                  <Button className="bg-cross-success hover:bg-green-700" onClick={handleApprove}>
-                    <CheckCircle className="mr-2 h-4 w-4" /> Aprovar
-                  </Button>
-                </>
-              ) : (
+            {selectedRequest.status !== 'pending' && (
+              <DialogFooter>
                 <Button onClick={() => setIsDialogOpen(false)}>Fechar</Button>
-              )}
-            </DialogFooter>
+              </DialogFooter>
+            )}
           </DialogContent>
         </Dialog>
       )}
@@ -425,3 +635,8 @@ const AprovacoesColeta = () => {
 };
 
 export default AprovacoesColeta;
+
+// Adicionar esta definição ao escopo global para o TypeScript
+declare global {
+  var isRejecting: boolean;
+}
