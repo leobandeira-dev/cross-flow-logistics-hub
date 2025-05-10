@@ -1,26 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
-import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import DataTable from '@/components/common/DataTable';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { toast } from "@/hooks/use-toast";
 
 // Import custom components
-import OrderSelectionForm from '@/components/carregamento/enderecamento/OrderSelectionForm';
-import VolumeFilterSection from '@/components/carregamento/enderecamento/VolumeFilterSection';
-import VolumeList from '@/components/carregamento/enderecamento/VolumeList';
-import TruckLayoutGrid from '@/components/carregamento/enderecamento/TruckLayoutGrid';
-import InstructionsCard from '@/components/carregamento/enderecamento/InstructionsCard';
+import HistoricoLayout from '@/components/carregamento/enderecamento/HistoricoLayout';
+import CarregamentoLayout from '@/components/carregamento/enderecamento/CarregamentoLayout';
+import ConfirmationDialog from '@/components/carregamento/enderecamento/ConfirmationDialog';
 
 // Mock data for volumes
 const volumesPorCarregar = [
@@ -199,96 +186,37 @@ const EnderecamentoCaminhao: React.FC = () => {
         </TabsList>
         
         <TabsContent value="layout">
-          <div className="grid grid-cols-1 gap-6">
-            <OrderSelectionForm onSubmit={handleOrderFormSubmit} />
-            
-            {ordemSelecionada && (
-              <>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div>
-                    <VolumeFilterSection onFilter={filtrarVolumes} />
-                    <VolumeList 
-                      volumes={volumesFiltrados}
-                      selecionados={selecionados}
-                      onSelectionToggle={toggleSelecao}
-                      onSelectAll={selecionarTodos}
-                    />
-                  </div>
-                  
-                  <div className="lg:col-span-2">
-                    <TruckLayoutGrid 
-                      orderNumber={ordemSelecionada}
-                      layout={caminhaoLayout}
-                      totalVolumes={volumes.length}
-                      positionedVolumes={volumes.filter(v => v.posicionado).length}
-                      onCellClick={moverVolumesSelecionados}
-                      onRemoveVolume={removerVolume}
-                      hasSelectedVolumes={selecionados.length > 0}
-                      onSaveLayout={saveLayout}
-                      allVolumesPositioned={!volumes.some(v => !v.posicionado)}
-                    />
-                    <InstructionsCard />
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+          <CarregamentoLayout 
+            orderNumber={ordemSelecionada}
+            volumes={volumes}
+            volumesFiltrados={volumesFiltrados}
+            selecionados={selecionados}
+            caminhaoLayout={caminhaoLayout}
+            onOrderFormSubmit={handleOrderFormSubmit}
+            onFilter={filtrarVolumes}
+            onSelectionToggle={toggleSelecao}
+            onSelectAll={selecionarTodos}
+            onCellClick={moverVolumesSelecionados}
+            onRemoveVolume={removerVolume}
+            onSaveLayout={saveLayout}
+            hasSelectedVolumes={selecionados.length > 0}
+            allVolumesPositioned={!volumes.some(v => !v.posicionado)}
+          />
         </TabsContent>
         
         <TabsContent value="historico">
-          <Card>
-            <DataTable
-              columns={[
-                { header: 'OC', accessor: 'id' },
-                { header: 'Data', accessor: 'data' },
-                { header: 'Veículo', accessor: 'veiculo' },
-                { header: 'Volumes', accessor: 'volumes' },
-                { header: 'Responsável', accessor: 'responsavel' },
-                {
-                  header: 'Ações',
-                  accessor: 'actions',
-                  cell: () => (
-                    <Button variant="outline" size="sm">
-                      Ver Detalhes
-                    </Button>
-                  )
-                }
-              ]}
-              data={[
-                { id: 'OC-2023-001', data: '10/05/2023', veiculo: 'Caminhão Truck', volumes: 25, responsavel: 'João Silva' },
-                { id: 'OC-2023-002', data: '11/05/2023', veiculo: 'Van', volumes: 12, responsavel: 'Maria Oliveira' },
-                { id: 'OC-2023-003', data: '12/05/2023', veiculo: 'Carreta', volumes: 48, responsavel: 'Carlos Santos' },
-              ]}
-            />
-          </Card>
+          <HistoricoLayout />
         </TabsContent>
       </Tabs>
 
-      {/* Diálogo de confirmação */}
-      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar ação</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja alocar estes volumes?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              onClick={() => {
-                setConfirmDialogOpen(false);
-                // Adicionar lógica de confirmação aqui
-              }}
-              className="bg-cross-blue hover:bg-cross-blue/90"
-            >
-              Confirmar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmationDialog
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        onConfirm={() => {
+          // Adicionar lógica de confirmação aqui
+          console.log('Confirmação realizada');
+        }}
+      />
     </MainLayout>
   );
 };
