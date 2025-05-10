@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import OrderSelectionForm from './OrderSelectionForm';
 import VolumeFilterSection from './VolumeFilterSection';
 import VolumeList from './VolumeList';
 import TruckLayoutGrid from './TruckLayoutGrid';
 import InstructionsCard from './InstructionsCard';
+import PrintLayoutModal from './PrintLayoutModal';
 
 interface CarregamentoLayoutProps {
   orderNumber: string | null;
@@ -39,6 +40,13 @@ const CarregamentoLayout: React.FC<CarregamentoLayoutProps> = ({
   hasSelectedVolumes,
   allVolumesPositioned
 }) => {
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const layoutRef = useRef<HTMLDivElement>(null);
+  
+  const handlePrintLayout = () => {
+    setPrintModalOpen(true);
+  };
+  
   return (
     <div className="grid grid-cols-1 gap-6">
       <OrderSelectionForm onSubmit={onOrderFormSubmit} />
@@ -67,11 +75,21 @@ const CarregamentoLayout: React.FC<CarregamentoLayoutProps> = ({
                 hasSelectedVolumes={hasSelectedVolumes}
                 onSaveLayout={onSaveLayout}
                 allVolumesPositioned={allVolumesPositioned}
+                onPrintLayout={handlePrintLayout}
               />
               <InstructionsCard />
             </div>
           </div>
         </>
+      )}
+      
+      {orderNumber && (
+        <PrintLayoutModal
+          open={printModalOpen}
+          onOpenChange={setPrintModalOpen}
+          orderNumber={orderNumber}
+          layoutRef={layoutRef}
+        />
       )}
     </div>
   );
