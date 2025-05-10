@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../../components/common/DataTable';
@@ -134,18 +135,12 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
               { 
                 header: 'Ações', 
                 accessor: 'actions',
+                className: "text-right w-[200px]",
                 cell: (row) => {
                   const finalizado = row.status === 'delivered' || row.status === 'problem';
                   
                   return (
                     <div className="flex space-x-2 justify-end">
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                      >
-                        <FileText className="h-4 w-4 mr-1" /> Detalhes
-                      </Button>
-
                       <Dialog open={openSupportDialog && selectedCarga?.id === row.id} onOpenChange={(open) => {
                         if (open) {
                           setSelectedCarga(row);
@@ -201,6 +196,13 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
                           </div>
                         </DialogContent>
                       </Dialog>
+                      
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                      >
+                        <FileText className="h-4 w-4 mr-1" /> Detalhes
+                      </Button>
                       
                       {!finalizado && (
                         <Button 

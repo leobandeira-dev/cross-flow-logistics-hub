@@ -51,4 +51,3 @@ const CargasMotoristas = () => {
 };
 
 export default CargasMotoristas;
-

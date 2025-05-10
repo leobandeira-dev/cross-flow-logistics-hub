@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../../components/common/DataTable';
@@ -134,15 +135,9 @@ const ActiveLoads: React.FC<ActiveLoadsProps> = ({ cargas, currentPage, setCurre
               { 
                 header: 'Ações', 
                 accessor: 'actions',
+                className: "text-right w-[220px]",
                 cell: (row) => (
                   <div className="flex space-x-2 justify-end">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                    >
-                      <FileText className="h-4 w-4 mr-1" /> Detalhes
-                    </Button>
-                    
                     <Dialog open={openSupportDialog && selectedCarga?.id === row.id} onOpenChange={(open) => {
                       if (open) {
                         setSelectedCarga(row);
@@ -200,6 +195,13 @@ const ActiveLoads: React.FC<ActiveLoadsProps> = ({ cargas, currentPage, setCurre
                       </DialogContent>
                     </Dialog>
                     
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                    >
+                      <FileText className="h-4 w-4 mr-1" /> Detalhes
+                    </Button>
+                    
                     {row.status === 'pending' && (
                       <Button 
                         variant="outline"
@@ -207,7 +209,7 @@ const ActiveLoads: React.FC<ActiveLoadsProps> = ({ cargas, currentPage, setCurre
                         className="text-green-600 border-green-600 hover:bg-green-50"
                         onClick={() => handleAcceptCarga(row.id)}
                       >
-                        <Check className="h-4 w-4 mr-1" /> Aceitar Carga
+                        <Check className="h-4 w-4 mr-1" /> Aceitar
                       </Button>
                     )}
                     
@@ -217,7 +219,7 @@ const ActiveLoads: React.FC<ActiveLoadsProps> = ({ cargas, currentPage, setCurre
                         size="sm"
                         className="text-green-600 border-green-600 hover:bg-green-50"
                       >
-                        <CheckCircle className="h-4 w-4 mr-1" /> Confirmar Entrega
+                        <CheckCircle className="h-4 w-4 mr-1" /> Entregar
                       </Button>
                     )}
                     
@@ -227,7 +229,7 @@ const ActiveLoads: React.FC<ActiveLoadsProps> = ({ cargas, currentPage, setCurre
                         size="sm"
                         className="text-red-600 border-red-600 hover:bg-red-50"
                       >
-                        <AlertCircle className="h-4 w-4 mr-1" /> Reportar Problema
+                        <AlertCircle className="h-4 w-4 mr-1" /> Problema
                       </Button>
                     )}
                   </div>

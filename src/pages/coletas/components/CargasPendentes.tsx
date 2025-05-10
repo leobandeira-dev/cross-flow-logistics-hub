@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../../components/common/DataTable';
@@ -130,15 +131,9 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({ cargas, currentPage, 
               { 
                 header: 'Ações', 
                 accessor: 'actions',
+                className: "text-right w-[220px]",
                 cell: (row) => (
                   <div className="flex space-x-2 justify-end">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                    >
-                      <FileText className="h-4 w-4 mr-1" /> Detalhes
-                    </Button>
-                    
                     <Dialog open={openSupportDialog && selectedCarga?.id === row.id} onOpenChange={(open) => {
                       if (open) {
                         setSelectedCarga(row);
@@ -196,10 +191,17 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({ cargas, currentPage, 
                     <Button 
                       variant="outline"
                       size="sm"
+                    >
+                      <FileText className="h-4 w-4 mr-1" /> Detalhes
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm"
                       className="text-blue-600 border-blue-600 hover:bg-blue-50"
                       onClick={() => handleAlocarMotorista(row)}
                     >
-                      <UserPlus className="h-4 w-4 mr-1" /> Alocar Motorista
+                      <UserPlus className="h-4 w-4 mr-1" /> Alocar
                     </Button>
                   </div>
                 )
