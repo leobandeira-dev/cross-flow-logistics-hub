@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
@@ -5,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../components/common/DataTable';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Map, AlertCircle, CheckCircle } from 'lucide-react';
+import { FileText, Map, AlertCircle, CheckCircle, Check, Truck } from 'lucide-react';
 import StatusBadge from '../../components/common/StatusBadge';
+import { toast } from '@/hooks/use-toast';
 
 // Mock data for cargas (loads)
 const cargas = [
@@ -59,6 +61,16 @@ const cargas = [
     volumes: 27,
     peso: '1.350 kg',
     status: 'problem'
+  },
+  { 
+    id: 'OC-2023006', 
+    destino: 'Florianópolis, SC', 
+    motorista: 'Roberto Almeida',
+    veiculo: 'PQR-1234',
+    dataPrevisao: '19/05/2023',
+    volumes: 20,
+    peso: '1.100 kg',
+    status: 'pending'
   }
 ];
 
@@ -105,6 +117,7 @@ const CargasMotoristas = () => {
       name: 'Status',
       options: [
         { label: 'Todos', value: 'all' },
+        { label: 'Pendentes de Aceite', value: 'pending' },
         { label: 'Em trânsito', value: 'transit' },
         { label: 'Em carregamento', value: 'loading' },
         { label: 'Agendadas', value: 'scheduled' },
@@ -135,6 +148,23 @@ const CargasMotoristas = () => {
     // Implementar lógica de filtro
   };
 
+  const handleAcceptCarga = (cargaId: string) => {
+    // Implementar lógica para aceitar carga
+    toast({
+      title: "Carga aceita com sucesso",
+      description: `A carga ${cargaId} foi aceita e agora está em andamento.`,
+      variant: "success",
+    });
+    console.log('Carga aceita:', cargaId);
+  };
+
+  const handleWhatsAppSupport = () => {
+    // Número fictício para suporte via WhatsApp
+    const phoneNumber = "5511912345678";
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=Olá,%20preciso%20de%20suporte%20com%20uma%20carga.`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <MainLayout title="Cargas dos Motoristas">
       <div className="mb-6 flex justify-between items-center">
@@ -142,6 +172,28 @@ const CargasMotoristas = () => {
           <h2 className="text-xl font-heading">Gestão de Cargas</h2>
           <p className="text-gray-500">Acompanhe as cargas atribuídas aos motoristas</p>
         </div>
+        <Button 
+          onClick={handleWhatsAppSupport}
+          variant="outline"
+          className="bg-green-500 hover:bg-green-600 text-white border-none"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            className="mr-2 h-4 w-4"
+          >
+            <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
+            <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Z" />
+            <path d="M14 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Z" />
+            <path d="M9 14a5 5 0 0 0 6 0" />
+          </svg>
+          Suporte via WhatsApp
+        </Button>
       </div>
       
       <Tabs defaultValue="ativas" className="w-full mb-6" value={activeTab} onValueChange={setActiveTab}>
@@ -181,6 +233,7 @@ const CargasMotoristas = () => {
                     accessor: 'status',
                     cell: (row) => {
                       const statusMap: any = {
+                        'pending': { type: 'default', text: 'Pendente Aceite' },
                         'transit': { type: 'info', text: 'Em Trânsito' },
                         'loading': { type: 'warning', text: 'Em Carregamento' },
                         'scheduled': { type: 'default', text: 'Agendada' },
@@ -193,7 +246,7 @@ const CargasMotoristas = () => {
                   },
                   { 
                     header: 'Ações', 
-                    accessor: 'actions',  // Add this line
+                    accessor: 'actions',
                     cell: (row) => (
                       <div className="flex space-x-2 justify-end">
                         <Button 
@@ -202,6 +255,18 @@ const CargasMotoristas = () => {
                         >
                           <FileText className="h-4 w-4 mr-1" /> Detalhes
                         </Button>
+                        
+                        {row.status === 'pending' && (
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            onClick={() => handleAcceptCarga(row.id)}
+                          >
+                            <Check className="h-4 w-4 mr-1" /> Aceitar Carga
+                          </Button>
+                        )}
+                        
                         {row.status === 'transit' && (
                           <Button 
                             variant="outline"
@@ -211,6 +276,7 @@ const CargasMotoristas = () => {
                             <CheckCircle className="h-4 w-4 mr-1" /> Confirmar Entrega
                           </Button>
                         )}
+                        
                         {row.status !== 'delivered' && row.status !== 'problem' && (
                           <Button 
                             variant="outline"
@@ -282,7 +348,7 @@ const CargasMotoristas = () => {
                   },
                   { 
                     header: 'Ações', 
-                    accessor: '',
+                    accessor: 'actions',
                     cell: () => (
                       <div className="flex space-x-2 justify-end">
                         <Button 
