@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { Archive, Package, Search, MapPin, Save } from 'lucide-react';
+import { Archive, Package, Search, MapPin, Save, Printer } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import StatusBadge from '@/components/common/StatusBadge';
+import PrintLayoutModal from '@/components/carregamento/enderecamento/PrintLayoutModal';
 
 // Mock data
 const volumesParaEnderecar = [
@@ -30,9 +32,17 @@ const Enderecamento: React.FC = () => {
   const form = useForm();
   const [selectedVolume, setSelectedVolume] = useState<any>(null);
   const [selectedEndereco, setSelectedEndereco] = useState<string | null>(null);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [selectedVolumeForPrint, setSelectedVolumeForPrint] = useState<string | null>(null);
+  const volumeRef = useRef<HTMLDivElement>(null);
   
   const handleSubmit = (data: any) => {
     console.log('Form data submitted:', data);
+  };
+
+  const handlePrintClick = (volumeId: string) => {
+    setSelectedVolumeForPrint(volumeId);
+    setPrintModalOpen(true);
   };
 
   return (
@@ -249,10 +259,89 @@ const Enderecamento: React.FC = () => {
                   <p className="text-sm text-gray-500">(Funcionalidade em desenvolvimento)</p>
                 </div>
               </div>
+              
+              <div className="mt-6">
+                <h3 className="text-lg font-medium mb-4">Volumes Endereçados</h3>
+                <DataTable
+                  columns={[
+                    { header: 'ID', accessor: 'id' },
+                    { header: 'Tipo', accessor: 'tipo' },
+                    { header: 'Descrição', accessor: 'descricao' },
+                    { header: 'Nota Fiscal', accessor: 'notaFiscal' },
+                    { header: 'Endereço', accessor: 'endereco' },
+                    {
+                      header: 'Ações',
+                      accessor: 'actions',
+                      cell: (row) => (
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handlePrintClick(row.id)}
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )
+                    }
+                  ]}
+                  data={volumesParaEnderecar.filter(v => v.endereco !== null)}
+                />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Div oculto que servirá como template para impressão do volume */}
+      <div className="hidden">
+        <div ref={volumeRef} className="p-4 bg-white">
+          <h2 className="text-xl font-bold mb-4">Informações de Endereçamento - Volume {selectedVolumeForPrint}</h2>
+          <div className="border p-4">
+            {selectedVolumeForPrint && volumesParaEnderecar.find(vol => vol.id === selectedVolumeForPrint) && (
+              <>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">ID do Volume:</p>
+                    <p className="font-bold">{selectedVolumeForPrint}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Tipo:</p>
+                    <p>{volumesParaEnderecar.find(vol => vol.id === selectedVolumeForPrint)?.tipo}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Descrição:</p>
+                    <p>{volumesParaEnderecar.find(vol => vol.id === selectedVolumeForPrint)?.descricao}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Nota Fiscal:</p>
+                    <p>{volumesParaEnderecar.find(vol => vol.id === selectedVolumeForPrint)?.notaFiscal}</p>
+                  </div>
+                </div>
+                
+                <div className="border-t pt-4 mt-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-lg font-medium">Endereço:</p>
+                    <p className="text-xl font-bold">{volumesParaEnderecar.find(vol => vol.id === selectedVolumeForPrint)?.endereco || "Não endereçado"}</p>
+                  </div>
+                  
+                  <div className="mt-8 border-t pt-4">
+                    <p className="text-xs text-gray-500">Data de impressão: {new Date().toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">Hora: {new Date().toLocaleTimeString()}</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      <PrintLayoutModal
+        open={printModalOpen}
+        onOpenChange={setPrintModalOpen}
+        orderNumber={selectedVolumeForPrint || ''}
+        layoutRef={volumeRef}
+      />
     </MainLayout>
   );
 };

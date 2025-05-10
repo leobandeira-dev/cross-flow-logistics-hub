@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useRef, useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { FileText, Upload, Search, Plus } from 'lucide-react';
+import { FileText, Upload, Search, Plus, Printer } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
+import PrintLayoutModal from '@/components/carregamento/enderecamento/PrintLayoutModal';
 
 // Mock data
 const notasFiscais = [
@@ -20,6 +22,14 @@ const notasFiscais = [
 
 const EntradaNotas: React.FC = () => {
   const form = useForm();
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [selectedNota, setSelectedNota] = useState<string>('');
+  const notaFiscalRef = useRef<HTMLDivElement>(null);
+  
+  const handlePrintClick = (notaId: string) => {
+    setSelectedNota(notaId);
+    setPrintModalOpen(true);
+  };
   
   const handleSubmit = (data: any) => {
     console.log('Form data submitted:', data);
@@ -220,11 +230,17 @@ const EntradaNotas: React.FC = () => {
                   },
                   {
                     header: 'Ações',
-                    accessor: 'actions', // Add this line
-                    cell: () => (
+                    accessor: 'actions',
+                    cell: (row) => (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">Detalhes</Button>
-                        <Button variant="outline" size="sm">Imprimir</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handlePrintClick(row.id)}
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
                       </div>
                     )
                   }
@@ -235,6 +251,52 @@ const EntradaNotas: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Div oculto que servirá como template para impressão da nota fiscal */}
+      <div className="hidden">
+        <div ref={notaFiscalRef} className="p-4 bg-white">
+          <h2 className="text-xl font-bold mb-4">Nota Fiscal - {selectedNota}</h2>
+          <div className="border p-4">
+            <p>Detalhes da Nota Fiscal {selectedNota}</p>
+            <div className="mt-4 space-y-2">
+              {selectedNota && notasFiscais.find(nota => nota.id === selectedNota) && (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <p className="text-sm text-gray-500">Número:</p>
+                      <p>{notasFiscais.find(nota => nota.id === selectedNota)?.numero}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Fornecedor:</p>
+                      <p>{notasFiscais.find(nota => nota.id === selectedNota)?.fornecedor}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Data:</p>
+                      <p>{notasFiscais.find(nota => nota.id === selectedNota)?.data}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Valor:</p>
+                      <p>{notasFiscais.find(nota => nota.id === selectedNota)?.valor}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-500">Status:</p>
+                    <p>{notasFiscais.find(nota => nota.id === selectedNota)?.status === 'pending' ? 'Pendente' : 
+                       notasFiscais.find(nota => nota.id === selectedNota)?.status === 'processing' ? 'Em Processamento' : 'Concluída'}</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <PrintLayoutModal
+        open={printModalOpen}
+        onOpenChange={setPrintModalOpen}
+        orderNumber={selectedNota}
+        layoutRef={notaFiscalRef}
+      />
     </MainLayout>
   );
 };

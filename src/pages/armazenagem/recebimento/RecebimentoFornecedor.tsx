@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState, useRef } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { Package, Calendar, FileText, Search, Plus, Clock } from 'lucide-react';
+import { Package, Calendar, FileText, Search, Plus, Clock, Printer } from 'lucide-react';
 import SearchFilter from '@/components/common/SearchFilter';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
+import PrintLayoutModal from '@/components/carregamento/enderecamento/PrintLayoutModal';
 
 // Mock data
 const recebimentosFornecedores = [
@@ -41,6 +43,14 @@ const recebimentosFornecedores = [
 
 const RecebimentoFornecedor: React.FC = () => {
   const form = useForm();
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [selectedRecebimento, setSelectedRecebimento] = useState<string>('');
+  const recebimentoRef = useRef<HTMLDivElement>(null);
+  
+  const handlePrintClick = (recebimentoId: string) => {
+    setSelectedRecebimento(recebimentoId);
+    setPrintModalOpen(true);
+  };
   
   const handleSubmit = (data: any) => {
     console.log('Form data submitted:', data);
@@ -240,10 +250,17 @@ const RecebimentoFornecedor: React.FC = () => {
                   },
                   {
                     header: 'Ações',
-                    accessor: 'actions', // Add this line
-                    cell: () => (
+                    accessor: 'actions',
+                    cell: (row) => (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">Detalhes</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handlePrintClick(row.id)}
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
                         <Button variant="outline" size="sm" className="bg-cross-blue text-white hover:bg-cross-blue/90">
                           Processar
                         </Button>
@@ -257,6 +274,52 @@ const RecebimentoFornecedor: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Div oculto que servirá como template para impressão do recebimento */}
+      <div className="hidden">
+        <div ref={recebimentoRef} className="p-4 bg-white">
+          <h2 className="text-xl font-bold mb-4">Ordem de Recebimento - {selectedRecebimento}</h2>
+          <div className="border p-4">
+            <p>Detalhes do Recebimento {selectedRecebimento}</p>
+            <div className="mt-4 space-y-2">
+              {selectedRecebimento && recebimentosFornecedores.find(rec => rec.id === selectedRecebimento) && (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <p className="text-sm text-gray-500">Fornecedor:</p>
+                      <p>{recebimentosFornecedores.find(rec => rec.id === selectedRecebimento)?.fornecedor}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Nota Fiscal:</p>
+                      <p>{recebimentosFornecedores.find(rec => rec.id === selectedRecebimento)?.notaFiscal}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Data:</p>
+                      <p>{recebimentosFornecedores.find(rec => rec.id === selectedRecebimento)?.data}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Total de Itens:</p>
+                      <p>{recebimentosFornecedores.find(rec => rec.id === selectedRecebimento)?.itens}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-500">Status:</p>
+                    <p>{recebimentosFornecedores.find(rec => rec.id === selectedRecebimento)?.status === 'pending' ? 'Pendente' : 
+                       recebimentosFornecedores.find(rec => rec.id === selectedRecebimento)?.status === 'processing' ? 'Em Processamento' : 'Concluído'}</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <PrintLayoutModal
+        open={printModalOpen}
+        onOpenChange={setPrintModalOpen}
+        orderNumber={selectedRecebimento}
+        layoutRef={recebimentoRef}
+      />
     </MainLayout>
   );
 };
