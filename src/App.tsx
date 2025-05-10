@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SolicitacoesColeta from "./pages/coletas/SolicitacoesColeta";
 import AprovacoesColeta from "./pages/coletas/AprovacoesColeta";
+import CargasAlocacao from "./pages/coletas/CargasAlocacao"; // Nova página adicionada
 import CadastroMotoristas from "./pages/motoristas/CadastroMotoristas";
 import CargasMotoristas from "./pages/motoristas/CargasMotoristas";
 import Ocorrencias from "./pages/sac/Ocorrencias";
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/coletas/solicitacoes" element={<SolicitacoesColeta />} />
           <Route path="/coletas/aprovacoes" element={<AprovacoesColeta />} />
+          <Route path="/coletas/alocacao" element={<CargasAlocacao />} /> {/* Nova rota adicionada */}
           <Route path="/motoristas/cadastro" element={<CadastroMotoristas />} />
           <Route path="/motoristas/cargas" element={<CargasMotoristas />} />
           <Route path="/sac" element={<Ocorrencias />} />
