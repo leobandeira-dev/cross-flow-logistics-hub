@@ -58,6 +58,11 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
     }
   };
 
+  // Verifica se o objeto possui a propriedade
+  const hasObservacoes = () => {
+    return 'observacoes' in formData || formData.status !== 'pending';
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[725px]">
@@ -154,12 +159,12 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
             />
           </div>
 
-          {formData.observacoes !== undefined && (
+          {hasObservacoes() && (
             <div className="space-y-2">
               <Label htmlFor="observacoes">Observações</Label>
               <Textarea 
                 id="observacoes" 
-                value={formData.observacoes || ''} 
+                value={'observacoes' in formData ? formData.observacoes || '' : ''} 
                 onChange={(e) => handleChange('observacoes', e.target.value)}
               />
             </div>
