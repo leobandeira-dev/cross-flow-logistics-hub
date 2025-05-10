@@ -20,6 +20,12 @@ const AprovacoesColeta = () => {
   const [solicitacoesPendentes, setSolicitacoesPendentes] = useState(mockPendentes);
   const [historicoAprovacoes, setHistoricoAprovacoes] = useState(mockHistorico);
   
+  // Debugging: Print state whenever solicitations change
+  useEffect(() => {
+    console.log("Pendentes:", solicitacoesPendentes.length);
+    console.log("Histórico:", historicoAprovacoes.length);
+  }, [solicitacoesPendentes, historicoAprovacoes]);
+  
   // Combinando os dados para facilitar a busca
   const allDocuments = [...solicitacoesPendentes, ...historicoAprovacoes];
   
@@ -41,7 +47,7 @@ const AprovacoesColeta = () => {
 
   // Function to handle approval of a solicitation
   const handleApprove = (solicitacaoId: string, observacoes?: string) => {
-    console.log("Approving solicitation in main component:", solicitacaoId);
+    console.log("AprovacoesColeta: Approving solicitation:", solicitacaoId);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
@@ -79,7 +85,7 @@ const AprovacoesColeta = () => {
   
   // Function to handle rejection of a solicitation
   const handleReject = (solicitacaoId: string, motivoRecusa: string) => {
-    console.log("Rejecting solicitation in main component:", solicitacaoId);
+    console.log("AprovacoesColeta: Rejecting solicitation:", solicitacaoId);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário

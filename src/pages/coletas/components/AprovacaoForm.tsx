@@ -68,7 +68,7 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
   const handleApprove = (data: FormData) => {
     if (!selectedRequest) return;
     
-    console.log("Approving solicitation:", selectedRequest.id);
+    console.log("AprovacaoForm: Approving solicitation:", selectedRequest.id);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
@@ -95,7 +95,7 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
       return;
     }
     
-    console.log("Rejecting solicitation:", selectedRequest.id);
+    console.log("AprovacaoForm: Rejecting solicitation:", selectedRequest.id);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
