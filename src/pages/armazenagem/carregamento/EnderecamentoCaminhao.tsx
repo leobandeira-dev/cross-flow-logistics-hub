@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -60,7 +59,13 @@ const EnderecamentoCaminhao: React.FC = () => {
 
   const handleOrderFormSubmit = (data: any) => {
     console.log('Form data submitted:', data);
-    setOrdemSelecionada(data.numeroOC || 'OC-2023-001');
+    // Garantir que temos um valor válido para o número da OC
+    const numeroOC = data && data.numeroOC ? data.numeroOC : 'OC-2023-001';
+    setOrdemSelecionada(numeroOC);
+    toast({
+      title: "Ordem selecionada",
+      description: `OC ${numeroOC} carregada com sucesso.`,
+    });
   };
 
   const filtrarVolumes = (searchValue: string, searchType: SearchType) => {

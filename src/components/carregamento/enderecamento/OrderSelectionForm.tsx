@@ -6,13 +6,32 @@ import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Truck, Search } from 'lucide-react';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface OrderSelectionFormProps {
   onSubmit: (data: any) => void;
 }
 
+const formSchema = z.object({
+  numeroOC: z.string().optional(),
+  tipoVeiculo: z.string().optional()
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 const OrderSelectionForm: React.FC<OrderSelectionFormProps> = ({ onSubmit }) => {
-  const form = useForm();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      numeroOC: '',
+      tipoVeiculo: ''
+    }
+  });
+
+  const handleSubmit = (values: FormValues) => {
+    onSubmit(values);
+  };
 
   return (
     <Card>
@@ -24,7 +43,7 @@ const OrderSelectionForm: React.FC<OrderSelectionFormProps> = ({ onSubmit }) => 
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <FormField

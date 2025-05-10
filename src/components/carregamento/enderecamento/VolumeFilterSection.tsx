@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FormLabel } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Filter, Search } from 'lucide-react';
 
 // Tipos de pesquisa
@@ -32,7 +32,7 @@ const VolumeFilterSection: React.FC<VolumeFilterSectionProps> = ({ onFilter }) =
       <CardContent>
         <div className="space-y-4">
           <div>
-            <FormLabel>Tipo de Pesquisa</FormLabel>
+            <Label>Tipo de Pesquisa</Label>
             <div className="flex gap-2 mb-4">
               <Button 
                 variant={searchType === 'volume' ? 'default' : 'outline'} 
