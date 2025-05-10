@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import SolicitacoesColeta from "./pages/coletas/SolicitacoesColeta";
 import AprovacoesColeta from "./pages/coletas/AprovacoesColeta";
 import CadastroMotoristas from "./pages/motoristas/CadastroMotoristas";
+import CargasMotoristas from "./pages/motoristas/CargasMotoristas";
 import Ocorrencias from "./pages/sac/Ocorrencias";
 import EmissaoDocumentos from "./pages/expedicao/EmissaoDocumentos";
 
@@ -19,7 +20,7 @@ import RecebimentoColeta from "./pages/armazenagem/recebimento/RecebimentoColeta
 import RecebimentoFiliais from "./pages/armazenagem/recebimento/RecebimentoFiliais";
 import EntradaNotas from "./pages/armazenagem/recebimento/EntradaNotas";
 import GeracaoEtiquetas from "./pages/armazenagem/recebimento/GeracaoEtiquetas";
-import MovimentacoesInternas from "./pages/armazenagem/MovimentacoesInternas";
+import MovimentacoesInternas from "./pages/armazenagem/movimentacoes/MovimentacoesInternas";
 import UnitizacaoPaletes from "./pages/armazenagem/movimentacoes/UnitizacaoPaletes";
 import CancelarUnitizacao from "./pages/armazenagem/movimentacoes/CancelarUnitizacao";
 import Enderecamento from "./pages/armazenagem/movimentacoes/Enderecamento";
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/coletas/solicitacoes" element={<SolicitacoesColeta />} />
           <Route path="/coletas/aprovacoes" element={<AprovacoesColeta />} />
           <Route path="/motoristas/cadastro" element={<CadastroMotoristas />} />
+          <Route path="/motoristas/cargas" element={<CargasMotoristas />} />
           <Route path="/sac" element={<Ocorrencias />} />
           <Route path="/expedicao" element={<EmissaoDocumentos />} />
           
