@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,12 +62,28 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Cross colors
+				cross: {
+					blue: '#0098DA',
+					gray: '#2D363F',
+					blueDark: '#0073A5',
+					blueLight: '#33ADDF',
+					grayLight: '#505A64',
+					grayDark: '#1A2027',
+					success: '#10B981',
+					warning: '#F59E0B',
+					error: '#EF4444',
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				sans: ['Uni Sans Regular', 'sans-serif'],
+				heading: ['Uni Sans Heavy CAPS', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
