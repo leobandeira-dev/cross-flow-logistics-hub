@@ -72,30 +72,38 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
                       <p className="text-sm">{selectedRequest.notas.join(', ')}</p>
                     </div>
                     
-                    {selectedRequest.aprovador && (
+                    {selectedRequest.status !== 'pending' && (
                       <>
                         <div>
                           <p className="text-sm font-medium text-gray-500">Aprovador</p>
-                          <p className="text-sm">{selectedRequest.aprovador}</p>
+                          <p className="text-sm">
+                            {selectedRequest.status === 'approved' 
+                              ? (selectedRequest as any).aprovador 
+                              : (selectedRequest as any).aprovador}
+                          </p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-500">Data da Aprovação</p>
-                          <p className="text-sm">{selectedRequest.dataAprovacao}</p>
+                          <p className="text-sm">
+                            {selectedRequest.status === 'approved' 
+                              ? (selectedRequest as any).dataAprovacao 
+                              : (selectedRequest as any).dataAprovacao}
+                          </p>
                         </div>
                       </>
                     )}
                     
-                    {selectedRequest.observacoes && (
+                    {selectedRequest.status !== 'pending' && (selectedRequest as any).observacoes && (
                       <div className="col-span-2">
                         <p className="text-sm font-medium text-gray-500">Observações</p>
-                        <p className="text-sm">{selectedRequest.observacoes}</p>
+                        <p className="text-sm">{(selectedRequest as any).observacoes}</p>
                       </div>
                     )}
                     
-                    {selectedRequest.motivoRecusa && (
+                    {selectedRequest.status === 'rejected' && (selectedRequest as any).motivoRecusa && (
                       <div className="col-span-2">
                         <p className="text-sm font-medium text-gray-500 text-destructive">Motivo da Recusa</p>
-                        <p className="text-sm">{selectedRequest.motivoRecusa}</p>
+                        <p className="text-sm">{(selectedRequest as any).motivoRecusa}</p>
                       </div>
                     )}
                   </div>
