@@ -162,7 +162,7 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
           )}
           <Button 
             type="submit" 
-            className={isRejecting ? "bg-destructive hover:bg-destructive/90" : "bg-cross-success hover:bg-green-700"}
+            className={isRejecting ? "bg-destructive hover:bg-destructive/90" : "bg-green-600 hover:bg-green-700"}
           >
             {isRejecting ? (
               <>

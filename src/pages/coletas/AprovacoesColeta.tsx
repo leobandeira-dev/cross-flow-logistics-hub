@@ -53,16 +53,15 @@ const AprovacoesColeta = () => {
       setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
       
       // Add to history as approved
-      setHistoricoAprovacoes(prev => [
-        ...prev,
-        {
-          ...solicitacaoToApprove,
-          status: 'approved' as const,
-          aprovador: approverName,
-          dataAprovacao: formattedDate,
-          observacoes
-        }
-      ]);
+      const approvedSolicitation = {
+        ...solicitacaoToApprove,
+        status: 'approved' as const,
+        aprovador: approverName,
+        dataAprovacao: formattedDate,
+        observacoes
+      };
+      
+      setHistoricoAprovacoes(prev => [approvedSolicitation, ...prev]);
     }
     
     setIsDialogOpen(false);
@@ -82,16 +81,15 @@ const AprovacoesColeta = () => {
       setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
       
       // Add to history as rejected
-      setHistoricoAprovacoes(prev => [
-        ...prev,
-        {
-          ...solicitacaoToReject,
-          status: 'rejected' as const,
-          aprovador: approverName,
-          dataAprovacao: formattedDate,
-          motivoRecusa
-        }
-      ]);
+      const rejectedSolicitation = {
+        ...solicitacaoToReject,
+        status: 'rejected' as const,
+        aprovador: approverName,
+        dataAprovacao: formattedDate,
+        motivoRecusa
+      };
+      
+      setHistoricoAprovacoes(prev => [rejectedSolicitation, ...prev]);
     }
     
     setIsDialogOpen(false);
