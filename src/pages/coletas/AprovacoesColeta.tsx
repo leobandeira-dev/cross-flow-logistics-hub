@@ -16,11 +16,11 @@ const AprovacoesColeta = () => {
   const [activeTab, setActiveTab] = useState('pendentes');
   const [isRejecting, setIsRejecting] = useState(false);
   
-  // State for managing solicitations data
+  // Estado para gerenciamento dos dados de solicitações
   const [solicitacoesPendentes, setSolicitacoesPendentes] = useState(mockPendentes);
   const [historicoAprovacoes, setHistoricoAprovacoes] = useState(mockHistorico);
   
-  // Debugging: Print state whenever solicitations change
+  // Depuração: Imprimir estado sempre que as solicitações mudarem
   useEffect(() => {
     console.log("Pendentes:", solicitacoesPendentes.length);
     console.log("Histórico:", historicoAprovacoes.length);
@@ -30,12 +30,12 @@ const AprovacoesColeta = () => {
   const allDocuments = [...solicitacoesPendentes, ...historicoAprovacoes];
   
   const handleSearch = (value: string) => {
-    console.log('Search:', value);
+    console.log('Busca:', value);
     // Implementar lógica de busca
   };
   
   const handleFilterChange = (filter: string, value: string) => {
-    console.log(`Filter ${filter} changed to ${value}`);
+    console.log(`Filtro ${filter} alterado para ${value}`);
     // Implementar lógica de filtro
   };
   
@@ -45,21 +45,21 @@ const AprovacoesColeta = () => {
     setIsRejecting(false);
   };
 
-  // Function to handle approval of a solicitation
+  // Função para lidar com a aprovação de uma solicitação
   const handleApprove = (solicitacaoId: string, observacoes?: string) => {
-    console.log("AprovacoesColeta: Approving solicitation:", solicitacaoId);
+    console.log("AprovacoesColeta: Aprovando solicitação:", solicitacaoId);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Find the solicitation to approve
+    // Encontrar a solicitação para aprovar
     const solicitacaoToApprove = solicitacoesPendentes.find(s => s.id === solicitacaoId);
     
     if (solicitacaoToApprove) {
-      // Remove from pending
+      // Remover das pendentes
       setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
       
-      // Add to history as approved
+      // Adicionar ao histórico como aprovada
       const approvedSolicitation = {
         ...solicitacaoToApprove,
         status: 'approved' as const,
@@ -70,34 +70,34 @@ const AprovacoesColeta = () => {
       
       setHistoricoAprovacoes(prev => [approvedSolicitation, ...prev]);
       
-      // Update the selected request if it's the one being approved
+      // Atualiza a solicitação selecionada se for a que está sendo aprovada
       if (selectedRequest && selectedRequest.id === solicitacaoId) {
         setSelectedRequest(approvedSolicitation);
       }
       
-      // Switch to the history tab after approval
+      // Mudar para a aba de histórico após a aprovação
       setActiveTab('historico');
     }
     
-    // Close the dialog
+    // Fechar o diálogo
     setIsDialogOpen(false);
   };
   
-  // Function to handle rejection of a solicitation
+  // Função para lidar com a rejeição de uma solicitação
   const handleReject = (solicitacaoId: string, motivoRecusa: string) => {
-    console.log("AprovacoesColeta: Rejecting solicitation:", solicitacaoId);
+    console.log("AprovacoesColeta: Recusando solicitação:", solicitacaoId);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Find the solicitation to reject
+    // Encontrar a solicitação para recusar
     const solicitacaoToReject = solicitacoesPendentes.find(s => s.id === solicitacaoId);
     
     if (solicitacaoToReject) {
-      // Remove from pending
+      // Remover das pendentes
       setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
       
-      // Add to history as rejected
+      // Adicionar ao histórico como recusada
       const rejectedSolicitation = {
         ...solicitacaoToReject,
         status: 'rejected' as const,
@@ -108,16 +108,16 @@ const AprovacoesColeta = () => {
       
       setHistoricoAprovacoes(prev => [rejectedSolicitation, ...prev]);
       
-      // Update the selected request if it's the one being rejected
+      // Atualiza a solicitação selecionada se for a que está sendo recusada
       if (selectedRequest && selectedRequest.id === solicitacaoId) {
         setSelectedRequest(rejectedSolicitation);
       }
       
-      // Switch to the history tab after rejection
+      // Mudar para a aba de histórico após a rejeição
       setActiveTab('historico');
     }
     
-    // Close the dialog
+    // Fechar o diálogo
     setIsDialogOpen(false);
   };
 
@@ -184,7 +184,7 @@ const AprovacoesColeta = () => {
 
 export default AprovacoesColeta;
 
-// This maintains typescript global declaration in original file
+// Mantém a declaração global do typescript no arquivo original
 declare global {
   var isRejecting: boolean;
 }

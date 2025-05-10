@@ -44,7 +44,7 @@ const SolicitacoesPendentes: React.FC<SolicitacoesPendentesProps> = ({
     }
   ];
 
-  // Filter to only show pending solicitations
+  // Filtro para mostrar apenas solicitações pendentes
   const solicitacoesPendentes = solicitacoes.filter(s => s.status === 'pending');
 
   return (

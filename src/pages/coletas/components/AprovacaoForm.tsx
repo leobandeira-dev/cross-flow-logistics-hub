@@ -18,7 +18,7 @@ import {
 import { SolicitacaoColeta } from '../types/coleta.types';
 import { toast } from "@/hooks/use-toast";
 
-// Schema para validação do formulário de aprovação/rejeição
+// Esquema para validação do formulário de aprovação/rejeição
 const formSchema = z.object({
   observacoes: z.string().optional(),
   motivoRecusa: z.string().min(10, {
@@ -68,12 +68,12 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
   const handleApprove = (data: FormData) => {
     if (!selectedRequest) return;
     
-    console.log("AprovacaoForm: Approving solicitation:", selectedRequest.id);
+    console.log("AprovacaoForm: Aprovando solicitação:", selectedRequest.id);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Call the parent onApprove function with the solicitation ID and observations
+    // Chama a função onApprove do componente pai com o ID da solicitação e observações
     onApprove(selectedRequest.id, data.observacoes);
     
     toast({
@@ -95,12 +95,12 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
       return;
     }
     
-    console.log("AprovacaoForm: Rejecting solicitation:", selectedRequest.id);
+    console.log("AprovacaoForm: Recusando solicitação:", selectedRequest.id);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Call the parent onReject function with the solicitation ID and reason
+    // Chama a função onReject do componente pai com o ID da solicitação e motivo
     onReject(selectedRequest.id, data.motivoRecusa);
     
     toast({

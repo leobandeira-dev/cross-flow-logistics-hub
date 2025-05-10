@@ -24,7 +24,7 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
   onApprove,
   onReject
 }) => {
-  // Handle closing dialog (reset rejection state)
+  // Manipula o fechamento do diálogo (restaura o estado de rejeição)
   const handleCloseDialog = () => {
     setIsRejecting(false);
     onOpenChange(false);

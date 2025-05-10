@@ -47,7 +47,7 @@ const HistoricoAprovacoes: React.FC<HistoricoAprovacoesProps> = ({
     }
   ];
 
-  // Filter to only show approved and rejected solicitations
+  // Filtro para mostrar apenas solicitações aprovadas e recusadas
   const historicoAprovacoes = solicitacoes.filter(s => s.status === 'approved' || s.status === 'rejected');
 
   return (
