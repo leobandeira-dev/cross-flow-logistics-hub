@@ -11,6 +11,8 @@ interface DetalhesAprovacaoDialogProps {
   selectedRequest: SolicitacaoColeta | null;
   isRejecting: boolean;
   setIsRejecting: (value: boolean) => void;
+  onApprove: (solicitacaoId: string, observacoes?: string) => void;
+  onReject: (solicitacaoId: string, motivoRecusa: string) => void;
 }
 
 const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
@@ -19,6 +21,8 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
   selectedRequest,
   isRejecting,
   setIsRejecting,
+  onApprove,
+  onReject
 }) => {
   if (!selectedRequest) return null;
 
@@ -87,6 +91,20 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
             <p>{selectedRequest.notas.join(', ')}</p>
           </div>
           
+          {'aprovador' in selectedRequest && (
+            <div>
+              <p className="text-sm font-medium text-gray-500">Aprovador</p>
+              <p>{selectedRequest.aprovador}</p>
+            </div>
+          )}
+          
+          {'observacoes' in selectedRequest && selectedRequest.observacoes && (
+            <div>
+              <p className="text-sm font-medium text-gray-500">Observações</p>
+              <p>{selectedRequest.observacoes}</p>
+            </div>
+          )}
+          
           {'motivoRecusa' in selectedRequest && (
             <div>
               <p className="text-sm font-medium text-gray-500">Motivo da Recusa</p>
@@ -100,6 +118,8 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
               isRejecting={isRejecting}
               setIsRejecting={setIsRejecting}
               onClose={() => onOpenChange(false)}
+              onApprove={(observacoes) => onApprove(selectedRequest.id, observacoes)}
+              onReject={(motivoRecusa) => onReject(selectedRequest.id, motivoRecusa)}
             />
           )}
         </div>

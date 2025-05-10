@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SolicitacoesPendentes from './components/SolicitacoesPendentes';
 import HistoricoAprovacoes from './components/HistoricoAprovacoes';
 import DetalhesAprovacaoDialog from './components/DetalhesAprovacaoDialog';
 import DocumentoAprovacaoRenderer from './components/DocumentoAprovacaoRenderer';
-import { solicitacoesPendentes, historicoAprovacoes } from './data/aprovacoesMock';
+import { solicitacoesPendentes as mockPendentes, historicoAprovacoes as mockHistorico } from './data/aprovacoesMock';
 import { SolicitacaoColeta } from './types/coleta.types';
 
 const AprovacoesColeta = () => {
@@ -15,6 +15,10 @@ const AprovacoesColeta = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState('pendentes');
   const [isRejecting, setIsRejecting] = useState(false);
+  
+  // State for managing solicitations data
+  const [solicitacoesPendentes, setSolicitacoesPendentes] = useState(mockPendentes);
+  const [historicoAprovacoes, setHistoricoAprovacoes] = useState(mockHistorico);
   
   // Combinando os dados para facilitar a busca
   const allDocuments = [...solicitacoesPendentes, ...historicoAprovacoes];
@@ -33,6 +37,64 @@ const AprovacoesColeta = () => {
     setSelectedRequest(row);
     setIsDialogOpen(true);
     setIsRejecting(false);
+  };
+
+  // Function to handle approval of a solicitation
+  const handleApprove = (solicitacaoId: string, observacoes?: string) => {
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
+    const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
+    
+    // Find the solicitation to approve
+    const solicitacaoToApprove = solicitacoesPendentes.find(s => s.id === solicitacaoId);
+    
+    if (solicitacaoToApprove) {
+      // Remove from pending
+      setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
+      
+      // Add to history as approved
+      setHistoricoAprovacoes(prev => [
+        ...prev,
+        {
+          ...solicitacaoToApprove,
+          status: 'approved' as const,
+          aprovador: approverName,
+          dataAprovacao: formattedDate,
+          observacoes
+        }
+      ]);
+    }
+    
+    setIsDialogOpen(false);
+  };
+  
+  // Function to handle rejection of a solicitation
+  const handleReject = (solicitacaoId: string, motivoRecusa: string) => {
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
+    const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
+    
+    // Find the solicitation to reject
+    const solicitacaoToReject = solicitacoesPendentes.find(s => s.id === solicitacaoId);
+    
+    if (solicitacaoToReject) {
+      // Remove from pending
+      setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
+      
+      // Add to history as rejected
+      setHistoricoAprovacoes(prev => [
+        ...prev,
+        {
+          ...solicitacaoToReject,
+          status: 'rejected' as const,
+          aprovador: approverName,
+          dataAprovacao: formattedDate,
+          motivoRecusa
+        }
+      ]);
+    }
+    
+    setIsDialogOpen(false);
   };
 
   // Renderiza o conteúdo do documento para impressão
@@ -66,7 +128,7 @@ const AprovacoesColeta = () => {
             onFilterChange={handleFilterChange}
             onOpenDetail={openDetailDialog}
             renderAprovacaoDocument={renderAprovacaoDocument}
-            allDocuments={allDocuments}
+            solicitacoes={solicitacoesPendentes}
           />
         </TabsContent>
         
@@ -78,7 +140,7 @@ const AprovacoesColeta = () => {
             renderAprovacaoDocument={renderAprovacaoDocument} 
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
-            allDocuments={allDocuments}
+            solicitacoes={historicoAprovacoes}
           />
         </TabsContent>
       </Tabs>
@@ -89,6 +151,8 @@ const AprovacoesColeta = () => {
         selectedRequest={selectedRequest}
         isRejecting={isRejecting}
         setIsRejecting={setIsRejecting}
+        onApprove={handleApprove}
+        onReject={handleReject}
       />
     </MainLayout>
   );

@@ -21,6 +21,7 @@ export interface SolicitacaoAprovada extends SolicitacaoColetaBase {
   status: 'approved';
   aprovador: string;
   dataAprovacao: string;
+  observacoes?: string;
 }
 
 export interface SolicitacaoRecusada extends SolicitacaoColetaBase {

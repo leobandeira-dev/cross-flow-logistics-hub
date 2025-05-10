@@ -41,6 +41,8 @@ interface AprovacaoFormProps {
   isRejecting: boolean;
   setIsRejecting: (value: boolean) => void;
   onClose: () => void;
+  onApprove: (observacoes?: string) => void;
+  onReject: (motivoRecusa: string) => void;
 }
 
 const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
@@ -48,6 +50,8 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
   isRejecting,
   setIsRejecting,
   onClose,
+  onApprove,
+  onReject
 }) => {
   // Inicializando o formulário com react-hook-form
   const form = useForm<FormData>({
@@ -66,21 +70,14 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Aqui seria feita a integração com a API para registrar a aprovação
-    console.log('Aprovado:', {
-      ...selectedRequest,
-      observacoes: data.observacoes,
-      dataAprovacao: formattedDate,
-      aprovador: approverName,
-      status: 'approved'
-    });
+    // Call the parent onApprove function
+    onApprove(data.observacoes);
     
     toast({
       title: "Coleta aprovada com sucesso!",
       description: `A coleta ${selectedRequest.id} foi aprovada em ${formattedDate} por ${approverName}.`,
     });
     
-    onClose();
     form.reset();
   };
   
@@ -97,14 +94,8 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Aqui seria feita a integração com a API para registrar a recusa
-    console.log('Recusado:', {
-      ...selectedRequest,
-      motivoRecusa: data.motivoRecusa,
-      dataAprovacao: formattedDate,
-      aprovador: approverName,
-      status: 'rejected'
-    });
+    // Call the parent onReject function
+    onReject(data.motivoRecusa);
     
     toast({
       title: "Coleta recusada",
@@ -112,7 +103,6 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
       variant: "destructive",
     });
     
-    onClose();
     form.reset();
   };
 

@@ -6,15 +6,14 @@ import StatusBadge from '@/components/common/StatusBadge';
 import { Button } from '@/components/ui/button';
 import SearchFilter from '@/components/common/SearchFilter';
 import DocumentPDFGenerator from '@/components/common/DocumentPDFGenerator';
-import { solicitacoesPendentes } from '../data/aprovacoesMock';
-import { SolicitacaoPendente, SolicitacaoColeta } from '../types/coleta.types';
+import { SolicitacaoColeta } from '../types/coleta.types';
 
 interface SolicitacoesPendentesProps {
   onSearch: (value: string) => void;
   onFilterChange: (filter: string, value: string) => void;
   onOpenDetail: (row: SolicitacaoColeta) => void;
   renderAprovacaoDocument: (documentId: string) => React.ReactNode;
-  allDocuments: SolicitacaoColeta[];
+  solicitacoes: SolicitacaoColeta[];
 }
 
 const SolicitacoesPendentes: React.FC<SolicitacoesPendentesProps> = ({
@@ -22,7 +21,7 @@ const SolicitacoesPendentes: React.FC<SolicitacoesPendentesProps> = ({
   onFilterChange,
   onOpenDetail,
   renderAprovacaoDocument,
-  allDocuments
+  solicitacoes
 }) => {
   const filters = [
     {
@@ -44,6 +43,9 @@ const SolicitacoesPendentes: React.FC<SolicitacoesPendentesProps> = ({
       ]
     }
   ];
+
+  // Filter to only show pending solicitations
+  const solicitacoesPendentes = solicitacoes.filter(s => s.status === 'pending');
 
   return (
     <>

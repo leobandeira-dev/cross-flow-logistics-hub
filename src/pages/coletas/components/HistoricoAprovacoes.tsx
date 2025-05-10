@@ -6,7 +6,6 @@ import StatusBadge from '@/components/common/StatusBadge';
 import { Button } from '@/components/ui/button';
 import SearchFilter from '@/components/common/SearchFilter';
 import DocumentPDFGenerator from '@/components/common/DocumentPDFGenerator';
-import { historicoAprovacoes } from '../data/aprovacoesMock';
 import { SolicitacaoColeta } from '../types/coleta.types';
 
 interface HistoricoAprovacoesProps {
@@ -16,7 +15,7 @@ interface HistoricoAprovacoesProps {
   renderAprovacaoDocument: (documentId: string) => React.ReactNode;
   currentPage: number;
   setCurrentPage: (page: number) => void;
-  allDocuments: SolicitacaoColeta[];
+  solicitacoes: SolicitacaoColeta[];
 }
 
 const HistoricoAprovacoes: React.FC<HistoricoAprovacoesProps> = ({
@@ -26,7 +25,7 @@ const HistoricoAprovacoes: React.FC<HistoricoAprovacoesProps> = ({
   renderAprovacaoDocument,
   currentPage,
   setCurrentPage,
-  allDocuments
+  solicitacoes
 }) => {
   const filters = [
     {
@@ -47,6 +46,9 @@ const HistoricoAprovacoes: React.FC<HistoricoAprovacoesProps> = ({
       ]
     }
   ];
+
+  // Filter to only show approved and rejected solicitations
+  const historicoAprovacoes = solicitacoes.filter(s => s.status === 'approved' || s.status === 'rejected');
 
   return (
     <>
