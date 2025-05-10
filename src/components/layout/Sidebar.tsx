@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Truck, PackageOpen, BarChart3, LayoutDashboard, MessageSquare, FileText, 
-  Users, Settings, ChevronDown, LogOut 
+  Users, Settings, ChevronDown, LogOut, Package, Archive, Box
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -82,6 +82,36 @@ const Sidebar: React.FC = () => {
         <SubMenu icon={Truck} label="Coletas" defaultOpen={true}>
           <SidebarItem icon={FileText} label="Solicitações" href="/coletas/solicitacoes" />
           <SidebarItem icon={FileText} label="Aprovações" href="/coletas/aprovacoes" />
+        </SubMenu>
+        
+        {/* Armazenagem (Storage) Module */}
+        <SubMenu icon={Archive} label="Armazenagem" defaultOpen={false}>
+          {/* Recebimento (Receiving) */}
+          <SubMenu icon={Package} label="Recebimento" defaultOpen={false}>
+            <SidebarItem icon={Package} label="Visão Geral" href="/armazenagem" />
+            <SidebarItem icon={Box} label="Fornecedor" href="/armazenagem/recebimento/fornecedor" />
+            <SidebarItem icon={Box} label="Coleta" href="/armazenagem/recebimento/coleta" />
+            <SidebarItem icon={Box} label="Entre Filiais" href="/armazenagem/recebimento/filiais" />
+            <SidebarItem icon={FileText} label="Notas Fiscais" href="/armazenagem/recebimento/notas" />
+            <SidebarItem icon={FileText} label="Etiquetas" href="/armazenagem/recebimento/etiquetas" />
+          </SubMenu>
+          
+          {/* Movimentações (Internal Movements) */}
+          <SubMenu icon={Package} label="Movimentações" defaultOpen={false}>
+            <SidebarItem icon={Box} label="Visão Geral" href="/armazenagem/movimentacoes" />
+            <SidebarItem icon={Box} label="Unitização" href="/armazenagem/movimentacoes/unitizacao" />
+            <SidebarItem icon={Box} label="Cancelar Unit." href="/armazenagem/movimentacoes/cancelar-unitizacao" />
+            <SidebarItem icon={Box} label="Endereçamento" href="/armazenagem/movimentacoes/enderecamento" />
+          </SubMenu>
+          
+          {/* Carregamento (Loading) */}
+          <SubMenu icon={Truck} label="Carregamento" defaultOpen={false}>
+            <SidebarItem icon={Truck} label="Visão Geral" href="/armazenagem/carregamento" />
+            <SidebarItem icon={FileText} label="Ordem" href="/armazenagem/carregamento/ordem" />
+            <SidebarItem icon={FileText} label="Conferência" href="/armazenagem/carregamento/conferencia" />
+            <SidebarItem icon={Box} label="Endereçamento" href="/armazenagem/carregamento/enderecamento" />
+            <SidebarItem icon={FileText} label="Checklist" href="/armazenagem/carregamento/checklist" />
+          </SubMenu>
         </SubMenu>
         
         <SubMenu icon={Users} label="Motoristas" defaultOpen={false}>
