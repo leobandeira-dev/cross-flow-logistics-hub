@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SolicitacoesPendentes from './components/SolicitacoesPendentes';
@@ -49,6 +49,8 @@ const AprovacoesColeta = () => {
     const solicitacaoToApprove = solicitacoesPendentes.find(s => s.id === solicitacaoId);
     
     if (solicitacaoToApprove) {
+      console.log("Approving solicitation:", solicitacaoId);
+      
       // Remove from pending
       setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
       
@@ -62,6 +64,14 @@ const AprovacoesColeta = () => {
       };
       
       setHistoricoAprovacoes(prev => [approvedSolicitation, ...prev]);
+      
+      // Update the selected request if it's the one being approved
+      if (selectedRequest && selectedRequest.id === solicitacaoId) {
+        setSelectedRequest(approvedSolicitation);
+      }
+      
+      // Switch to the history tab after approval
+      setActiveTab('historico');
     }
     
     setIsDialogOpen(false);
@@ -77,6 +87,8 @@ const AprovacoesColeta = () => {
     const solicitacaoToReject = solicitacoesPendentes.find(s => s.id === solicitacaoId);
     
     if (solicitacaoToReject) {
+      console.log("Rejecting solicitation:", solicitacaoId);
+      
       // Remove from pending
       setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
       
@@ -90,6 +102,14 @@ const AprovacoesColeta = () => {
       };
       
       setHistoricoAprovacoes(prev => [rejectedSolicitation, ...prev]);
+      
+      // Update the selected request if it's the one being rejected
+      if (selectedRequest && selectedRequest.id === solicitacaoId) {
+        setSelectedRequest(rejectedSolicitation);
+      }
+      
+      // Switch to the history tab after rejection
+      setActiveTab('historico');
     }
     
     setIsDialogOpen(false);

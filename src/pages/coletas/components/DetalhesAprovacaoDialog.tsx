@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import AprovacaoForm from './AprovacaoForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
 import { SolicitacaoColeta } from '../types/coleta.types';
+import AprovacaoForm from './AprovacaoForm';
 
 interface DetalhesAprovacaoDialogProps {
   isOpen: boolean;
@@ -24,110 +24,117 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
   onApprove,
   onReject
 }) => {
-  if (!selectedRequest) return null;
+  // Handle closing dialog (reset rejection state)
+  const handleCloseDialog = () => {
+    setIsRejecting(false);
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Detalhes da Solicitação {selectedRequest.id}</DialogTitle>
-          <DialogDescription>
-            {selectedRequest.status === 'pending' 
-              ? 'Revise os detalhes da solicitação para aprovar ou recusar.'
-              : 'Detalhes da solicitação processada.'
-            }
-          </DialogDescription>
+          <DialogTitle>Detalhes da Solicitação de Coleta</DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Cliente</p>
-              <p className="font-medium">{selectedRequest.cliente}</p>
+
+        {selectedRequest && (
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+            <div className="md:col-span-2">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">ID da Solicitação</p>
+                      <p className="text-sm font-bold">{selectedRequest.id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Cliente</p>
+                      <p className="text-sm font-bold">{selectedRequest.cliente}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Data da Solicitação</p>
+                      <p className="text-sm">{selectedRequest.data}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Solicitante</p>
+                      <p className="text-sm">{selectedRequest.solicitante}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Volumes</p>
+                      <p className="text-sm">{selectedRequest.volumes}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Peso</p>
+                      <p className="text-sm">{selectedRequest.peso}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-gray-500">Notas Fiscais</p>
+                      <p className="text-sm">{selectedRequest.notas.join(', ')}</p>
+                    </div>
+                    
+                    {selectedRequest.aprovador && (
+                      <>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Aprovador</p>
+                          <p className="text-sm">{selectedRequest.aprovador}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Data da Aprovação</p>
+                          <p className="text-sm">{selectedRequest.dataAprovacao}</p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {selectedRequest.observacoes && (
+                      <div className="col-span-2">
+                        <p className="text-sm font-medium text-gray-500">Observações</p>
+                        <p className="text-sm">{selectedRequest.observacoes}</p>
+                      </div>
+                    )}
+                    
+                    {selectedRequest.motivoRecusa && (
+                      <div className="col-span-2">
+                        <p className="text-sm font-medium text-gray-500 text-destructive">Motivo da Recusa</p>
+                        <p className="text-sm">{selectedRequest.motivoRecusa}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Solicitante</p>
-              <p>{selectedRequest.solicitante}</p>
+
+            <div className="md:col-span-1">
+              {selectedRequest.status === 'pending' ? (
+                <AprovacaoForm 
+                  selectedRequest={selectedRequest}
+                  isRejecting={isRejecting}
+                  setIsRejecting={setIsRejecting}
+                  onClose={handleCloseDialog}
+                  onApprove={onApprove}
+                  onReject={onReject}
+                />
+              ) : (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="font-medium">
+                        Status: {selectedRequest.status === 'approved' ? (
+                          <span className="text-green-600">Aprovada</span>
+                        ) : (
+                          <span className="text-destructive">Recusada</span>
+                        )}
+                      </p>
+                      {selectedRequest.status === 'approved' ? (
+                        <p className="mt-2 text-sm">Esta solicitação já foi aprovada.</p>
+                      ) : (
+                        <p className="mt-2 text-sm">Esta solicitação foi recusada.</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Data Solicitação</p>
-              <p>{selectedRequest.data}</p>
-            </div>
-            {'dataAprovacao' in selectedRequest && (
-              <div>
-                <p className="text-sm font-medium text-gray-500">Data Aprovação</p>
-                <p>{selectedRequest.dataAprovacao}</p>
-              </div>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Origem</p>
-              <p>{selectedRequest.origem}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Destino</p>
-              <p>{selectedRequest.destino}</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Volumes</p>
-              <p>{selectedRequest.volumes}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Peso</p>
-              <p>{selectedRequest.peso}</p>
-            </div>
-          </div>
-          
-          <div>
-            <p className="text-sm font-medium text-gray-500">Notas Fiscais</p>
-            <p>{selectedRequest.notas.join(', ')}</p>
-          </div>
-          
-          {'aprovador' in selectedRequest && (
-            <div>
-              <p className="text-sm font-medium text-gray-500">Aprovador</p>
-              <p>{selectedRequest.aprovador}</p>
-            </div>
-          )}
-          
-          {'observacoes' in selectedRequest && selectedRequest.observacoes && (
-            <div>
-              <p className="text-sm font-medium text-gray-500">Observações</p>
-              <p>{selectedRequest.observacoes}</p>
-            </div>
-          )}
-          
-          {'motivoRecusa' in selectedRequest && (
-            <div>
-              <p className="text-sm font-medium text-gray-500">Motivo da Recusa</p>
-              <p className="text-red-600">{selectedRequest.motivoRecusa}</p>
-            </div>
-          )}
-          
-          {selectedRequest.status === 'pending' && (
-            <AprovacaoForm
-              selectedRequest={selectedRequest}
-              isRejecting={isRejecting}
-              setIsRejecting={setIsRejecting}
-              onClose={() => onOpenChange(false)}
-              onApprove={(observacoes) => onApprove(selectedRequest.id, observacoes)}
-              onReject={(motivoRecusa) => onReject(selectedRequest.id, motivoRecusa)}
-            />
-          )}
-        </div>
-        
-        {selectedRequest.status !== 'pending' && (
-          <DialogFooter>
-            <Button onClick={() => onOpenChange(false)}>Fechar</Button>
-          </DialogFooter>
         )}
       </DialogContent>
     </Dialog>

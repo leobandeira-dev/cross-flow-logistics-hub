@@ -41,8 +41,8 @@ interface AprovacaoFormProps {
   isRejecting: boolean;
   setIsRejecting: (value: boolean) => void;
   onClose: () => void;
-  onApprove: (observacoes?: string) => void;
-  onReject: (motivoRecusa: string) => void;
+  onApprove: (solicitacaoId: string, observacoes?: string) => void;
+  onReject: (solicitacaoId: string, motivoRecusa: string) => void;
 }
 
 const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
@@ -66,12 +66,14 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
   (window as any).isRejecting = isRejecting;
   
   const handleApprove = (data: FormData) => {
+    if (!selectedRequest) return;
+    
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Call the parent onApprove function
-    onApprove(data.observacoes);
+    // Call the parent onApprove function with the solicitation ID
+    onApprove(selectedRequest.id, data.observacoes);
     
     toast({
       title: "Coleta aprovada com sucesso!",
@@ -82,6 +84,8 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
   };
   
   const handleReject = (data: FormData) => {
+    if (!selectedRequest) return;
+    
     if (!data.motivoRecusa || data.motivoRecusa.length < 10) {
       form.setError('motivoRecusa', {
         type: 'manual',
@@ -94,8 +98,8 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Call the parent onReject function
-    onReject(data.motivoRecusa);
+    // Call the parent onReject function with the solicitation ID
+    onReject(selectedRequest.id, data.motivoRecusa);
     
     toast({
       title: "Coleta recusada",
