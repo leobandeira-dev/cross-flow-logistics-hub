@@ -2,18 +2,9 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Box } from 'lucide-react';
+import { Package } from 'lucide-react';
 
-interface Volume {
-  id: string;
-  descricao: string;
-  peso: string;
-  fragil: boolean;
-  posicionado: boolean;
-  etiquetaMae: string;
-  notaFiscal: string;
-  fornecedor: string;
-}
+import { Volume, SearchType } from '@/types/enderecamento.types';
 
 interface VolumeListProps {
   volumes: Volume[];
@@ -28,13 +19,14 @@ const VolumeList: React.FC<VolumeListProps> = ({
   onSelectionToggle, 
   onSelectAll 
 }) => {
+  // Only show volumes that are not positioned
   const filteredVolumes = volumes.filter(v => !v.posicionado);
   
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center">
-          <Box className="mr-2 text-cross-blue" size={20} />
+          <Package className="mr-2 text-cross-blue" size={20} />
           Volumes para Carregamento
         </CardTitle>
       </CardHeader>

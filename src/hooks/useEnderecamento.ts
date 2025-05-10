@@ -1,29 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
-
-// Tipos de pesquisa
-export type SearchType = 'volume' | 'etiquetaMae' | 'notaFiscal';
-
-// Tipo para volume
-export interface Volume {
-  id: string;
-  descricao: string;
-  peso: string;
-  fragil: boolean;
-  posicionado: boolean;
-  etiquetaMae: string;
-  notaFiscal: string;
-  fornecedor: string;
-}
-
-// Tipo para célula do caminhão
-export interface CelulaLayout {
-  id: string;
-  coluna: 'esquerda' | 'centro' | 'direita';
-  linha: number;
-  volumes: Volume[];
-}
+import { Volume, CelulaLayout, SearchType } from '@/types/enderecamento.types';
 
 // Mock data para volumes
 const volumesPorCarregar = [
@@ -64,6 +42,13 @@ export const useEnderecamento = () => {
     setCaminhaoLayout(novoLayout);
   }, []);
 
+  // Atualizar volumesFiltrados sempre que volumes mudar
+  useEffect(() => {
+    // Filtrar apenas volumes que não estão posicionados
+    const naoAlocados = volumes.filter(v => !v.posicionado);
+    setVolumesFiltrados(naoAlocados);
+  }, [volumes]);
+
   const handleOrderFormSubmit = (data: any) => {
     console.log('Form data submitted:', data);
     // Garantir que temos um valor válido para o número da OC
@@ -77,25 +62,28 @@ export const useEnderecamento = () => {
 
   const filtrarVolumes = (searchValue: string, searchType: SearchType) => {
     if (!searchValue.trim()) {
-      setVolumesFiltrados(volumes);
+      // Mostrar apenas volumes não posicionados
+      const naoAlocados = volumes.filter(v => !v.posicionado);
+      setVolumesFiltrados(naoAlocados);
       return;
     }
 
     let filtrados;
     const searchTerm = searchValue.toLowerCase().trim();
 
+    // Primeiro filtra por termo, depois remove os posicionados
     switch (searchType) {
       case 'volume':
-        filtrados = volumes.filter(v => v.id.toLowerCase().includes(searchTerm));
+        filtrados = volumes.filter(v => !v.posicionado && v.id.toLowerCase().includes(searchTerm));
         break;
       case 'etiquetaMae':
-        filtrados = volumes.filter(v => v.etiquetaMae.toLowerCase().includes(searchTerm));
+        filtrados = volumes.filter(v => !v.posicionado && v.etiquetaMae.toLowerCase().includes(searchTerm));
         break;
       case 'notaFiscal':
-        filtrados = volumes.filter(v => v.notaFiscal.toLowerCase().includes(searchTerm));
+        filtrados = volumes.filter(v => !v.posicionado && v.notaFiscal.toLowerCase().includes(searchTerm));
         break;
       default:
-        filtrados = volumes;
+        filtrados = volumes.filter(v => !v.posicionado);
     }
 
     setVolumesFiltrados(filtrados);
@@ -116,10 +104,14 @@ export const useEnderecamento = () => {
   };
 
   const selecionarTodos = () => {
-    if (selecionados.length === volumesFiltrados.filter(v => !v.posicionado).length) {
+    // Selecionar/desselecionar apenas volumes não posicionados
+    const volumesDisponiveis = volumesFiltrados.filter(v => !v.posicionado);
+    const todosIds = volumesDisponiveis.map(v => v.id);
+    
+    if (selecionados.length === volumesDisponiveis.length) {
       setSelecionados([]);
     } else {
-      setSelecionados(volumesFiltrados.filter(v => !v.posicionado).map(v => v.id));
+      setSelecionados(todosIds);
     }
   };
 
@@ -166,7 +158,7 @@ export const useEnderecamento = () => {
       } : c
     ));
 
-    // Atualizar o status do volume
+    // Atualizar o status do volume para não posicionado
     setVolumes(volumes.map(v => 
       v.id === volumeId ? { ...v, posicionado: false } : v
     ));
@@ -199,6 +191,6 @@ export const useEnderecamento = () => {
     moverVolumesSelecionados,
     removerVolume,
     saveLayout,
-    allVolumesPositioned: !volumes.some(v => !v.posicionado)
+    allVolumesPositioned: volumes.every(v => v.posicionado)
   };
 };
