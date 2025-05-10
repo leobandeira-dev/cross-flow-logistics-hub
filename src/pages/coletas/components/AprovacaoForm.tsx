@@ -68,11 +68,12 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
   const handleApprove = (data: FormData) => {
     if (!selectedRequest) return;
     
+    console.log("Approving solicitation:", selectedRequest.id);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Call the parent onApprove function with the solicitation ID
+    // Call the parent onApprove function with the solicitation ID and observations
     onApprove(selectedRequest.id, data.observacoes);
     
     toast({
@@ -94,11 +95,12 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
       return;
     }
     
+    console.log("Rejecting solicitation:", selectedRequest.id);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
     
-    // Call the parent onReject function with the solicitation ID
+    // Call the parent onReject function with the solicitation ID and reason
     onReject(selectedRequest.id, data.motivoRecusa);
     
     toast({

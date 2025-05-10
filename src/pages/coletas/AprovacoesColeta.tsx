@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SolicitacoesPendentes from './components/SolicitacoesPendentes';
@@ -41,6 +41,7 @@ const AprovacoesColeta = () => {
 
   // Function to handle approval of a solicitation
   const handleApprove = (solicitacaoId: string, observacoes?: string) => {
+    console.log("Approving solicitation in main component:", solicitacaoId);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
@@ -49,8 +50,6 @@ const AprovacoesColeta = () => {
     const solicitacaoToApprove = solicitacoesPendentes.find(s => s.id === solicitacaoId);
     
     if (solicitacaoToApprove) {
-      console.log("Approving solicitation:", solicitacaoId);
-      
       // Remove from pending
       setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
       
@@ -60,7 +59,7 @@ const AprovacoesColeta = () => {
         status: 'approved' as const,
         aprovador: approverName,
         dataAprovacao: formattedDate,
-        observacoes
+        observacoes: observacoes || undefined
       };
       
       setHistoricoAprovacoes(prev => [approvedSolicitation, ...prev]);
@@ -74,11 +73,13 @@ const AprovacoesColeta = () => {
       setActiveTab('historico');
     }
     
+    // Close the dialog
     setIsDialogOpen(false);
   };
   
   // Function to handle rejection of a solicitation
   const handleReject = (solicitacaoId: string, motivoRecusa: string) => {
+    console.log("Rejecting solicitation in main component:", solicitacaoId);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
     const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
@@ -87,8 +88,6 @@ const AprovacoesColeta = () => {
     const solicitacaoToReject = solicitacoesPendentes.find(s => s.id === solicitacaoId);
     
     if (solicitacaoToReject) {
-      console.log("Rejecting solicitation:", solicitacaoId);
-      
       // Remove from pending
       setSolicitacoesPendentes(prev => prev.filter(s => s.id !== solicitacaoId));
       
@@ -112,6 +111,7 @@ const AprovacoesColeta = () => {
       setActiveTab('historico');
     }
     
+    // Close the dialog
     setIsDialogOpen(false);
   };
 

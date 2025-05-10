@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { SolicitacaoColeta } from '../types/coleta.types';
 import AprovacaoForm from './AprovacaoForm';
@@ -31,10 +31,11 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Detalhes da Solicitação de Coleta</DialogTitle>
+          <DialogDescription>Revise as informações da solicitação</DialogDescription>
         </DialogHeader>
 
         {selectedRequest && (
