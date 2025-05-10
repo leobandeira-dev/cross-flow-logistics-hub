@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Truck } from 'lucide-react';
+import TruckCell from './TruckCell';
 
 interface Volume {
   id: string;
@@ -53,24 +54,6 @@ const TruckLayoutGrid: React.FC<TruckLayoutGridProps> = ({
       celulas: layout.filter(c => c.linha === linha)
     };
   });
-
-  // Contar volumes por nota fiscal
-  const contarVolumesPorNF = (volumes: Volume[]) => {
-    const notasCount: Record<string, { fornecedor: string, count: number }> = {};
-    
-    volumes.forEach(v => {
-      if (!notasCount[v.notaFiscal]) {
-        notasCount[v.notaFiscal] = { fornecedor: v.fornecedor, count: 0 };
-      }
-      notasCount[v.notaFiscal].count += 1;
-    });
-
-    return Object.entries(notasCount).map(([nf, info]) => ({
-      nf,
-      fornecedor: info.fornecedor,
-      count: info.count
-    }));
-  };
   
   return (
     <Card>
@@ -110,50 +93,16 @@ const TruckLayoutGrid: React.FC<TruckLayoutGridProps> = ({
                     {linha.linha}
                   </div>
                   
-                  {linha.celulas.map(celula => {
-                    const volumesInfo = contarVolumesPorNF(celula.volumes);
-                    
-                    return (
-                      <div 
-                        key={celula.id} 
-                        className={`flex-1 border-r last:border-r-0 p-2 min-h-[80px] ${
-                          hasSelectedVolumes ? 'hover:bg-blue-50 cursor-pointer' : ''
-                        } ${celula.volumes.length > 0 ? 'bg-white' : ''}`}
-                        onClick={() => onCellClick(celula.id)}
-                      >
-                        {volumesInfo.length > 0 ? (
-                          <div className="text-xs space-y-1">
-                            {volumesInfo.map((info, idx) => (
-                              <div key={idx} className="p-1 border rounded bg-white">
-                                <div className="font-medium">{info.nf}</div>
-                                <div className="text-gray-600 truncate">{info.fornecedor}</div>
-                                <div className="flex justify-between">
-                                  <span>{info.count} vol.</span>
-                                  <Button 
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-5 w-5 p-0 text-gray-400 hover:text-red-500"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      celula.volumes
-                                        .filter(v => v.notaFiscal === info.nf)
-                                        .forEach(v => onRemoveVolume(v.id, celula.id));
-                                    }}
-                                  >
-                                    ×
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-xs text-gray-400">
-                            {hasSelectedVolumes ? 'Clique para alocar' : 'Vazio'}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                  {linha.celulas.map(celula => (
+                    <TruckCell
+                      key={celula.id}
+                      id={celula.id}
+                      volumes={celula.volumes}
+                      hasSelectedVolumes={hasSelectedVolumes}
+                      onClick={() => onCellClick(celula.id)}
+                      onRemoveVolume={onRemoveVolume}
+                    />
+                  ))}
                 </div>
               ))}
             </div>
