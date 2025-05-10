@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
@@ -194,7 +193,7 @@ const CargasMotoristas = () => {
                   },
                   { 
                     header: 'Ações', 
-                    accessor: '',
+                    accessor: 'actions',  // Add this line
                     cell: (row) => (
                       <div className="flex space-x-2 justify-end">
                         <Button 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,6 +83,7 @@ const RecebimentoFiliais: React.FC = () => {
                   },
                   {
                     header: 'Ações',
+                    accessor: 'actions', // Add this line
                     cell: (row) => (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">Detalhes</Button>
@@ -164,6 +164,7 @@ const RecebimentoFiliais: React.FC = () => {
                   },
                   {
                     header: 'Ações',
+                    accessor: 'actions', // Add this line
                     cell: () => (
                       <Button variant="outline" size="sm">
                         Ver Detalhes

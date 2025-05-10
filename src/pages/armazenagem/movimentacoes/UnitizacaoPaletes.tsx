@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -272,6 +271,7 @@ const UnitizacaoPaletes: React.FC = () => {
                   { header: 'Destino', accessor: 'destino' },
                   {
                     header: 'Ações',
+                    accessor: 'actions', // Add this line
                     cell: () => (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">Detalhes</Button>

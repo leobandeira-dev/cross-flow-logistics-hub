@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -299,11 +298,11 @@ const EnderecamentoCaminhao: React.FC = () => {
                   { header: 'Responsável', accessor: 'responsavel' },
                   {
                     header: 'Ações',
+                    accessor: 'actions', // Add this line
                     cell: () => (
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Visualizar</Button>
-                        <Button variant="outline" size="sm">Imprimir</Button>
-                      </div>
+                      <Button variant="outline" size="sm">
+                        Ver Detalhes
+                      </Button>
                     )
                   }
                 ]}
