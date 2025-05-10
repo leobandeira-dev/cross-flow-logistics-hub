@@ -1,13 +1,21 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../../components/common/DataTable';
 import { Button } from '@/components/ui/button';
-import { FileText, UserPlus } from 'lucide-react';
+import { FileText, UserPlus, MessageSquare } from 'lucide-react';
 import StatusBadge from '../../../components/common/StatusBadge';
 import SearchFilter from '../../../components/common/SearchFilter';
 import { toast } from '@/hooks/use-toast';
 import AlocacaoModal from './AlocacaoModal';
+import { handleWhatsAppSupport, problemosComuns } from '../../motoristas/utils/supportHelpers';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface CargasPendentesProps {
   cargas: any[];
@@ -18,6 +26,7 @@ interface CargasPendentesProps {
 const CargasPendentes: React.FC<CargasPendentesProps> = ({ cargas, currentPage, setCurrentPage }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCarga, setSelectedCarga] = useState<any>(null);
+  const [openSupportDialog, setOpenSupportDialog] = useState(false);
   
   const filters = [
     {
@@ -65,6 +74,26 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({ cargas, currentPage, 
     console.log('Carga alocada:', cargaId, 'Motorista:', motorista, 'Veículo:', veiculo);
   };
 
+  const handleSupportRequest = (problem: string, description: string) => {
+    if (!selectedCarga) return;
+    
+    const cargaInfo = {
+      id: selectedCarga.id,
+      destino: selectedCarga.destino,
+      motorista: selectedCarga.motorista || 'Não alocado',
+      veiculo: selectedCarga.veiculo || 'Não alocado',
+    };
+    
+    const messageWithProblem = `${problem} - ${description} - `;
+    
+    handleWhatsAppSupport({
+      ...cargaInfo,
+      id: `${cargaInfo.id} - PROBLEMA: ${messageWithProblem}`
+    });
+    
+    setOpenSupportDialog(false);
+  };
+
   return (
     <>
       <SearchFilter 
@@ -109,6 +138,60 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({ cargas, currentPage, 
                     >
                       <FileText className="h-4 w-4 mr-1" /> Detalhes
                     </Button>
+                    
+                    <Dialog open={openSupportDialog && selectedCarga?.id === row.id} onOpenChange={(open) => {
+                      if (open) {
+                        setSelectedCarga(row);
+                      }
+                      setOpenSupportDialog(open);
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          className="bg-green-500 hover:bg-green-600 text-white border-none"
+                          onClick={() => setSelectedCarga(row)}
+                        >
+                          <MessageSquare className="h-4 w-4 mr-1" /> Suporte
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Solicitar Suporte - Carga {row.id}</DialogTitle>
+                          <DialogDescription>
+                            Selecione o problema que está enfrentando com esta carga:
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          {problemosComuns.map((problema, index) => (
+                            <Button 
+                              key={index} 
+                              variant="outline" 
+                              className="justify-start text-left px-4 py-3 h-auto"
+                              onClick={() => handleSupportRequest(problema.title, problema.description)}
+                            >
+                              <div>
+                                <div className="font-bold">{problema.title}</div>
+                                <div className="text-sm text-gray-500">{problema.description}</div>
+                              </div>
+                            </Button>
+                          ))}
+                          <Button 
+                            variant="outline" 
+                            className="justify-start text-left px-4 py-3 h-auto"
+                            onClick={() => handleWhatsAppSupport({
+                              id: row.id,
+                              destino: row.destino
+                            })}
+                          >
+                            <div>
+                              <div className="font-bold">Outro Problema</div>
+                              <div className="text-sm text-gray-500">Problemas não listados acima</div>
+                            </div>
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                     
                     <Button 
                       variant="outline"
