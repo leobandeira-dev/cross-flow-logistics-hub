@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -46,6 +45,9 @@ import ChecklistCarga from "./pages/armazenagem/carregamento/ChecklistCarga";
 
 // Módulo de Usuários
 import CadastroUsuarios from "./pages/usuarios/CadastroUsuarios";
+
+// Módulo de Empresas
+import CadastroEmpresas from "./pages/empresas/CadastroEmpresas";
 
 const queryClient = new QueryClient();
 

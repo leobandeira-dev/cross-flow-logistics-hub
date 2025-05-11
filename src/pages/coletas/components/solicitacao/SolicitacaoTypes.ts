@@ -8,6 +8,9 @@ export interface SolicitacaoFormData {
   dataColeta: string;
   observacoes: string;
   notasFiscais: NotaFiscalVolume[];
+  transportadora_cnpj?: string; // CNPJ of the transport company
+  remetente_cnpj?: string;     // CNPJ of the sender
+  destinatario_cnpj?: string;  // CNPJ of the recipient
 }
 
 export interface SolicitacaoDialogProps {

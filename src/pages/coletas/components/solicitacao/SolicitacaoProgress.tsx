@@ -2,6 +2,7 @@
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { Check } from 'lucide-react';
 
 interface StepIndicatorProps {
   active: boolean;
@@ -19,7 +20,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ active, completed, number
         "border-gray-300 text-gray-500"
       )}
     >
-      {number}
+      {completed ? <Check size={16} className="text-white" /> : number}
     </div>
   );
 };
@@ -41,7 +42,16 @@ const SolicitacaoProgress: React.FC<SolicitacaoProgressProps> = ({ currentStep, 
   
   return (
     <div className="mb-6">
-      <div className="flex justify-between mb-2">
+      <div className="flex justify-between mb-2 relative">
+        {/* Progress line connecting steps */}
+        <div className="absolute top-4 left-4 right-4 h-0.5 bg-gray-200 -z-10"></div>
+        
+        {/* Progress line showing completed steps */}
+        <div 
+          className="absolute top-4 left-4 h-0.5 bg-green-500 -z-10 transition-all duration-300" 
+          style={{width: `${Math.max(0, (currentStep - 1) / (steps.length - 1) * 100)}%`}}
+        ></div>
+        
         {steps.map((step, index) => (
           <div key={index} className="flex flex-col items-center">
             <StepIndicator 
