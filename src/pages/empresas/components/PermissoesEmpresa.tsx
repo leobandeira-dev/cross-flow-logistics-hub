@@ -1,13 +1,15 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Check } from 'lucide-react';
+import { Settings, Check, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ModuloEmpresa } from '../types/empresa.types';
+import { Input } from '@/components/ui/input';
+import SearchFilter from '@/components/common/SearchFilter';
+import { FilterConfig } from '@/components/common/SearchFilter';
 
 // Similar to user permissions, adapted for companies
 const systemModules: ModuloEmpresa[] = [
@@ -116,20 +118,20 @@ const systemModules: ModuloEmpresa[] = [
   },
 ];
 
-// Company profiles
+// Company profiles - Updated terminology as requested
 const profiles = [
   "Transportadora",
   "Filial",
-  "Cliente Direto",
-  "Cliente Indireto"
+  "Cliente",
+  "Fornecedor"
 ];
 
 // Mock companies for select
 const empresasMock = [
-  { id: "1", nome: "Transportes Rápidos Ltda", cnpj: "12.345.678/0001-90" },
-  { id: "2", nome: "Filial SP Transportes Rápidos", cnpj: "98.765.432/0001-10" },
-  { id: "3", nome: "Indústria ABC Ltda", cnpj: "45.678.901/0001-23" },
-  { id: "4", nome: "Fornecedora XYZ S.A.", cnpj: "56.789.012/0001-34" },
+  { id: "1", nome: "Transportes Rápidos Ltda", cnpj: "12.345.678/0001-90", perfil: "Transportadora" },
+  { id: "2", nome: "Filial SP Transportes", cnpj: "12.345.678/0002-71", perfil: "Filial" },
+  { id: "3", nome: "Indústria ABC S.A.", cnpj: "45.678.901/0001-23", perfil: "Cliente" },
+  { id: "4", nome: "Fornecedor XYZ S.A.", cnpj: "56.789.012/0001-34", perfil: "Fornecedor" },
 ];
 
 const PermissoesEmpresa: React.FC = () => {
@@ -137,6 +139,16 @@ const PermissoesEmpresa: React.FC = () => {
   const [selectedEmpresa, setSelectedEmpresa] = useState<string>("");
   const [selectedPerfil, setSelectedPerfil] = useState<string>("Transportadora");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
+  const [filteredEmpresas, setFilteredEmpresas] = useState(empresasMock);
+  
+  // Search filter config
+  const filterConfigs: FilterConfig[] = [
+    {
+      id: 'perfil',
+      label: 'Perfil',
+      options: profiles.map(profile => ({ id: profile, label: profile }))
+    }
+  ];
 
   // Initialize permissions based on company and profile selection
   React.useEffect(() => {
@@ -280,6 +292,27 @@ const PermissoesEmpresa: React.FC = () => {
     return empresa ? `${empresa.nome} (${empresa.cnpj})` : '';
   };
 
+  // Handle search and filtering
+  const handleSearch = (term: string, activeFilters?: Record<string, string[]>) => {
+    let results = empresasMock;
+    
+    // Apply search term filter
+    if (term) {
+      const searchLower = term.toLowerCase();
+      results = results.filter(empresa => 
+        empresa.nome.toLowerCase().includes(searchLower) ||
+        empresa.cnpj.includes(term)
+      );
+    }
+    
+    // Apply perfil filters
+    if (activeFilters && activeFilters.perfil && activeFilters.perfil.length > 0) {
+      results = results.filter(empresa => activeFilters.perfil.includes(empresa.perfil));
+    }
+    
+    setFilteredEmpresas(results);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -289,38 +322,44 @@ const PermissoesEmpresa: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <Label htmlFor="empresa-select">Selecione a Empresa</Label>
-            <Select value={selectedEmpresa} onValueChange={handleEmpresaChange}>
-              <SelectTrigger id="empresa-select" className="w-full">
-                <SelectValue placeholder="Selecione uma empresa" />
-              </SelectTrigger>
-              <SelectContent>
-                {empresasMock.map(empresa => (
-                  <SelectItem key={empresa.id} value={empresa.id}>
-                    {empresa.nome} - {empresa.cnpj}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="mb-6">
+          <Label htmlFor="empresa-search" className="mb-2 block">Buscar Empresa</Label>
+          <SearchFilter
+            placeholder="Buscar por nome ou CNPJ..."
+            onSearch={handleSearch}
+            filters={filterConfigs}
+            className="mb-4"
+          />
+          
+          <Label htmlFor="empresa-select" className="mb-2 block">Selecione a Empresa</Label>
+          <Select value={selectedEmpresa} onValueChange={handleEmpresaChange}>
+            <SelectTrigger id="empresa-select" className="w-full md:w-[400px]">
+              <SelectValue placeholder="Selecione uma empresa" />
+            </SelectTrigger>
+            <SelectContent>
+              {filteredEmpresas.map(empresa => (
+                <SelectItem key={empresa.id} value={empresa.id}>
+                  {empresa.nome} - {empresa.cnpj} ({empresa.perfil})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div>
-            <Label htmlFor="perfil-select">Tipo de Perfil</Label>
-            <Select value={selectedPerfil} onValueChange={handlePerfilChange}>
-              <SelectTrigger id="perfil-select" className="w-full">
-                <SelectValue placeholder="Selecione um perfil" />
-              </SelectTrigger>
-              <SelectContent>
-                {profiles.map(profile => (
-                  <SelectItem key={profile} value={profile}>
-                    {profile}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="mb-6">
+          <Label htmlFor="perfil-select">Tipo de Perfil</Label>
+          <Select value={selectedPerfil} onValueChange={handlePerfilChange}>
+            <SelectTrigger id="perfil-select" className="w-full md:w-[400px]">
+              <SelectValue placeholder="Selecione um perfil" />
+            </SelectTrigger>
+            <SelectContent>
+              {profiles.map(profile => (
+                <SelectItem key={profile} value={profile}>
+                  {profile}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {selectedEmpresa && (

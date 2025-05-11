@@ -11,10 +11,10 @@ import PermissoesUsuario from './components/PermissoesUsuario';
 import UsersListTab from './components/UsersListTab';
 import UserDetailsDialog from './components/UserDetailsDialog';
 
-// Mock data
+// Updated mock data with new terminology
 const usuariosMock = [
   { id: 1, nome: 'João Silva', email: 'joao@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Cliente', status: 'ativo' },
-  { id: 2, nome: 'Maria Santos', email: 'maria@fornecedor.com.br', empresa: 'Fornecedor X', cnpj: '98.765.432/0001-10', perfil: 'Fornecedor externo', status: 'ativo' },
+  { id: 2, nome: 'Maria Santos', email: 'maria@fornecedor.com.br', empresa: 'Fornecedor X', cnpj: '98.765.432/0001-10', perfil: 'Fornecedor', status: 'ativo' },
   { id: 3, nome: 'Pedro Oliveira', email: 'pedro@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Funcionário Operacional', status: 'ativo' },
   { id: 4, nome: 'Ana Sousa', email: 'ana@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Funcionário Supervisor', status: 'inativo' },
   { id: 5, nome: 'Carlos Mendes', email: 'carlos@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Administrador', status: 'pendente' },

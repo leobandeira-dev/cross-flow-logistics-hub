@@ -1,25 +1,77 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import UsersListTable from './UsersListTable';
-
-interface User {
-  id: number;
-  nome: string;
-  email: string;
-  empresa: string;
-  cnpj: string;
-  perfil: string;
-  status: string;
-}
+import SearchFilter from '@/components/common/SearchFilter';
+import { FilterConfig } from '@/components/common/SearchFilter';
 
 interface UsersListTabProps {
-  users: User[];
-  onViewDetails: (user: User) => void;
+  users: any[];
+  onViewDetails: (user: any) => void;
 }
 
 const UsersListTab: React.FC<UsersListTabProps> = ({ users, onViewDetails }) => {
+  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filterConfigs: FilterConfig[] = [
+    {
+      id: 'status',
+      label: 'Status',
+      options: [
+        { id: 'ativo', label: 'Ativo' },
+        { id: 'inativo', label: 'Inativo' },
+        { id: 'pendente', label: 'Pendente' },
+        { id: 'rejeitado', label: 'Rejeitado' }
+      ]
+    },
+    {
+      id: 'perfil',
+      label: 'Perfil',
+      options: [
+        { id: 'Cliente', label: 'Cliente' },
+        { id: 'Fornecedor', label: 'Fornecedor' },
+        { id: 'Funcionário Operacional', label: 'Funcionário Operacional' },
+        { id: 'Funcionário Supervisor', label: 'Funcionário Supervisor' },
+        { id: 'Administrador', label: 'Administrador' }
+      ]
+    }
+  ];
+
+  const handleSearch = (term: string, activeFilters?: Record<string, string[]>) => {
+    setSearchTerm(term);
+    
+    let results = users;
+    
+    // Apply search term filter
+    if (term) {
+      const searchLower = term.toLowerCase();
+      results = results.filter(user => 
+        user.nome.toLowerCase().includes(searchLower) ||
+        user.email.toLowerCase().includes(searchLower) ||
+        user.empresa.toLowerCase().includes(searchLower) ||
+        user.cnpj.includes(term)
+      );
+    }
+    
+    // Apply status filters
+    if (activeFilters && activeFilters.status && activeFilters.status.length > 0) {
+      results = results.filter(user => activeFilters.status.includes(user.status));
+    }
+    
+    // Apply perfil filters
+    if (activeFilters && activeFilters.perfil && activeFilters.perfil.length > 0) {
+      results = results.filter(user => activeFilters.perfil.includes(user.perfil));
+    }
+    
+    setFilteredUsers(results);
+  };
+
+  useEffect(() => {
+    setFilteredUsers(users);
+  }, [users]);
+
   return (
     <Card>
       <CardHeader>
@@ -29,7 +81,12 @@ const UsersListTab: React.FC<UsersListTabProps> = ({ users, onViewDetails }) => 
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <UsersListTable users={users} onViewDetails={onViewDetails} />
+        <SearchFilter 
+          placeholder="Buscar por nome, email, empresa ou CNPJ..." 
+          onSearch={handleSearch}
+          filters={filterConfigs}
+        />
+        <UsersListTable users={filteredUsers} onViewDetails={onViewDetails} />
       </CardContent>
     </Card>
   );

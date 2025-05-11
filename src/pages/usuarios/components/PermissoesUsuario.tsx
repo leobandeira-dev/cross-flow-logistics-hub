@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Settings, Check } from 'lucide-react';
@@ -7,6 +6,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import SearchFilter from '@/components/common/SearchFilter';
+import { FilterConfig } from '@/components/common/SearchFilter';
 
 // Define types for our modules and permissions
 interface Permission {
@@ -139,10 +140,10 @@ const systemModules: Module[] = [
   },
 ];
 
-// Available user profiles
+// Available user profiles - Updated terminology
 const profiles = [
   "Cliente",
-  "Fornecedor externo",
+  "Fornecedor",
   "Funcionário Operacional",
   "Funcionário Supervisor",
   "Administrador"
@@ -152,6 +153,15 @@ const PermissoesUsuario: React.FC = () => {
   const { toast } = useToast();
   const [selectedProfile, setSelectedProfile] = useState<string>("Administrador");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
+
+  // Filter config for search filter
+  const filterConfigs: FilterConfig[] = [
+    {
+      id: 'profile',
+      label: 'Perfil',
+      options: profiles.map(profile => ({ id: profile, label: profile }))
+    }
+  ];
 
   // Initialize permissions with all true for Administrador profile
   React.useEffect(() => {
@@ -266,6 +276,18 @@ const PermissoesUsuario: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="mb-6">
+          <Label htmlFor="profile-search" className="mb-2 block">Buscar Perfis</Label>
+          <SearchFilter
+            placeholder="Buscar perfil..."
+            onSearch={(term, activeFilters) => {
+              if (activeFilters?.profile?.length === 1) {
+                setSelectedProfile(activeFilters.profile[0]);
+              }
+            }}
+            filters={filterConfigs}
+            className="mb-4"
+          />
+          
           <Label htmlFor="profile-select">Selecione o Perfil</Label>
           <Select value={selectedProfile} onValueChange={handleProfileChange}>
             <SelectTrigger id="profile-select" className="w-full md:w-[300px]">
