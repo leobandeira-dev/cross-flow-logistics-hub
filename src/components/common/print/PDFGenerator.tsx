@@ -19,14 +19,20 @@ export const usePDFGenerator = (
 
     setIsGenerating(true);
     try {
+      // Wait for any pending renders to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const canvas = await html2canvas(layoutRef.current, {
-        scale: 2,
+        scale: 1.5, // Reduced scale to avoid memory issues
         useCORS: true,
         logging: false,
+        allowTaint: true, // Allow cross-origin images
         windowWidth: options?.isDANFE ? 1000 : undefined, // Wider for DANFE format
+        backgroundColor: '#ffffff', // Ensure white background
       });
       
-      const imgData = canvas.toDataURL('image/png');
+      // Get image data with specific format and quality
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       
       // Set PDF orientation and size based on layout
       const isLandscape = canvas.width > canvas.height;
@@ -54,7 +60,7 @@ export const usePDFGenerator = (
       }
 
       // Add first page
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
       heightLeft -= (pageHeight - position - margin);
       
       // Add more pages if needed for large layouts
@@ -64,7 +70,7 @@ export const usePDFGenerator = (
         pdf.addPage();
         pdf.addImage(
           imgData, 
-          'PNG', 
+          'JPEG', 
           margin, 
           position - (pageNum - 1) * (pageHeight - (2 * margin)), 
           imgWidth, 
