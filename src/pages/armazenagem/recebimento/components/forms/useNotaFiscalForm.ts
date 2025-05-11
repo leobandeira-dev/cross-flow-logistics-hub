@@ -21,28 +21,30 @@ export const useNotaFiscalForm = () => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       
-      reader.onload = async (e) => {
+      reader.onload = (e) => {
         if (e.target?.result) {
           try {
-            // Usando uma abordagem mais simples para evitar o erro de removeAllListeners
             const xmlContent = e.target.result as string;
             
-            // Usando uma versão simplificada do parseString
-            const parser = new xml2js.Parser({
-              explicitArray: false,
-              mergeAttrs: true
-            });
-            
-            // Usando callbacks para evitar problemas com removeAllListeners
-            parser.parseString(xmlContent, (err: any, result: any) => {
-              if (err) {
-                console.error("Erro ao fazer parse do XML:", err);
-                reject(err);
-              } else {
-                console.log("XML parseado:", result);
-                resolve(result);
+            // Usando o método parseString diretamente sem criar instâncias
+            xml2js.parseString(
+              xmlContent, 
+              { 
+                explicitArray: false, 
+                mergeAttrs: true,
+                normalizeTags: true, // Normaliza tags para lowercase
+                trim: true // Remove espaços em branco
+              }, 
+              (err, result) => {
+                if (err) {
+                  console.error("Erro ao fazer parse do XML:", err);
+                  reject(err);
+                } else {
+                  console.log("XML parseado com sucesso:", result);
+                  resolve(result);
+                }
               }
-            });
+            );
           } catch (error) {
             console.error("Erro ao processar o XML:", error);
             reject(error);
@@ -62,44 +64,62 @@ export const useNotaFiscalForm = () => {
 
   const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> => {
     try {
-      // Mapeamento de dados do XML para o schema da nota fiscal
-      // Este é um exemplo simplificado, adapte conforme a estrutura real do seu XML
-      const nfe = xmlData.nfeProc?.NFe?.infNFe || {};
-      const ide = nfe.ide || {};
-      const emit = nfe.emit || {};
-      const dest = nfe.dest || {};
-      const transp = nfe.transp || {};
+      console.log("Tentando extrair dados do XML:", xmlData);
+      
+      // Tratando diferentes estruturas possíveis do XML
+      // Alguns XMLs da NFe podem ter estruturas ligeiramente diferentes
+      const nfeProc = xmlData.nfeproc || xmlData.nfeProc || {};
+      const nfe = nfeProc.nfe || nfeProc.NFe || {};
+      const infNFe = nfe.infnfe || nfe.infNFe || {};
+      
+      const ide = infNFe.ide || {};
+      const emit = infNFe.emit || {};
+      const dest = infNFe.dest || {};
+      const transp = infNFe.transp || {};
+      const total = infNFe.total || {};
+      
+      console.log("Estrutura encontrada:", {
+        ide: ide,
+        emit: emit,
+        dest: dest,
+        transp: transp,
+        total: total
+      });
       
       return {
         // Dados da nota
-        numeroNF: ide.nNF || '',
+        chaveNF: infNFe.id || infNFe.Id || '',
+        numeroNF: ide.nnf || ide.nNF || '',
         serieNF: ide.serie || '',
-        dataHoraEmissao: ide.dhEmi ? new Date(ide.dhEmi).toISOString().split('T')[0] : '',
-        valorTotal: nfe.total?.ICMSTot?.vNF || '',
+        dataHoraEmissao: ide.dhemi || ide.dhEmi ? new Date(ide.dhemi || ide.dhEmi).toISOString().split('T')[0] : '',
+        valorTotal: total.icmstot?.vnf || total.ICMSTot?.vNF || '',
         
         // Dados do emitente
-        emitenteCNPJ: emit.CNPJ || '',
-        emitenteRazaoSocial: emit.xNome || '',
-        emitenteEndereco: `${emit.enderEmit?.xLgr || ''}, ${emit.enderEmit?.nro || ''}`,
-        emitenteBairro: emit.enderEmit?.xBairro || '',
-        emitenteCidade: emit.enderEmit?.xMun || '',
-        emitenteUF: emit.enderEmit?.UF || '',
-        emitenteCEP: emit.enderEmit?.CEP || '',
+        emitenteCNPJ: emit.cnpj || emit.CNPJ || '',
+        emitenteRazaoSocial: emit.xnome || emit.xNome || '',
+        emitenteEndereco: `${(emit.enderemit?.xlgr || emit.enderEmit?.xLgr || '')}, ${emit.enderemit?.nro || emit.enderEmit?.nro || ''}`,
+        emitenteBairro: emit.enderemit?.xbairro || emit.enderEmit?.xBairro || '',
+        emitenteCidade: emit.enderemit?.xmun || emit.enderEmit?.xMun || '',
+        emitenteUF: emit.enderemit?.uf || emit.enderEmit?.UF || '',
+        emitenteCEP: emit.enderemit?.cep || emit.enderEmit?.CEP || '',
+        emitenteTelefone: emit.enderemit?.fone || emit.enderEmit?.fone || '',
         
         // Dados do destinatário
-        destinatarioCNPJ: dest.CNPJ || '',
-        destinatarioRazaoSocial: dest.xNome || '',
-        destinatarioEndereco: `${dest.enderDest?.xLgr || ''}, ${dest.enderDest?.nro || ''}`,
-        destinatarioBairro: dest.enderDest?.xBairro || '',
-        destinatarioCidade: dest.enderDest?.xMun || '',
-        destinatarioUF: dest.enderDest?.UF || '',
-        destinatarioCEP: dest.enderDest?.CEP || '',
+        destinatarioCNPJ: dest.cnpj || dest.CNPJ || '',
+        destinatarioRazaoSocial: dest.xnome || dest.xNome || '',
+        destinatarioEndereco: `${(dest.enderdest?.xlgr || dest.enderDest?.xLgr || '')}, ${dest.enderdest?.nro || dest.enderDest?.nro || ''}`,
+        destinatarioBairro: dest.enderdest?.xbairro || dest.enderDest?.xBairro || '',
+        destinatarioCidade: dest.enderdest?.xmun || dest.enderDest?.xMun || '',
+        destinatarioUF: dest.enderdest?.uf || dest.enderDest?.UF || '',
+        destinatarioCEP: dest.enderdest?.cep || dest.enderDest?.CEP || '',
+        destinatarioTelefone: dest.enderdest?.fone || dest.enderDest?.fone || '',
         
-        // Informações de transporte - usando os campos corretos do schema
-        responsavelEntrega: transp.transporta?.xNome || '',
-        motorista: transp.veicTransp?.placa ? `Placa: ${transp.veicTransp?.placa}` : '',
-        volumesTotal: transp.vol?.qVol || '',
-        pesoTotalBruto: transp.vol?.pesoB || '',
+        // Informações de transporte
+        responsavelEntrega: transp.transporta?.xnome || transp.transporta?.xNome || '',
+        motorista: transp.veictransp?.placa ? `Placa: ${transp.veictransp?.placa}` : 
+                  transp.veicTransp?.placa ? `Placa: ${transp.veicTransp?.placa}` : '',
+        volumesTotal: transp.vol?.qvol || transp.vol?.qVol || '',
+        pesoTotalBruto: transp.vol?.pesob || transp.vol?.pesoB || '',
       };
     } catch (error) {
       console.error("Erro ao extrair dados do XML:", error);
@@ -116,11 +136,16 @@ export const useNotaFiscalForm = () => {
         
         const xmlData = await parseXmlFile(file);
         if (xmlData) {
+          console.log("XML processado com sucesso, extraindo dados...");
           const extractedData = extractDataFromXml(xmlData);
+          console.log("Dados extraídos:", extractedData);
           
           // Preenche os campos do formulário com os dados extraídos
           Object.entries(extractedData).forEach(([field, value]) => {
-            if (value) setValue(field, value);
+            if (value) {
+              console.log(`Preenchendo campo ${field} com valor:`, value);
+              setValue(field, value);
+            }
           });
           
           toast({
