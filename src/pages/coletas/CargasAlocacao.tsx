@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import CargasPendentes from './components/CargasPendentes';
 import { Carga } from './types/coleta.types';
 
@@ -43,15 +44,15 @@ const CargasAlocacao: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
-      <h1 className="text-2xl font-bold mb-6">Alocação de Cargas</h1>
-      
-      <CargasPendentes
-        cargas={mockCargas}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
-    </div>
+    <MainLayout title="Alocação de Cargas">
+      <div className="space-y-6">
+        <CargasPendentes
+          cargas={mockCargas}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      </div>
+    </MainLayout>
   );
 };
 
