@@ -8,26 +8,19 @@ export interface Volume {
   quantidade: number;
 }
 
-// Adding the missing VolumeItem interface
+// Making VolumeItem consistent with Volume, just with required ID
 export interface VolumeItem {
   id: string;
   altura: number;
   largura: number;
-  profundidade: number;
+  comprimento: number;  // Changed from profundidade to comprimento for consistency
   peso: number;
   quantidade: number;
 }
 
 export interface NotaFiscalVolume {
   numeroNF: string;
-  volumes: {
-    id?: string;
-    altura: number;
-    largura: number;
-    comprimento: number;
-    peso: number;
-    quantidade: number;
-  }[];
+  volumes: Volume[];
   remetente?: string;
   destinatario?: string;
   valorTotal?: number;
@@ -37,9 +30,9 @@ export const calcularVolumeTotal = (volume: Volume): number => {
   return (volume.altura * volume.largura * volume.comprimento * volume.quantidade) / 1000000;
 };
 
-// Adding the missing calcularVolume function
-export const calcularVolume = (altura: number, largura: number, profundidade: number): number => {
-  return (altura * largura * profundidade) / 1000000;
+// Updating calcularVolume to use comprimento instead of profundidade
+export const calcularVolume = (altura: number, largura: number, comprimento: number): number => {
+  return (altura * largura * comprimento) / 1000000;
 };
 
 export const calcularPesoCubado = (volume: Volume, fatorCubagem: number = 300): number => {
@@ -85,7 +78,7 @@ export const calcularTotaisColeta = (notasFiscais: NotaFiscalVolume[]) => {
   };
 };
 
-// Adding the missing generateVolumeId function
+// Adding the generateVolumeId function
 export const generateVolumeId = (): string => {
   return `vol-${Math.random().toString(36).substr(2, 9)}`;
 };

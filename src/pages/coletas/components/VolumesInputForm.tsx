@@ -18,7 +18,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({ volumes, onChange }
       id: generateVolumeId(),
       altura: 0,
       largura: 0,
-      profundidade: 0,
+      comprimento: 0, // Changed from profundidade to comprimento
       peso: 0,
       quantidade: 1
     };
@@ -41,7 +41,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({ volumes, onChange }
 
   // Calculate volume for a single item considering quantity
   const calcularVolumeTotalItem = (item: VolumeItem): number => {
-    const volumeUnitario = calcularVolume(item.altura, item.largura, item.profundidade);
+    const volumeUnitario = calcularVolume(item.altura, item.largura, item.comprimento); // Changed from profundidade to comprimento
     return volumeUnitario * item.quantidade;
   };
 
@@ -111,13 +111,13 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({ volumes, onChange }
                   </div>
                   
                   <div className="space-y-1">
-                    <Label htmlFor={`profundidade-${volume.id}`}>Profundidade (cm)</Label>
+                    <Label htmlFor={`comprimento-${volume.id}`}>Comprimento (cm)</Label>
                     <Input 
-                      id={`profundidade-${volume.id}`}
+                      id={`comprimento-${volume.id}`}
                       type="number" 
                       min="0"
-                      value={volume.profundidade || ''} 
-                      onChange={(e) => atualizarVolume(volume.id, 'profundidade', Number(e.target.value))}
+                      value={volume.comprimento || ''} 
+                      onChange={(e) => atualizarVolume(volume.id, 'comprimento', Number(e.target.value))}
                     />
                   </div>
                   
