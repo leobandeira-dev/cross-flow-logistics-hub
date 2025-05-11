@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { User, UserPlus, Users, Check, X } from 'lucide-react';
+import { User, UserPlus, Users, Check, X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import CadastroForm from './components/CadastroForm';
 import AprovacoesUsuario from './components/AprovacoesUsuario';
+import PermissoesUsuario from './components/PermissoesUsuario';
 
 // Mock data
 const usuariosMock = [
@@ -71,13 +72,14 @@ const CadastroUsuarios: React.FC = () => {
     <MainLayout title="Cadastro de Usuários">
       <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Gerenciamento de Usuários</h2>
-        <p className="text-gray-600">Cadastro, aprovações e listagem de usuários do sistema</p>
+        <p className="text-gray-600">Cadastro, aprovações, permissões e listagem de usuários do sistema</p>
       </div>
       
       <Tabs defaultValue="cadastro" className="mb-6" value={currentTab} onValueChange={setCurrentTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="cadastro">Novo Cadastro</TabsTrigger>
           <TabsTrigger value="aprovacoes">Aprovações Pendentes</TabsTrigger>
+          <TabsTrigger value="permissoes">Permissões</TabsTrigger>
           <TabsTrigger value="listagem">Usuários</TabsTrigger>
         </TabsList>
         
@@ -101,6 +103,10 @@ const CadastroUsuarios: React.FC = () => {
             onApprove={handleApprove}
             onReject={handleReject}
           />
+        </TabsContent>
+        
+        <TabsContent value="permissoes">
+          <PermissoesUsuario />
         </TabsContent>
         
         <TabsContent value="listagem">
