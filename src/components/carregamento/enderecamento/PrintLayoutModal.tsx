@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ const PrintLayoutModal: React.FC<PrintLayoutModalProps> = ({
   layoutRef
 }) => {
   const [email, setEmail] = useState('');
+  const [sending, setSending] = useState(false);
   const { generatePDF, isGenerating } = usePDFGenerator(layoutRef, orderNumber, "Layout de Carregamento");
 
   const handlePrint = async () => {
@@ -56,9 +58,10 @@ const PrintLayoutModal: React.FC<PrintLayoutModalProps> = ({
     }
 
     // Simular envio de email - em uma implementação real, você enviaria o PDF para um backend
-    setIsGenerating(true);
+    setSending(true);
+    
     setTimeout(() => {
-      setIsGenerating(false);
+      setSending(false);
       toast({
         title: "E-mail enviado",
         description: `O layout foi enviado para ${email}`,
@@ -119,7 +122,7 @@ const PrintLayoutModal: React.FC<PrintLayoutModalProps> = ({
               />
               <Button 
                 onClick={handleSendEmail}
-                disabled={isGenerating || !email.trim()}
+                disabled={isGenerating || sending || !email.trim()}
               >
                 <Mail className="mr-2 h-4 w-4" />
                 Enviar
