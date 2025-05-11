@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
 import SearchFilter from '@/components/common/SearchFilter';
 import { filterConfig } from './filterConfig';
-import CargasTable from './CargasTable';
+import { useFilteredCargas } from './useFilteredCargas';
+import CargasFinalizadasCard from './CargasFinalizadasCard';
 
 interface CargasFinalizadasProps {
   cargas: any[];
@@ -17,51 +17,16 @@ const CargasFinalizadas: React.FC<CargasFinalizadasProps> = ({
   setCurrentPage 
 }) => {
   const [searchValue, setSearchValue] = useState('');
-  const [filteredCargas, setFilteredCargas] = useState(cargas);
   const [filters, setFilters] = useState({
     Motorista: 'all',
     Status: 'all'
   });
 
-  // Apply filters whenever cargas, search value or filters change
-  useEffect(() => {
-    let result = [...cargas];
-    
-    // Apply text search
-    if (searchValue) {
-      const searchLower = searchValue.toLowerCase();
-      result = result.filter(carga => 
-        carga.id?.toString().toLowerCase().includes(searchLower) || 
-        carga.destino?.toLowerCase().includes(searchLower) ||
-        carga.motorista?.toLowerCase().includes(searchLower)
-      );
-    }
-    
-    // Apply motorista filter
-    if (filters.Motorista !== 'all') {
-      result = result.filter(carga => {
-        if (!carga.motorista) return false;
-        
-        // Map filter values to motorista names
-        const motoristaMap: Record<string, string> = {
-          'jose': 'José da Silva',
-          'carlos': 'Carlos Santos',
-          'pedro': 'Pedro Oliveira',
-          'antonio': 'Antônio Ferreira',
-          'manuel': 'Manuel Costa',
-        };
-        
-        return carga.motorista === motoristaMap[filters.Motorista];
-      });
-    }
-    
-    // Apply status filter
-    if (filters.Status !== 'all') {
-      result = result.filter(carga => carga.status === filters.Status);
-    }
-    
-    setFilteredCargas(result);
-  }, [cargas, searchValue, filters]);
+  const { filteredCargas } = useFilteredCargas({ 
+    cargas,
+    searchValue,
+    filters
+  });
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
@@ -83,21 +48,11 @@ const CargasFinalizadas: React.FC<CargasFinalizadasProps> = ({
         onFilterChange={handleFilterChange}
       />
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Cargas Finalizadas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CargasTable 
-            cargas={filteredCargas}
-            pagination={{
-              totalPages: Math.max(1, Math.ceil(filteredCargas.length / 10)),
-              currentPage: currentPage,
-              onPageChange: setCurrentPage
-            }}
-          />
-        </CardContent>
-      </Card>
+      <CargasFinalizadasCard 
+        filteredCargas={filteredCargas}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
     </>
   );
 };
