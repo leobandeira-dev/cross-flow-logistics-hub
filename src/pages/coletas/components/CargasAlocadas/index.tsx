@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SearchFilter from '@/components/common/SearchFilter';
-import { toast } from '@/hooks/use-toast';
 import { filterConfig } from './filterConfig';
 import CargasTable from './CargasTable';
 
@@ -17,33 +16,62 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
   currentPage, 
   setCurrentPage 
 }) => {
+  const [searchValue, setSearchValue] = useState('');
+  const [filteredCargas, setFilteredCargas] = useState(cargas);
+  const [filters, setFilters] = useState({
+    Motorista: 'all',
+    Status: 'all'
+  });
+
+  // Apply filters whenever cargas, search value or filters change
+  useEffect(() => {
+    let result = [...cargas];
+    
+    // Apply text search
+    if (searchValue) {
+      const searchLower = searchValue.toLowerCase();
+      result = result.filter(carga => 
+        carga.id?.toString().toLowerCase().includes(searchLower) || 
+        carga.destino?.toLowerCase().includes(searchLower) ||
+        carga.motorista?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Apply motorista filter
+    if (filters.Motorista !== 'all') {
+      result = result.filter(carga => {
+        if (!carga.motorista) return false;
+        
+        // Map filter values to motorista names
+        const motoristaMap: Record<string, string> = {
+          'jose': 'José da Silva',
+          'carlos': 'Carlos Santos',
+          'pedro': 'Pedro Oliveira',
+          'antonio': 'Antônio Ferreira',
+          'manuel': 'Manuel Costa',
+        };
+        
+        return carga.motorista === motoristaMap[filters.Motorista];
+      });
+    }
+    
+    // Apply status filter
+    if (filters.Status !== 'all') {
+      result = result.filter(carga => carga.status === filters.Status);
+    }
+    
+    setFilteredCargas(result);
+  }, [cargas, searchValue, filters]);
+
   const handleSearch = (value: string) => {
-    console.log('Search:', value);
-    // Implementar lógica de busca
+    setSearchValue(value);
   };
   
   const handleFilterChange = (filter: string, value: string) => {
-    console.log(`Filter ${filter} changed to ${value}`);
-    // Implementar lógica de filtro
-  };
-
-  const handleDesalocarMotorista = (cargaId: string, motorista: string) => {
-    // Implementar lógica para desalocar motorista
-    toast({
-      title: "Motorista desalocado com sucesso",
-      description: `O motorista ${motorista} foi removido da carga ${cargaId}.`,
-    });
-    console.log('Motorista desalocado:', motorista, 'da carga:', cargaId);
-  };
-
-  const handleFinalizarCarga = (cargaId: string, status: 'delivered' | 'problem') => {
-    // Implementar lógica para finalizar carga
-    const statusText = status === 'delivered' ? 'entregue' : 'com problema';
-    toast({
-      title: "Carga finalizada com sucesso",
-      description: `A carga ${cargaId} foi marcada como ${statusText}.`,
-    });
-    console.log('Carga finalizada:', cargaId, 'Status:', status);
+    setFilters(prev => ({
+      ...prev,
+      [filter]: value
+    }));
   };
 
   return (
@@ -57,18 +85,16 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
       
       <Card>
         <CardHeader>
-          <CardTitle>Cargas em Andamento</CardTitle>
+          <CardTitle>Cargas Alocadas</CardTitle>
         </CardHeader>
         <CardContent>
           <CargasTable 
-            cargas={cargas}
+            cargas={filteredCargas}
             pagination={{
-              totalPages: Math.ceil(cargas.length / 10),
+              totalPages: Math.max(1, Math.ceil(filteredCargas.length / 10)),
               currentPage: currentPage,
               onPageChange: setCurrentPage
             }}
-            onDesalocarMotorista={handleDesalocarMotorista}
-            onFinalizarCarga={handleFinalizarCarga}
           />
         </CardContent>
       </Card>
