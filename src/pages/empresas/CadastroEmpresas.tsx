@@ -1,13 +1,36 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Building, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import EmpresaForm from './components/EmpresaForm';
+import PermissoesEmpresa from './components/PermissoesEmpresa';
+import { Empresa } from './types/empresa.types';
 
-const CadastroEmpresas: React.FC = () => {
+interface CadastroEmpresasProps {
+  initialTab?: string;
+}
+
+const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadastro' }) => {
   const { toast } = useToast();
-  const [currentTab, setCurrentTab] = useState('cadastro');
+  const [currentTab, setCurrentTab] = useState(initialTab);
+  
+  // Atualiza a tab quando o initialTab mudar (útil para navegação via link)
+  useEffect(() => {
+    setCurrentTab(initialTab);
+  }, [initialTab]);
+
+  const handleEmpresaSubmit = (data: Partial<Empresa>) => {
+    // Aqui normalmente seria feita uma chamada para API
+    console.log("Empresa a cadastrar:", data);
+    
+    toast({
+      title: "Empresa cadastrada",
+      description: "A empresa foi cadastrada com sucesso.",
+    });
+  };
 
   return (
     <MainLayout title="Cadastro de Empresas">
@@ -32,25 +55,13 @@ const CadastroEmpresas: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Empresa form content goes here */}
-              <p>Formulário de cadastro de empresa será implementado aqui</p>
+              <EmpresaForm onSubmit={handleEmpresaSubmit} />
             </CardContent>
           </Card>
         </TabsContent>
         
         <TabsContent value="permissoes">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Users className="mr-2 text-cross-blue" size={20} />
-                Permissões de Empresas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Permissões content goes here */}
-              <p>Gerenciamento de permissões de empresas será implementado aqui</p>
-            </CardContent>
-          </Card>
+          <PermissoesEmpresa />
         </TabsContent>
         
         <TabsContent value="listagem">
@@ -62,8 +73,8 @@ const CadastroEmpresas: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Empresa list content goes here */}
-              <p>Listagem de empresas será implementada aqui</p>
+              {/* TODO: Implementar tabela de listagem de empresas */}
+              <p>Listagem de empresas será implementada em breve</p>
             </CardContent>
           </Card>
         </TabsContent>

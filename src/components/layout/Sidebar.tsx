@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
-  Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, UserPlus
+  Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -77,9 +77,9 @@ const Sidebar: React.FC = () => {
       </div>
       
       <nav className="flex-1 overflow-y-auto py-4 px-2">
-        <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/" active />
+        <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/dashboard" active />
         
-        <SubMenu icon={Truck} label="Coletas" defaultOpen={true}>
+        <SubMenu icon={Truck} label="Coletas" defaultOpen={false}>
           <SidebarItem icon={FileText} label="Solicitações" href="/coletas/solicitacoes" />
           <SidebarItem icon={FileText} label="Aprovações" href="/coletas/aprovacoes" />
           <SidebarItem icon={Map} label="Alocação de Cargas" href="/coletas/alocacao" />
@@ -120,9 +120,16 @@ const Sidebar: React.FC = () => {
           <SidebarItem icon={PackageOpen} label="Cargas" href="/motoristas/cargas" />
         </SubMenu>
         
-        {/* Novo menu de Usuários */}
-        <SubMenu icon={UserPlus} label="Usuários" defaultOpen={false}>
-          <SidebarItem icon={UserPlus} label="Cadastro" href="/usuarios/cadastro" />
+        {/* Menu de Cadastros */}
+        <SubMenu icon={FileText} label="Cadastros" defaultOpen={false}>
+          <SubMenu icon={Users} label="Usuários" defaultOpen={false}>
+            <SidebarItem icon={Users} label="Cadastro" href="/usuarios/cadastro" />
+            <SidebarItem icon={Settings} label="Permissões" href="/usuarios/permissoes" />
+          </SubMenu>
+          <SubMenu icon={Building} label="Empresas" defaultOpen={false}>
+            <SidebarItem icon={Building} label="Cadastro" href="/empresas/cadastro" />
+            <SidebarItem icon={Settings} label="Permissões" href="/empresas/permissoes" />
+          </SubMenu>
         </SubMenu>
         
         <SidebarItem icon={MessageSquare} label="SAC" href="/sac" />

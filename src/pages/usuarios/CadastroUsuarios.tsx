@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -20,12 +20,21 @@ const usuariosMock = [
   { id: 5, nome: 'Carlos Mendes', email: 'carlos@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Administrador', status: 'pendente' },
 ];
 
-const CadastroUsuarios: React.FC = () => {
+interface CadastroUsuariosProps {
+  initialTab?: string;
+}
+
+const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadastro' }) => {
   const { toast } = useToast();
   const [usuarios, setUsuarios] = useState(usuariosMock);
-  const [currentTab, setCurrentTab] = useState('cadastro');
+  const [currentTab, setCurrentTab] = useState(initialTab);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+
+  // Atualiza a tab quando o initialTab mudar (útil para navegação via link)
+  useEffect(() => {
+    setCurrentTab(initialTab);
+  }, [initialTab]);
 
   const handleUsuarioSubmit = (data: any) => {
     // Normalmente aqui teríamos uma chamada para API
