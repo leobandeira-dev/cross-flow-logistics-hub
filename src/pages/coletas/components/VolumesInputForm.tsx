@@ -18,7 +18,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({ volumes, onChange }
       id: generateVolumeId(),
       altura: 0,
       largura: 0,
-      comprimento: 0, // Changed from profundidade to comprimento
+      comprimento: 0,
       peso: 0,
       quantidade: 1
     };
@@ -41,7 +41,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({ volumes, onChange }
 
   // Calculate volume for a single item considering quantity
   const calcularVolumeTotalItem = (item: VolumeItem): number => {
-    const volumeUnitario = calcularVolume(item.altura, item.largura, item.comprimento); // Changed from profundidade to comprimento
+    const volumeUnitario = calcularVolume(item.altura, item.largura, item.comprimento);
     return volumeUnitario * item.quantidade;
   };
 

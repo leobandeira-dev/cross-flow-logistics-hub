@@ -9,13 +9,8 @@ export interface Volume {
 }
 
 // Making VolumeItem consistent with Volume, just with required ID
-export interface VolumeItem {
-  id: string;
-  altura: number;
-  largura: number;
-  comprimento: number;  // Changed from profundidade to comprimento for consistency
-  peso: number;
-  quantidade: number;
+export interface VolumeItem extends Volume {
+  id: string; // This is the only difference - id is required in VolumeItem
 }
 
 export interface NotaFiscalVolume {
