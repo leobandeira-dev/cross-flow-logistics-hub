@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { Carga } from '../../types/coleta.types';
 
 interface UseFilteredCargasPendentesProps {
-  cargas: any[];
+  cargas: Carga[];
 }
 
 export const useFilteredCargasPendentes = ({ cargas }: UseFilteredCargasPendentesProps) => {
@@ -12,13 +13,29 @@ export const useFilteredCargasPendentes = ({ cargas }: UseFilteredCargasPendente
     Destino: 'all'
   });
 
-  // Filter logic can be expanded here as needed
-  const filteredCargas = cargas;
+  const filteredCargas = useMemo(() => {
+    return cargas.filter(carga => {
+      // Filter by search value
+      const matchesSearch = !searchValue || 
+        carga.id.toLowerCase().includes(searchValue.toLowerCase()) || 
+        carga.destino.toLowerCase().includes(searchValue.toLowerCase());
+
+      // Filter by status
+      const matchesStatus = 
+        filters.Status === 'all' || 
+        carga.status === filters.Status;
+
+      // Filter by destination
+      const matchesDestino = 
+        filters.Destino === 'all' || 
+        carga.destino.toLowerCase().includes(filters.Destino.toLowerCase());
+
+      return matchesSearch && matchesStatus && matchesDestino;
+    });
+  }, [cargas, searchValue, filters]);
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
-    console.log('Search:', value);
-    // Implement search logic here
   };
   
   const handleFilterChange = (filter: string, value: string) => {
@@ -26,8 +43,6 @@ export const useFilteredCargasPendentes = ({ cargas }: UseFilteredCargasPendente
       ...prev,
       [filter]: value
     }));
-    console.log(`Filter ${filter} changed to ${value}`);
-    // Implement filter logic here
   };
 
   return {

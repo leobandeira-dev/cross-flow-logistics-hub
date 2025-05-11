@@ -1,69 +1,57 @@
 
 import React, { useState } from 'react';
-import MainLayout from '../../components/layout/MainLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Map, FileText, CheckCircle } from 'lucide-react';
 import CargasPendentes from './components/CargasPendentes';
-import CargasAlocadas from './components/CargasAlocadas';
-import CargasFinalizadas from './components/CargasFinalizadas';
-import { cargas, historicoCargas } from '../motoristas/utils/mockData';
+import { Carga } from './types/coleta.types';
 
-const CargasAlocacao = () => {
-  const [activeTab, setActiveTab] = useState('pendentes');
+// This is mock data that would normally come from an API
+const mockCargas: Carga[] = [
+  {
+    id: 'CARGA-001',
+    destino: 'São Paulo',
+    dataPrevisao: '15/05/2025',
+    volumes: 25,
+    peso: '350kg',
+    status: 'pending'
+  },
+  {
+    id: 'CARGA-002',
+    destino: 'Rio de Janeiro',
+    dataPrevisao: '16/05/2025',
+    volumes: 18,
+    peso: '245kg',
+    status: 'scheduled'
+  },
+  {
+    id: 'CARGA-003',
+    destino: 'Belo Horizonte',
+    dataPrevisao: '17/05/2025',
+    volumes: 32,
+    peso: '410kg',
+    status: 'pending'
+  },
+  {
+    id: 'CARGA-004',
+    destino: 'Curitiba',
+    dataPrevisao: '18/05/2025',
+    volumes: 15,
+    peso: '180kg',
+    status: 'pending'
+  }
+];
+
+const CargasAlocacao: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filtrando cargas por status
-  const cargasPendentes = cargas.filter(carga => !carga.motorista || carga.status === 'pending');
-  const cargasEmAndamento = cargas.filter(carga => carga.motorista && ['transit', 'loading', 'scheduled'].includes(carga.status));
-  const cargasFinalizadas = [...cargas.filter(carga => ['delivered', 'problem'].includes(carga.status)), ...historicoCargas];
-
   return (
-    <MainLayout title="Alocação de Cargas">
-      <div className="mb-6">
-        <div>
-          <h2 className="text-xl font-heading">Gestão de Alocação de Cargas</h2>
-          <p className="text-gray-500">Aloque motoristas e veículos às cargas disponíveis</p>
-        </div>
-      </div>
+    <div className="container mx-auto p-4 max-w-7xl">
+      <h1 className="text-2xl font-bold mb-6">Alocação de Cargas</h1>
       
-      <Tabs defaultValue="pendentes" className="w-full mb-6" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 mb-4">
-          <TabsTrigger value="pendentes" className="flex items-center">
-            <Map className="mr-2 h-4 w-4" /> Cargas Pendentes
-          </TabsTrigger>
-          <TabsTrigger value="alocadas" className="flex items-center">
-            <FileText className="mr-2 h-4 w-4" /> Cargas Alocadas
-          </TabsTrigger>
-          <TabsTrigger value="finalizadas" className="flex items-center">
-            <CheckCircle className="mr-2 h-4 w-4" /> Cargas Finalizadas
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="pendentes">
-          <CargasPendentes 
-            cargas={cargasPendentes} 
-            currentPage={currentPage} 
-            setCurrentPage={setCurrentPage} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="alocadas">
-          <CargasAlocadas 
-            cargas={cargasEmAndamento} 
-            currentPage={currentPage} 
-            setCurrentPage={setCurrentPage} 
-          />
-        </TabsContent>
-
-        <TabsContent value="finalizadas">
-          <CargasFinalizadas 
-            cargas={cargasFinalizadas} 
-            currentPage={currentPage} 
-            setCurrentPage={setCurrentPage} 
-          />
-        </TabsContent>
-      </Tabs>
-    </MainLayout>
+      <CargasPendentes
+        cargas={mockCargas}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
+    </div>
   );
 };
 

@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
-import SearchFilter from '@/components/common/SearchFilter';
 import { filterConfig } from './filterConfig';
 import { useFilteredCargasPendentes } from './useFilteredCargasPendentes';
 import CargasPendentesCard from './CargasPendentesCard';
 import CargasSupportDialog from './CargasSupportDialog';
 import { useAlocacaoModal } from './useAlocacaoModal';
 import AlocacaoModal from '../AlocacaoModal';
+import SearchFilter from '@/components/common/SearchFilter';
 
 interface CargasPendentesProps {
   cargas: any[];

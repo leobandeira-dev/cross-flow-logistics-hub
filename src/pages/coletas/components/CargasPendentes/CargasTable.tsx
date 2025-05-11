@@ -3,13 +3,14 @@ import React from 'react';
 import DataTable from '../../../../components/common/DataTable';
 import StatusBadge from '../../../../components/common/StatusBadge';
 import ActionButtons from './ActionButtons';
+import { Carga } from '../../types/coleta.types';
 
 interface CargasTableProps {
-  cargas: any[];
+  cargas: Carga[];
   currentPage: number;
   setCurrentPage: (page: number) => void;
-  onAlocarMotorista: (carga: any) => void;
-  setSelectedCarga: (carga: any) => void;
+  onAlocarMotorista: (carga: Carga) => void;
+  setSelectedCarga: (carga: Carga) => void;
 }
 
 const CargasTable: React.FC<CargasTableProps> = ({ 
