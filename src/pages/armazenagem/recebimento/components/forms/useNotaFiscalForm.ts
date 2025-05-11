@@ -69,7 +69,7 @@ export const useNotaFiscalForm = () => {
         // Dados da nota
         numeroNF: ide.nNF || '',
         serieNF: ide.serie || '',
-        dataEmissao: ide.dhEmi ? new Date(ide.dhEmi).toISOString().split('T')[0] : '',
+        dataHoraEmissao: ide.dhEmi ? new Date(ide.dhEmi).toISOString().split('T')[0] : '',
         valorTotal: nfe.total?.ICMSTot?.vNF || '',
         
         // Dados do emitente
@@ -148,7 +148,7 @@ export const useNotaFiscalForm = () => {
         // Simular preenchimento de alguns campos
         setValue('numeroNF', '654321');
         setValue('serieNF', '001');
-        setValue('dataEmissao', '2023-05-10');
+        setValue('dataHoraEmissao', '2023-05-10');
         setValue('valorTotal', '1850.75');
         setValue('emitenteRazaoSocial', 'Fornecedor ABC Ltda');
         setValue('emitenteCNPJ', '12.345.678/0001-90');
