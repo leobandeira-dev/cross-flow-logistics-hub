@@ -3,15 +3,13 @@ import React, { useRef, useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { FileText, Upload, Search, Plus, Printer } from 'lucide-react';
+import { FileText, Search, Printer } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import PrintLayoutModal from '@/components/carregamento/enderecamento/PrintLayoutModal';
+import NotaFiscalForm from './components/NotaFiscalForm';
 
 // Mock data
 const notasFiscais = [
@@ -21,7 +19,6 @@ const notasFiscais = [
 ];
 
 const EntradaNotas: React.FC = () => {
-  const form = useForm();
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedNota, setSelectedNota] = useState<string>('');
   const notaFiscalRef = useRef<HTMLDivElement>(null);
@@ -29,10 +26,6 @@ const EntradaNotas: React.FC = () => {
   const handlePrintClick = (notaId: string) => {
     setSelectedNota(notaId);
     setPrintModalOpen(true);
-  };
-  
-  const handleSubmit = (data: any) => {
-    console.log('Form data submitted:', data);
   };
 
   return (
@@ -57,125 +50,7 @@ const EntradaNotas: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="numeroNF"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Número da NF</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Informe o número" {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="fornecedor"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Fornecedor</FormLabel>
-                            <div className="relative">
-                              <FormControl>
-                                <Input placeholder="Buscar fornecedor..." {...field} />
-                              </FormControl>
-                              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="dataEmissao"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Data de Emissão</FormLabel>
-                            <FormControl>
-                              <Input type="date" {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="valorTotal"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Valor Total</FormLabel>
-                            <FormControl>
-                              <Input type="text" placeholder="0,00" {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="tipoOperacao"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tipo de Operação</FormLabel>
-                            <FormControl>
-                              <select 
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
-                                {...field}
-                              >
-                                <option value="">Selecione</option>
-                                <option value="compra">Compra</option>
-                                <option value="devolucao">Devolução</option>
-                                <option value="transferencia">Transferência</option>
-                                <option value="conserto">Conserto</option>
-                              </select>
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="flex items-end">
-                      <Button type="button" variant="outline" className="w-full">
-                        <Upload size={16} className="mr-2" />
-                        Anexar XML
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Card className="border-dashed">
-                      <CardContent className="p-4">
-                        <div className="text-center">
-                          <h3 className="font-medium mb-2">Itens da Nota Fiscal</h3>
-                          <p className="text-sm text-gray-500 mb-4">Adicione os itens da nota fiscal</p>
-                          <Button className="bg-cross-blue hover:bg-cross-blue/90">
-                            <Plus size={16} className="mr-2" />
-                            Adicionar Item
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  
-                  <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline">Cancelar</Button>
-                    <Button type="submit" className="bg-cross-blue hover:bg-cross-blue/90">
-                      Cadastrar Nota Fiscal
-                    </Button>
-                  </div>
-                </form>
-              </Form>
+              <NotaFiscalForm />
             </CardContent>
           </Card>
         </TabsContent>
