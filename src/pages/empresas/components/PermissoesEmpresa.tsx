@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Check, Search, Plus } from 'lucide-react';
+import { Settings, Check, Search, Plus, Pencil } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -20,6 +19,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Similar to user permissions, adapted for companies
@@ -145,11 +156,30 @@ const empresasMock = [
   { id: "4", nome: "Fornecedor XYZ S.A.", cnpj: "56.789.012/0001-34", perfil: "Fornecedor" },
 ];
 
-const PerfilDialog = ({ onAddPerfil }: { onAddPerfil: (nome: string, descricao: string) => void }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const ProfileDialog = ({ 
+  onSavePerfil, 
+  editingProfile = null, 
+  isOpen,
+  setIsOpen
+}: { 
+  onSavePerfil: (nome: string, descricao: string, id?: string) => void, 
+  editingProfile?: { id: string, nome: string, descricao?: string } | null,
+  isOpen: boolean,
+  setIsOpen: (open: boolean) => void
+}) => {
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (editingProfile) {
+      setNome(editingProfile.nome);
+      setDescricao(editingProfile.descricao || '');
+    } else {
+      setNome('');
+      setDescricao('');
+    }
+  }, [editingProfile, isOpen]);
 
   const handleSubmit = () => {
     if (!nome) {
@@ -161,25 +191,17 @@ const PerfilDialog = ({ onAddPerfil }: { onAddPerfil: (nome: string, descricao: 
       return;
     }
 
-    onAddPerfil(nome, descricao);
+    onSavePerfil(nome, descricao, editingProfile?.id);
     setIsOpen(false);
-    setNome('');
-    setDescricao('');
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1">
-          <Plus size={14} />
-          Novo Perfil
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Adicionar Novo Perfil de Empresa</DialogTitle>
+          <DialogTitle>{editingProfile ? 'Editar Perfil de Empresa' : 'Adicionar Novo Perfil de Empresa'}</DialogTitle>
           <DialogDescription>
-            Crie um novo perfil para categorizar as empresas do sistema.
+            {editingProfile ? 'Edite as informações do perfil existente.' : 'Crie um novo perfil para categorizar as empresas do sistema.'}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
@@ -194,7 +216,104 @@ const PerfilDialog = ({ onAddPerfil }: { onAddPerfil: (nome: string, descricao: 
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
-          <Button onClick={handleSubmit} className="bg-cross-blue hover:bg-cross-blue/90">Adicionar</Button>
+          <Button onClick={handleSubmit} className="bg-cross-blue hover:bg-cross-blue/90">
+            {editingProfile ? 'Atualizar' : 'Adicionar'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const ManageProfilesDialog = ({ 
+  profiles, 
+  onEditProfile, 
+  onDeleteProfile 
+}: { 
+  profiles: Array<{ id: string, nome: string, descricao?: string }>, 
+  onEditProfile: (profile: any) => void,
+  onDeleteProfile: (id: string) => void
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="ml-2">
+          Gerenciar Perfis
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Gerenciar Perfis de Empresa</DialogTitle>
+          <DialogDescription>
+            Visualize, edite ou exclua os perfis de empresa existentes.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="mt-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Descrição</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {profiles.map((profile) => (
+                <TableRow key={profile.id}>
+                  <TableCell className="font-medium">{profile.nome}</TableCell>
+                  <TableCell>{profile.descricao || '-'}</TableCell>
+                  <TableCell className="text-right">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => {
+                        onEditProfile(profile);
+                        setIsOpen(false);
+                      }}
+                    >
+                      <Pencil size={16} className="mr-1" />
+                      Editar
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                          Excluir
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir o perfil "{profile.nome}"?
+                            Esta ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction 
+                            className="bg-red-600 hover:bg-red-700"
+                            onClick={() => {
+                              onDeleteProfile(profile.id);
+                              setIsOpen(false);
+                            }}
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Fechar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -207,8 +326,10 @@ const PermissoesEmpresa: React.FC = () => {
   const [selectedPerfil, setSelectedPerfil] = useState<string>("Transportadora");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
   const [filteredEmpresas, setFilteredEmpresas] = useState(empresasMock);
-  const [customProfiles, setCustomProfiles] = useState<string[]>([]);
+  const [customProfiles, setCustomProfiles] = useState<Array<{ id: string, nome: string, descricao?: string }>>([]);
   const [allProfiles, setAllProfiles] = useState<string[]>(profiles);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [editingProfile, setEditingProfile] = useState<{ id: string, nome: string, descricao?: string } | null>(null);
   
   // Search filter config
   const filterConfigs: FilterConfig[] = [
@@ -221,7 +342,7 @@ const PermissoesEmpresa: React.FC = () => {
 
   // Update all profiles when custom profiles change
   useEffect(() => {
-    setAllProfiles([...profiles, ...customProfiles]);
+    setAllProfiles([...profiles, ...customProfiles.map(p => p.nome)]);
   }, [customProfiles]);
 
   // Initialize permissions based on company and profile selection
@@ -366,13 +487,47 @@ const PermissoesEmpresa: React.FC = () => {
     return empresa ? `${empresa.nome} (${empresa.cnpj})` : '';
   };
 
-  // Handle adding a new profile
-  const handleAddPerfil = (nome: string, descricao: string) => {
-    setCustomProfiles(prev => [...prev, nome]);
+  // Handle adding or editing a profile
+  const handleSavePerfil = (nome: string, descricao: string, id?: string) => {
+    if (id) {
+      // Edit existing profile
+      setCustomProfiles(prev => prev.map(p => 
+        p.id === id ? { ...p, nome, descricao } : p
+      ));
+      toast({
+        title: "Perfil atualizado",
+        description: `O perfil "${nome}" foi atualizado com sucesso.`,
+      });
+    } else {
+      // Add new profile
+      const newId = `custom-${Date.now()}`;
+      setCustomProfiles(prev => [...prev, { id: newId, nome, descricao }]);
+      toast({
+        title: "Perfil adicionado",
+        description: `O perfil "${nome}" foi adicionado com sucesso.`,
+      });
+    }
+  };
+
+  // Handle deleting a profile
+  const handleDeleteProfile = (id: string) => {
+    setCustomProfiles(prev => prev.filter(p => p.id !== id));
     toast({
-      title: "Perfil adicionado",
-      description: `O perfil "${nome}" foi adicionado com sucesso.`,
+      title: "Perfil excluído",
+      description: `O perfil foi excluído com sucesso.`,
     });
+  };
+
+  // Open dialog to add new profile
+  const handleAddNewProfile = () => {
+    setEditingProfile(null);
+    setIsProfileDialogOpen(true);
+  };
+
+  // Open dialog to edit profile
+  const handleEditProfile = (profile: any) => {
+    setEditingProfile(profile);
+    setIsProfileDialogOpen(true);
   };
 
   // Handle search and filtering
@@ -414,7 +569,6 @@ const PermissoesEmpresa: React.FC = () => {
             className="mb-4"
           />
           
-          <Label htmlFor="empresa-select" className="mb-2 block">Selecione a Empresa</Label>
           <Select value={selectedEmpresa} onValueChange={handleEmpresaChange}>
             <SelectTrigger id="empresa-select" className="w-full md:w-[400px]">
               <SelectValue placeholder="Selecione uma empresa" />
@@ -445,8 +599,19 @@ const PermissoesEmpresa: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <PerfilDialog onAddPerfil={handleAddPerfil} />
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="gap-1" onClick={handleAddNewProfile}>
+              <Plus size={14} />
+              Novo Perfil
+            </Button>
+            <ManageProfilesDialog 
+              profiles={[
+                ...profiles.map((p, i) => ({ id: `default-${i}`, nome: p })),
+                ...customProfiles
+              ]} 
+              onEditProfile={handleEditProfile}
+              onDeleteProfile={handleDeleteProfile}
+            />
           </div>
         </div>
 
@@ -542,6 +707,14 @@ const PermissoesEmpresa: React.FC = () => {
             </div>
           </>
         )}
+
+        {/* Profile Dialog */}
+        <ProfileDialog 
+          onSavePerfil={handleSavePerfil} 
+          editingProfile={editingProfile} 
+          isOpen={isProfileDialogOpen}
+          setIsOpen={setIsProfileDialogOpen}
+        />
       </CardContent>
     </Card>
   );
