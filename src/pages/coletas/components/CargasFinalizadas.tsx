@@ -1,11 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../../components/common/DataTable';
 import { Button } from '@/components/ui/button';
-import { FileText, UserX, MessageSquare } from 'lucide-react';
+import { FileText, MessageSquare } from 'lucide-react';
 import StatusBadge from '../../../components/common/StatusBadge';
 import SearchFilter from '../../../components/common/SearchFilter';
-import { toast } from '@/hooks/use-toast';
 import { handleWhatsAppSupport, problemosComuns } from '../../motoristas/utils/supportHelpers';
 import {
   Dialog,
@@ -16,13 +16,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-interface CargasAlocadasProps {
+interface CargasFinalizadasProps {
   cargas: any[];
   currentPage: number;
   setCurrentPage: (page: number) => void;
 }
 
-const CargasAlocadas: React.FC<CargasAlocadasProps> = ({ 
+const CargasFinalizadas: React.FC<CargasFinalizadasProps> = ({ 
   cargas, 
   currentPage, 
   setCurrentPage 
@@ -46,9 +46,8 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
       name: 'Status',
       options: [
         { label: 'Todos', value: 'all' },
-        { label: 'Em trânsito', value: 'transit' },
-        { label: 'Em carregamento', value: 'loading' },
-        { label: 'Agendada', value: 'scheduled' },
+        { label: 'Entregues', value: 'delivered' },
+        { label: 'Com problemas', value: 'problem' },
       ]
     }
   ];
@@ -61,25 +60,6 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
   const handleFilterChange = (filter: string, value: string) => {
     console.log(`Filter ${filter} changed to ${value}`);
     // Implementar lógica de filtro
-  };
-
-  const handleDesalocarMotorista = (cargaId: string, motorista: string) => {
-    // Implementar lógica para desalocar motorista
-    toast({
-      title: "Motorista desalocado com sucesso",
-      description: `O motorista ${motorista} foi removido da carga ${cargaId}.`,
-    });
-    console.log('Motorista desalocado:', motorista, 'da carga:', cargaId);
-  };
-
-  const handleFinalizarCarga = (cargaId: string, status: 'delivered' | 'problem') => {
-    // Implementar lógica para finalizar carga
-    const statusText = status === 'delivered' ? 'entregue' : 'com problema';
-    toast({
-      title: "Carga finalizada com sucesso",
-      description: `A carga ${cargaId} foi marcada como ${statusText}.`,
-    });
-    console.log('Carga finalizada:', cargaId, 'Status:', status);
   };
 
   const handleSupportRequest = (problem: string, description: string) => {
@@ -113,7 +93,7 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
       
       <Card>
         <CardHeader>
-          <CardTitle>Cargas em Andamento</CardTitle>
+          <CardTitle>Cargas Finalizadas</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
@@ -122,7 +102,7 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
               { header: 'Destino', accessor: 'destino' },
               { header: 'Motorista', accessor: 'motorista' },
               { header: 'Veículo', accessor: 'veiculo' },
-              { header: 'Data Prevista', accessor: 'dataPrevisao' },
+              { header: 'Data Entrega', accessor: 'dataEntrega', cell: (row) => row.dataEntrega || row.dataPrevisao },
               { header: 'Volumes', accessor: 'volumes' },
               { header: 'Peso', accessor: 'peso' },
               { 
@@ -130,18 +110,17 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
                 accessor: 'status',
                 cell: (row) => {
                   const statusMap: any = {
-                    'transit': { type: 'info', text: 'Em Trânsito' },
-                    'loading': { type: 'warning', text: 'Em Carregamento' },
-                    'scheduled': { type: 'default', text: 'Agendada' },
+                    'delivered': { type: 'success', text: 'Entregue' },
+                    'problem': { type: 'error', text: 'Problema' }
                   };
-                  const status = statusMap[row.status];
+                  const status = statusMap[row.status] || { type: 'default', text: 'Finalizado' };
                   return <StatusBadge status={status.type} text={status.text} />;
                 }
               },
               { 
                 header: 'Ações', 
                 accessor: 'actions',
-                className: "text-right w-[300px]",
+                className: "text-right w-[180px]",
                 cell: (row) => (
                   <div className="flex space-x-2 justify-end">
                     <Dialog open={openSupportDialog && selectedCarga?.id === row.id} onOpenChange={(open) => {
@@ -206,24 +185,6 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
                     >
                       <FileText className="h-4 w-4 mr-1" /> Detalhes
                     </Button>
-                    
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      className="text-red-600 border-red-600 hover:bg-red-50"
-                      onClick={() => handleDesalocarMotorista(row.id, row.motorista)}
-                    >
-                      <UserX className="h-4 w-4 mr-1" /> Desalocar
-                    </Button>
-
-                    <Button 
-                      variant="outline"
-                      size="sm" 
-                      className="text-green-600 border-green-600 hover:bg-green-50"
-                      onClick={() => handleFinalizarCarga(row.id, 'delivered')}
-                    >
-                      Finalizar
-                    </Button>
                   </div>
                 )
               }
@@ -242,4 +203,4 @@ const CargasAlocadas: React.FC<CargasAlocadasProps> = ({
   );
 };
 
-export default CargasAlocadas;
+export default CargasFinalizadas;

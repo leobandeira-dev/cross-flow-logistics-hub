@@ -34,3 +34,26 @@ export interface SolicitacaoRecusada extends SolicitacaoColetaBase {
 }
 
 export type SolicitacaoColeta = SolicitacaoPendente | SolicitacaoAprovada | SolicitacaoRecusada;
+
+// Tipos de status para cargas
+export type StatusCarga = 
+  | 'pending'    // Pendente de alocação
+  | 'scheduled'  // Agendada
+  | 'loading'    // Em carregamento
+  | 'transit'    // Em trânsito
+  | 'delivered'  // Entregue
+  | 'problem';   // Finalizada com problema
+
+// Interface para representar uma carga no sistema
+export interface Carga {
+  id: string;
+  destino: string;
+  dataPrevisao?: string;
+  dataEntrega?: string;
+  volumes: number;
+  peso: string;
+  status: StatusCarga;
+  motorista?: string;
+  veiculo?: string;
+  observacoes?: string;
+}

@@ -2,14 +2,20 @@
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Map, FileText } from 'lucide-react';
+import { Map, FileText, CheckCircle } from 'lucide-react';
 import CargasPendentes from './components/CargasPendentes';
 import CargasAlocadas from './components/CargasAlocadas';
+import CargasFinalizadas from './components/CargasFinalizadas';
 import { cargas, historicoCargas } from '../motoristas/utils/mockData';
 
 const CargasAlocacao = () => {
   const [activeTab, setActiveTab] = useState('pendentes');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Filtrando cargas por status
+  const cargasPendentes = cargas.filter(carga => !carga.motorista || carga.status === 'pending');
+  const cargasEmAndamento = cargas.filter(carga => carga.motorista && ['transit', 'loading', 'scheduled'].includes(carga.status));
+  const cargasFinalizadas = [...cargas.filter(carga => ['delivered', 'problem'].includes(carga.status)), ...historicoCargas];
 
   return (
     <MainLayout title="Alocação de Cargas">
@@ -21,18 +27,21 @@ const CargasAlocacao = () => {
       </div>
       
       <Tabs defaultValue="pendentes" className="w-full mb-6" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 mb-4">
+        <TabsList className="grid w-full grid-cols-3 mb-4">
           <TabsTrigger value="pendentes" className="flex items-center">
             <Map className="mr-2 h-4 w-4" /> Cargas Pendentes
           </TabsTrigger>
           <TabsTrigger value="alocadas" className="flex items-center">
             <FileText className="mr-2 h-4 w-4" /> Cargas Alocadas
           </TabsTrigger>
+          <TabsTrigger value="finalizadas" className="flex items-center">
+            <CheckCircle className="mr-2 h-4 w-4" /> Cargas Finalizadas
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="pendentes">
           <CargasPendentes 
-            cargas={cargas.filter(carga => !carga.motorista || carga.status === 'pending')} 
+            cargas={cargasPendentes} 
             currentPage={currentPage} 
             setCurrentPage={setCurrentPage} 
           />
@@ -40,7 +49,15 @@ const CargasAlocacao = () => {
         
         <TabsContent value="alocadas">
           <CargasAlocadas 
-            cargas={[...cargas.filter(carga => carga.motorista && carga.status !== 'pending'), ...historicoCargas]} 
+            cargas={cargasEmAndamento} 
+            currentPage={currentPage} 
+            setCurrentPage={setCurrentPage} 
+          />
+        </TabsContent>
+
+        <TabsContent value="finalizadas">
+          <CargasFinalizadas 
+            cargas={cargasFinalizadas} 
             currentPage={currentPage} 
             setCurrentPage={setCurrentPage} 
           />
