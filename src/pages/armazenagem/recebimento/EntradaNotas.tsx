@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import DocumentPrintModal from '@/components/common/DocumentPrintModal';
@@ -16,14 +16,23 @@ const EntradaNotas: React.FC = () => {
   const danfeRef = useRef<HTMLDivElement>(null);
   const simplifiedDanfeRef = useRef<HTMLDivElement>(null);
   
+  // Make sure refs are properly updated when content changes
+  const [notaData, setNotaData] = useState<any>(null);
+  
+  // Find the selected nota fiscal data for DANFE
+  useEffect(() => {
+    if (selectedNota) {
+      const foundNota = notasFiscais.find(nota => nota.id === selectedNota);
+      console.log("Nota selecionada para impressão:", foundNota);
+      setNotaData(foundNota);
+    } else {
+      setNotaData(null);
+    }
+  }, [selectedNota]);
+  
   const handlePrintClick = (notaId: string) => {
     setSelectedNota(notaId);
     setPrintModalOpen(true);
-  };
-
-  // Find the selected nota fiscal data for DANFE
-  const getNotaData = () => {
-    return notasFiscais.find(nota => nota.id === selectedNota);
   };
 
   return (
@@ -49,17 +58,17 @@ const EntradaNotas: React.FC = () => {
       </Tabs>
       
       {/* Hidden divs that serve as print templates */}
-      <div className="hidden">
-        <div ref={notaFiscalRef}>
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <div ref={notaFiscalRef} style={{ width: '800px', backgroundColor: '#fff' }}>
           <NotaPrintTemplate notaId={selectedNota} />
         </div>
         
-        <div ref={danfeRef}>
-          <DANFELayout notaFiscalData={getNotaData()} />
+        <div ref={danfeRef} style={{ width: '800px', backgroundColor: '#fff' }}>
+          <DANFELayout notaFiscalData={notaData} />
         </div>
         
-        <div ref={simplifiedDanfeRef}>
-          <DANFELayout notaFiscalData={getNotaData()} simplified />
+        <div ref={simplifiedDanfeRef} style={{ width: '800px', backgroundColor: '#fff' }}>
+          <DANFELayout notaFiscalData={notaData} simplified />
         </div>
       </div>
       
@@ -71,7 +80,7 @@ const EntradaNotas: React.FC = () => {
         layoutRef={notaFiscalRef}
         danfeRef={danfeRef}
         simplifiedDanfeRef={simplifiedDanfeRef}
-        xmlData={getNotaData()}
+        xmlData={notaData}
       />
     </MainLayout>
   );

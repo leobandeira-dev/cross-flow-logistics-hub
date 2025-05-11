@@ -33,16 +33,30 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [selectedLayout, setSelectedLayout] = useState('default');
+  
+  // Determine which ref to use based on selected layout
+  const activeRef = React.useMemo(() => {
+    switch (selectedLayout) {
+      case 'danfe': return danfeRef;
+      case 'simplified': return simplifiedDanfeRef;
+      default: return layoutRef;
+    }
+  }, [selectedLayout, layoutRef, danfeRef, simplifiedDanfeRef]);
+  
   const { generatePDF, isGenerating } = usePDFGenerator(
-    selectedLayout === 'default' ? layoutRef : 
-    selectedLayout === 'danfe' ? danfeRef : 
-    simplifiedDanfeRef,
+    activeRef,
     documentId, 
     documentType
   );
 
   const handlePrint = async () => {
-    const pdf = await generatePDF();
+    console.log("Iniciando impressão do layout:", selectedLayout);
+    console.log("Referência ativa:", activeRef?.current);
+    
+    const pdf = await generatePDF({
+      isDANFE: selectedLayout === 'danfe' || selectedLayout === 'simplified'
+    });
+    
     if (pdf) {
       pdf.output('dataurlnewwindow');
       toast({
@@ -53,7 +67,12 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
   };
 
   const handleSave = async () => {
-    const pdf = await generatePDF();
+    console.log("Iniciando salvamento do layout:", selectedLayout);
+    
+    const pdf = await generatePDF({
+      isDANFE: selectedLayout === 'danfe' || selectedLayout === 'simplified'
+    });
+    
     if (pdf) {
       const layoutSuffix = selectedLayout !== 'default' ? `_${selectedLayout}` : '';
       const defaultFilename = `${documentType.toLowerCase().replace(/\s/g, '_')}_${documentId.replace(/\s/g, '_')}${layoutSuffix}.pdf`;

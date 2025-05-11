@@ -22,9 +22,18 @@ export const formatDate = (dateStr: string): string => {
   if (!dateStr) return '';
   
   try {
+    // Handle both ISO format and timestamp formats
     const date = new Date(dateStr);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.warn("Invalid date format:", dateStr);
+      return dateStr;
+    }
+    
     return date.toLocaleDateString('pt-BR');
   } catch (e) {
+    console.error("Error formatting date:", e);
     return dateStr;
   }
 };
@@ -35,10 +44,15 @@ export const formatDate = (dateStr: string): string => {
 export const formatCurrency = (value: string | number): string => {
   if (value === undefined || value === null) return 'R$ 0,00';
   
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
-  
-  return new Intl.NumberFormat('pt-BR', { 
-    style: 'currency', 
-    currency: 'BRL' 
-  }).format(numValue);
+  try {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    
+    return new Intl.NumberFormat('pt-BR', { 
+      style: 'currency', 
+      currency: 'BRL' 
+    }).format(numValue);
+  } catch (error) {
+    console.error("Error formatting currency:", error);
+    return 'R$ 0,00';
+  }
 };

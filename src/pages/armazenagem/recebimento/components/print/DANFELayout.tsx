@@ -34,10 +34,12 @@ const DANFELayout: React.FC<DANFELayoutProps> = ({ notaFiscalData, simplified = 
       { descricao: 'PRODUTO EXEMPLO 2', quantidade: 5, valor: 150.00, ncm: '87654321' },
     ]
   };
+  
+  console.log("Renderizando DANFE com dados:", data);
 
   if (simplified) {
     return (
-      <div className="bg-white p-4 w-full font-mono text-xs">
+      <div className="bg-white p-4 w-full font-mono text-xs print:block print:visible" style={{minHeight: '500px'}}>
         <div className="border-2 border-black p-2 text-center mb-4">
           <div className="text-lg font-bold">DANFE SIMPLIFICADO</div>
           <div>DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA</div>
@@ -78,7 +80,7 @@ const DANFELayout: React.FC<DANFELayoutProps> = ({ notaFiscalData, simplified = 
   }
 
   return (
-    <div className="bg-white p-4 w-full font-mono text-xs">
+    <div className="bg-white p-4 w-full font-mono text-xs print:block print:visible" style={{minHeight: '800px'}}>
       <div className="grid grid-cols-3 border-2 border-black">
         <div className="col-span-1 border-r-2 border-black p-2">
           <div className="text-center">

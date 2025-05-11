@@ -15,48 +15,66 @@ export const usePDFGenerator = (
   const [isGenerating, setIsGenerating] = React.useState(false);
 
   const generatePDF = async (options?: { isDANFE?: boolean }) => {
-    if (!layoutRef.current) return null;
+    if (!layoutRef.current) {
+      toast({
+        title: "Erro",
+        description: "Conteúdo não encontrado para gerar PDF.",
+        variant: "destructive"
+      });
+      return null;
+    }
 
     setIsGenerating(true);
     try {
-      // Wait for any pending renders to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for all images and resources to load fully
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Convert the layout to canvas with optimal settings
+      console.log("Iniciando geração do PDF para:", documentType, documentId);
+      console.log("Referência do elemento:", layoutRef.current);
+      
+      // Capture the content with higher quality settings
       const canvas = await html2canvas(layoutRef.current, {
-        scale: 1, // Reduce scale to prevent memory issues
+        scale: 2, // Higher scale for better quality
         useCORS: true,
-        logging: false,
+        logging: true, // Enable logging for debugging
         allowTaint: true,
         backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          // Make sure the cloned document is visible for rendering
+          const clonedElement = clonedDoc.querySelector('[data-html2canvas-clone="true"]');
+          if (clonedElement) {
+            console.log("Elemento clonado encontrado e preparado para renderização");
+            (clonedElement as HTMLElement).style.display = "block";
+            (clonedElement as HTMLElement).style.visibility = "visible";
+            (clonedElement as HTMLElement).style.position = "absolute";
+            (clonedElement as HTMLElement).style.top = "0";
+            (clonedElement as HTMLElement).style.left = "0";
+          }
+        }
       });
       
-      // Get image data
-      const imgData = canvas.toDataURL('image/jpeg', 0.9);
+      console.log("Canvas gerado com dimensões:", canvas.width, "x", canvas.height);
       
-      // Calculate page orientation based on canvas dimensions
+      // Set up PDF with appropriate orientation
       const isLandscape = canvas.width > canvas.height;
       const pdf = new jsPDF({
         orientation: isLandscape ? 'landscape' : 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        compress: true
       });
       
-      // A4 dimensions
+      // Get PDF dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Calculate image dimensions to fit the page with margins
+      // Calculate margins and available space
       const margin = 10;
       const availableWidth = pdfWidth - (2 * margin);
-      const availableHeight = pdfHeight - (2 * margin);
       
-      // Calculate image aspect ratio
-      const imageRatio = canvas.height / canvas.width;
-      
-      // Calculate dimensions that maintain the aspect ratio
-      const imgWidth = availableWidth;
-      const imgHeight = imgWidth * imageRatio;
+      // Calculate scaling factors
+      const scaleFactor = availableWidth / canvas.width;
+      const scaledHeight = canvas.height * scaleFactor;
       
       // Add title if not a DANFE document
       let yPosition = margin;
@@ -66,60 +84,87 @@ export const usePDFGenerator = (
         yPosition += 10;
       }
       
-      // If the image fits on one page
-      if (imgHeight <= availableHeight) {
-        pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, imgHeight);
+      // Handle multi-page rendering if needed
+      const contentHeight = scaledHeight;
+      const maxHeightPerPage = pdfHeight - margin * 2 - (yPosition - margin);
+      
+      if (contentHeight <= maxHeightPerPage) {
+        // Content fits on a single page
+        console.log("Conteúdo cabe em uma única página");
+        pdf.addImage(
+          canvas.toDataURL('image/jpeg', 1.0),
+          'JPEG',
+          margin,
+          yPosition,
+          availableWidth,
+          scaledHeight
+        );
       } else {
-        // For multi-page, we'll slice the image
+        // Content needs multiple pages
+        console.log("Conteúdo requer múltiplas páginas");
+        
         let remainingHeight = canvas.height;
         let sourceY = 0;
-        let pageIndex = 0;
+        let currentPage = 0;
         
         while (remainingHeight > 0) {
-          // Calculate how much of the image we can fit on this page
-          const pageCanvasHeight = pageIndex === 0 
-            ? (availableHeight - (yPosition - margin)) / imgHeight * canvas.height 
-            : availableHeight / imgHeight * canvas.height;
+          // Calculate height for this page in canvas space
+          const pageHeightInCanvasSpace = currentPage === 0
+            ? (maxHeightPerPage / scaleFactor)
+            : ((pdfHeight - margin * 2) / scaleFactor);
           
-          // Create a temporary canvas for this slice
-          const tmpCanvas = document.createElement('canvas');
-          tmpCanvas.width = canvas.width;
-          tmpCanvas.height = Math.min(pageCanvasHeight, remainingHeight);
+          // Create a temporary canvas for the slice
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = canvas.width;
+          tempCanvas.height = Math.min(pageHeightInCanvasSpace, remainingHeight);
           
           // Draw the slice to the temporary canvas
-          const ctx = tmpCanvas.getContext('2d');
+          const ctx = tempCanvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(
-              canvas, 
-              0, sourceY, canvas.width, tmpCanvas.height,
-              0, 0, tmpCanvas.width, tmpCanvas.height
+              canvas,
+              0, sourceY, canvas.width, tempCanvas.height,
+              0, 0, canvas.width, tempCanvas.height
             );
             
-            // Convert the slice to image data
-            const sliceData = tmpCanvas.toDataURL('image/jpeg', 0.9);
+            // Calculate this slice dimensions in PDF space
+            const sliceHeightInPDF = tempCanvas.height * scaleFactor;
+            const currentYPosition = currentPage === 0 ? yPosition : margin;
             
-            // Calculate the height of this slice in PDF
-            const sliceHeight = (tmpCanvas.height / canvas.width) * imgWidth;
+            console.log(`Adicionando página ${currentPage + 1}:`, {
+              height: tempCanvas.height,
+              y: sourceY,
+              pdfY: currentYPosition
+            });
             
             // Add the slice to the PDF
-            pdf.addImage(sliceData, 'JPEG', margin, yPosition, imgWidth, sliceHeight);
+            pdf.addImage(
+              tempCanvas.toDataURL('image/jpeg', 1.0),
+              'JPEG',
+              margin,
+              currentYPosition,
+              availableWidth,
+              sliceHeightInPDF
+            );
             
-            // Update for next slice
-            sourceY += tmpCanvas.height;
-            remainingHeight -= tmpCanvas.height;
+            // Update for next page
+            sourceY += tempCanvas.height;
+            remainingHeight -= tempCanvas.height;
             
+            // Add a new page if needed
             if (remainingHeight > 0) {
               pdf.addPage();
-              yPosition = margin;
-              pageIndex++;
+              currentPage++;
             }
           }
         }
       }
       
+      console.log("PDF gerado com sucesso");
       return pdf;
+      
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
+      console.error("Erro detalhado ao gerar PDF:", error);
       toast({
         title: "Erro",
         description: "Ocorreu um erro ao gerar o PDF. Tente novamente.",
