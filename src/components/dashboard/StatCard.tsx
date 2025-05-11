@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface StatCardProps {
   title: string;
@@ -10,6 +11,8 @@ interface StatCardProps {
     positive: boolean;
   };
   color?: 'blue' | 'gray' | 'green' | 'amber' | 'red';
+  navigateTo?: string;
+  filterParams?: Record<string, string>;
 }
 
 const StatCard: React.FC<StatCardProps> = ({ 
@@ -17,8 +20,12 @@ const StatCard: React.FC<StatCardProps> = ({
   value, 
   icon, 
   trend, 
-  color = 'blue' 
+  color = 'blue',
+  navigateTo,
+  filterParams = {}
 }) => {
+  const navigate = useNavigate();
+  
   const getColorClass = () => {
     switch (color) {
       case 'blue': return 'border-l-cross-blue';
@@ -30,8 +37,26 @@ const StatCard: React.FC<StatCardProps> = ({
     }
   };
 
+  const handleClick = () => {
+    if (navigateTo) {
+      // Create URL search params for filtering
+      const searchParams = new URLSearchParams();
+      
+      // Add all filter parameters
+      Object.entries(filterParams).forEach(([key, value]) => {
+        searchParams.append(key, value);
+      });
+      
+      // Navigate with query params
+      navigate(`${navigateTo}?${searchParams.toString()}`);
+    }
+  };
+
   return (
-    <div className={`card-dashboard border-l-4 ${getColorClass()}`}>
+    <div 
+      className={`card-dashboard border-l-4 ${getColorClass()} ${navigateTo ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      onClick={navigateTo ? handleClick : undefined}
+    >
       <div className="flex justify-between items-start">
         <div>
           <p className="text-sm font-medium text-gray-500">{title}</p>

@@ -12,6 +12,8 @@ const StatCardsSection = () => {
         icon={<Truck className="text-cross-blue" />}
         trend={{ value: 8, positive: true }}
         color="blue"
+        navigateTo="/coletas/alocacao"
+        filterParams={{ status: "pending" }}
       />
       <StatCard 
         title="Cargas em Trânsito" 
@@ -19,6 +21,8 @@ const StatCardsSection = () => {
         icon={<Package className="text-cross-gray" />}
         trend={{ value: 12, positive: true }}
         color="gray"
+        navigateTo="/motoristas/cargas"
+        filterParams={{ status: "transit" }}
       />
       <StatCard 
         title="Ocorrências Abertas" 
@@ -26,6 +30,8 @@ const StatCardsSection = () => {
         icon={<AlertCircle className="text-cross-error" />}
         trend={{ value: 2, positive: false }}
         color="red"
+        navigateTo="/sac/ocorrencias"
+        filterParams={{ status: "open" }}
       />
       <StatCard 
         title="Expedições Hoje" 
@@ -33,6 +39,8 @@ const StatCardsSection = () => {
         icon={<FileText className="text-cross-success" />}
         trend={{ value: 5, positive: true }}
         color="green"
+        navigateTo="/expedicao/emissao-documentos"
+        filterParams={{ date: "today" }}
       />
     </div>
   );

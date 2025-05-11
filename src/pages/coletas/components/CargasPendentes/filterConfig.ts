@@ -1,5 +1,17 @@
 
+import { 
+  getStandardFilters, 
+  dateRangeFilterOptions, 
+  getDocumentFilters 
+} from '../../../../components/common/StandardFilterConfig';
+
+const standardFilters = getStandardFilters();
+
 export const filterConfig = [
+  {
+    name: 'Período',
+    options: dateRangeFilterOptions
+  },
   {
     name: 'Status',
     options: [
@@ -8,14 +20,12 @@ export const filterConfig = [
       { label: 'Agendadas', value: 'scheduled' },
     ]
   },
-  {
-    name: 'Destino',
-    options: [
-      { label: 'Todos', value: 'all' },
-      { label: 'São Paulo', value: 'sp' },
-      { label: 'Rio de Janeiro', value: 'rj' },
-      { label: 'Belo Horizonte', value: 'bh' },
-      { label: 'Curitiba', value: 'curitiba' },
-    ]
-  }
+  standardFilters.remetente,
+  standardFilters.destinatario,
+  standardFilters.tipoCarga,
+  standardFilters.cidadeOrigem,
+  standardFilters.cidadeDestino,
+  getDocumentFilters('coleta'),
+  getDocumentFilters('nf'),
+  getDocumentFilters('pedido')
 ];

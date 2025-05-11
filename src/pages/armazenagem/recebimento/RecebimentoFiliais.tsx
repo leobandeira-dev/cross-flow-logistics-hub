@@ -7,6 +7,7 @@ import { Archive, FileText } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
+import { recebimentoFiliaisFilterConfig } from './filterConfig';
 
 // Mock data
 const transferenciasFiliais = [
@@ -41,23 +42,7 @@ const RecebimentoFiliais: React.FC = () => {
             <CardContent>
               <SearchFilter 
                 placeholder="Buscar por ID ou nota fiscal..." 
-                filters={[
-                  {
-                    name: "Status",
-                    options: [
-                      { label: "Em Trânsito", value: "transit" },
-                      { label: "Aguardando", value: "pending" }
-                    ]
-                  },
-                  {
-                    name: "Filial de Origem",
-                    options: [
-                      { label: "São Paulo", value: "São Paulo" },
-                      { label: "Rio de Janeiro", value: "Rio de Janeiro" },
-                      { label: "Belo Horizonte", value: "Belo Horizonte" }
-                    ]
-                  }
-                ]}
+                filters={recebimentoFiliaisFilterConfig}
               />
               
               <DataTable
@@ -129,16 +114,7 @@ const RecebimentoFiliais: React.FC = () => {
             <CardContent>
               <SearchFilter 
                 placeholder="Buscar por ID ou nota fiscal..." 
-                filters={[
-                  {
-                    name: "Data",
-                    options: [
-                      { label: "Esta semana", value: "thisWeek" },
-                      { label: "Este mês", value: "thisMonth" },
-                      { label: "Último mês", value: "lastMonth" }
-                    ]
-                  }
-                ]}
+                filters={recebimentoFiliaisFilterConfig}
               />
               
               <DataTable

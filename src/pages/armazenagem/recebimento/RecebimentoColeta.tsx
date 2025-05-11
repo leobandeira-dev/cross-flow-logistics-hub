@@ -8,6 +8,7 @@ import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import { toast } from '@/hooks/use-toast';
+import { recebimentoColetaFilterConfig } from './filterConfig';
 
 // Mock data
 const recebimentosColeta = [
@@ -108,16 +109,7 @@ const RecebimentoColeta: React.FC = () => {
             <CardContent>
               <SearchFilter 
                 placeholder="Buscar por cliente ou número de coleta..." 
-                filters={[
-                  {
-                    name: "Status",
-                    options: [
-                      { label: "Todos", value: "all" },
-                      { label: "Pendente de Aceite", value: "pending" },
-                      { label: "Em Processamento", value: "processing" }
-                    ]
-                  }
-                ]}
+                filters={recebimentoColetaFilterConfig}
               />
               
               <DataTable
@@ -187,16 +179,7 @@ const RecebimentoColeta: React.FC = () => {
             <CardContent>
               <SearchFilter 
                 placeholder="Buscar por cliente ou número de coleta..." 
-                filters={[
-                  {
-                    name: "Data",
-                    options: [
-                      { label: "Esta semana", value: "thisWeek" },
-                      { label: "Este mês", value: "thisMonth" },
-                      { label: "Último mês", value: "lastMonth" }
-                    ]
-                  }
-                ]}
+                filters={recebimentoColetaFilterConfig}
               />
               
               <DataTable
