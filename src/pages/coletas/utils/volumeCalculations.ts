@@ -101,3 +101,20 @@ export const createNotaFiscal = (numeroNF: string, volumes: Volume[], remetente:
     valorTotal
   };
 };
+
+// Helper to ensure a partial NotaFiscal has all required fields
+export const ensureCompleteNotaFiscal = (
+  notaFiscal: Partial<NotaFiscalVolume>, 
+  defaultRemetente: string = '', 
+  defaultDestinatario: string = ''
+): NotaFiscalVolume => {
+  return {
+    numeroNF: notaFiscal.numeroNF || '',
+    volumes: Array.isArray(notaFiscal.volumes) 
+      ? convertVolumesToVolumeItems(notaFiscal.volumes) 
+      : [],
+    remetente: notaFiscal.remetente || defaultRemetente,
+    destinatario: notaFiscal.destinatario || defaultDestinatario,
+    valorTotal: notaFiscal.valorTotal || 0
+  };
+};

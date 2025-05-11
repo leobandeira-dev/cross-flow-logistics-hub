@@ -28,6 +28,9 @@ export interface SolicitacaoFormData {
   notasFiscais: NotaFiscalVolume[];
   remetenteInfo?: any;         // Full sender information from XML
   destinatarioInfo?: any;      // Full recipient information from XML
+  cliente?: string;            // Backwards compatibility
+  origem?: string;             // Backwards compatibility
+  destino?: string;            // Backwards compatibility
 }
 
 export interface SolicitacaoDialogProps {

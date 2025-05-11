@@ -1,180 +1,126 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { Upload, Loader2 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
-import { Button } from '@/components/ui/button';
-import { Upload, FileText, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { processMultipleXMLFiles, extractNFInfoFromXML } from '../../utils/xmlImportHelper';
+import { extractNFInfoFromXML, processMultipleXMLFiles } from '../../utils/xmlImportHelper';
 import { NotaFiscalVolume, convertVolumesToVolumeItems } from '../../utils/volumeCalculations';
 
 interface XmlImportFormProps {
   onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
-  isSingleFile: boolean;
+  isSingleFile?: boolean;
+  isLoading?: boolean;
 }
 
-const XmlImportForm: React.FC<XmlImportFormProps> = ({ onImportSuccess, isSingleFile }) => {
-  const [xmlFiles, setXmlFiles] = useState<File[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
+const XmlImportForm: React.FC<XmlImportFormProps> = ({ 
+  onImportSuccess, 
+  isSingleFile = true,
+  isLoading: externalLoading = false
+}) => {
   const [isLoading, setIsLoading] = useState(false);
+  const loading = isLoading || externalLoading;
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (isSingleFile && acceptedFiles.length > 1) {
-      toast({
-        title: "Seleção única",
-        description: "Por favor, selecione apenas um arquivo XML.",
-        variant: "destructive",
-      });
-      setXmlFiles([acceptedFiles[0]]);
-    } else {
-      setXmlFiles(acceptedFiles);
-    }
-  }, [isSingleFile]);
-
-  const {getRootProps, getInputProps, isDragActive} = useDropzone({
-    onDrop,
-    accept: {
-      'text/xml': ['.xml']
-    },
-    maxFiles: isSingleFile ? 1 : undefined
-  });
-
-  const handleDragEnter = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (xmlFiles.length === 0) {
-      toast({
-        title: "Nenhum arquivo selecionado",
-        description: "Por favor, selecione pelo menos um arquivo XML para importar.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (loading) return;
+    if (acceptedFiles.length === 0) return;
+    
     setIsLoading(true);
     
     try {
       if (isSingleFile) {
-        // Processar um único arquivo XML
-        const result = await extractNFInfoFromXML(xmlFiles[0]);
+        // Handle single XML file
+        const file = acceptedFiles[0];
+        const result = await extractNFInfoFromXML(file);
         
-        if (!result.nfInfo.numeroNF) {
-          throw new Error('Não foi possível extrair o número da nota fiscal do XML.');
+        if (result && result.nfInfo && result.nfInfo.numeroNF) {
+          const notaFiscal: NotaFiscalVolume = {
+            numeroNF: result.nfInfo.numeroNF || '',
+            volumes: convertVolumesToVolumeItems(result.nfInfo.volumes || []),
+            remetente: result.remetente?.razaoSocial || '',
+            destinatario: result.destinatario?.razaoSocial || '',
+            valorTotal: result.nfInfo.valorTotal || 0
+          };
+          
+          onImportSuccess([notaFiscal], result.remetente, result.destinatario);
+          
+          toast({
+            title: "XML importado",
+            description: `Nota fiscal ${result.nfInfo.numeroNF} importada com sucesso.`
+          });
         }
-
-        // Criar objeto NotaFiscalVolume
-        const notaFiscal: NotaFiscalVolume = {
-          numeroNF: result.nfInfo.numeroNF,
-          volumes: result.nfInfo.volumes ? convertVolumesToVolumeItems(result.nfInfo.volumes) : [],
-          remetente: result.nfInfo.remetente || result.remetente.nome,
-          destinatario: result.nfInfo.destinatario || result.destinatario.nome,
-          valorTotal: result.nfInfo.valorTotal || 0
-        };
-        
-        onImportSuccess(
-          [notaFiscal],
-          result.remetente,
-          result.destinatario
-        );
-        
-        toast({
-          title: "XML importado com sucesso",
-          description: `Nota fiscal ${notaFiscal.numeroNF} importada.`,
-        });
       } else {
-        // Processar múltiplos arquivos XML
-        const result = await processMultipleXMLFiles(xmlFiles as unknown as FileList);
+        // Handle multiple XML files
+        const result = await processMultipleXMLFiles(acceptedFiles);
         
-        if (result.notasFiscais.length === 0) {
-          throw new Error('Não foi possível extrair notas fiscais dos XMLs selecionados.');
+        if (result.notasFiscais.length > 0) {
+          // Ensure all notasFiscais have required properties
+          const completeNotasFiscais: NotaFiscalVolume[] = result.notasFiscais.map(nf => ({
+            numeroNF: nf.numeroNF || '',
+            volumes: convertVolumesToVolumeItems(nf.volumes || []),
+            remetente: nf.remetente || result.remetente?.razaoSocial || '',
+            destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
+            valorTotal: nf.valorTotal || 0
+          }));
+          
+          onImportSuccess(completeNotasFiscais, result.remetente, result.destinatario);
+          
+          toast({
+            title: "XMLs importados",
+            description: `${completeNotasFiscais.length} notas fiscais importadas com sucesso.`
+          });
+        } else {
+          toast({
+            title: "Atenção",
+            description: "Nenhuma nota fiscal válida encontrada nos arquivos XML."
+          });
         }
-        
-        // Garantir que cada nota fiscal tem os campos obrigatórios
-        const validatedNotasFiscais = result.notasFiscais.map(nf => ({
-          ...nf,
-          volumes: nf.volumes ? convertVolumesToVolumeItems(nf.volumes) : [],
-          remetente: nf.remetente || '',
-          destinatario: nf.destinatario || '',
-          valorTotal: nf.valorTotal || 0
-        }));
-        
-        onImportSuccess(
-          validatedNotasFiscais,
-          result.remetente,
-          result.destinatario
-        );
-        
-        toast({
-          title: "XMLs importados com sucesso",
-          description: `${result.notasFiscais.length} notas fiscais importadas.`,
-        });
       }
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Erro ao importar XML:", error);
       toast({
-        title: "Erro na importação do XML",
-        description: error.message || "Ocorreu um erro ao processar o arquivo XML.",
-        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível importar o arquivo XML.",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
-      setXmlFiles([]);
     }
-  };
+  }, [isSingleFile, loading, onImportSuccess]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/xml': ['.xml'],
+    },
+    maxFiles: isSingleFile ? 1 : undefined,
+    disabled: loading
+  });
 
   return (
-    <div className="space-y-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div 
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer ${isDragActive || isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-        >
-          <input {...getInputProps()} />
-          
-          {xmlFiles.length > 0 ? (
-            <div className="text-green-500">
-              <FileText className="h-10 w-10 mx-auto mb-2" />
-              {xmlFiles.length === 1 ? (
-                <p>Arquivo selecionado: {xmlFiles[0].name}</p>
-              ) : (
-                <p>{xmlFiles.length} arquivos selecionados</p>
-              )}
-            </div>
+    <div className="flex flex-col items-center justify-center w-full">
+      <div
+        {...getRootProps()}
+        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer 
+          ${isDragActive ? 'border-cross-blue bg-cross-blue/10' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'}
+          ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      >
+        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+          {loading ? (
+            <Loader2 className="w-10 h-10 mb-3 text-gray-400 animate-spin" />
           ) : (
-            <div className="space-y-2">
-              <Upload className="h-10 w-10 mx-auto text-gray-400" />
-              <p>
-                {isSingleFile 
-                  ? "Arraste e solte um arquivo XML aqui ou clique para selecionar" 
-                  : "Arraste e solte arquivos XML aqui ou clique para selecionar"}
-              </p>
-              <p className="text-xs text-gray-500">Apenas arquivos XML (.xml) são aceitos</p>
-            </div>
+            <Upload className="w-10 h-10 mb-3 text-gray-400" />
           )}
+          <p className="mb-2 text-sm text-gray-500">
+            <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
+          </p>
+          <p className="text-xs text-gray-500">
+            {isSingleFile 
+              ? 'Arquivo XML da nota fiscal' 
+              : 'Múltiplos arquivos XML (um por nota fiscal)'}
+          </p>
         </div>
-        
-        <Button 
-          type="submit" 
-          className="w-full bg-cross-blue hover:bg-cross-blueDark" 
-          disabled={xmlFiles.length === 0 || isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processando...
-            </>
-          ) : (
-            'Importar XML'
-          )}
-        </Button>
-      </form>
+        <input {...getInputProps()} />
+      </div>
     </div>
   );
 };
