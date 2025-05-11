@@ -14,7 +14,7 @@ export const getTipoOcorrenciaText = (tipo: string): string => {
 };
 
 export const getStatusBadge = (status: string) => {
-  const statusMap: Record<string, { type: string; text: string }> = {
+  const statusMap: Record<string, { type: 'success' | 'warning' | 'error' | 'info' | 'pending'; text: string }> = {
     'open': { type: 'error', text: 'Aberto' },
     'in_progress': { type: 'warning', text: 'Em Andamento' },
     'resolved': { type: 'info', text: 'Resolvido' },
@@ -25,7 +25,7 @@ export const getStatusBadge = (status: string) => {
 };
 
 export const getPrioridadeBadge = (prioridade: string) => {
-  const prioridadeMap: Record<string, { type: string; text: string }> = {
+  const prioridadeMap: Record<string, { type: 'success' | 'warning' | 'error' | 'info' | 'pending'; text: string }> = {
     'high': { type: 'error', text: 'Alta' },
     'medium': { type: 'warning', text: 'Média' },
     'low': { type: 'info', text: 'Baixa' },
