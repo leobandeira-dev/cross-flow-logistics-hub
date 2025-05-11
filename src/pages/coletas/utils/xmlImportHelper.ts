@@ -1,3 +1,4 @@
+
 import xml2js from 'xml2js';
 
 interface Endereco {
@@ -92,6 +93,17 @@ const extractVolumes = (nfeInfo: any): Volume[] => {
   });
 };
 
+// Extract the total value of the invoice
+const extractValorTotal = (nfeInfo: any): number => {
+  try {
+    const icmsTot = nfeInfo.total?.ICMSTot || {};
+    return parseFloat(icmsTot.vNF || '0');
+  } catch (error) {
+    console.warn('Erro ao extrair valor total:', error);
+    return 0;
+  }
+};
+
 // Update the parseNFeXml function to extract remetente, destinatario, and valorTotal
 export const parseNFeXml = async (xmlString: string) => {
   const parser = new xml2js.Parser({ explicitArray: false });
@@ -145,13 +157,78 @@ export const parseNFeXml = async (xmlString: string) => {
   }
 };
 
-// Extract the total value of the invoice
-const extractValorTotal = (nfeInfo: any): number => {
+// Alias functions to maintain backward compatibility with existing code
+export const extractNFInfoFromXML = async (file: File) => {
   try {
-    const icmsTot = nfeInfo.total?.ICMSTot || {};
-    return parseFloat(icmsTot.vNF || '0');
+    const xmlContent = await file.text();
+    return parseNFeXml(xmlContent);
   } catch (error) {
-    console.warn('Erro ao extrair valor total:', error);
-    return 0;
+    console.error('Erro ao processar XML:', error);
+    throw new Error('Erro ao processar o XML. Verifique o formato e tente novamente.');
   }
+};
+
+export const processMultipleXMLFiles = async (files: FileList) => {
+  const notasFiscais = [];
+  let firstRemetente = null;
+  let firstDestinatario = null;
+
+  for (let i = 0; i < files.length; i++) {
+    try {
+      const result = await extractNFInfoFromXML(files[i]);
+      
+      if (result && result.nfInfo) {
+        notasFiscais.push({
+          numeroNF: result.nfInfo.numeroNF,
+          volumes: result.nfInfo.volumes,
+          remetente: result.nfInfo.remetente,
+          destinatario: result.nfInfo.destinatario,
+          valorTotal: result.nfInfo.valorTotal
+        });
+        
+        // Capture first remetente/destinatario for form prefill
+        if (i === 0) {
+          firstRemetente = result.remetente;
+          firstDestinatario = result.destinatario;
+        }
+      }
+    } catch (error) {
+      console.error(`Erro ao processar arquivo ${files[i].name}:`, error);
+    }
+  }
+
+  return {
+    notasFiscais,
+    remetente: firstRemetente,
+    destinatario: firstDestinatario
+  };
+};
+
+export const generateExcelTemplate = () => {
+  // This would typically create and download an Excel template
+  // Simplified implementation for demonstration
+  const header = "NumeroNF,Remetente,Destinatario,ValorTotal,Altura,Largura,Comprimento,Peso,Quantidade";
+  const example = "12345,Empresa ABC,Empresa XYZ,1000.50,10,20,30,5,2";
+  
+  const content = `${header}\n${example}`;
+  const blob = new Blob([content], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'modelo_notas_fiscais.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+export const processExcelFile = async (file: File) => {
+  // This would typically parse an Excel file
+  // Simplified implementation for demonstration
+  return {
+    notasFiscais: [],
+    remetente: null,
+    destinatario: null
+  };
 };
