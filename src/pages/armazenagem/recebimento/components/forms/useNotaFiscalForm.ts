@@ -24,12 +24,12 @@ export const useNotaFiscalForm = () => {
       reader.onload = async (e) => {
         if (e.target?.result) {
           try {
-            const parser = new xml2js.Parser({ 
+            // Usar o método parseStringPromise em vez de criar manualmente uma instância do Parser
+            const xmlContent = e.target.result as string;
+            xml2js.parseString(xmlContent, { 
               explicitArray: false,
               mergeAttrs: true 
-            });
-            
-            parser.parseString(e.target.result as string, (err: Error | null, result: any) => {
+            }, (err, result) => {
               if (err) {
                 console.error("Erro ao fazer parse do XML:", err);
                 reject(err);
