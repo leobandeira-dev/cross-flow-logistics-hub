@@ -1,23 +1,15 @@
+
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { User, UserPlus, Users, Check, X, Settings, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { User, UserPlus, Users, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import DataTable from '@/components/common/DataTable';
-import StatusBadge from '@/components/common/StatusBadge';
 import CadastroForm from './components/CadastroForm';
 import AprovacoesUsuario from './components/AprovacoesUsuario';
 import PermissoesUsuario from './components/PermissoesUsuario';
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogClose
-} from "@/components/ui/dialog";
+import UsersListTab from './components/UsersListTab';
+import UserDetailsDialog from './components/UserDetailsDialog';
 
 // Mock data
 const usuariosMock = [
@@ -124,125 +116,19 @@ const CadastroUsuarios: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="listagem">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Users className="mr-2 text-cross-blue" size={20} />
-                Listagem de Usuários
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4">Nome</th>
-                      <th className="text-left py-3 px-4">Email</th>
-                      <th className="text-left py-3 px-4">Empresa</th>
-                      <th className="text-left py-3 px-4">CNPJ</th>
-                      <th className="text-left py-3 px-4">Perfil</th>
-                      <th className="text-left py-3 px-4">Status</th>
-                      <th className="text-left py-3 px-4">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {usuarios.map((usuario) => (
-                      <tr key={usuario.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4">{usuario.nome}</td>
-                        <td className="py-3 px-4">{usuario.email}</td>
-                        <td className="py-3 px-4">{usuario.empresa}</td>
-                        <td className="py-3 px-4">{usuario.cnpj}</td>
-                        <td className="py-3 px-4">{usuario.perfil}</td>
-                        <td className="py-3 px-4">
-                          <StatusBadge 
-                            status={
-                              usuario.status === 'ativo' ? 'success' : 
-                              usuario.status === 'pendente' ? 'warning' : 'error'
-                            } 
-                            text={
-                              usuario.status === 'ativo' ? 'Ativo' :
-                              usuario.status === 'pendente' ? 'Pendente' : 'Inativo'
-                            } 
-                          />
-                        </td>
-                        <td className="py-3 px-4">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleVerDetalhes(usuario)}
-                            className="flex items-center gap-1"
-                          >
-                            <Eye size={14} />
-                            Ver detalhes
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+          <UsersListTab 
+            users={usuarios}
+            onViewDetails={handleVerDetalhes}
+          />
         </TabsContent>
       </Tabs>
 
       {/* Dialog para detalhes do usuário */}
-      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Usuário</DialogTitle>
-            <DialogDescription>
-              Informações completas do usuário selecionado
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedUser && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Nome</p>
-                  <p>{selectedUser.nome}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Email</p>
-                  <p>{selectedUser.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Empresa</p>
-                  <p>{selectedUser.empresa}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">CNPJ</p>
-                  <p>{selectedUser.cnpj}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Perfil</p>
-                  <p>{selectedUser.perfil}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Status</p>
-                  <StatusBadge 
-                    status={
-                      selectedUser.status === 'ativo' ? 'success' : 
-                      selectedUser.status === 'pendente' ? 'warning' : 'error'
-                    } 
-                    text={
-                      selectedUser.status === 'ativo' ? 'Ativo' :
-                      selectedUser.status === 'pendente' ? 'Pendente' : 'Inativo'
-                    } 
-                  />
-                </div>
-              </div>
-              
-              <div className="mt-4 flex justify-end">
-                <DialogClose asChild>
-                  <Button variant="outline">Fechar</Button>
-                </DialogClose>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <UserDetailsDialog 
+        open={detailsDialogOpen} 
+        onOpenChange={setDetailsDialogOpen} 
+        user={selectedUser} 
+      />
     </MainLayout>
   );
 };
