@@ -12,7 +12,7 @@ import { sha1 } from './sha1';
  * @param notaData NFe data needed for QR code generation
  * @returns SVG string with QR Code
  */
-export const generateQRCode = (notaData: any): string => {
+export const generateQRCode = async (notaData: any): Promise<string> => {
   // This is a placeholder implementation
   // In a real-world scenario, you would:
   // 1. Construct the proper URL with parameters as per MOC 7.0
@@ -31,7 +31,8 @@ export const generateQRCode = (notaData: any): string => {
   
   // Generate a hash which would be used in an actual implementation
   const qrCodeUrl = generateQRCodeParameters(notaData);
-  const hash = sha1(qrCodeUrl);
+  // Important change: await the Promise from sha1() to get the actual string
+  const hash = await sha1(qrCodeUrl);
   
   // Calculate a simple pattern based on the hash
   // In reality, you would use a proper QR code generation library

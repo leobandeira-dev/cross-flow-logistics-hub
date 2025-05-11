@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatCNPJ, formatDate, formatCurrency, formatNumber } from '../../../utils/formatters';
 import { generateCode128Barcode } from './barcode/barcodeGenerator';
 import { generateQRCode } from './qrcode/qrCodeGenerator';
@@ -10,6 +10,9 @@ interface DANFELayoutProps {
 }
 
 const DANFELayout: React.FC<DANFELayoutProps> = ({ notaFiscalData, simplified = false }) => {
+  // State to store the QR code SVG
+  const [qrCode, setQrCode] = useState<string>('');
+  
   // Use default data if notaFiscalData is not provided
   const data = notaFiscalData || {
     chaveNF: '12345678901234567890123456789012345678901234',
@@ -55,6 +58,21 @@ const DANFELayout: React.FC<DANFELayoutProps> = ({ notaFiscalData, simplified = 
   };
   
   console.log("Renderizando DANFE com dados:", data);
+
+  // Generate QR code when component mounts or data changes
+  useEffect(() => {
+    const generateQR = async () => {
+      try {
+        const qrSvg = await generateQRCode(data);
+        setQrCode(qrSvg);
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+        setQrCode('<svg width="100" height="100"><text x="10" y="50" fill="red">QR Error</text></svg>');
+      }
+    };
+    
+    generateQR();
+  }, [data]);
 
   if (simplified) {
     return (
@@ -128,7 +146,7 @@ const DANFELayout: React.FC<DANFELayoutProps> = ({ notaFiscalData, simplified = 
         {/* QR Code conforme especificação */}
         <div className="flex justify-center mt-2">
           <div style={{ width: '100px', height: '100px' }} 
-               dangerouslySetInnerHTML={{ __html: generateQRCode(data) }} />
+               dangerouslySetInnerHTML={{ __html: qrCode }} />
         </div>
       </div>
     );
@@ -403,7 +421,7 @@ const DANFELayout: React.FC<DANFELayoutProps> = ({ notaFiscalData, simplified = 
           <div className="font-bold">RESERVADO AO FISCO</div>
         </div>
         <div style={{ width: '100px', height: '100px', flexShrink: 0 }} 
-             dangerouslySetInnerHTML={{ __html: generateQRCode(data) }} />
+             dangerouslySetInnerHTML={{ __html: qrCode }} />
       </div>
     </div>
   );
