@@ -5,7 +5,7 @@ import SearchFilter from '../../components/common/SearchFilter';
 import { useToast } from '@/hooks/use-toast';
 import { SolicitacaoColeta } from './types/coleta.types';
 import EditSolicitacaoDialog from './components/EditSolicitacaoDialog';
-import NovaSolicitacaoDialog from './components/NovaSolicitacaoDialog';
+import NovaSolicitacaoDialog from './components/solicitacao/NovaSolicitacaoDialog';
 import TabelaSolicitacoes from './components/TabelaSolicitacoes';
 import { solicitacoesIniciais } from './data/solicitacoesMock';
 
