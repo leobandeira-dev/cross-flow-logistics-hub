@@ -35,6 +35,55 @@ const EntradaNotas: React.FC = () => {
     setPrintModalOpen(true);
   };
 
+  // Sample XML content for each nota fiscal
+  // In a real application, this would come from your backend
+  const getNotaXml = (notaId: string) => {
+    // Mock XML content - this would be replaced with actual XML data
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<NFe xmlns="http://www.portalfiscal.inf.br/nfe">
+  <infNFe Id="NFe${notaId}" versao="4.00">
+    <ide>
+      <cUF>35</cUF>
+      <cNF>12345678</cNF>
+      <natOp>VENDA DE MERCADORIA</natOp>
+      <mod>55</mod>
+      <serie>1</serie>
+      <nNF>${notaId}</nNF>
+      <dhEmi>2023-05-15T10:30:00-03:00</dhEmi>
+      <tpNF>1</tpNF>
+    </ide>
+    <emit>
+      <CNPJ>12345678901234</CNPJ>
+      <xNome>EMPRESA EMITENTE LTDA</xNome>
+      <enderEmit>
+        <xLgr>RUA EXEMPLO</xLgr>
+        <nro>123</nro>
+        <xBairro>CENTRO</xBairro>
+        <cMun>3550308</cMun>
+        <xMun>SAO PAULO</xMun>
+        <UF>SP</UF>
+        <CEP>01001000</CEP>
+      </enderEmit>
+      <IE>123456789012</IE>
+    </emit>
+    <dest>
+      <CNPJ>98765432109876</CNPJ>
+      <xNome>CLIENTE DESTINATARIO SA</xNome>
+      <enderDest>
+        <xLgr>AVENIDA CLIENTE</xLgr>
+        <nro>987</nro>
+        <xBairro>BAIRRO CLIENTE</xBairro>
+        <cMun>3550308</cMun>
+        <xMun>SAO PAULO</xMun>
+        <UF>SP</UF>
+        <CEP>04001000</CEP>
+      </enderDest>
+      <IE>987654321098</IE>
+    </dest>
+  </infNFe>
+</NFe>`;
+  };
+
   return (
     <MainLayout title="Entrada de Notas Fiscais">
       <div className="mb-6">
@@ -80,7 +129,9 @@ const EntradaNotas: React.FC = () => {
         layoutRef={notaFiscalRef}
         danfeRef={danfeRef}
         simplifiedDanfeRef={simplifiedDanfeRef}
-        xmlData={notaData}
+        xmlData={{
+          xmlContent: selectedNota ? getNotaXml(selectedNota) : null
+        }}
       />
     </MainLayout>
   );
