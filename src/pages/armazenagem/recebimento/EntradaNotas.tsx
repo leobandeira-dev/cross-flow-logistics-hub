@@ -2,19 +2,28 @@
 import React, { useRef, useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import PrintLayoutModal from '@/components/carregamento/enderecamento/PrintLayoutModal';
+import DocumentPrintModal from '@/components/common/DocumentPrintModal';
 import CadastroNota from './components/CadastroNota';
 import ConsultaNotas from './components/ConsultaNotas';
 import NotaPrintTemplate from './components/NotaPrintTemplate';
+import DANFELayout from './components/print/DANFELayout';
+import { notasFiscais } from './data/mockData';
 
 const EntradaNotas: React.FC = () => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedNota, setSelectedNota] = useState<string>('');
   const notaFiscalRef = useRef<HTMLDivElement>(null);
+  const danfeRef = useRef<HTMLDivElement>(null);
+  const simplifiedDanfeRef = useRef<HTMLDivElement>(null);
   
   const handlePrintClick = (notaId: string) => {
     setSelectedNota(notaId);
     setPrintModalOpen(true);
+  };
+
+  // Find the selected nota fiscal data for DANFE
+  const getNotaData = () => {
+    return notasFiscais.find(nota => nota.id === selectedNota);
   };
 
   return (
@@ -39,18 +48,30 @@ const EntradaNotas: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Hidden div that serves as print template */}
+      {/* Hidden divs that serve as print templates */}
       <div className="hidden">
         <div ref={notaFiscalRef}>
           <NotaPrintTemplate notaId={selectedNota} />
         </div>
+        
+        <div ref={danfeRef}>
+          <DANFELayout notaFiscalData={getNotaData()} />
+        </div>
+        
+        <div ref={simplifiedDanfeRef}>
+          <DANFELayout notaFiscalData={getNotaData()} simplified />
+        </div>
       </div>
       
-      <PrintLayoutModal
+      <DocumentPrintModal
         open={printModalOpen}
         onOpenChange={setPrintModalOpen}
-        orderNumber={selectedNota}
+        documentId={selectedNota}
+        documentType="Nota Fiscal"
         layoutRef={notaFiscalRef}
+        danfeRef={danfeRef}
+        simplifiedDanfeRef={simplifiedDanfeRef}
+        xmlData={getNotaData()}
       />
     </MainLayout>
   );

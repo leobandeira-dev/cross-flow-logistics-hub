@@ -1,0 +1,44 @@
+
+/**
+ * Format CNPJ number with proper mask (XX.XXX.XXX/XXXX-XX)
+ */
+export const formatCNPJ = (cnpj: string): string => {
+  if (!cnpj) return '';
+  
+  // Remove non-numeric characters
+  const numericOnly = cnpj.replace(/\D/g, '');
+  
+  // Pad with zeros if necessary
+  const paddedCnpj = numericOnly.padStart(14, '0');
+  
+  // Format as XX.XXX.XXX/XXXX-XX
+  return paddedCnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+};
+
+/**
+ * Format date from ISO (YYYY-MM-DD) to localized format (DD/MM/YYYY)
+ */
+export const formatDate = (dateStr: string): string => {
+  if (!dateStr) return '';
+  
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('pt-BR');
+  } catch (e) {
+    return dateStr;
+  }
+};
+
+/**
+ * Format currency values
+ */
+export const formatCurrency = (value: string | number): string => {
+  if (value === undefined || value === null) return 'R$ 0,00';
+  
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  
+  return new Intl.NumberFormat('pt-BR', { 
+    style: 'currency', 
+    currency: 'BRL' 
+  }).format(numValue);
+};

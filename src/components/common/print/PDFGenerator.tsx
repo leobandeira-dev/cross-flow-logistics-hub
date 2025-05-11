@@ -14,7 +14,7 @@ export const usePDFGenerator = (
 ) => {
   const [isGenerating, setIsGenerating] = React.useState(false);
 
-  const generatePDF = async () => {
+  const generatePDF = async (options?: { isDANFE?: boolean }) => {
     if (!layoutRef.current) return null;
 
     setIsGenerating(true);
@@ -23,32 +23,54 @@ export const usePDFGenerator = (
         scale: 2,
         useCORS: true,
         logging: false,
+        windowWidth: options?.isDANFE ? 1000 : undefined, // Wider for DANFE format
       });
       
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
       
-      // A4 size: 210 x 297 mm
-      const imgWidth = 190;
-      const pageHeight = 297;  
-      const imgHeight = canvas.height * imgWidth / canvas.width;
+      // Set PDF orientation and size based on layout
+      const isLandscape = canvas.width > canvas.height;
+      const pdf = new jsPDF(isLandscape ? 'l' : 'p', 'mm', 'a4');
+      
+      // A4 size dimensions
+      const pageWidth = isLandscape ? 297 : 210;
+      const pageHeight = isLandscape ? 210 : 297;
+      
+      // Calculate dimensions to fit the page with margins
+      const margin = 10;
+      const availableWidth = pageWidth - (2 * margin);
+      const imgWidth = availableWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
       let heightLeft = imgHeight;
-      let position = 10;
+      let position = margin;
+      let pageNum = 1;
 
       // Add title at the top of the first page
-      pdf.setFontSize(14);
-      pdf.text(`${documentType} - ${documentId}`, 10, position);
-      position += 10; // Move down for the image
+      if (!options?.isDANFE) {
+        pdf.setFontSize(14);
+        pdf.text(`${documentType} - ${documentId}`, margin, position);
+        position += 10; // Move down for the image
+      }
 
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= (pageHeight - position);
+      // Add first page
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - position - margin);
       
       // Add more pages if needed for large layouts
       while (heightLeft >= 0) {
-        position = 0;
+        pageNum++;
+        position = margin;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 10, position - (pageHeight - 10), imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          margin, 
+          position - (pageNum - 1) * (pageHeight - (2 * margin)), 
+          imgWidth, 
+          imgHeight
+        );
+        heightLeft -= (pageHeight - (2 * margin));
       }
 
       return pdf;

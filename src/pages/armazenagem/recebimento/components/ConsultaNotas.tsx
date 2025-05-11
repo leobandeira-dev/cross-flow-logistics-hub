@@ -1,18 +1,12 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
-
-// Mock data
-const notasFiscais = [
-  { id: 'NF-2023-001', numero: '12345', fornecedor: 'Fornecedor A', data: '10/05/2023', valor: 'R$ 1.250,00', status: 'pending' },
-  { id: 'NF-2023-002', numero: '12346', fornecedor: 'Fornecedor B', data: '09/05/2023', valor: 'R$ 2.150,00', status: 'processing' },
-  { id: 'NF-2023-003', numero: '12347', fornecedor: 'Fornecedor C', data: '08/05/2023', valor: 'R$ 3.450,00', status: 'completed' },
-];
+import { notasFiscais } from '../data/mockData';
 
 interface ConsultaNotasProps {
   onPrintClick: (notaId: string) => void;
@@ -53,7 +47,9 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
             { header: 'Número NF', accessor: 'numero' },
             { header: 'Fornecedor', accessor: 'fornecedor' },
             { header: 'Data', accessor: 'data' },
-            { header: 'Valor', accessor: 'valor' },
+            { header: 'Valor', accessor: 'valor', 
+              cell: (row) => `R$ ${parseFloat(row.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+            },
             { 
               header: 'Status', 
               accessor: 'status',
@@ -77,6 +73,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
                     variant="outline" 
                     size="sm"
                     onClick={() => onPrintClick(row.id)}
+                    title="Imprimir DANFE"
                   >
                     <Printer className="h-4 w-4" />
                   </Button>

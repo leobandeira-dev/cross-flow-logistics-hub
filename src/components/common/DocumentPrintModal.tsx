@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PrintActionButtons from './print/PrintActionButtons';
 import EmailSendForm from './print/EmailSendForm';
 import DocumentInfo from './print/DocumentInfo';
@@ -13,7 +14,10 @@ interface DocumentPrintModalProps {
   documentId: string;
   documentType: string;
   layoutRef: React.RefObject<HTMLDivElement>;
+  danfeRef?: React.RefObject<HTMLDivElement>;
+  simplifiedDanfeRef?: React.RefObject<HTMLDivElement>;
   filename?: string;
+  xmlData?: any;
 }
 
 const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
@@ -22,10 +26,20 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
   documentId,
   documentType,
   layoutRef,
-  filename
+  danfeRef,
+  simplifiedDanfeRef,
+  filename,
+  xmlData
 }) => {
   const [email, setEmail] = useState('');
-  const { generatePDF, isGenerating } = usePDFGenerator(layoutRef, documentId, documentType);
+  const [selectedLayout, setSelectedLayout] = useState('default');
+  const { generatePDF, isGenerating } = usePDFGenerator(
+    selectedLayout === 'default' ? layoutRef : 
+    selectedLayout === 'danfe' ? danfeRef : 
+    simplifiedDanfeRef,
+    documentId, 
+    documentType
+  );
 
   const handlePrint = async () => {
     const pdf = await generatePDF();
@@ -33,7 +47,7 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
       pdf.output('dataurlnewwindow');
       toast({
         title: "PDF gerado",
-        description: "O PDF foi aberto em uma nova janela para impressão.",
+        description: `O PDF foi aberto em uma nova janela para impressão no formato ${getLayoutName()}.`,
       });
     }
   };
@@ -41,12 +55,21 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
   const handleSave = async () => {
     const pdf = await generatePDF();
     if (pdf) {
-      const defaultFilename = `${documentType.toLowerCase().replace(/\s/g, '_')}_${documentId.replace(/\s/g, '_')}.pdf`;
+      const layoutSuffix = selectedLayout !== 'default' ? `_${selectedLayout}` : '';
+      const defaultFilename = `${documentType.toLowerCase().replace(/\s/g, '_')}_${documentId.replace(/\s/g, '_')}${layoutSuffix}.pdf`;
       pdf.save(filename || defaultFilename);
       toast({
         title: "PDF salvo",
-        description: "O PDF foi salvo com sucesso.",
+        description: `O PDF foi salvo com sucesso no formato ${getLayoutName()}.`,
       });
+    }
+  };
+
+  const getLayoutName = () => {
+    switch(selectedLayout) {
+      case 'danfe': return 'DANFE padrão';
+      case 'simplified': return 'DANFE simplificado';
+      default: return 'padrão';
     }
   };
 
@@ -70,7 +93,7 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
       await simulateEmailSending();
       toast({
         title: "E-mail enviado",
-        description: `O documento foi enviado para ${email}`,
+        description: `O documento foi enviado para ${email} no formato ${getLayoutName()}.`,
       });
       onOpenChange(false);
     } catch (error) {
@@ -86,6 +109,8 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
     document.getElementById('email-input')?.focus();
   };
 
+  const showDanfeOptions = documentType === "Nota Fiscal" && (danfeRef || simplifiedDanfeRef);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -94,6 +119,16 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
         </DialogHeader>
         
         <div className="py-4 space-y-6">
+          {showDanfeOptions && (
+            <Tabs value={selectedLayout} onValueChange={setSelectedLayout} className="w-full">
+              <TabsList className="grid grid-cols-3 mb-4">
+                <TabsTrigger value="default">Layout Padrão</TabsTrigger>
+                <TabsTrigger value="danfe">DANFE</TabsTrigger>
+                <TabsTrigger value="simplified">DANFE Simplificado</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+          
           <PrintActionButtons
             onPrint={handlePrint}
             onSave={handleSave}
