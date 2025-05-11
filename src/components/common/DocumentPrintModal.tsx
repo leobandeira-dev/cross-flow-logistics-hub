@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from "@/hooks/use-toast";
@@ -6,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PrintActionButtons from './print/PrintActionButtons';
 import EmailSendForm from './print/EmailSendForm';
 import DocumentInfo from './print/DocumentInfo';
-import { usePDFGenerator } from './print/PDFGenerator';
+import { usePDFGenerator } from './print/usePDFGenerator';
 
 interface DocumentPrintModalProps {
   open: boolean;
@@ -32,6 +31,7 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
   xmlData
 }) => {
   const [email, setEmail] = useState('');
+  const [sending, setSending] = useState(false);
   const [selectedLayout, setSelectedLayout] = useState('default');
   
   // Determine which ref to use based on selected layout
@@ -103,6 +103,8 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
     }
 
     // Simular envio de email - em uma implementação real, você enviaria o PDF para um backend
+    setSending(true);
+    
     const simulateEmailSending = async () => {
       // Would be replaced by actual API call in production
       return new Promise<void>((resolve) => setTimeout(resolve, 1500));
@@ -121,6 +123,8 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
         description: "Não foi possível enviar o e-mail. Tente novamente.",
         variant: "destructive"
       });
+    } finally {
+      setSending(false);
     }
   };
 
@@ -161,7 +165,7 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
             email={email}
             setEmail={setEmail}
             onSendEmail={handleSendEmail}
-            isGenerating={isGenerating}
+            isGenerating={isGenerating || sending}
           />
         </div>
       </DialogContent>

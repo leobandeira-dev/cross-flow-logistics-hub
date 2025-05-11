@@ -3,6 +3,8 @@ import React from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { toast } from "@/hooks/use-toast";
+import { usePDFLayoutManager } from './usePDFLayoutManager';
+import { handlePDFError } from './pdfErrorHandler';
 
 /**
  * Hook for PDF generation functionality
@@ -13,6 +15,7 @@ export const usePDFGenerator = (
   documentType: string
 ) => {
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const { handleMultiPageLayout } = usePDFLayoutManager();
 
   const generatePDF = async (options?: { isDANFE?: boolean }) => {
     if (!layoutRef.current) {
@@ -102,75 +105,14 @@ export const usePDFGenerator = (
       } else {
         // Content needs multiple pages
         console.log("Conteúdo requer múltiplas páginas");
-        
-        let remainingHeight = canvas.height;
-        let sourceY = 0;
-        let currentPage = 0;
-        
-        while (remainingHeight > 0) {
-          // Calculate height for this page in canvas space
-          const pageHeightInCanvasSpace = currentPage === 0
-            ? (maxHeightPerPage / scaleFactor)
-            : ((pdfHeight - margin * 2) / scaleFactor);
-          
-          // Create a temporary canvas for the slice
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = canvas.width;
-          tempCanvas.height = Math.min(pageHeightInCanvasSpace, remainingHeight);
-          
-          // Draw the slice to the temporary canvas
-          const ctx = tempCanvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(
-              canvas,
-              0, sourceY, canvas.width, tempCanvas.height,
-              0, 0, canvas.width, tempCanvas.height
-            );
-            
-            // Calculate this slice dimensions in PDF space
-            const sliceHeightInPDF = tempCanvas.height * scaleFactor;
-            const currentYPosition = currentPage === 0 ? yPosition : margin;
-            
-            console.log(`Adicionando página ${currentPage + 1}:`, {
-              height: tempCanvas.height,
-              y: sourceY,
-              pdfY: currentYPosition
-            });
-            
-            // Add the slice to the PDF
-            pdf.addImage(
-              tempCanvas.toDataURL('image/jpeg', 1.0),
-              'JPEG',
-              margin,
-              currentYPosition,
-              availableWidth,
-              sliceHeightInPDF
-            );
-            
-            // Update for next page
-            sourceY += tempCanvas.height;
-            remainingHeight -= tempCanvas.height;
-            
-            // Add a new page if needed
-            if (remainingHeight > 0) {
-              pdf.addPage();
-              currentPage++;
-            }
-          }
-        }
+        await handleMultiPageLayout(canvas, pdf, margin, yPosition, availableWidth, scaleFactor, maxHeightPerPage, pdfHeight);
       }
       
       console.log("PDF gerado com sucesso");
       return pdf;
       
     } catch (error) {
-      console.error("Erro detalhado ao gerar PDF:", error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao gerar o PDF. Tente novamente.",
-        variant: "destructive"
-      });
-      return null;
+      return handlePDFError(error);
     } finally {
       setIsGenerating(false);
     }

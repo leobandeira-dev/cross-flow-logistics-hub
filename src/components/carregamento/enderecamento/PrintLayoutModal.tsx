@@ -6,7 +6,7 @@ import { Printer, Mail, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from "@/hooks/use-toast";
-import { usePDFGenerator } from '@/components/common/print/PDFGenerator';
+import { usePDFGenerator } from '@/components/common/print/usePDFGenerator';
 
 interface PrintLayoutModalProps {
   open: boolean;
