@@ -3,11 +3,12 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText, UserPlus, MessageSquare } from 'lucide-react';
 import { DialogTrigger } from "@/components/ui/dialog";
+import { Carga } from '../../types/coleta.types';
 
 interface ActionButtonsProps {
-  carga: any;
-  onAlocar: (carga: any) => void;
-  setSelectedCarga: (carga: any) => void;
+  carga: Carga;
+  onAlocar: (carga: Carga) => void;
+  setSelectedCarga: (carga: Carga) => void;
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({ 
