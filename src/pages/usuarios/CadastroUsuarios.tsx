@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { User, UserPlus, Users, Check, X, Settings } from 'lucide-react';
+import { User, UserPlus, Users, Check, X, Settings, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import DataTable from '@/components/common/DataTable';
@@ -11,6 +10,14 @@ import StatusBadge from '@/components/common/StatusBadge';
 import CadastroForm from './components/CadastroForm';
 import AprovacoesUsuario from './components/AprovacoesUsuario';
 import PermissoesUsuario from './components/PermissoesUsuario';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from "@/components/ui/dialog";
 
 // Mock data
 const usuariosMock = [
@@ -25,6 +32,8 @@ const CadastroUsuarios: React.FC = () => {
   const { toast } = useToast();
   const [usuarios, setUsuarios] = useState(usuariosMock);
   const [currentTab, setCurrentTab] = useState('cadastro');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
   const handleUsuarioSubmit = (data: any) => {
     // Normalmente aqui teríamos uma chamada para API
@@ -66,6 +75,11 @@ const CadastroUsuarios: React.FC = () => {
       title: "Usuário rejeitado",
       description: "O usuário foi rejeitado.",
     });
+  };
+
+  const handleVerDetalhes = (usuario: any) => {
+    setSelectedUser(usuario);
+    setDetailsDialogOpen(true);
   };
 
   return (
@@ -152,7 +166,15 @@ const CadastroUsuarios: React.FC = () => {
                           />
                         </td>
                         <td className="py-3 px-4">
-                          <Button variant="outline" size="sm">Ver detalhes</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleVerDetalhes(usuario)}
+                            className="flex items-center gap-1"
+                          >
+                            <Eye size={14} />
+                            Ver detalhes
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -163,6 +185,64 @@ const CadastroUsuarios: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialog para detalhes do usuário */}
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Usuário</DialogTitle>
+            <DialogDescription>
+              Informações completas do usuário selecionado
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Nome</p>
+                  <p>{selectedUser.nome}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Email</p>
+                  <p>{selectedUser.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Empresa</p>
+                  <p>{selectedUser.empresa}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">CNPJ</p>
+                  <p>{selectedUser.cnpj}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Perfil</p>
+                  <p>{selectedUser.perfil}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Status</p>
+                  <StatusBadge 
+                    status={
+                      selectedUser.status === 'ativo' ? 'success' : 
+                      selectedUser.status === 'pendente' ? 'warning' : 'error'
+                    } 
+                    text={
+                      selectedUser.status === 'ativo' ? 'Ativo' :
+                      selectedUser.status === 'pendente' ? 'Pendente' : 'Inativo'
+                    } 
+                  />
+                </div>
+              </div>
+              
+              <div className="mt-4 flex justify-end">
+                <DialogClose asChild>
+                  <Button variant="outline">Fechar</Button>
+                </DialogClose>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };
