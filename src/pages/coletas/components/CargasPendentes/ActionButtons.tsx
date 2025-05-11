@@ -2,8 +2,9 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText, UserPlus, MessageSquare } from 'lucide-react';
-import { DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Carga } from '../../types/coleta.types';
+import CargasSupportDialog from '../CargasSupportDialog';
 
 interface ActionButtonsProps {
   carga: Carga;
@@ -16,18 +17,27 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   onAlocar, 
   setSelectedCarga 
 }) => {
+  const [supportDialogOpen, setSupportDialogOpen] = React.useState(false);
+  
   return (
     <div className="flex space-x-2 justify-end">
-      <DialogTrigger asChild>
-        <Button 
-          variant="outline"
-          size="sm"
-          className="bg-green-500 hover:bg-green-600 text-white border-none"
-          onClick={() => setSelectedCarga(carga)}
-        >
-          <MessageSquare className="h-4 w-4 mr-1" /> Suporte
-        </Button>
-      </DialogTrigger>
+      <Dialog open={supportDialogOpen} onOpenChange={setSupportDialogOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline"
+            size="sm"
+            className="bg-green-500 hover:bg-green-600 text-white border-none"
+            onClick={() => setSelectedCarga(carga)}
+          >
+            <MessageSquare className="h-4 w-4 mr-1" /> Suporte
+          </Button>
+        </DialogTrigger>
+        <CargasSupportDialog 
+          isOpen={supportDialogOpen} 
+          onOpenChange={setSupportDialogOpen}
+          selectedCarga={carga} 
+        />
+      </Dialog>
       
       <Button 
         variant="outline"
