@@ -24,12 +24,17 @@ export const useNotaFiscalForm = () => {
       reader.onload = async (e) => {
         if (e.target?.result) {
           try {
-            // Usar o método parseStringPromise em vez de criar manualmente uma instância do Parser
+            // Usando uma abordagem mais simples para evitar o erro de removeAllListeners
             const xmlContent = e.target.result as string;
-            xml2js.parseString(xmlContent, { 
+            
+            // Usando uma versão simplificada do parseString
+            const parser = new xml2js.Parser({
               explicitArray: false,
-              mergeAttrs: true 
-            }, (err, result) => {
+              mergeAttrs: true
+            });
+            
+            // Usando callbacks para evitar problemas com removeAllListeners
+            parser.parseString(xmlContent, (err: any, result: any) => {
               if (err) {
                 console.error("Erro ao fazer parse do XML:", err);
                 reject(err);
@@ -90,11 +95,11 @@ export const useNotaFiscalForm = () => {
         destinatarioUF: dest.enderDest?.UF || '',
         destinatarioCEP: dest.enderDest?.CEP || '',
         
-        // Informações de transporte - ajustado para usar os campos corretos do schema
-        responsavelEntrega: transp.transporta?.xNome || '',  // Substituindo transportadoraNome
-        motorista: transp.veicTransp?.placa ? `Placa: ${transp.veicTransp?.placa}` : '', // Usando campo motorista ao invés de placaVeiculo
-        volumesTotal: transp.vol?.qVol || '',  // Usando volumesTotal em vez de quantidadeVolumes
-        pesoTotalBruto: transp.vol?.pesoB || '', // Usando pesoTotalBruto em vez de pesoBruto
+        // Informações de transporte - usando os campos corretos do schema
+        responsavelEntrega: transp.transporta?.xNome || '',
+        motorista: transp.veicTransp?.placa ? `Placa: ${transp.veicTransp?.placa}` : '',
+        volumesTotal: transp.vol?.qVol || '',
+        pesoTotalBruto: transp.vol?.pesoB || '',
       };
     } catch (error) {
       console.error("Erro ao extrair dados do XML:", error);
