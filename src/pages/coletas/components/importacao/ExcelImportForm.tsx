@@ -2,17 +2,21 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Download, Upload, Loader2 } from 'lucide-react';
+import { Upload, Download, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { NotaFiscalVolume } from '../../utils/volumeCalculations';
 import { generateExcelTemplate, processExcelFile } from '../../utils/xmlImportHelper';
+import { NotaFiscalVolume } from '../../utils/volumeCalculations';
 
 interface ExcelImportFormProps {
-  onImportSuccess: (notasFiscais: NotaFiscalVolume[]) => void;
+  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
 }
 
 const ExcelImportForm: React.FC<ExcelImportFormProps> = ({ onImportSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleDownloadTemplate = () => {
+    generateExcelTemplate();
+  };
 
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -21,19 +25,19 @@ const ExcelImportForm: React.FC<ExcelImportFormProps> = ({ onImportSuccess }) =>
     setIsLoading(true);
     
     try {
-      const importedNFs = await processExcelFile(file);
+      const result = await processExcelFile(file);
       
-      if (importedNFs.length > 0) {
-        onImportSuccess(importedNFs);
+      if (result.notasFiscais.length > 0) {
+        onImportSuccess(result.notasFiscais, result.remetente, result.destinatario);
         
         toast({
           title: "Planilha importada",
-          description: `${importedNFs.length} notas fiscais importadas com sucesso.`
+          description: `${result.notasFiscais.length} notas fiscais importadas com sucesso.`,
         });
       } else {
         toast({
           title: "Atenção",
-          description: "Nenhuma nota fiscal válida encontrada na planilha."
+          description: "Nenhuma nota fiscal válida encontrada na planilha.",
         });
       }
     } catch (error) {
@@ -46,10 +50,6 @@ const ExcelImportForm: React.FC<ExcelImportFormProps> = ({ onImportSuccess }) =>
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDownloadTemplate = () => {
-    generateExcelTemplate();
   };
 
   return (
@@ -81,6 +81,7 @@ const ExcelImportForm: React.FC<ExcelImportFormProps> = ({ onImportSuccess }) =>
             <p className="text-xs text-gray-500">Arquivos Excel (.xlsx, .xls) ou CSV (.csv)</p>
           </div>
           <input 
+            id="excel-upload" 
             type="file" 
             className="hidden" 
             accept=".xlsx,.xls,.csv"

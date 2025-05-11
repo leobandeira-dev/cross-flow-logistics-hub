@@ -8,7 +8,7 @@ import ExcelImportForm from '../importacao/ExcelImportForm';
 interface ImportacaoTabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  onImportSuccess: (notasFiscais: NotaFiscalVolume[]) => void;
+  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
 }
 
 const ImportacaoTabs: React.FC<ImportacaoTabsProps> = ({ 

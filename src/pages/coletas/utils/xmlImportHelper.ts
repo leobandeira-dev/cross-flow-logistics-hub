@@ -3,8 +3,12 @@ import { parseXmlFile } from '../../armazenagem/recebimento/utils/xmlParser';
 import { NotaFiscalVolume, VolumeItem, generateVolumeId } from './volumeCalculations';
 import { toast } from '@/hooks/use-toast';
 
-// Extract basic data from XML file
-export const extractNFInfoFromXML = async (file: File): Promise<Partial<NotaFiscalVolume> | null> => {
+// Extract data from XML file
+export const extractNFInfoFromXML = async (file: File): Promise<{
+  nfInfo: Partial<NotaFiscalVolume>;
+  remetente: any;
+  destinatario: any;
+} | null> => {
   try {
     const xmlData = await parseXmlFile(file);
     if (!xmlData) {
@@ -22,6 +26,8 @@ export const extractNFInfoFromXML = async (file: File): Promise<Partial<NotaFisc
     
     // Extract data from XML
     const ide = infNFe.ide || {};
+    const emit = infNFe.emit || {};
+    const dest = infNFe.dest || {};
     const total = infNFe.total || {};
     const transp = infNFe.transp || {};
     
@@ -43,7 +49,57 @@ export const extractNFInfoFromXML = async (file: File): Promise<Partial<NotaFisc
     const pesoBruto = parseFloat(getValue(transp, ['vol', 'pesob']) || '0');
     const qVol = parseInt(getValue(transp, ['vol', 'qvol']) || '1', 10);
     
-    // Create default volume data based on transportation information
+    // Extract remetente (sender) information
+    const remetente = {
+      cnpj: getValue(emit, ['cnpj']),
+      nome: getValue(emit, ['xnome']),
+      endereco: {
+        logradouro: getValue(emit, ['enderemit', 'xlgr']),
+        numero: getValue(emit, ['enderemit', 'nro']),
+        complemento: getValue(emit, ['enderemit', 'xcpl']),
+        bairro: getValue(emit, ['enderemit', 'xbairro']),
+        cidade: getValue(emit, ['enderemit', 'xmun']),
+        uf: getValue(emit, ['enderemit', 'uf']),
+        cep: getValue(emit, ['enderemit', 'cep']),
+      }
+    };
+    
+    // Extract destinatario (recipient) information
+    const destinatario = {
+      cnpj: getValue(dest, ['cnpj']),
+      cpf: getValue(dest, ['cpf']),
+      nome: getValue(dest, ['xnome']),
+      endereco: {
+        logradouro: getValue(dest, ['enderdest', 'xlgr']),
+        numero: getValue(dest, ['enderdest', 'nro']),
+        complemento: getValue(dest, ['enderdest', 'xcpl']),
+        bairro: getValue(dest, ['enderdest', 'xbairro']),
+        cidade: getValue(dest, ['enderdest', 'xmun']),
+        uf: getValue(dest, ['enderdest', 'uf']),
+        cep: getValue(dest, ['enderdest', 'cep']),
+      }
+    };
+    
+    // Format addresses for display
+    const formatAddress = (endereco: any) => {
+      if (!endereco) return '';
+      
+      const parts = [
+        endereco.logradouro,
+        endereco.numero ? `nº ${endereco.numero}` : '',
+        endereco.complemento,
+        endereco.bairro ? `${endereco.bairro},` : '',
+        `${endereco.cidade}/${endereco.uf}`,
+        endereco.cep ? `CEP: ${endereco.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2')}` : ''
+      ].filter(Boolean);
+      
+      return parts.join(' ');
+    };
+    
+    remetente.enderecoFormatado = formatAddress(remetente.endereco);
+    destinatario.enderecoFormatado = formatAddress(destinatario.endereco);
+    
+    // Create volume data based on transportation information
     const defaultVolume: VolumeItem = {
       id: generateVolumeId(),
       altura: 30, // Default height in cm
@@ -54,8 +110,12 @@ export const extractNFInfoFromXML = async (file: File): Promise<Partial<NotaFisc
     };
 
     return {
-      numeroNF,
-      volumes: [defaultVolume]
+      nfInfo: {
+        numeroNF,
+        volumes: [defaultVolume]
+      },
+      remetente,
+      destinatario
     };
   } catch (error) {
     console.error('Erro ao processar XML:', error);
@@ -69,32 +129,67 @@ export const extractNFInfoFromXML = async (file: File): Promise<Partial<NotaFisc
 };
 
 // Process multiple XML files
-export const processMultipleXMLFiles = async (files: FileList): Promise<NotaFiscalVolume[]> => {
+export const processMultipleXMLFiles = async (files: FileList): Promise<{
+  notasFiscais: NotaFiscalVolume[];
+  remetente: any;
+  destinatario: any;
+}> => {
   const notasFiscais: NotaFiscalVolume[] = [];
+  let firstRemetente: any = null;
+  let firstDestinatario: any = null;
+  let hasConflictingAddresses = false;
   
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     if (file.type === 'text/xml') {
-      const nfInfo = await extractNFInfoFromXML(file);
-      if (nfInfo && nfInfo.numeroNF) {
+      const result = await extractNFInfoFromXML(file);
+      
+      if (result && result.nfInfo && result.nfInfo.numeroNF) {
         notasFiscais.push({
-          numeroNF: nfInfo.numeroNF,
-          volumes: nfInfo.volumes || []
+          numeroNF: result.nfInfo.numeroNF,
+          volumes: result.nfInfo.volumes || []
         });
+        
+        // Store the first remetente and destinatario for comparison
+        if (!firstRemetente) {
+          firstRemetente = result.remetente;
+          firstDestinatario = result.destinatario;
+        } else {
+          // Check if the current remetente and destinatario match the first ones
+          const remetenteMismatch = firstRemetente.cnpj !== result.remetente.cnpj;
+          const destinatarioMismatch = firstDestinatario.cnpj !== result.destinatario.cnpj && 
+                                      firstDestinatario.cpf !== result.destinatario.cpf;
+          
+          if (remetenteMismatch || destinatarioMismatch) {
+            hasConflictingAddresses = true;
+          }
+        }
       }
     }
   }
   
-  return notasFiscais;
+  if (hasConflictingAddresses) {
+    toast({
+      title: "Atenção",
+      description: "Foram detectadas notas fiscais com remetentes ou destinatários diferentes. Elas devem ser incluídas em solicitações separadas.",
+      variant: "warning"
+    });
+  }
+  
+  return {
+    notasFiscais,
+    remetente: firstRemetente || {},
+    destinatario: firstDestinatario || {}
+  };
 };
 
 // Generate Excel template for bulk import
 export const generateExcelTemplate = (): void => {
   // Create template data
   const templateData = [
-    ['Número NF', 'Altura (cm)', 'Largura (cm)', 'Profundidade (cm)', 'Peso (kg)', 'Quantidade'],
-    ['123456789', '30', '40', '50', '10', '1'],
-    ['', '', '', '', '', ''],
+    ['Número NF', 'Altura (cm)', 'Largura (cm)', 'Profundidade (cm)', 'Peso (kg)', 'Quantidade', 'CNPJ Remetente', 'CNPJ Destinatário'],
+    ['123456789', '30', '40', '50', '10', '1', '12345678000190', '98765432000110'],
+    ['', '', '', '', '', '', '', ''],
     ['Observação: Você pode adicionar múltiplos volumes para a mesma NF repetindo o número da NF em linhas diferentes'],
   ];
 
@@ -121,7 +216,11 @@ export const generateExcelTemplate = (): void => {
 };
 
 // Process Excel/CSV file
-export const processExcelFile = (file: File): Promise<NotaFiscalVolume[]> => {
+export const processExcelFile = (file: File): Promise<{
+  notasFiscais: NotaFiscalVolume[];
+  remetente: any;
+  destinatario: any;
+}> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
@@ -135,6 +234,8 @@ export const processExcelFile = (file: File): Promise<NotaFiscalVolume[]> => {
         
         // Group by NF number
         const nfMap = new Map<string, VolumeItem[]>();
+        let remetenteCNPJ = '';
+        let destinatarioCNPJ = '';
         
         dataRows.forEach(row => {
           const columns = row.split(',');
@@ -145,6 +246,15 @@ export const processExcelFile = (file: File): Promise<NotaFiscalVolume[]> => {
           }
           
           const nfNumero = columns[0].trim();
+          
+          // Get CNPJ information from the first valid row
+          if (!remetenteCNPJ && columns.length >= 7) {
+            remetenteCNPJ = columns[6].trim();
+          }
+          
+          if (!destinatarioCNPJ && columns.length >= 8) {
+            destinatarioCNPJ = columns[7].trim();
+          }
           
           const volumeItem: VolumeItem = {
             id: generateVolumeId(),
@@ -172,7 +282,22 @@ export const processExcelFile = (file: File): Promise<NotaFiscalVolume[]> => {
           });
         });
         
-        resolve(notasFiscais);
+        // Simple remetente and destinatario objects based on CNPJ
+        const remetente = {
+          cnpj: remetenteCNPJ,
+          nome: "Remetente importado via planilha",
+        };
+        
+        const destinatario = {
+          cnpj: destinatarioCNPJ,
+          nome: "Destinatário importado via planilha",
+        };
+        
+        resolve({
+          notasFiscais,
+          remetente,
+          destinatario
+        });
       } catch (error) {
         reject(error);
       }

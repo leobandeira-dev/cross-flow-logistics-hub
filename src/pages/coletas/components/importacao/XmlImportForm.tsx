@@ -7,7 +7,7 @@ import { NotaFiscalVolume } from '../../utils/volumeCalculations';
 import { extractNFInfoFromXML, processMultipleXMLFiles } from '../../utils/xmlImportHelper';
 
 interface XmlImportFormProps {
-  onImportSuccess: (notasFiscais: NotaFiscalVolume[]) => void;
+  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
   isSingleFile?: boolean;
 }
 
@@ -22,27 +22,36 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({ onImportSuccess, isSingle
     try {
       if (isSingleFile) {
         const file = e.target.files[0];
-        const nfInfo = await extractNFInfoFromXML(file);
-        if (nfInfo && nfInfo.numeroNF) {
-          onImportSuccess([{
-            numeroNF: nfInfo.numeroNF,
-            volumes: nfInfo.volumes || []
-          }]);
+        const result = await extractNFInfoFromXML(file);
+        
+        if (result && result.nfInfo && result.nfInfo.numeroNF) {
+          onImportSuccess(
+            [{
+              numeroNF: result.nfInfo.numeroNF,
+              volumes: result.nfInfo.volumes || []
+            }],
+            result.remetente,
+            result.destinatario
+          );
           
           toast({
             title: "XML importado",
-            description: `Nota fiscal ${nfInfo.numeroNF} importada com sucesso.`
+            description: `Nota fiscal ${result.nfInfo.numeroNF} importada com sucesso.`
           });
         }
       } else {
-        const importedNFs = await processMultipleXMLFiles(e.target.files);
+        const result = await processMultipleXMLFiles(e.target.files);
         
-        if (importedNFs.length > 0) {
-          onImportSuccess(importedNFs);
+        if (result.notasFiscais.length > 0) {
+          onImportSuccess(
+            result.notasFiscais,
+            result.remetente,
+            result.destinatario
+          );
           
           toast({
             title: "XML importados",
-            description: `${importedNFs.length} notas fiscais importadas com sucesso.`
+            description: `${result.notasFiscais.length} notas fiscais importadas com sucesso.`
           });
         } else {
           toast({

@@ -11,6 +11,8 @@ export interface SolicitacaoFormData {
   transportadora_cnpj?: string; // CNPJ of the transport company
   remetente_cnpj?: string;     // CNPJ of the sender
   destinatario_cnpj?: string;  // CNPJ of the recipient
+  remetenteInfo?: any;         // Full sender information from XML
+  destinatarioInfo?: any;      // Full recipient information from XML
 }
 
 export interface SolicitacaoDialogProps {

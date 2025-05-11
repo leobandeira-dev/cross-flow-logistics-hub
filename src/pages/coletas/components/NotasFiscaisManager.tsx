@@ -103,6 +103,7 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
                         <div className="text-sm">
                           <div>Volume: {subtotais.volumeTotal.toFixed(3)} m³</div>
                           <div>Peso: {subtotais.pesoTotal.toFixed(2)} kg</div>
+                          <div>Peso Cubado: {subtotais.pesoCubadoTotal.toFixed(2)} kg</div>
                         </div>
                       </div>
                     </div>
@@ -119,7 +120,9 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
               <div className="font-bold">Total da Coleta:</div>
               <div>
                 <div>Volume: <span className="font-semibold">{totaisColeta.volumeTotal.toFixed(3)} m³</span></div>
-                <div>Peso: <span className="font-semibold">{totaisColeta.pesoTotal.toFixed(2)} kg</span></div>
+                <div>Peso Bruto: <span className="font-semibold">{totaisColeta.pesoTotal.toFixed(2)} kg</span></div>
+                <div>Peso Cubado: <span className="font-semibold">{totaisColeta.pesoCubadoTotal.toFixed(2)} kg</span></div>
+                <div>Peso para Cálculo: <span className="font-semibold">{Math.max(totaisColeta.pesoTotal, totaisColeta.pesoCubadoTotal).toFixed(2)} kg</span></div>
               </div>
             </div>
           </div>

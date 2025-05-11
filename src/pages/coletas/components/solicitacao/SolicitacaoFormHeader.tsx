@@ -13,6 +13,7 @@ interface SolicitacaoFormHeaderProps {
   onDataColetaChange: (value: string) => void;
   onOrigemChange: (value: string) => void;
   onDestinoChange: (value: string) => void;
+  readOnlyAddresses?: boolean;
 }
 
 const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
@@ -24,6 +25,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   onDataColetaChange,
   onOrigemChange,
   onDestinoChange,
+  readOnlyAddresses = false,
 }) => {
   return (
     <>
@@ -65,7 +67,12 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
             placeholder="Endereço de origem" 
             value={origem}
             onChange={(e) => onOrigemChange(e.target.value)}
+            readOnly={readOnlyAddresses}
+            className={readOnlyAddresses ? "bg-gray-50" : ""}
           />
+          {readOnlyAddresses && (
+            <p className="text-xs text-gray-500 mt-1">Endereço obtido do XML da nota fiscal</p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="destino">Destino</Label>
@@ -74,7 +81,12 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
             placeholder="Endereço de destino" 
             value={destino}
             onChange={(e) => onDestinoChange(e.target.value)}
+            readOnly={readOnlyAddresses}
+            className={readOnlyAddresses ? "bg-gray-50" : ""}
           />
+          {readOnlyAddresses && (
+            <p className="text-xs text-gray-500 mt-1">Endereço obtido do XML da nota fiscal</p>
+          )}
         </div>
       </div>
     </>

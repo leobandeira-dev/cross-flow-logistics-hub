@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,6 +30,25 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
     notasFiscais: []
   });
 
+  // Effect to update origin/destination when remetente/destinatario info changes
+  useEffect(() => {
+    if (formData.remetenteInfo?.enderecoFormatado) {
+      handleInputChange('origem', formData.remetenteInfo.enderecoFormatado);
+    }
+    
+    if (formData.destinatarioInfo?.enderecoFormatado) {
+      handleInputChange('destino', formData.destinatarioInfo.enderecoFormatado);
+    }
+    
+    if (formData.remetenteInfo?.cnpj) {
+      handleInputChange('remetente_cnpj', formData.remetenteInfo.cnpj);
+    }
+    
+    if (formData.destinatarioInfo?.cnpj || formData.destinatarioInfo?.cpf) {
+      handleInputChange('destinatario_cnpj', formData.destinatarioInfo.cnpj || formData.destinatarioInfo.cpf);
+    }
+  }, [formData.remetenteInfo, formData.destinatarioInfo]);
+
   const handleInputChange = (field: keyof SolicitacaoFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -40,15 +59,6 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
         toast({
           title: "Campo obrigatório",
           description: "Selecione um cliente.",
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      if (!formData.origem || !formData.destino) {
-        toast({
-          title: "Campos obrigatórios",
-          description: "Informe os endereços de origem e destino.",
           variant: "destructive"
         });
         return false;
@@ -113,10 +123,12 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
     }, 1500);
   };
 
-  const handleImportSuccess = (notasFiscais: NotaFiscalVolume[]) => {
+  const handleImportSuccess = (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => {
     setFormData(prev => ({
       ...prev,
-      notasFiscais
+      notasFiscais,
+      remetenteInfo,
+      destinatarioInfo
     }));
   };
 
@@ -133,6 +145,7 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
             onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
             onOrigemChange={(value) => handleInputChange('origem', value)}
             onDestinoChange={(value) => handleInputChange('destino', value)}
+            readOnlyAddresses={!!(formData.remetenteInfo || formData.destinatarioInfo)}
           />
         );
       case 2:
@@ -175,6 +188,14 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
                 <div>
                   <p className="text-sm font-medium text-gray-500">Data da Coleta:</p>
                   <p>{formData.dataColeta}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Remetente:</p>
+                  <p>{formData.remetenteInfo?.nome || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Destinatário:</p>
+                  <p>{formData.destinatarioInfo?.nome || '-'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Origem:</p>

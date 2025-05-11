@@ -1,5 +1,5 @@
 
-// Utility functions for calculating volumes and weights
+// Utility functions for volume calculations in collection requests
 
 export interface VolumeItem {
   id: string;
@@ -15,51 +15,72 @@ export interface NotaFiscalVolume {
   volumes: VolumeItem[];
 }
 
-// Calculate the volume in cubic meters (m³)
-export const calcularVolumeCubico = (altura: number, largura: number, profundidade: number): number => {
-  // Convert cm to m and calculate volume
-  return (altura / 100) * (largura / 100) * (profundidade / 100);
+export interface VolumeSubtotals {
+  volumeTotal: number;
+  pesoTotal: number;
+  pesoCubadoTotal: number;
+}
+
+export const generateVolumeId = (): string => {
+  return Math.random().toString(36).substring(2, 9);
 };
 
-// Calculate the total volume for an item considering quantity
-export const calcularVolumeTotalItem = (item: VolumeItem): number => {
-  const volumeUnitario = calcularVolumeCubico(item.altura, item.largura, item.profundidade);
-  return volumeUnitario * item.quantidade;
+// Calculate volume in cubic meters (m³)
+export const calcularVolume = (altura: number, largura: number, profundidade: number): number => {
+  // Convert cm³ to m³
+  return (altura * largura * profundidade) / 1000000;
 };
 
-// Calculate the total weight for an item considering quantity
-export const calcularPesoTotalItem = (item: VolumeItem): number => {
-  return item.peso * item.quantidade;
+// Calculate cubated weight (peso cubado) using the formula: volume in m³ * 300
+export const calcularPesoCubado = (volume: number): number => {
+  return volume * 300; // Standard factor is 300 kg/m³
 };
 
-// Calculate subtotals for a nota fiscal
-export const calcularSubtotaisNota = (volumes: VolumeItem[]): { volumeTotal: number; pesoTotal: number } => {
+// Calculate subtotals for a single invoice's volumes
+export const calcularSubtotaisNota = (volumes: VolumeItem[]): VolumeSubtotals => {
   let volumeTotal = 0;
   let pesoTotal = 0;
+  let pesoCubadoTotal = 0;
   
   volumes.forEach(item => {
-    volumeTotal += calcularVolumeTotalItem(item);
-    pesoTotal += calcularPesoTotalItem(item);
+    const volumeItem = calcularVolume(item.altura, item.largura, item.profundidade);
+    volumeTotal += volumeItem * item.quantidade;
+    pesoTotal += item.peso * item.quantidade;
+    pesoCubadoTotal += calcularPesoCubado(volumeItem) * item.quantidade;
   });
   
-  return { volumeTotal, pesoTotal };
+  return {
+    volumeTotal,
+    pesoTotal,
+    pesoCubadoTotal
+  };
 };
 
-// Calculate totals for all notas fiscais
-export const calcularTotaisColeta = (notasFiscais: NotaFiscalVolume[]): { volumeTotal: number; pesoTotal: number } => {
-  let volumeTotal = 0;
-  let pesoTotal = 0;
+// Calculate total volumes, weight, and cubated weight for the entire collection request
+export const calcularTotaisColeta = (notasFiscais: NotaFiscalVolume[]): VolumeSubtotals => {
+  const totais = notasFiscais.reduce<VolumeSubtotals>(
+    (acc, nf) => {
+      const subtotais = calcularSubtotaisNota(nf.volumes);
+      return {
+        volumeTotal: acc.volumeTotal + subtotais.volumeTotal,
+        pesoTotal: acc.pesoTotal + subtotais.pesoTotal,
+        pesoCubadoTotal: acc.pesoCubadoTotal + subtotais.pesoCubadoTotal
+      };
+    },
+    { volumeTotal: 0, pesoTotal: 0, pesoCubadoTotal: 0 }
+  );
   
-  notasFiscais.forEach(nf => {
-    const { volumeTotal: volumeNF, pesoTotal: pesoNF } = calcularSubtotaisNota(nf.volumes);
-    volumeTotal += volumeNF;
-    pesoTotal += pesoNF;
-  });
-  
-  return { volumeTotal, pesoTotal };
+  return totais;
 };
 
-// Generate a unique ID for new volume items
-export const generateVolumeId = (): string => {
-  return `vol-${Math.random().toString(36).substring(2, 9)}`;
+// Create an empty volume template
+export const criarVolumeVazio = (): VolumeItem => {
+  return {
+    id: generateVolumeId(),
+    altura: 0,
+    largura: 0,
+    profundidade: 0,
+    peso: 0,
+    quantidade: 1
+  };
 };
