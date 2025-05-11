@@ -6,6 +6,8 @@ import { Upload, Loader2, Printer } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { generateDANFEFromXML, createPDFDataUrl } from '@/pages/armazenagem/recebimento/utils/danfeAPI';
+import { parseXmlFile } from '@/pages/armazenagem/recebimento/utils/xmlParser';
+import { notasFiscais } from '@/pages/armazenagem/recebimento/data/mockData';
 
 interface ImportarViaXMLProps {
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -31,6 +33,45 @@ const ImportarViaXML: React.FC<ImportarViaXMLProps> = ({ onFileUpload, isLoading
         // Read the XML file
         const content = await readFileAsText(file);
         setXmlContent(content);
+        
+        // Parse XML to extract nota fiscal data
+        const xmlData = await parseXmlFile(file);
+        
+        // Add the imported note to the notasFiscais array
+        if (xmlData) {
+          try {
+            // Extract information from XML
+            const nfeInfo = xmlData.nfeproc?.nfe?.infnfe;
+            const notaId = nfeInfo?.ide?.nnf || `NF-${Math.floor(Math.random() * 100000)}`;
+            const numeroNota = nfeInfo?.ide?.nnf || "";
+            const fornecedor = nfeInfo?.emit?.xnome || "Fornecedor do XML";
+            const dataEmissao = nfeInfo?.ide?.dhemi 
+              ? new Date(nfeInfo.ide.dhemi).toLocaleDateString('pt-BR') 
+              : new Date().toLocaleDateString('pt-BR');
+            const valorTotal = nfeInfo?.total?.icmstot?.vnf || "0,00";
+            
+            // Create a new nota fiscal object
+            const novaNota = {
+              id: notaId,
+              numero: numeroNota,
+              fornecedor: fornecedor,
+              data: dataEmissao,
+              valor: valorTotal,
+              status: 'pending',
+              xmlContent: content // Store XML content for DANFE generation
+            };
+            
+            // Add to the existing array of notas fiscais
+            notasFiscais.unshift(novaNota);
+            
+            toast({
+              title: "Nota fiscal importada com sucesso",
+              description: `A nota fiscal ${numeroNota} foi importada e adicionada à lista.`,
+            });
+          } catch (error) {
+            console.error("Erro ao extrair dados do XML:", error);
+          }
+        }
         
         toast({
           title: "XML carregado",

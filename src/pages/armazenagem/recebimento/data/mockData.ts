@@ -1,6 +1,5 @@
-
 // Mock data for notas fiscais
-export const notasFiscais = [
+export const notasFiscais: NotaFiscal[] = [
   { 
     id: 'NF-2023-001', 
     numero: '12345', 
@@ -91,3 +90,13 @@ export const notasFiscais = [
     ]
   }
 ];
+
+export interface NotaFiscal {
+  id: string;
+  numero: string;
+  fornecedor: string;
+  data: string;
+  valor: string;
+  status: 'pending' | 'processing' | 'completed';
+  xmlContent?: string; // Added for storing XML content from imported notes
+}
