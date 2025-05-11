@@ -66,8 +66,9 @@ const PermissoesUsuario: React.FC = () => {
     return usuario ? `${usuario.nome} (${usuario.email})` : '';
   };
 
+  // Fix: Using allProfiles for the default profiles instead of userProfiles
   const combinedProfiles = [
-    ...userProfiles.map((p, i) => ({ id: `default-${i}`, nome: p })),
+    ...allProfiles.map((p, i) => ({ id: `default-${i}`, nome: p })),
     ...customProfiles
   ];
 
