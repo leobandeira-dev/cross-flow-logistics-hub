@@ -1,3 +1,4 @@
+
 // Mock data for notas fiscais
 export const notasFiscais: NotaFiscal[] = [
   { 
@@ -98,5 +99,38 @@ export interface NotaFiscal {
   data: string;
   valor: string;
   status: 'pending' | 'processing' | 'completed';
-  xmlContent?: string; // Added for storing XML content from imported notes
+  xmlContent?: string;
+  
+  // Additional properties for detailed display
+  chaveNF?: string;
+  serieNF?: string; 
+  dataHoraEmissao?: string;
+  
+  // Emitente information
+  emitenteCNPJ?: string;
+  emitenteRazaoSocial?: string;
+  emitenteEndereco?: string;
+  emitenteBairro?: string;
+  emitenteCidade?: string;
+  emitenteUF?: string;
+  emitenteCEP?: string;
+  
+  // Destinatario information
+  destinatarioCNPJ?: string;
+  destinatarioRazaoSocial?: string;
+  destinatarioEndereco?: string;
+  destinatarioBairro?: string;
+  destinatarioCidade?: string;
+  destinatarioUF?: string;
+  destinatarioCEP?: string;
+  
+  // Items in the nota fiscal
+  itens?: NotaFiscalItem[];
+}
+
+export interface NotaFiscalItem {
+  descricao: string;
+  quantidade: number;
+  valor: number;
+  ncm: string;
 }

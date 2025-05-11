@@ -7,7 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { generateDANFEFromXML, createPDFDataUrl } from '@/pages/armazenagem/recebimento/utils/danfeAPI';
 import { parseXmlFile } from '@/pages/armazenagem/recebimento/utils/xmlParser';
-import { notasFiscais } from '@/pages/armazenagem/recebimento/data/mockData';
+import { notasFiscais, NotaFiscal } from '@/pages/armazenagem/recebimento/data/mockData';
 
 interface ImportarViaXMLProps {
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -51,7 +51,7 @@ const ImportarViaXML: React.FC<ImportarViaXMLProps> = ({ onFileUpload, isLoading
             const valorTotal = nfeInfo?.total?.icmstot?.vnf || "0,00";
             
             // Create a new nota fiscal object
-            const novaNota = {
+            const novaNota: NotaFiscal = {
               id: notaId,
               numero: numeroNota,
               fornecedor: fornecedor,
