@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
+import { Plus, Upload, Download, Loader2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { NotaFiscalVolume } from '../utils/volumeCalculations';
+import NotasFiscaisManager from './NotasFiscaisManager';
+import { extractNFInfoFromXML, processMultipleXMLFiles, generateExcelTemplate, processExcelFile } from '../utils/xmlImportHelper';
 
 interface NovaSolicitacaoDialogProps {
   isOpen: boolean;
@@ -16,12 +20,216 @@ interface NovaSolicitacaoDialogProps {
   setActiveTab: (tab: string) => void;
 }
 
+interface SolicitacaoForm {
+  cliente: string;
+  origem: string;
+  destino: string;
+  dataColeta: string;
+  observacoes: string;
+  notasFiscais: NotaFiscalVolume[];
+}
+
 const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({ 
   isOpen, 
   setIsOpen,
   activeTab,
   setActiveTab
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<SolicitacaoForm>({
+    cliente: '',
+    origem: '',
+    destino: '',
+    dataColeta: '',
+    observacoes: '',
+    notasFiscais: []
+  });
+
+  const handleInputChange = (field: keyof SolicitacaoForm, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = () => {
+    setIsLoading(true);
+    
+    // Validate required fields
+    if (!formData.cliente) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Selecione um cliente.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.origem || !formData.destino) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Informe os endereços de origem e destino.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.dataColeta) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Informe a data da coleta.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.notasFiscais.length === 0) {
+      toast({
+        title: "Nenhuma nota fiscal",
+        description: "Adicione pelo menos uma nota fiscal para continuar.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // Submit form
+    setTimeout(() => {
+      toast({
+        title: "Solicitação enviada",
+        description: "Sua solicitação de coleta foi registrada com sucesso."
+      });
+      setIsLoading(false);
+      setFormData({
+        cliente: '',
+        origem: '',
+        destino: '',
+        dataColeta: '',
+        observacoes: '',
+        notasFiscais: []
+      });
+      setIsOpen(false);
+    }, 1500);
+  };
+
+  // Handler for XML file upload in "NF Única" tab
+  const handleSingleXmlUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const nfInfo = await extractNFInfoFromXML(file);
+      if (nfInfo) {
+        setFormData(prev => ({
+          ...prev,
+          notasFiscais: [
+            {
+              numeroNF: nfInfo.numeroNF || '',
+              volumes: nfInfo.volumes || []
+            }
+          ]
+        }));
+        
+        toast({
+          title: "XML importado",
+          description: `Nota fiscal ${nfInfo.numeroNF} importada com sucesso.`
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao importar XML:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível importar o arquivo XML.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handler for batch XML upload
+  const handleBatchXmlUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const importedNFs = await processMultipleXMLFiles(files);
+      
+      if (importedNFs.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          notasFiscais: importedNFs
+        }));
+        
+        toast({
+          title: "XML importados",
+          description: `${importedNFs.length} notas fiscais importadas com sucesso.`
+        });
+      } else {
+        toast({
+          title: "Atenção",
+          description: "Nenhuma nota fiscal válida encontrada nos arquivos XML."
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao importar XMLs em lote:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível importar os arquivos XML.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handler for Excel file upload
+  const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const importedNFs = await processExcelFile(file);
+      
+      if (importedNFs.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          notasFiscais: importedNFs
+        }));
+        
+        toast({
+          title: "Planilha importada",
+          description: `${importedNFs.length} notas fiscais importadas com sucesso.`
+        });
+      } else {
+        toast({
+          title: "Atenção",
+          description: "Nenhuma nota fiscal válida encontrada na planilha."
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao importar Excel:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível importar o arquivo. Verifique se está no formato correto.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to download Excel template
+  const handleDownloadTemplate = () => {
+    generateExcelTemplate();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -29,7 +237,7 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
           <Plus className="mr-2 h-4 w-4" /> Nova Solicitação
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[725px]">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nova Solicitação de Coleta</DialogTitle>
           <DialogDescription>
@@ -37,186 +245,214 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue="unica" className="w-full" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="unica">NF Única</TabsTrigger>
-            <TabsTrigger value="lote">NF em Lote</TabsTrigger>
-            <TabsTrigger value="manual">Manual</TabsTrigger>
-            <TabsTrigger value="excel">Importar Excel</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="unica" className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nf">Número da Nota Fiscal</Label>
-                <Input id="nf" placeholder="Digite o número da NF" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cliente">Cliente</Label>
-                <Select>
-                  <SelectTrigger id="cliente">
-                    <SelectValue placeholder="Selecione o cliente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="abc">Indústria ABC Ltda</SelectItem>
-                      <SelectItem value="xyz">Distribuidora XYZ</SelectItem>
-                      <SelectItem value="rapidos">Transportes Rápidos</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="origem">Origem</Label>
-                <Input id="origem" placeholder="Endereço de origem" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="destino">Destino</Label>
-                <Input id="destino" placeholder="Endereço de destino" />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="data">Data da Coleta</Label>
-                <Input id="data" type="date" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="volumes">Volumes</Label>
-                <Input id="volumes" type="number" placeholder="Quantidade" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="peso">Peso (kg)</Label>
-                <Input id="peso" type="number" placeholder="Peso total" />
-              </div>
-            </div>
-            
+        <div className="grid gap-6 py-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="observacoes">Observações</Label>
-              <Textarea id="observacoes" placeholder="Informações adicionais" />
+              <Label htmlFor="cliente">Cliente</Label>
+              <Select
+                value={formData.cliente}
+                onValueChange={(value) => handleInputChange('cliente', value)}
+              >
+                <SelectTrigger id="cliente">
+                  <SelectValue placeholder="Selecione o cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="abc">Indústria ABC Ltda</SelectItem>
+                    <SelectItem value="xyz">Distribuidora XYZ</SelectItem>
+                    <SelectItem value="rapidos">Transportes Rápidos</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
-          </TabsContent>
+            <div className="space-y-2">
+              <Label htmlFor="data">Data da Coleta</Label>
+              <Input 
+                id="data" 
+                type="date" 
+                value={formData.dataColeta}
+                onChange={(e) => handleInputChange('dataColeta', e.target.value)}
+              />
+            </div>
+          </div>
           
-          <TabsContent value="lote" className="py-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Notas Fiscais (uma por linha)</Label>
-                <Textarea placeholder="Digite uma NF por linha" rows={5} />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cliente-lote">Cliente</Label>
-                  <Select>
-                    <SelectTrigger id="cliente-lote">
-                      <SelectValue placeholder="Selecione o cliente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="abc">Indústria ABC Ltda</SelectItem>
-                      <SelectItem value="xyz">Distribuidora XYZ</SelectItem>
-                      <SelectItem value="rapidos">Transportes Rápidos</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="data-lote">Data da Coleta</Label>
-                  <Input id="data-lote" type="date" />
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="origem">Origem</Label>
+              <Input 
+                id="origem" 
+                placeholder="Endereço de origem" 
+                value={formData.origem}
+                onChange={(e) => handleInputChange('origem', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="destino">Destino</Label>
+              <Input 
+                id="destino" 
+                placeholder="Endereço de destino" 
+                value={formData.destino}
+                onChange={(e) => handleInputChange('destino', e.target.value)}
+              />
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="origem-lote">Origem</Label>
-                  <Input id="origem-lote" placeholder="Endereço de origem" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="destino-lote">Destino</Label>
-                  <Input id="destino-lote" placeholder="Endereço de destino" />
+          <Tabs defaultValue="unica" className="w-full" value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="unica">NF Única</TabsTrigger>
+              <TabsTrigger value="lote">NF em Lote</TabsTrigger>
+              <TabsTrigger value="manual">Manual</TabsTrigger>
+              <TabsTrigger value="excel">Importar Excel</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="unica" className="space-y-4 py-4">
+              <div className="border rounded-md p-4">
+                <Label className="mb-2 block">Importar Nota Fiscal via XML</Label>
+                <div className="flex flex-col items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {isLoading ? (
+                        <Loader2 className="w-10 h-10 mb-3 text-gray-400 animate-spin" />
+                      ) : (
+                        <Upload className="w-10 h-10 mb-3 text-gray-400" />
+                      )}
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
+                      </p>
+                      <p className="text-xs text-gray-500">Arquivo XML da nota fiscal</p>
+                    </div>
+                    <input 
+                      id="xml-upload" 
+                      type="file" 
+                      className="hidden" 
+                      accept=".xml"
+                      onChange={handleSingleXmlUpload}
+                      disabled={isLoading}
+                    />
+                  </label>
                 </div>
               </div>
-            </div>
-          </TabsContent>
+            </TabsContent>
+            
+            <TabsContent value="lote" className="py-4">
+              <div className="border rounded-md p-4">
+                <Label className="mb-2 block">Importar Múltiplas Notas Fiscais via XML</Label>
+                <div className="flex flex-col items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {isLoading ? (
+                        <Loader2 className="w-10 h-10 mb-3 text-gray-400 animate-spin" />
+                      ) : (
+                        <Upload className="w-10 h-10 mb-3 text-gray-400" />
+                      )}
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">Selecione múltiplos arquivos XML</span>
+                      </p>
+                      <p className="text-xs text-gray-500">Um arquivo por nota fiscal</p>
+                    </div>
+                    <input 
+                      id="xml-multiple-upload" 
+                      type="file" 
+                      className="hidden" 
+                      accept=".xml"
+                      multiple
+                      onChange={handleBatchXmlUpload}
+                      disabled={isLoading}
+                    />
+                  </label>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="manual" className="py-4">
+              <div className="text-sm text-gray-500 mb-4">
+                Cadastre manualmente as notas fiscais e volumes na seção abaixo.
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="excel" className="py-4">
+              <div className="border rounded-md p-4 space-y-4">
+                <div className="flex justify-between items-center">
+                  <Label>Arquivo Excel/CSV</Label>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadTemplate}
+                    className="flex items-center gap-1"
+                    type="button"
+                  >
+                    <Download className="h-4 w-4" /> Baixar Modelo
+                  </Button>
+                </div>
+                
+                <div className="flex flex-col items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {isLoading ? (
+                        <Loader2 className="w-10 h-10 mb-3 text-gray-400 animate-spin" />
+                      ) : (
+                        <Upload className="w-10 h-10 mb-3 text-gray-400" />
+                      )}
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
+                      </p>
+                      <p className="text-xs text-gray-500">Arquivos Excel (.xlsx, .xls) ou CSV (.csv)</p>
+                    </div>
+                    <input 
+                      id="excel-upload" 
+                      type="file" 
+                      className="hidden" 
+                      accept=".xlsx,.xls,.csv"
+                      onChange={handleExcelUpload}
+                      disabled={isLoading}
+                    />
+                  </label>
+                </div>
+                
+                <div className="text-xs text-gray-500">
+                  <p>Faça download do modelo acima e preencha conforme as instruções:</p>
+                  <ul className="list-disc list-inside mt-1">
+                    <li>Mantenha a estrutura do arquivo sem alterar as colunas</li>
+                    <li>Para volumes da mesma nota fiscal, repita o número da NF em linhas diferentes</li>
+                    <li>Salve o arquivo como Excel (.xlsx) ou CSV (.csv) antes de fazer o upload</li>
+                  </ul>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {/* Gerenciamento de Notas Fiscais e Volumes */}
+          <NotasFiscaisManager 
+            notasFiscais={formData.notasFiscais}
+            onChangeNotasFiscais={(notasFiscais) => handleInputChange('notasFiscais', notasFiscais)}
+          />
           
-          <TabsContent value="manual" className="py-4">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="ordem-oca">Código OCA</Label>
-                  <Input id="ordem-oca" placeholder="Ordem OCA" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cliente-manual">Cliente</Label>
-                  <Select>
-                    <SelectTrigger id="cliente-manual">
-                      <SelectValue placeholder="Selecione o cliente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="abc">Indústria ABC Ltda</SelectItem>
-                      <SelectItem value="xyz">Distribuidora XYZ</SelectItem>
-                      <SelectItem value="rapidos">Transportes Rápidos</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="data-manual">Data da Coleta</Label>
-                  <Input id="data-manual" type="date" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="volumes-manual">Volumes</Label>
-                  <Input id="volumes-manual" type="number" placeholder="Quantidade" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="peso-manual">Peso (kg)</Label>
-                  <Input id="peso-manual" type="number" placeholder="Peso total" />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="origem-manual">Origem</Label>
-                  <Input id="origem-manual" placeholder="Endereço de origem" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="destino-manual">Destino</Label>
-                  <Input id="destino-manual" placeholder="Endereço de destino" />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="descricao-manual">Descrição da Carga</Label>
-                <Textarea id="descricao-manual" placeholder="Detalhes da mercadoria" />
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="excel" className="py-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="arquivo-excel">Arquivo Excel</Label>
-                <Input id="arquivo-excel" type="file" accept=".xlsx,.xls" />
-              </div>
-              
-              <div className="p-4 border border-dashed rounded-lg text-center">
-                <p className="text-gray-500 mb-2">
-                  Faça download do modelo padrão para importação
-                </p>
-                <Button variant="outline" size="sm">
-                  Download Modelo
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+          <div className="space-y-2">
+            <Label htmlFor="observacoes">Observações</Label>
+            <Textarea 
+              id="observacoes" 
+              placeholder="Informações adicionais"
+              value={formData.observacoes}
+              onChange={(e) => handleInputChange('observacoes', e.target.value)}
+            />
+          </div>
+        </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
-          <Button className="bg-cross-blue hover:bg-cross-blueDark">Solicitar Coleta</Button>
+          <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>Cancelar</Button>
+          <Button 
+            className="bg-cross-blue hover:bg-cross-blueDark"
+            onClick={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...
+              </>
+            ) : (
+              'Solicitar Coleta'
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

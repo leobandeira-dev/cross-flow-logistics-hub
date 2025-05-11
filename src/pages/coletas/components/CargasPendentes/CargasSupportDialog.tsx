@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
-import { handleWhatsAppSupport, problemosComuns } from '../../../motoristas/utils/supportHelpers';
 import { Carga } from '../../types/coleta.types';
 
 interface CargasSupportDialogProps {
@@ -24,23 +23,33 @@ const CargasSupportDialog: React.FC<CargasSupportDialogProps> = ({
 }) => {
   if (!selectedCarga) return null;
 
-  const handleSupportRequest = (problem: string, description: string) => {
-    const cargaInfo = {
-      id: selectedCarga.id,
-      destino: selectedCarga.destino,
-      motorista: selectedCarga.motorista || 'Não alocado',
-      veiculo: selectedCarga.veiculo || 'Não alocado',
-    };
-    
-    const messageWithProblem = `${problem} - ${description} - `;
-    
-    handleWhatsAppSupport({
-      ...cargaInfo,
-      id: `${cargaInfo.id} - PROBLEMA: ${messageWithProblem}`
-    });
-    
+  const handleWhatsAppSupport = (problem: string = '') => {
+    // Número fictício para suporte via WhatsApp
+    const phoneNumber = "5511912345678";
+    const message = `Preciso de suporte com a carga ${selectedCarga.id} com destino a ${selectedCarga.destino}${problem ? ` - Problema: ${problem}` : ''}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
     onOpenChange(false);
   };
+
+  const problemosComuns = [
+    {
+      title: "Erro de Endereçamento",
+      description: "Endereço de destino incorreto ou incompleto"
+    },
+    {
+      title: "Problema na Documentação",
+      description: "Documentos com inconsistências ou faltantes"
+    },
+    {
+      title: "Questão de Transporte",
+      description: "Problemas com veículo ou motorista"
+    },
+    {
+      title: "Verificação de Peso/Volume",
+      description: "Divergência nas informações de carga"
+    }
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -57,7 +66,7 @@ const CargasSupportDialog: React.FC<CargasSupportDialogProps> = ({
               key={index} 
               variant="outline" 
               className="justify-start text-left px-4 py-3 h-auto"
-              onClick={() => handleSupportRequest(problema.title, problema.description)}
+              onClick={() => handleWhatsAppSupport(`${problema.title} - ${problema.description}`)}
             >
               <div>
                 <div className="font-bold">{problema.title}</div>
@@ -68,10 +77,7 @@ const CargasSupportDialog: React.FC<CargasSupportDialogProps> = ({
           <Button 
             variant="outline" 
             className="justify-start text-left px-4 py-3 h-auto"
-            onClick={() => handleWhatsAppSupport({
-              id: selectedCarga.id,
-              destino: selectedCarga.destino
-            })}
+            onClick={() => handleWhatsAppSupport()}
           >
             <div>
               <div className="font-bold">Outro Problema</div>
