@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { NotaFiscalVolume } from '../../utils/volumeCalculations';
 import NotasFiscaisManager from '../NotasFiscaisManager';
-import SolicitacaoFormHeader from './SolicitacaoFormHeader';
+import EmpresaInfoForm, { EMPTY_EMPRESA } from './EmpresaInfoForm';
 import ImportacaoTabs from './ImportacaoTabs';
 import { SolicitacaoDialogProps, SolicitacaoFormData } from './SolicitacaoTypes';
 import SolicitacaoProgress from './SolicitacaoProgress';
@@ -22,60 +23,69 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<SolicitacaoFormData>({
-    cliente: '',
-    origem: '',
-    destino: '',
+    remetente: EMPTY_EMPRESA,
+    destinatario: EMPTY_EMPRESA,
     dataColeta: '',
     observacoes: '',
     notasFiscais: []
   });
 
-  // Effect to update origin/destination when remetente/destinatario info changes
+  // Effect to update remetente/destinatario when XML data changes
   useEffect(() => {
-    if (formData.remetenteInfo?.enderecoFormatado) {
-      handleInputChange('origem', formData.remetenteInfo.enderecoFormatado);
+    if (formData.remetenteInfo) {
+      const newRemetente = {
+        cnpj: formData.remetenteInfo.cnpj || '',
+        razaoSocial: formData.remetenteInfo.nome || '',
+        nomeFantasia: formData.remetenteInfo.nome || '',
+        endereco: {
+          logradouro: formData.remetenteInfo.endereco?.logradouro || '',
+          numero: formData.remetenteInfo.endereco?.numero || '',
+          complemento: formData.remetenteInfo.endereco?.complemento || '',
+          bairro: formData.remetenteInfo.endereco?.bairro || '',
+          cidade: formData.remetenteInfo.endereco?.cidade || '',
+          uf: formData.remetenteInfo.endereco?.uf || '',
+          cep: formData.remetenteInfo.endereco?.cep || '',
+        },
+        enderecoFormatado: formData.remetenteInfo.enderecoFormatado || ''
+      };
+      
+      setFormData(prev => ({
+        ...prev,
+        remetente: newRemetente
+      }));
     }
     
-    if (formData.destinatarioInfo?.enderecoFormatado) {
-      handleInputChange('destino', formData.destinatarioInfo.enderecoFormatado);
-    }
-    
-    if (formData.remetenteInfo?.cnpj) {
-      handleInputChange('remetente_cnpj', formData.remetenteInfo.cnpj);
-    }
-    
-    if (formData.destinatarioInfo?.cnpj || formData.destinatarioInfo?.cpf) {
-      handleInputChange('destinatario_cnpj', formData.destinatarioInfo.cnpj || formData.destinatarioInfo.cpf);
+    if (formData.destinatarioInfo) {
+      const newDestinatario = {
+        cnpj: formData.destinatarioInfo.cnpj || '',
+        cpf: formData.destinatarioInfo.cpf || '',
+        razaoSocial: formData.destinatarioInfo.nome || '',
+        nomeFantasia: formData.destinatarioInfo.nome || '',
+        endereco: {
+          logradouro: formData.destinatarioInfo.endereco?.logradouro || '',
+          numero: formData.destinatarioInfo.endereco?.numero || '',
+          complemento: formData.destinatarioInfo.endereco?.complemento || '',
+          bairro: formData.destinatarioInfo.endereco?.bairro || '',
+          cidade: formData.destinatarioInfo.endereco?.cidade || '',
+          uf: formData.destinatarioInfo.endereco?.uf || '',
+          cep: formData.destinatarioInfo.endereco?.cep || '',
+        },
+        enderecoFormatado: formData.destinatarioInfo.enderecoFormatado || ''
+      };
+      
+      setFormData(prev => ({
+        ...prev,
+        destinatario: newDestinatario
+      }));
     }
   }, [formData.remetenteInfo, formData.destinatarioInfo]);
 
-  const handleInputChange = (field: keyof SolicitacaoFormData, value: any) => {
+  const handleInputChange = <K extends keyof SolicitacaoFormData>(field: K, value: SolicitacaoFormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const validateStep = (step: number): boolean => {
     if (step === 1) {
-      if (!formData.cliente) {
-        toast({
-          title: "Campo obrigatório",
-          description: "Selecione um cliente.",
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      if (!formData.dataColeta) {
-        toast({
-          title: "Campo obrigatório",
-          description: "Informe a data da coleta.",
-          variant: "destructive"
-        });
-        return false;
-      }
-      return true;
-    }
-    
-    if (step === 2) {
       if (formData.notasFiscais.length === 0) {
         toast({
           title: "Nenhuma nota fiscal",
@@ -84,6 +94,25 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
         });
         return false;
       }
+      
+      if (!formData.remetente.cnpj && !formData.remetente.cpf) {
+        toast({
+          title: "Campo obrigatório",
+          description: "Informe o CNPJ ou CPF do remetente.",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      if (!formData.destinatario.cnpj && !formData.destinatario.cpf) {
+        toast({
+          title: "Campo obrigatório",
+          description: "Informe o CNPJ ou CPF do destinatário.",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
       return true;
     }
     
@@ -92,7 +121,7 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(current => Math.min(current + 1, 3));
+      setCurrentStep(current => Math.min(current + 1, 2));
     }
   };
 
@@ -111,9 +140,8 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
       });
       setIsLoading(false);
       setFormData({
-        cliente: '',
-        origem: '',
-        destino: '',
+        remetente: EMPTY_EMPRESA,
+        destinatario: EMPTY_EMPRESA,
         dataColeta: '',
         observacoes: '',
         notasFiscais: []
@@ -136,20 +164,6 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
     switch(currentStep) {
       case 1:
         return (
-          <SolicitacaoFormHeader 
-            cliente={formData.cliente}
-            dataColeta={formData.dataColeta}
-            origem={formData.origem}
-            destino={formData.destino}
-            onClienteChange={(value) => handleInputChange('cliente', value)}
-            onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
-            onOrigemChange={(value) => handleInputChange('origem', value)}
-            onDestinoChange={(value) => handleInputChange('destino', value)}
-            readOnlyAddresses={!!(formData.remetenteInfo || formData.destinatarioInfo)}
-          />
-        );
-      case 2:
-        return (
           <>
             <ImportacaoTabs 
               activeTab={activeTab}
@@ -157,13 +171,41 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
               onImportSuccess={handleImportSuccess}
             />
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <EmpresaInfoForm 
+                tipo="remetente"
+                dados={formData.remetente}
+                onDadosChange={(dados) => handleInputChange('remetente', dados)}
+                readOnly={!!formData.remetenteInfo}
+              />
+              
+              <EmpresaInfoForm 
+                tipo="destinatario"
+                dados={formData.destinatario}
+                onDadosChange={(dados) => handleInputChange('destinatario', dados)}
+                readOnly={!!formData.destinatarioInfo}
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="data">Data da Coleta</Label>
+                <Input 
+                  id="data" 
+                  type="date" 
+                  value={formData.dataColeta}
+                  onChange={(e) => handleInputChange('dataColeta', e.target.value)}
+                />
+              </div>
+            </div>
+
             <NotasFiscaisManager 
               notasFiscais={formData.notasFiscais}
               onChangeNotasFiscais={(notasFiscais) => handleInputChange('notasFiscais', notasFiscais)}
             />
           </>
         );
-      case 3:
+      case 2:
         return (
           <div className="space-y-4">
             <div className="space-y-2">
@@ -178,32 +220,22 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
             
             <div className="bg-gray-50 p-4 rounded-md border">
               <h3 className="font-medium text-lg mb-2">Resumo da Solicitação</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Cliente:</p>
-                  <p>{formData.cliente === 'abc' ? 'Indústria ABC Ltda' : 
-                     formData.cliente === 'xyz' ? 'Distribuidora XYZ' : 
-                     formData.cliente === 'rapidos' ? 'Transportes Rápidos' : '-'}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Data da Coleta:</p>
-                  <p>{formData.dataColeta}</p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Remetente:</p>
-                  <p>{formData.remetenteInfo?.nome || '-'}</p>
+                  <p>{formData.remetente.razaoSocial}</p>
+                  <p className="text-sm">{formData.remetente.cnpj}</p>
+                  <p className="text-xs text-gray-500 mt-1">{formData.remetente.enderecoFormatado}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Destinatário:</p>
-                  <p>{formData.destinatarioInfo?.nome || '-'}</p>
+                  <p>{formData.destinatario.razaoSocial}</p>
+                  <p className="text-sm">{formData.destinatario.cnpj || formData.destinatario.cpf}</p>
+                  <p className="text-xs text-gray-500 mt-1">{formData.destinatario.enderecoFormatado}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Origem:</p>
-                  <p>{formData.origem}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Destino:</p>
-                  <p>{formData.destino}</p>
+                  <p className="text-sm font-medium text-gray-500">Data da Coleta:</p>
+                  <p>{formData.dataColeta || 'Não informada'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Notas Fiscais:</p>
@@ -227,18 +259,6 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
       return (
         <>
           <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>Cancelar</Button>
-          <Button 
-            className="bg-cross-blue hover:bg-cross-blueDark"
-            onClick={nextStep}
-          >
-            Continuar
-          </Button>
-        </>
-      );
-    } else if (currentStep === 2) {
-      return (
-        <>
-          <Button variant="outline" onClick={prevStep} disabled={isLoading}>Voltar</Button>
           <Button 
             className="bg-cross-blue hover:bg-cross-blueDark"
             onClick={nextStep}
@@ -284,7 +304,7 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
         
-        <SolicitacaoProgress currentStep={currentStep} />
+        <SolicitacaoProgress currentStep={currentStep} totalSteps={2} />
         
         <div className="grid gap-6 py-4">
           {renderStep()}

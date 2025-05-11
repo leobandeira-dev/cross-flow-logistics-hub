@@ -1,16 +1,31 @@
 
 import { NotaFiscalVolume } from "../../utils/volumeCalculations";
 
+export interface EnderecoCompleto {
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  cep: string;
+}
+
+export interface DadosEmpresa {
+  cnpj: string;
+  cpf?: string;
+  razaoSocial: string;
+  nomeFantasia: string;
+  endereco: EnderecoCompleto;
+  enderecoFormatado: string;
+}
+
 export interface SolicitacaoFormData {
-  cliente: string;
-  origem: string;
-  destino: string;
+  remetente: DadosEmpresa;
+  destinatario: DadosEmpresa;
   dataColeta: string;
   observacoes: string;
   notasFiscais: NotaFiscalVolume[];
-  transportadora_cnpj?: string; // CNPJ of the transport company
-  remetente_cnpj?: string;     // CNPJ of the sender
-  destinatario_cnpj?: string;  // CNPJ of the recipient
   remetenteInfo?: any;         // Full sender information from XML
   destinatarioInfo?: any;      // Full recipient information from XML
 }

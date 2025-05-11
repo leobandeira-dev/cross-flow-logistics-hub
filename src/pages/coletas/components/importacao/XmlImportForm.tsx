@@ -5,9 +5,10 @@ import { Upload, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { NotaFiscalVolume } from '../../utils/volumeCalculations';
 import { extractNFInfoFromXML, processMultipleXMLFiles } from '../../utils/xmlImportHelper';
+import { DadosEmpresa } from '../../components/solicitacao/SolicitacaoTypes';
 
 interface XmlImportFormProps {
-  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
+  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: DadosEmpresa, destinatarioInfo?: DadosEmpresa) => void;
   isSingleFile?: boolean;
 }
 
@@ -24,12 +25,9 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({ onImportSuccess, isSingle
         const file = e.target.files[0];
         const result = await extractNFInfoFromXML(file);
         
-        if (result && result.nfInfo && result.nfInfo.numeroNF) {
+        if (result && result.nfInfo) {
           onImportSuccess(
-            [{
-              numeroNF: result.nfInfo.numeroNF,
-              volumes: result.nfInfo.volumes || []
-            }],
+            [result.nfInfo],
             result.remetente,
             result.destinatario
           );
@@ -45,8 +43,8 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({ onImportSuccess, isSingle
         if (result.notasFiscais.length > 0) {
           onImportSuccess(
             result.notasFiscais,
-            result.remetente,
-            result.destinatario
+            result.remetente || undefined,
+            result.destinatario || undefined
           );
           
           toast({

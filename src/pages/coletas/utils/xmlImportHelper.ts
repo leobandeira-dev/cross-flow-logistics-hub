@@ -2,12 +2,13 @@
 import { parseXmlFile } from '../../armazenagem/recebimento/utils/xmlParser';
 import { NotaFiscalVolume, VolumeItem, generateVolumeId } from './volumeCalculations';
 import { toast } from '@/hooks/use-toast';
+import { DadosEmpresa } from '../components/solicitacao/SolicitacaoTypes';
 
 // Extract data from XML file
 export const extractNFInfoFromXML = async (file: File): Promise<{
-  nfInfo: Partial<NotaFiscalVolume>;
-  remetente: any;
-  destinatario: any;
+  nfInfo: NotaFiscalVolume;
+  remetente: DadosEmpresa;
+  destinatario: DadosEmpresa;
 } | null> => {
   try {
     const xmlData = await parseXmlFile(file);
@@ -50,40 +51,46 @@ export const extractNFInfoFromXML = async (file: File): Promise<{
     const qVol = parseInt(getValue(transp, ['vol', 'qvol']) || '1', 10);
     
     // Extract remetente (sender) information
-    const remetente = {
+    const endereco_remetente = {
+      logradouro: getValue(emit, ['enderemit', 'xlgr']),
+      numero: getValue(emit, ['enderemit', 'nro']),
+      complemento: getValue(emit, ['enderemit', 'xcpl']),
+      bairro: getValue(emit, ['enderemit', 'xbairro']),
+      cidade: getValue(emit, ['enderemit', 'xmun']),
+      uf: getValue(emit, ['enderemit', 'uf']),
+      cep: getValue(emit, ['enderemit', 'cep']),
+    };
+    
+    const remetente: DadosEmpresa = {
       cnpj: getValue(emit, ['cnpj']),
-      nome: getValue(emit, ['xnome']),
-      endereco: {
-        logradouro: getValue(emit, ['enderemit', 'xlgr']),
-        numero: getValue(emit, ['enderemit', 'nro']),
-        complemento: getValue(emit, ['enderemit', 'xcpl']),
-        bairro: getValue(emit, ['enderemit', 'xbairro']),
-        cidade: getValue(emit, ['enderemit', 'xmun']),
-        uf: getValue(emit, ['enderemit', 'uf']),
-        cep: getValue(emit, ['enderemit', 'cep']),
-      },
-      enderecoFormatado: '' // Will be populated later
+      razaoSocial: getValue(emit, ['xnome']),
+      nomeFantasia: getValue(emit, ['xfant']) || getValue(emit, ['xnome']),
+      endereco: endereco_remetente,
+      enderecoFormatado: formatAddress(endereco_remetente)
     };
     
     // Extract destinatario (recipient) information
-    const destinatario = {
+    const endereco_destinatario = {
+      logradouro: getValue(dest, ['enderdest', 'xlgr']),
+      numero: getValue(dest, ['enderdest', 'nro']),
+      complemento: getValue(dest, ['enderdest', 'xcpl']),
+      bairro: getValue(dest, ['enderdest', 'xbairro']),
+      cidade: getValue(dest, ['enderdest', 'xmun']),
+      uf: getValue(dest, ['enderdest', 'uf']),
+      cep: getValue(dest, ['enderdest', 'cep']),
+    };
+    
+    const destinatario: DadosEmpresa = {
       cnpj: getValue(dest, ['cnpj']),
       cpf: getValue(dest, ['cpf']),
-      nome: getValue(dest, ['xnome']),
-      endereco: {
-        logradouro: getValue(dest, ['enderdest', 'xlgr']),
-        numero: getValue(dest, ['enderdest', 'nro']),
-        complemento: getValue(dest, ['enderdest', 'xcpl']),
-        bairro: getValue(dest, ['enderdest', 'xbairro']),
-        cidade: getValue(dest, ['enderdest', 'xmun']),
-        uf: getValue(dest, ['enderdest', 'uf']),
-        cep: getValue(dest, ['enderdest', 'cep']),
-      },
-      enderecoFormatado: '' // Will be populated later
+      razaoSocial: getValue(dest, ['xnome']),
+      nomeFantasia: getValue(dest, ['xnome']),
+      endereco: endereco_destinatario,
+      enderecoFormatado: formatAddress(endereco_destinatario)
     };
     
     // Format addresses for display
-    const formatAddress = (endereco: any) => {
+    function formatAddress(endereco: any) {
       if (!endereco) return '';
       
       const parts = [
@@ -96,10 +103,7 @@ export const extractNFInfoFromXML = async (file: File): Promise<{
       ].filter(Boolean);
       
       return parts.join(' ');
-    };
-    
-    remetente.enderecoFormatado = formatAddress(remetente.endereco);
-    destinatario.enderecoFormatado = formatAddress(destinatario.endereco);
+    }
     
     // Create volume data based on transportation information
     const defaultVolume: VolumeItem = {
@@ -133,12 +137,12 @@ export const extractNFInfoFromXML = async (file: File): Promise<{
 // Process multiple XML files
 export const processMultipleXMLFiles = async (files: FileList): Promise<{
   notasFiscais: NotaFiscalVolume[];
-  remetente: any;
-  destinatario: any;
+  remetente: DadosEmpresa | null;
+  destinatario: DadosEmpresa | null;
 }> => {
   const notasFiscais: NotaFiscalVolume[] = [];
-  let firstRemetente: any = null;
-  let firstDestinatario: any = null;
+  let firstRemetente: DadosEmpresa | null = null;
+  let firstDestinatario: DadosEmpresa | null = null;
   let hasConflictingAddresses = false;
   
   for (let i = 0; i < files.length; i++) {
@@ -147,10 +151,7 @@ export const processMultipleXMLFiles = async (files: FileList): Promise<{
       const result = await extractNFInfoFromXML(file);
       
       if (result && result.nfInfo && result.nfInfo.numeroNF) {
-        notasFiscais.push({
-          numeroNF: result.nfInfo.numeroNF,
-          volumes: result.nfInfo.volumes || []
-        });
+        notasFiscais.push(result.nfInfo);
         
         // Store the first remetente and destinatario for comparison
         if (!firstRemetente) {
@@ -159,8 +160,9 @@ export const processMultipleXMLFiles = async (files: FileList): Promise<{
         } else {
           // Check if the current remetente and destinatario match the first ones
           const remetenteMismatch = firstRemetente.cnpj !== result.remetente.cnpj;
-          const destinatarioMismatch = firstDestinatario.cnpj !== result.destinatario.cnpj && 
-                                      firstDestinatario.cpf !== result.destinatario.cpf;
+          const destinatarioMismatch = 
+            (firstDestinatario.cnpj && firstDestinatario.cnpj !== result.destinatario.cnpj) || 
+            (firstDestinatario.cpf && firstDestinatario.cpf !== result.destinatario.cpf);
           
           if (remetenteMismatch || destinatarioMismatch) {
             hasConflictingAddresses = true;
@@ -174,14 +176,14 @@ export const processMultipleXMLFiles = async (files: FileList): Promise<{
     toast({
       title: "Atenção",
       description: "Foram detectadas notas fiscais com remetentes ou destinatários diferentes. Elas devem ser incluídas em solicitações separadas.",
-      variant: "destructive"  // Changed from 'warning' to 'destructive'
+      variant: "destructive"
     });
   }
   
   return {
     notasFiscais,
-    remetente: firstRemetente || {},
-    destinatario: firstDestinatario || {}
+    remetente: firstRemetente,
+    destinatario: firstDestinatario
   };
 };
 
@@ -189,9 +191,9 @@ export const processMultipleXMLFiles = async (files: FileList): Promise<{
 export const generateExcelTemplate = (): void => {
   // Create template data
   const templateData = [
-    ['Número NF', 'Altura (cm)', 'Largura (cm)', 'Profundidade (cm)', 'Peso (kg)', 'Quantidade', 'CNPJ Remetente', 'CNPJ Destinatário'],
-    ['123456789', '30', '40', '50', '10', '1', '12345678000190', '98765432000110'],
-    ['', '', '', '', '', '', '', ''],
+    ['Número NF', 'Altura (cm)', 'Largura (cm)', 'Profundidade (cm)', 'Peso (kg)', 'Quantidade', 'CNPJ Remetente', 'CNPJ Destinatário', 'Razão Social Remetente', 'Razão Social Destinatário'],
+    ['123456789', '30', '40', '50', '10', '1', '12345678000190', '98765432000110', 'Empresa Remetente Ltda', 'Empresa Destinatária S/A'],
+    ['', '', '', '', '', '', '', '', '', ''],
     ['Observação: Você pode adicionar múltiplos volumes para a mesma NF repetindo o número da NF em linhas diferentes'],
   ];
 
@@ -220,8 +222,8 @@ export const generateExcelTemplate = (): void => {
 // Process Excel/CSV file
 export const processExcelFile = (file: File): Promise<{
   notasFiscais: NotaFiscalVolume[];
-  remetente: any;
-  destinatario: any;
+  remetente: DadosEmpresa | null;
+  destinatario: DadosEmpresa | null;
 }> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -237,7 +239,9 @@ export const processExcelFile = (file: File): Promise<{
         // Group by NF number
         const nfMap = new Map<string, VolumeItem[]>();
         let remetenteCNPJ = '';
+        let remetenteNome = '';
         let destinatarioCNPJ = '';
+        let destinatarioNome = '';
         
         dataRows.forEach(row => {
           const columns = row.split(',');
@@ -256,6 +260,14 @@ export const processExcelFile = (file: File): Promise<{
           
           if (!destinatarioCNPJ && columns.length >= 8) {
             destinatarioCNPJ = columns[7].trim();
+          }
+          
+          if (!remetenteNome && columns.length >= 9) {
+            remetenteNome = columns[8].trim();
+          }
+          
+          if (!destinatarioNome && columns.length >= 10) {
+            destinatarioNome = columns[9].trim();
           }
           
           const volumeItem: VolumeItem = {
@@ -284,15 +296,37 @@ export const processExcelFile = (file: File): Promise<{
           });
         });
         
-        // Simple remetente and destinatario objects based on CNPJ
-        const remetente = {
+        // Create basic remetente and destinatario objects
+        const remetente: DadosEmpresa = {
           cnpj: remetenteCNPJ,
-          nome: "Remetente importado via planilha",
+          razaoSocial: remetenteNome || "Remetente importado via planilha",
+          nomeFantasia: remetenteNome || "Remetente importado via planilha",
+          endereco: {
+            logradouro: '',
+            numero: '',
+            complemento: '',
+            bairro: '',
+            cidade: '',
+            uf: '',
+            cep: '',
+          },
+          enderecoFormatado: ''
         };
         
-        const destinatario = {
+        const destinatario: DadosEmpresa = {
           cnpj: destinatarioCNPJ,
-          nome: "Destinatário importado via planilha",
+          razaoSocial: destinatarioNome || "Destinatário importado via planilha",
+          nomeFantasia: destinatarioNome || "Destinatário importado via planilha",
+          endereco: {
+            logradouro: '',
+            numero: '',
+            complemento: '',
+            bairro: '',
+            cidade: '',
+            uf: '',
+            cep: '',
+          },
+          enderecoFormatado: ''
         };
         
         resolve({

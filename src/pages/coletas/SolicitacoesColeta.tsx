@@ -88,7 +88,7 @@ const SolicitacoesColeta = () => {
       </div>
       
       <SearchFilter 
-        placeholder="Buscar por ID, cliente ou notas fiscais..."
+        placeholder="Buscar por ID, remetente, destinatário ou notas fiscais..."
         filters={filters}
         onSearch={handleSearch}
         onFilterChange={handleFilterChange}

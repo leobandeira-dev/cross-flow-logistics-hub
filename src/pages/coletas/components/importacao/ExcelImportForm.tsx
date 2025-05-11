@@ -1,22 +1,19 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Upload, Download, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { generateExcelTemplate, processExcelFile } from '../../utils/xmlImportHelper';
 import { NotaFiscalVolume } from '../../utils/volumeCalculations';
+import { generateExcelTemplate, processExcelFile } from '../../utils/xmlImportHelper';
+import { DadosEmpresa } from '../../components/solicitacao/SolicitacaoTypes';
 
 interface ExcelImportFormProps {
-  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
+  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: DadosEmpresa, destinatarioInfo?: DadosEmpresa) => void;
 }
 
 const ExcelImportForm: React.FC<ExcelImportFormProps> = ({ onImportSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleDownloadTemplate = () => {
-    generateExcelTemplate();
-  };
 
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,16 +25,20 @@ const ExcelImportForm: React.FC<ExcelImportFormProps> = ({ onImportSuccess }) =>
       const result = await processExcelFile(file);
       
       if (result.notasFiscais.length > 0) {
-        onImportSuccess(result.notasFiscais, result.remetente, result.destinatario);
+        onImportSuccess(
+          result.notasFiscais,
+          result.remetente || undefined,
+          result.destinatario || undefined
+        );
         
         toast({
           title: "Planilha importada",
-          description: `${result.notasFiscais.length} notas fiscais importadas com sucesso.`,
+          description: `${result.notasFiscais.length} notas fiscais importadas com sucesso.`
         });
       } else {
         toast({
           title: "Atenção",
-          description: "Nenhuma nota fiscal válida encontrada na planilha.",
+          description: "Nenhuma nota fiscal válida encontrada na planilha."
         });
       }
     } catch (error) {
@@ -50,6 +51,11 @@ const ExcelImportForm: React.FC<ExcelImportFormProps> = ({ onImportSuccess }) =>
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to download Excel template
+  const handleDownloadTemplate = () => {
+    generateExcelTemplate();
   };
 
   return (
@@ -95,6 +101,7 @@ const ExcelImportForm: React.FC<ExcelImportFormProps> = ({ onImportSuccess }) =>
         <p>Faça download do modelo acima e preencha conforme as instruções:</p>
         <ul className="list-disc list-inside mt-1">
           <li>Mantenha a estrutura do arquivo sem alterar as colunas</li>
+          <li>Inclua dados do remetente e destinatário</li>
           <li>Para volumes da mesma nota fiscal, repita o número da NF em linhas diferentes</li>
           <li>Salve o arquivo como Excel (.xlsx) ou CSV (.csv) antes de fazer o upload</li>
         </ul>
