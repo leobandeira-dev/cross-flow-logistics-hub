@@ -39,7 +39,7 @@ export const formatDate = (dateStr: string): string => {
 };
 
 /**
- * Format currency values
+ * Format currency values with Brazilian formatting (R$ X.XXX,XX)
  */
 export const formatCurrency = (value: string | number): string => {
   if (value === undefined || value === null) return 'R$ 0,00';
@@ -54,5 +54,25 @@ export const formatCurrency = (value: string | number): string => {
   } catch (error) {
     console.error("Error formatting currency:", error);
     return 'R$ 0,00';
+  }
+};
+
+/**
+ * Format number with Brazilian formatting (X.XXX,XX)
+ * Used for quantity and value formatting in DANFE
+ */
+export const formatNumber = (value: string | number): string => {
+  if (value === undefined || value === null) return '0,00';
+  
+  try {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    
+    return new Intl.NumberFormat('pt-BR', { 
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4
+    }).format(numValue);
+  } catch (error) {
+    console.error("Error formatting number:", error);
+    return '0,00';
   }
 };
