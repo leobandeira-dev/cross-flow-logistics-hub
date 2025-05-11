@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Ocorrencia } from "../types/ocorrencias.types";
 import StatusBadge from "../components/common/StatusBadge";
 
