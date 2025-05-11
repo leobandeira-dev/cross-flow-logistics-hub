@@ -20,16 +20,18 @@ import { Empresa, PerfilEmpresa } from '../types/empresa.types';
 // Schema for form validation
 const empresaSchema = z.object({
   cnpj: z.string().min(18, 'CNPJ inválido').max(18, 'CNPJ inválido'),
-  razao_social: z.string().min(3, 'Razão social deve ter pelo menos 3 caracteres'),
-  nome_fantasia: z.string().min(2, 'Nome fantasia deve ter pelo menos 2 caracteres'),
+  razaoSocial: z.string().min(3, 'Razão social deve ter pelo menos 3 caracteres'),
+  nomeFantasia: z.string().min(2, 'Nome fantasia deve ter pelo menos 2 caracteres'),
   email: z.string().email('E-mail inválido'),
   telefone: z.string().min(10, 'Telefone inválido'),
-  endereco: z.string().min(5, 'Endereço deve ter pelo menos 5 caracteres'),
+  logradouro: z.string().min(5, 'Logradouro deve ter pelo menos 5 caracteres'),
+  numero: z.string().min(1, 'Número é obrigatório'),
+  bairro: z.string().min(2, 'Bairro é obrigatório'),
   cidade: z.string().min(2, 'Cidade inválida'),
-  estado: z.string().length(2, 'Estado deve ter 2 caracteres (sigla)'),
+  uf: z.string().length(2, 'Estado deve ter 2 caracteres (sigla)'),
   cep: z.string().length(9, 'CEP inválido'),
-  transportadora_principal_id: z.string().optional(),
-  perfis: z.array(z.string()).min(1, 'Selecione pelo menos um perfil'),
+  transportadoraPrincipal: z.boolean().optional(),
+  perfil: z.string().min(1, 'Selecione um perfil'),
 });
 
 type EmpresaFormValues = z.infer<typeof empresaSchema>;
@@ -40,10 +42,10 @@ interface EmpresaFormProps {
 }
 
 const perfisList = [
-  { value: 'transportadora', label: 'Transportadora' },
-  { value: 'filial', label: 'Filial' },
-  { value: 'cliente_direto', label: 'Cliente Direto' },
-  { value: 'cliente_indireto', label: 'Cliente Indireto' },
+  { value: 'Transportadora', label: 'Transportadora' },
+  { value: 'Filial', label: 'Filial' },
+  { value: 'Cliente', label: 'Cliente' },
+  { value: 'Fornecedor', label: 'Fornecedor' },
 ];
 
 const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
@@ -51,16 +53,18 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
     resolver: zodResolver(empresaSchema),
     defaultValues: {
       cnpj: empresa?.cnpj || '',
-      razao_social: empresa?.razao_social || '',
-      nome_fantasia: empresa?.nome_fantasia || '',
+      razaoSocial: empresa?.razaoSocial || '',
+      nomeFantasia: empresa?.nomeFantasia || '',
       email: empresa?.email || '',
       telefone: empresa?.telefone || '',
-      endereco: empresa?.endereco || '',
+      logradouro: empresa?.logradouro || '',
+      numero: empresa?.numero || '',
+      bairro: empresa?.bairro || '',
       cidade: empresa?.cidade || '',
-      estado: empresa?.estado || '',
+      uf: empresa?.uf || '',
       cep: empresa?.cep || '',
-      transportadora_principal_id: empresa?.transportadora_principal_id || '',
-      perfis: empresa?.perfis || [],
+      transportadoraPrincipal: empresa?.transportadoraPrincipal || false,
+      perfil: empresa?.perfil || '',
     },
   });
 
@@ -125,7 +129,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
 
           <FormField
             control={form.control}
-            name="razao_social"
+            name="razaoSocial"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Razão Social</FormLabel>
@@ -139,7 +143,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
 
           <FormField
             control={form.control}
-            name="nome_fantasia"
+            name="nomeFantasia"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nome Fantasia</FormLabel>
@@ -186,12 +190,40 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
 
           <FormField
             control={form.control}
-            name="endereco"
+            name="logradouro"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Endereço</FormLabel>
+                <FormLabel>Logradouro</FormLabel>
                 <FormControl>
-                  <Input placeholder="Rua, Número, Bairro" {...field} />
+                  <Input placeholder="Rua, Avenida, etc." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="numero"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Número</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nº" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="bairro"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bairro</FormLabel>
+                <FormControl>
+                  <Input placeholder="Bairro" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -214,7 +246,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
 
           <FormField
             control={form.control}
-            name="estado"
+            name="uf"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Estado</FormLabel>
@@ -247,35 +279,29 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
         </div>
 
         <div>
-          <h3 className="font-medium mb-2">Perfis da Empresa</h3>
+          <h3 className="font-medium mb-2">Perfil da Empresa</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {perfisList.map((perfil) => (
+            {perfisList.map((perfilOption) => (
               <FormField
-                key={perfil.value}
+                key={perfilOption.value}
                 control={form.control}
-                name="perfis"
+                name="perfil"
                 render={({ field }) => {
                   return (
                     <FormItem
-                      key={perfil.value}
+                      key={perfilOption.value}
                       className="flex flex-row items-start space-x-3 space-y-0"
                     >
                       <FormControl>
                         <Checkbox
-                          checked={field.value?.includes(perfil.value)}
-                          onCheckedChange={(checked) => {
-                            return checked
-                              ? field.onChange([...field.value, perfil.value])
-                              : field.onChange(
-                                  field.value?.filter(
-                                    (value) => value !== perfil.value
-                                  )
-                                )
+                          checked={field.value === perfilOption.value}
+                          onCheckedChange={() => {
+                            form.setValue('perfil', perfilOption.value);
                           }}
                         />
                       </FormControl>
                       <FormLabel className="font-normal">
-                        {perfil.label}
+                        {perfilOption.label}
                       </FormLabel>
                     </FormItem>
                   )
@@ -283,8 +309,31 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
               />
             ))}
           </div>
-          <FormMessage>{form.formState.errors.perfis?.message}</FormMessage>
+          <FormMessage>{form.formState.errors.perfil?.message}</FormMessage>
         </div>
+
+        <FormField
+          control={form.control}
+          name="transportadoraPrincipal"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Transportadora Principal
+                </FormLabel>
+                <FormDescription>
+                  Marque esta opção se esta empresa for a transportadora principal
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
 
         <Button 
           type="submit" 
