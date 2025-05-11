@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '@/components/common/DataTable';
-import StatusBadge from '@/components/common/StatusBadge';
+import { formatDate } from '@/pages/armazenagem/utils/formatters';
 import { SolicitacaoColeta } from '../types/coleta.types';
+import { Badge } from '@/components/ui/badge';
 
 interface TabelaSolicitacoesProps {
   solicitacoes: SolicitacaoColeta[];
@@ -13,57 +13,77 @@ interface TabelaSolicitacoesProps {
   itemsPerPage: number;
 }
 
-const TabelaSolicitacoes: React.FC<TabelaSolicitacoesProps> = ({ 
-  solicitacoes, 
-  currentPage, 
+const TabelaSolicitacoes: React.FC<TabelaSolicitacoesProps> = ({
+  solicitacoes,
+  currentPage,
   setCurrentPage,
   handleRowClick,
   itemsPerPage
 }) => {
+  
+  // Pagination calculation
+  const totalPages = Math.ceil(solicitacoes.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedData = solicitacoes.slice(startIndex, startIndex + itemsPerPage);
+  
+  const columns = [
+    {
+      header: 'ID',
+      accessor: 'id',
+      className: 'w-20'
+    },
+    {
+      header: 'Data',
+      accessor: 'dataSolicitacao',
+      cell: (row: SolicitacaoColeta) => formatDate(row.dataSolicitacao)
+    },
+    {
+      header: 'Remetente',
+      accessor: 'remetente',
+      cell: (row: SolicitacaoColeta) => row.remetente?.razaoSocial || 'Não informado'
+    },
+    {
+      header: 'Destinatário',
+      accessor: 'destinatario',
+      cell: (row: SolicitacaoColeta) => row.destinatario?.razaoSocial || 'Não informado'
+    },
+    {
+      header: 'Notas Fiscais',
+      accessor: 'notasFiscais',
+      cell: (row: SolicitacaoColeta) => {
+        if (!row.notasFiscais || row.notasFiscais.length === 0) return '-';
+        
+        if (row.notasFiscais.length === 1) {
+          const nf = row.notasFiscais[0];
+          return `${nf.numeroNF}${nf.valorTotal ? ` (R$ ${nf.valorTotal.toFixed(2)})` : ''}`;
+        }
+        
+        return `${row.notasFiscais.length} NFs (R$ ${row.notasFiscais.reduce((acc, nf) => acc + (nf.valorTotal || 0), 0).toFixed(2)})`;
+      }
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      cell: (row: SolicitacaoColeta) => {
+        const variant = row.status === 'pending' ? 'outline' : (row.status === 'approved' ? 'success' : 'destructive');
+        const label = row.status === 'pending' ? 'Pendente' : (row.status === 'approved' ? 'Aprovada' : 'Recusada');
+        
+        return <Badge variant={variant as any}>{label}</Badge>;
+      }
+    }
+  ];
+  
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Todas as Solicitações</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <DataTable
-          columns={[
-            { header: 'ID', accessor: 'id' },
-            { header: 'Cliente', accessor: 'cliente' },
-            { 
-              header: 'Notas Fiscais', 
-              accessor: 'notas', 
-              cell: (row) => row.notas.join(', ') 
-            },
-            { header: 'Volumes', accessor: 'volumes' },
-            { header: 'Peso', accessor: 'peso' },
-            { header: 'Data', accessor: 'data' },
-            { header: 'Origem', accessor: 'origem' },
-            { header: 'Destino', accessor: 'destino' },
-            { 
-              header: 'Status', 
-              accessor: 'status',
-              cell: (row) => {
-                const statusMap: any = {
-                  'pending': { type: 'warning', text: 'Pendente' },
-                  'approved': { type: 'success', text: 'Aprovado' },
-                  'rejected': { type: 'error', text: 'Recusado' },
-                };
-                const status = statusMap[row.status];
-                return <StatusBadge status={status.type} text={status.text} />;
-              }
-            }
-          ]}
-          data={solicitacoes}
-          pagination={{
-            totalPages: Math.ceil(solicitacoes.length / itemsPerPage),
-            currentPage: currentPage,
-            onPageChange: setCurrentPage
-          }}
-          onRowClick={handleRowClick}
-        />
-      </CardContent>
-    </Card>
+    <DataTable 
+      columns={columns} 
+      data={paginatedData} 
+      onRowClick={handleRowClick}
+      pagination={{
+        totalPages,
+        currentPage,
+        onPageChange: setCurrentPage
+      }}
+    />
   );
 };
 

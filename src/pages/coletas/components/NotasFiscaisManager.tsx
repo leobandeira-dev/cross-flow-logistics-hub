@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NotaFiscalVolume, calcularSubtotaisNota, calcularTotaisColeta } from '../utils/volumeCalculations';
 import VolumesInputForm from './VolumesInputForm';
 import { Separator } from '@/components/ui/separator';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, User, FileText, DollarSign } from 'lucide-react';
 
 interface NotasFiscaisManagerProps {
   notasFiscais: NotaFiscalVolume[];
@@ -19,7 +19,13 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
   onChangeNotasFiscais
 }) => {
   const adicionarNF = () => {
-    onChangeNotasFiscais([...notasFiscais, { numeroNF: '', volumes: [] }]);
+    onChangeNotasFiscais([...notasFiscais, { 
+      numeroNF: '', 
+      volumes: [],
+      remetente: '',
+      destinatario: '',
+      valorTotal: 0
+    }]);
   };
 
   const removerNF = (index: number) => {
@@ -31,6 +37,25 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
   const atualizarNumeroNF = (index: number, numeroNF: string) => {
     const novasNFs = [...notasFiscais];
     novasNFs[index] = { ...novasNFs[index], numeroNF };
+    onChangeNotasFiscais(novasNFs);
+  };
+
+  const atualizarRemetente = (index: number, remetente: string) => {
+    const novasNFs = [...notasFiscais];
+    novasNFs[index] = { ...novasNFs[index], remetente };
+    onChangeNotasFiscais(novasNFs);
+  };
+
+  const atualizarDestinatario = (index: number, destinatario: string) => {
+    const novasNFs = [...notasFiscais];
+    novasNFs[index] = { ...novasNFs[index], destinatario };
+    onChangeNotasFiscais(novasNFs);
+  };
+
+  const atualizarValorTotal = (index: number, valorTotalStr: string) => {
+    const novasNFs = [...notasFiscais];
+    const valorTotal = parseFloat(valorTotalStr) || 0;
+    novasNFs[index] = { ...novasNFs[index], valorTotal };
     onChangeNotasFiscais(novasNFs);
   };
 
@@ -82,14 +107,56 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
                 
                 <CardContent>
                   <div className="space-y-4">
-                    <div>
-                      <Label htmlFor={`nf-${index}`}>Número da Nota Fiscal</Label>
-                      <Input 
-                        id={`nf-${index}`}
-                        value={nf.numeroNF} 
-                        onChange={(e) => atualizarNumeroNF(index, e.target.value)}
-                        placeholder="Digite o número da NF"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor={`nf-${index}`} className="flex items-center gap-1">
+                          <FileText className="h-4 w-4" /> Número da Nota Fiscal
+                        </Label>
+                        <Input 
+                          id={`nf-${index}`}
+                          value={nf.numeroNF} 
+                          onChange={(e) => atualizarNumeroNF(index, e.target.value)}
+                          placeholder="Digite o número da NF"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`valor-${index}`} className="flex items-center gap-1">
+                          <DollarSign className="h-4 w-4" /> Valor Total (R$)
+                        </Label>
+                        <Input 
+                          id={`valor-${index}`}
+                          type="number" 
+                          step="0.01"
+                          value={nf.valorTotal || ''} 
+                          onChange={(e) => atualizarValorTotal(index, e.target.value)}
+                          placeholder="0,00"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor={`remetente-${index}`} className="flex items-center gap-1">
+                          <User className="h-4 w-4" /> Remetente
+                        </Label>
+                        <Input 
+                          id={`remetente-${index}`}
+                          value={nf.remetente || ''} 
+                          onChange={(e) => atualizarRemetente(index, e.target.value)}
+                          placeholder="Nome do remetente"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`destinatario-${index}`} className="flex items-center gap-1">
+                          <User className="h-4 w-4" /> Destinatário
+                        </Label>
+                        <Input 
+                          id={`destinatario-${index}`}
+                          value={nf.destinatario || ''} 
+                          onChange={(e) => atualizarDestinatario(index, e.target.value)}
+                          placeholder="Nome do destinatário"
+                        />
+                      </div>
                     </div>
                     
                     <VolumesInputForm 
@@ -104,6 +171,9 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
                           <div>Volume: {subtotais.volumeTotal.toFixed(3)} m³</div>
                           <div>Peso: {subtotais.pesoTotal.toFixed(2)} kg</div>
                           <div>Peso Cubado: {subtotais.pesoCubadoTotal.toFixed(2)} kg</div>
+                          {nf.valorTotal > 0 && (
+                            <div>Valor Total: R$ {nf.valorTotal.toFixed(2)}</div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -123,6 +193,7 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
                 <div>Peso Bruto: <span className="font-semibold">{totaisColeta.pesoTotal.toFixed(2)} kg</span></div>
                 <div>Peso Cubado: <span className="font-semibold">{totaisColeta.pesoCubadoTotal.toFixed(2)} kg</span></div>
                 <div>Peso para Cálculo: <span className="font-semibold">{Math.max(totaisColeta.pesoTotal, totaisColeta.pesoCubadoTotal).toFixed(2)} kg</span></div>
+                <div>Valor Total: <span className="font-semibold">R$ {notasFiscais.reduce((acc, nf) => acc + (nf.valorTotal || 0), 0).toFixed(2)}</span></div>
               </div>
             </div>
           </div>

@@ -1,110 +1,126 @@
-
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { parseNFeXml } from '../../utils/xmlImportHelper';
 import { NotaFiscalVolume } from '../../utils/volumeCalculations';
-import { extractNFInfoFromXML, processMultipleXMLFiles } from '../../utils/xmlImportHelper';
-import { DadosEmpresa } from '../../components/solicitacao/SolicitacaoTypes';
 
 interface XmlImportFormProps {
-  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: DadosEmpresa, destinatarioInfo?: DadosEmpresa) => void;
-  isSingleFile?: boolean;
+  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
+  isSingleFile: boolean;
 }
 
-const XmlImportForm: React.FC<XmlImportFormProps> = ({ onImportSuccess, isSingleFile = true }) => {
-  const [isLoading, setIsLoading] = useState(false);
+const XmlImportForm: React.FC<XmlImportFormProps> = ({ onImportSuccess, isSingleFile }) => {
+  const [xmlFile, setXmlFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleXmlUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
-    
-    setIsLoading(true);
-    
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    setXmlFile(file);
+  }, []);
+
+  const {getRootProps, getInputProps, isDragActive} = useDropzone({
+    onDrop,
+    accept: {
+      'text/xml': ['.xml']
+    },
+    maxFiles: 1
+  });
+
+  const handleDragEnter = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleProcessXML = async (xmlContent: string) => {
     try {
-      if (isSingleFile) {
-        const file = e.target.files[0];
-        const result = await extractNFInfoFromXML(file);
-        
-        if (result && result.nfInfo) {
-          onImportSuccess(
-            [result.nfInfo],
-            result.remetente,
-            result.destinatario
-          );
-          
-          toast({
-            title: "XML importado",
-            description: `Nota fiscal ${result.nfInfo.numeroNF} importada com sucesso.`
-          });
-        }
-      } else {
-        const result = await processMultipleXMLFiles(e.target.files);
-        
-        if (result.notasFiscais.length > 0) {
-          onImportSuccess(
-            result.notasFiscais,
-            result.remetente || undefined,
-            result.destinatario || undefined
-          );
-          
-          toast({
-            title: "XML importados",
-            description: `${result.notasFiscais.length} notas fiscais importadas com sucesso.`
-          });
-        } else {
-          toast({
-            title: "Atenção",
-            description: "Nenhuma nota fiscal válida encontrada nos arquivos XML."
-          });
-        }
+      const result = await parseNFeXml(xmlContent);
+      
+      if (!result.nfInfo.numeroNF) {
+        throw new Error('Não foi possível extrair o número da nota fiscal do XML.');
       }
-    } catch (error) {
-      console.error("Erro ao importar XML:", error);
+
+      // Create a complete NotaFiscalVolume object
+      const notaFiscal: NotaFiscalVolume = {
+        numeroNF: result.nfInfo.numeroNF,
+        volumes: result.nfInfo.volumes || [],
+        remetente: result.nfInfo.remetente || result.remetente.nome,
+        destinatario: result.nfInfo.destinatario || result.destinatario.nome,
+        valorTotal: result.nfInfo.valorTotal || 0
+      };
+      
+      onImportSuccess(
+        [notaFiscal],
+        result.remetente,
+        result.destinatario
+      );
+      
+      // Reset form after successful import
+      setXmlFile(null);
+      setIsDragging(false);
+      
+      // Show success message
       toast({
-        title: "Erro",
-        description: "Não foi possível importar o arquivo XML.",
-        variant: "destructive"
+        title: "XML importado com sucesso",
+        description: `Nota fiscal ${notaFiscal.numeroNF} importada.`,
       });
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      toast({
+        title: "Erro na importação do XML",
+        description: error.message || "Ocorreu um erro ao processar o arquivo XML.",
+        variant: "destructive",
+      });
     }
   };
 
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!xmlFile) {
+      toast({
+        title: "Nenhum arquivo selecionado",
+        description: "Por favor, selecione um arquivo XML para importar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const xmlContent = e.target?.result as string;
+      await handleProcessXML(xmlContent);
+    };
+    reader.readAsText(xmlFile);
+  };
+
   return (
-    <div className="border rounded-md p-4">
-      <Label className="mb-2 block">
-        {isSingleFile 
-          ? "Importar Nota Fiscal via XML" 
-          : "Importar Múltiplas Notas Fiscais via XML"}
-      </Label>
-      <div className="flex flex-col items-center justify-center w-full">
-        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            {isLoading ? (
-              <Loader2 className="w-10 h-10 mb-3 text-gray-400 animate-spin" />
-            ) : (
-              <Upload className="w-10 h-10 mb-3 text-gray-400" />
-            )}
-            <p className="mb-2 text-sm text-gray-500">
-              <span className="font-semibold">
-                {isSingleFile ? "Clique para fazer upload" : "Selecione múltiplos arquivos XML"}
-              </span>
-              {isSingleFile && " ou arraste e solte"}
+    <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div 
+          {...getRootProps()}
+          className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer ${isDragActive || isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+        >
+          <input {...getInputProps()} />
+          
+          {xmlFile ? (
+            <p className="text-green-500">Arquivo selecionado: {xmlFile.name}</p>
+          ) : (
+            <p>
+              Arraste e solte o arquivo XML aqui ou clique para selecionar
             </p>
-            <p className="text-xs text-gray-500">
-              {isSingleFile ? "Arquivo XML da nota fiscal" : "Um arquivo por nota fiscal"}
-            </p>
-          </div>
-          <input 
-            type="file" 
-            className="hidden" 
-            accept=".xml"
-            multiple={!isSingleFile}
-            onChange={handleXmlUpload}
-            disabled={isLoading}
-          />
-        </label>
-      </div>
+          )}
+        </div>
+        
+        <Button type="submit" className="bg-cross-blue hover:bg-cross-blueDark" disabled={!xmlFile}>
+          Importar XML
+        </Button>
+      </form>
     </div>
   );
 };
