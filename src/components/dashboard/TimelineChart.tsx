@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
 interface TimelineData {
   name: string;
@@ -9,14 +10,35 @@ interface TimelineData {
 
 interface TimelineChartProps {
   data: TimelineData[];
+  navigateTo?: string;
+  filterParams?: Record<string, string>;
 }
 
-const TimelineChart: React.FC<TimelineChartProps> = ({ data }) => {
+const TimelineChart: React.FC<TimelineChartProps> = ({ data, navigateTo, filterParams = {} }) => {
   // Calculate the maximum value for setting the domain
   const maxValue = Math.max(...data.map(item => item.value)) * 1.2;
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    if (navigateTo) {
+      // Create URL search params for filtering
+      const searchParams = new URLSearchParams();
+      
+      // Add all filter parameters
+      Object.entries(filterParams).forEach(([key, value]) => {
+        searchParams.append(key, value);
+      });
+      
+      // Navigate with query params
+      navigate(`${navigateTo}?${searchParams.toString()}`);
+    }
+  };
 
   return (
-    <div className="h-64 w-full">
+    <div 
+      className={`h-64 w-full ${navigateTo ? 'cursor-pointer' : ''}`} 
+      onClick={navigateTo ? handleClick : undefined}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}

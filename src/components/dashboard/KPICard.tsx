@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 interface KPICardProps {
   title: string;
@@ -10,16 +11,40 @@ interface KPICardProps {
     value: number;
     positive: boolean;
   };
+  navigateTo?: string;
+  filterParams?: Record<string, string>;
 }
 
 const KPICard: React.FC<KPICardProps> = ({ 
   title, 
   value, 
   unit = '', 
-  trend 
+  trend,
+  navigateTo,
+  filterParams = {}
 }) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    if (navigateTo) {
+      // Create URL search params for filtering
+      const searchParams = new URLSearchParams();
+      
+      // Add all filter parameters
+      Object.entries(filterParams).forEach(([key, value]) => {
+        searchParams.append(key, value);
+      });
+      
+      // Navigate with query params
+      navigate(`${navigateTo}?${searchParams.toString()}`);
+    }
+  };
+  
   return (
-    <Card className="overflow-hidden">
+    <Card 
+      className={`overflow-hidden ${navigateTo ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      onClick={handleClick}
+    >
       <CardContent className="p-0">
         <div className="bg-gray-50 px-4 py-2 border-b">
           <p className="text-sm font-medium text-gray-500">{title}</p>

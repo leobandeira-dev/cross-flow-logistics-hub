@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
 interface ChartData {
   name: string;
@@ -12,15 +13,39 @@ interface ChartCardProps {
   title: string;
   data: ChartData[];
   color?: string;
+  navigateTo?: string;
+  filterParams?: Record<string, string>;
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({ 
   title, 
   data,
-  color = '#0098DA' 
+  color = '#0098DA',
+  navigateTo,
+  filterParams = {}
 }) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    if (navigateTo) {
+      // Create URL search params for filtering
+      const searchParams = new URLSearchParams();
+      
+      // Add all filter parameters
+      Object.entries(filterParams).forEach(([key, value]) => {
+        searchParams.append(key, value);
+      });
+      
+      // Navigate with query params
+      navigate(`${navigateTo}?${searchParams.toString()}`);
+    }
+  };
+
   return (
-    <Card>
+    <Card 
+      className={navigateTo ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}
+      onClick={navigateTo ? handleClick : undefined}
+    >
       <CardHeader className="pb-2">
         <CardTitle>{title}</CardTitle>
       </CardHeader>

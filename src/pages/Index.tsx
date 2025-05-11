@@ -1,5 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { DateRange } from 'react-day-picker';
+import { subDays } from 'date-fns';
 import MainLayout from '../components/layout/MainLayout';
 import StatCard from '../components/dashboard/StatCard';
 import ChartCard from '../components/dashboard/ChartCard';
@@ -8,6 +10,7 @@ import DataTable from '../components/common/DataTable';
 import StatusBadge from '../components/common/StatusBadge';
 import KPICard from '../components/dashboard/KPICard';
 import TimelineChart from '../components/dashboard/TimelineChart';
+import DateRangeSelector from '../components/dashboard/DateRangeSelector';
 import { 
   Truck, 
   Package, 
@@ -121,8 +124,17 @@ const kpiData = [
 ];
 
 const Index = () => {
+  // Initialize with the last 30 days as the default date range
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 30),
+    to: new Date()
+  });
+
   return (
     <MainLayout title="Dashboard">
+      {/* Date Range Selector */}
+      <DateRangeSelector dateRange={dateRange} onDateRangeChange={setDateRange} />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <StatCard 
           title="Coletas Pendentes" 
@@ -156,15 +168,38 @@ const Index = () => {
 
       {/* KPIs de tempo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        {kpiData.map((kpi, index) => (
-          <KPICard 
-            key={index}
-            title={kpi.title}
-            value={kpi.value}
-            unit={kpi.unit}
-            trend={kpi.trend}
-          />
-        ))}
+        <KPICard 
+          title="Tempo Médio Aprovação" 
+          value="1,2" 
+          unit="dias"
+          trend={{ value: 10, positive: true }}
+          navigateTo="/coletas/aprovacoes"
+          filterParams={{ status: "pending", sort: "oldest" }}
+        />
+        <KPICard 
+          title="Tempo Médio Coleta" 
+          value="1,5" 
+          unit="dias"
+          trend={{ value: 5, positive: true }}
+          navigateTo="/coletas/alocacao"
+          filterParams={{ type: "pending" }}
+        />
+        <KPICard 
+          title="Tempo Médio em Galpão" 
+          value="2,1" 
+          unit="dias"
+          trend={{ value: 3, positive: false }}
+          navigateTo="/armazenagem"
+          filterParams={{ storage: "active" }}
+        />
+        <KPICard 
+          title="Atrasos em Entregas" 
+          value="8%" 
+          unit=""
+          trend={{ value: 2, positive: true }}
+          navigateTo="/motoristas/cargas"
+          filterParams={{ status: "delayed" }}
+        />
       </div>
       
       {/* Gráfico de timeline do processo */}
@@ -177,7 +212,11 @@ const Index = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <TimelineChart data={tempoProcessoMedio} />
+            <TimelineChart 
+              data={tempoProcessoMedio} 
+              navigateTo="/coletas/aprovacoes"
+              filterParams={{ view: "process" }}
+            />
           </CardContent>
         </Card>
       </div>
@@ -188,11 +227,15 @@ const Index = () => {
           title="Solicitações Pendentes de Aprovação" 
           data={tempoPendentesAprovacao} 
           color="#0098DA"
+          navigateTo="/coletas/aprovacoes"
+          filterParams={{ status: "pending" }}
         />
         <ChartCard 
           title="Tempo de Coleta Após Aprovação" 
           data={tempoColetaAposAprovacao} 
           color="#2D363F"
+          navigateTo="/coletas/alocacao"
+          filterParams={{ status: "approved", sort: "pending_collection" }}
         />
       </div>
 
@@ -202,11 +245,15 @@ const Index = () => {
           title="Coletas Não Efetuadas" 
           data={coletasNaoEfetuadas} 
           color="#EF4444"
+          navigateTo="/coletas/alocacao"
+          filterParams={{ status: "failed" }}
         />
         <ChartCard 
           title="Notas Fiscais Sem Embarque" 
           data={tempoNotasSemEmbarque} 
           color="#F59E0B"
+          navigateTo="/armazenagem/recebimento/notas"
+          filterParams={{ status: "without_shipment" }}
         />
       </div>
       
@@ -215,11 +262,15 @@ const Index = () => {
           title="Solicitações de Coleta (Últimos 7 dias)" 
           data={collectRequestsChart} 
           color="#0098DA"
+          navigateTo="/coletas/solicitacoes"
+          filterParams={{ period: "7d" }}
         />
         <ChartCard 
           title="Desempenho de Motoristas" 
           data={driverPerformanceChart} 
           color="#2D363F"
+          navigateTo="/motoristas/cadastro"
+          filterParams={{ sort: "performance" }}
         />
       </div>
       
@@ -262,6 +313,8 @@ const Index = () => {
             title="Atraso nas Entregas" 
             data={atrasoEntregas} 
             color="#EF4444"
+            navigateTo="/motoristas/cargas"
+            filterParams={{ status: "delayed" }}
           />
         </div>
       </div>
