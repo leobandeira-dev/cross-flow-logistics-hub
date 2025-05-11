@@ -1,0 +1,101 @@
+
+import { z } from 'zod';
+
+export const notaFiscalSchema = z.object({
+  // Dados da Nota Fiscal
+  chaveNF: z.string().optional(),
+  dataHoraEmissao: z.string().optional(),
+  numeroNF: z.string().optional(),
+  serieNF: z.string().optional(),
+  tipoOperacao: z.string().optional(),
+  
+  // Dados do Emitente
+  emitenteCNPJ: z.string().optional(),
+  emitenteRazaoSocial: z.string().optional(),
+  emitenteTelefone: z.string().optional(),
+  emitenteUF: z.string().optional(),
+  emitenteCidade: z.string().optional(),
+  emitenteBairro: z.string().optional(),
+  emitenteEndereco: z.string().optional(),
+  emitenteNumero: z.string().optional(),
+  emitenteCEP: z.string().optional(),
+  
+  // Dados do Destinatário
+  destinatarioCNPJ: z.string().optional(),
+  destinatarioRazaoSocial: z.string().optional(),
+  destinatarioTelefone: z.string().optional(),
+  destinatarioUF: z.string().optional(),
+  destinatarioCidade: z.string().optional(),
+  destinatarioBairro: z.string().optional(),
+  destinatarioEndereco: z.string().optional(),
+  destinatarioNumero: z.string().optional(),
+  destinatarioCEP: z.string().optional(),
+  
+  // Totais da Nota
+  valorTotal: z.string().optional(),
+  pesoTotalBruto: z.string().optional(),
+  volumesTotal: z.string().optional(),
+  numeroPedido: z.string().optional(),
+  informacoesComplementares: z.string().optional(),
+  
+  // Campos adicionais
+  entregueAoFornecedor: z.string().optional(),
+  fobCif: z.string().optional(),
+  numeroColeta: z.string().optional(),
+  valorColeta: z.string().optional(),
+  numeroCTeColeta: z.string().optional(),
+  numeroCTeViagem: z.string().optional(),
+  dataHoraEntrada: z.string().optional(),
+  statusEmbarque: z.string().optional(),
+  quimico: z.string().optional(),
+  fracionado: z.string().optional(),
+  responsavelEntrega: z.string().optional(),
+  motorista: z.string().optional(),
+  dataEmbarque: z.string().optional(),
+});
+
+export type NotaFiscalSchemaType = z.infer<typeof notaFiscalSchema>;
+
+export const defaultValues: NotaFiscalSchemaType = {
+  chaveNF: '',
+  dataHoraEmissao: '',
+  numeroNF: '',
+  serieNF: '',
+  tipoOperacao: '',
+  emitenteCNPJ: '',
+  emitenteRazaoSocial: '',
+  emitenteTelefone: '',
+  emitenteUF: '',
+  emitenteCidade: '',
+  emitenteBairro: '',
+  emitenteEndereco: '',
+  emitenteNumero: '',
+  emitenteCEP: '',
+  destinatarioCNPJ: '',
+  destinatarioRazaoSocial: '',
+  destinatarioTelefone: '',
+  destinatarioUF: '',
+  destinatarioCidade: '',
+  destinatarioBairro: '',
+  destinatarioEndereco: '',
+  destinatarioNumero: '',
+  destinatarioCEP: '',
+  valorTotal: '',
+  pesoTotalBruto: '',
+  volumesTotal: '',
+  numeroPedido: '',
+  informacoesComplementares: '',
+  entregueAoFornecedor: '',
+  fobCif: '',
+  numeroColeta: '',
+  valorColeta: '',
+  numeroCTeColeta: '',
+  numeroCTeViagem: '',
+  dataHoraEntrada: '',
+  statusEmbarque: '',
+  quimico: '',
+  fracionado: '',
+  responsavelEntrega: '',
+  motorista: '',
+  dataEmbarque: '',
+};
