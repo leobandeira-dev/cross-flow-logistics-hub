@@ -27,7 +27,6 @@ export const usePDFGenerator = (
         useCORS: true,
         logging: false,
         allowTaint: true, // Allow cross-origin images
-        windowWidth: options?.isDANFE ? 1000 : undefined, // Wider for DANFE format
         backgroundColor: '#ffffff', // Ensure white background
       });
       
@@ -65,8 +64,8 @@ export const usePDFGenerator = (
       
       // Add more pages if needed for large layouts
       while (heightLeft >= 0) {
+        position = margin; // Reset position for new page
         pageNum++;
-        position = margin;
         pdf.addPage();
         pdf.addImage(
           imgData, 

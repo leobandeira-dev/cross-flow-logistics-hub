@@ -30,13 +30,18 @@ const PrintLayoutModal: React.FC<PrintLayoutModalProps> = ({
 
     setIsGenerating(true);
     try {
+      // Wait for any pending renders to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const canvas = await html2canvas(layoutRef.current, {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         logging: false,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
       });
       
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdf = new jsPDF('p', 'mm', 'a4');
       
       // A4 size: 210 x 297 mm
@@ -51,15 +56,15 @@ const PrintLayoutModal: React.FC<PrintLayoutModalProps> = ({
       pdf.text(`Layout de Carregamento - OC: ${orderNumber}`, 10, position);
       position += 10; // Move down for the image
 
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
       heightLeft -= (pageHeight - position);
       
       // Add more pages if needed for large layouts
       while (heightLeft >= 0) {
-        position = 0;
+        position = 10; // Reset position for new page
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 10, position - (pageHeight - 10), imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'JPEG', 10, position - (pageHeight - 20), imgWidth, imgHeight);
+        heightLeft -= (pageHeight - 20);
       }
 
       return pdf;
