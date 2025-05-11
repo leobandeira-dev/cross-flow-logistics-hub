@@ -23,11 +23,11 @@ export const usePDFGenerator = (
       await new Promise(resolve => setTimeout(resolve, 100));
       
       const canvas = await html2canvas(layoutRef.current, {
-        scale: 1.5, // Reduced scale to avoid memory issues
+        scale: 1.5, // Lower scale to avoid memory issues
         useCORS: true,
         logging: false,
-        allowTaint: true, // Allow cross-origin images
-        backgroundColor: '#ffffff', // Ensure white background
+        allowTaint: true, 
+        backgroundColor: '#ffffff',
       });
       
       // Get image data with specific format and quality
@@ -58,24 +58,20 @@ export const usePDFGenerator = (
         position += 10; // Move down for the image
       }
 
-      // Add first page
+      // Add first page with fixed positioning
       pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+      
+      // Calculate remaining height for additional pages
       heightLeft -= (pageHeight - position - margin);
       
       // Add more pages if needed for large layouts
-      while (heightLeft >= 0) {
-        position = margin; // Reset position for new page
-        pageNum++;
+      while (heightLeft > 0) { // Changed from >= to > to avoid potential infinite loop
         pdf.addPage();
-        pdf.addImage(
-          imgData, 
-          'JPEG', 
-          margin, 
-          position - (pageNum - 1) * (pageHeight - (2 * margin)), 
-          imgWidth, 
-          imgHeight
-        );
-        heightLeft -= (pageHeight - (2 * margin));
+        // Use a fixed offset calculation to avoid the scaling issue
+        const offsetY = (pageHeight - 2 * margin) * pageNum;
+        pdf.addImage(imgData, 'JPEG', margin, position - offsetY, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - 2 * margin);
+        pageNum++;
       }
 
       return pdf;

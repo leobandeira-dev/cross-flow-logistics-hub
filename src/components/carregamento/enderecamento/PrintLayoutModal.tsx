@@ -50,6 +50,7 @@ const PrintLayoutModal: React.FC<PrintLayoutModalProps> = ({
       const imgHeight = canvas.height * imgWidth / canvas.width;
       let heightLeft = imgHeight;
       let position = 10;
+      let pageNum = 1;
 
       // Add title at the top of the first page
       pdf.setFontSize(14);
@@ -57,14 +58,16 @@ const PrintLayoutModal: React.FC<PrintLayoutModalProps> = ({
       position += 10; // Move down for the image
 
       pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-      heightLeft -= (pageHeight - position);
+      heightLeft -= (pageHeight - position - 10);
       
       // Add more pages if needed for large layouts
-      while (heightLeft >= 0) {
-        position = 10; // Reset position for new page
+      while (heightLeft > 0) { // Changed from >= to > to avoid potential infinite loop
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 10, position - (pageHeight - 20), imgWidth, imgHeight);
+        // Use a fixed offset calculation to avoid the scaling issue
+        const offsetY = (pageHeight - 20) * pageNum;
+        pdf.addImage(imgData, 'JPEG', 10, position - offsetY, imgWidth, imgHeight);
         heightLeft -= (pageHeight - 20);
+        pageNum++;
       }
 
       return pdf;
