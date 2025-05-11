@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { FormItem, FormLabel } from '@/components/ui/form';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Loader2, Printer } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 import { generateDANFEFromXML, createPDFDataUrl } from '@/pages/armazenagem/recebimento/utils/danfeAPI';
 
 interface ImportarViaXMLProps {
@@ -13,6 +14,8 @@ interface ImportarViaXMLProps {
 
 const ImportarViaXML: React.FC<ImportarViaXMLProps> = ({ onFileUpload, isLoading = false }) => {
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [xmlContent, setXmlContent] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>('');
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     // Call the original onFileUpload function
@@ -23,68 +26,75 @@ const ImportarViaXML: React.FC<ImportarViaXMLProps> = ({ onFileUpload, isLoading
     if (file && file.type === 'text/xml') {
       try {
         setPreviewLoading(true);
+        setFileName(file.name);
         
         // Read the XML file
-        const xmlContent = await readFileAsText(file);
+        const content = await readFileAsText(file);
+        setXmlContent(content);
         
-        // Preview button
-        const previewButton = document.createElement('button');
-        previewButton.textContent = 'Visualizar DANFE';
-        previewButton.className = 'mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600';
-        previewButton.onclick = async () => {
-          try {
-            toast({
-              title: "Gerando DANFE",
-              description: "Aguarde enquanto o DANFE está sendo gerado...",
-            });
-            
-            // Generate DANFE from XML
-            const pdfBase64 = await generateDANFEFromXML(xmlContent);
-            
-            if (pdfBase64) {
-              // Open PDF in new window
-              const dataUrl = createPDFDataUrl(pdfBase64);
-              window.open(dataUrl, '_blank');
-              
-              toast({
-                title: "DANFE gerado",
-                description: "O DANFE foi aberto em uma nova janela.",
-              });
-            } else {
-              toast({
-                title: "Erro",
-                description: "Não foi possível gerar o DANFE a partir do XML.",
-                variant: "destructive"
-              });
-            }
-          } catch (error) {
-            console.error("Erro ao gerar DANFE:", error);
-            toast({
-              title: "Erro",
-              description: "Ocorreu um erro ao gerar o DANFE. Tente novamente.",
-              variant: "destructive"
-            });
-          }
-        };
+        toast({
+          title: "XML carregado",
+          description: `O arquivo ${file.name} foi carregado com sucesso.`,
+        });
         
-        // Append preview button after file upload
-        setTimeout(() => {
-          const uploadContainer = document.querySelector('.xml-upload-container');
-          if (uploadContainer) {
-            // Remove any existing preview buttons
-            const existingButtons = uploadContainer.querySelectorAll('.danfe-preview-button');
-            existingButtons.forEach((button) => button.remove());
-            
-            // Add the new button with a unique class
-            previewButton.classList.add('danfe-preview-button');
-            uploadContainer.appendChild(previewButton);
-          }
-          setPreviewLoading(false);
-        }, 500);
+        setPreviewLoading(false);
       } catch (error) {
         console.error('Error reading XML file:', error);
         setPreviewLoading(false);
+        toast({
+          title: "Erro",
+          description: "Não foi possível ler o arquivo XML.",
+          variant: "destructive"
+        });
       }
+    }
+  };
+  
+  const handlePrintDANFE = async () => {
+    if (!xmlContent) {
+      toast({
+        title: "Erro",
+        description: "Nenhum arquivo XML carregado.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setPreviewLoading(true);
+      toast({
+        title: "Gerando DANFE",
+        description: "Aguarde enquanto o DANFE está sendo gerado...",
+      });
+      
+      // Generate DANFE from XML
+      const pdfBase64 = await generateDANFEFromXML(xmlContent);
+      
+      if (pdfBase64) {
+        // Open PDF in new window
+        const dataUrl = createPDFDataUrl(pdfBase64);
+        window.open(dataUrl, '_blank');
+        
+        toast({
+          title: "DANFE gerado",
+          description: "O DANFE foi aberto em uma nova janela.",
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível gerar o DANFE a partir do XML.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao gerar DANFE:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao gerar o DANFE. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setPreviewLoading(false);
     }
   };
   
@@ -134,6 +144,21 @@ const ImportarViaXML: React.FC<ImportarViaXMLProps> = ({ onFileUpload, isLoading
               </label>
             </div>
           </FormItem>
+          
+          {/* Print button that appears when an XML file is loaded */}
+          {xmlContent && (
+            <div className="flex justify-center mt-4">
+              <Button 
+                variant="default" 
+                onClick={handlePrintDANFE}
+                disabled={previewLoading}
+                className="gap-2"
+              >
+                <Printer className="h-4 w-4" />
+                Imprimir DANFE ({fileName})
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
