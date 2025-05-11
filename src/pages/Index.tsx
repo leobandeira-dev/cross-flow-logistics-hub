@@ -6,7 +6,20 @@ import ChartCard from '../components/dashboard/ChartCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../components/common/DataTable';
 import StatusBadge from '../components/common/StatusBadge';
-import { Truck, Package, AlertCircle, BarChart3, FileText } from 'lucide-react';
+import KPICard from '../components/dashboard/KPICard';
+import TimelineChart from '../components/dashboard/TimelineChart';
+import { 
+  Truck, 
+  Package, 
+  AlertCircle, 
+  FileText, 
+  Clock, 
+  Calendar,
+  CheckCircle,
+  BarChart,
+  TrendingUp
+} from 'lucide-react';
+import { ChartContainer } from '@/components/ui/chart';
 
 // Mock data
 const recentCollectRequests = [
@@ -42,6 +55,71 @@ const occurrencesChart = [
   { name: 'Outros', value: 3 },
 ];
 
+// Novo mock de dados para os indicadores solicitados
+const tempoPendentesAprovacao = [
+  { name: '1 dia', value: 12 },
+  { name: '2 dias', value: 8 },
+  { name: '3+ dias', value: 5 },
+];
+
+const tempoColetaAposAprovacao = [
+  { name: '1 dia', value: 18 },
+  { name: '2 dias', value: 12 },
+  { name: '3+ dias', value: 7 },
+];
+
+const coletasNaoEfetuadas = [
+  { name: '1 dia', value: 15 },
+  { name: '2 dias', value: 10 },
+  { name: '3+ dias', value: 6 },
+];
+
+const tempoNotasSemEmbarque = [
+  { name: '1 dia', value: 22 },
+  { name: '2 dias', value: 14 },
+  { name: '3+ dias', value: 8 },
+];
+
+const atrasoEntregas = [
+  { name: '1 dia', value: 9 },
+  { name: '2 dias', value: 5 },
+  { name: '3+ dias', value: 3 },
+];
+
+const tempoProcessoMedio = [
+  { name: 'Solicitação a Aprovação', value: 1.2 },
+  { name: 'Aprovação a Coleta', value: 1.5 },
+  { name: 'Tempo em Galpão', value: 2.1 },
+  { name: 'Tempo em Viagem', value: 3.2 },
+];
+
+const kpiData = [
+  { 
+    title: 'Tempo Médio Aprovação', 
+    value: '1,2', 
+    unit: 'dias',
+    trend: { value: 10, positive: true } 
+  },
+  { 
+    title: 'Tempo Médio Coleta', 
+    value: '1,5', 
+    unit: 'dias',
+    trend: { value: 5, positive: true } 
+  },
+  { 
+    title: 'Tempo Médio em Galpão', 
+    value: '2,1', 
+    unit: 'dias',
+    trend: { value: 3, positive: false } 
+  },
+  { 
+    title: 'Atrasos em Entregas', 
+    value: '8%', 
+    unit: '',
+    trend: { value: 2, positive: true } 
+  },
+];
+
 const Index = () => {
   return (
     <MainLayout title="Dashboard">
@@ -73,6 +151,62 @@ const Index = () => {
           icon={<FileText className="text-cross-success" />}
           trend={{ value: 5, positive: true }}
           color="green"
+        />
+      </div>
+
+      {/* KPIs de tempo */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        {kpiData.map((kpi, index) => (
+          <KPICard 
+            key={index}
+            title={kpi.title}
+            value={kpi.value}
+            unit={kpi.unit}
+            trend={kpi.trend}
+          />
+        ))}
+      </div>
+      
+      {/* Gráfico de timeline do processo */}
+      <div className="grid grid-cols-1 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center">
+              <TrendingUp className="mr-2 h-5 w-5 text-muted-foreground" />
+              Tempo Médio por Etapa do Processo (dias)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TimelineChart data={tempoProcessoMedio} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Indicadores de tempo de aprovação e coleta */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <ChartCard 
+          title="Solicitações Pendentes de Aprovação" 
+          data={tempoPendentesAprovacao} 
+          color="#0098DA"
+        />
+        <ChartCard 
+          title="Tempo de Coleta Após Aprovação" 
+          data={tempoColetaAposAprovacao} 
+          color="#2D363F"
+        />
+      </div>
+
+      {/* Indicadores de coletas não efetuadas e notas sem embarque */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <ChartCard 
+          title="Coletas Não Efetuadas" 
+          data={coletasNaoEfetuadas} 
+          color="#EF4444"
+        />
+        <ChartCard 
+          title="Notas Fiscais Sem Embarque" 
+          data={tempoNotasSemEmbarque} 
+          color="#F59E0B"
         />
       </div>
       
@@ -125,8 +259,8 @@ const Index = () => {
         </div>
         <div>
           <ChartCard 
-            title="Ocorrências por Tipo" 
-            data={occurrencesChart} 
+            title="Atraso nas Entregas" 
+            data={atrasoEntregas} 
             color="#EF4444"
           />
         </div>
