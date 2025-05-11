@@ -90,12 +90,11 @@ export const useNotaFiscalForm = () => {
         destinatarioUF: dest.enderDest?.UF || '',
         destinatarioCEP: dest.enderDest?.CEP || '',
         
-        // Informações de transporte
-        transportadoraNome: transp.transporta?.xNome || '',
-        placaVeiculo: transp.veicTransp?.placa || '',
-        quantidadeVolumes: transp.vol?.qVol || '',
-        pesoLiquido: transp.vol?.pesoL || '',
-        pesoBruto: transp.vol?.pesoB || '',
+        // Informações de transporte - ajustado para usar os campos corretos do schema
+        responsavelEntrega: transp.transporta?.xNome || '',  // Substituindo transportadoraNome
+        motorista: transp.veicTransp?.placa ? `Placa: ${transp.veicTransp?.placa}` : '', // Usando campo motorista ao invés de placaVeiculo
+        volumesTotal: transp.vol?.qVol || '',  // Usando volumesTotal em vez de quantidadeVolumes
+        pesoTotalBruto: transp.vol?.pesoB || '', // Usando pesoTotalBruto em vez de pesoBruto
       };
     } catch (error) {
       console.error("Erro ao extrair dados do XML:", error);
