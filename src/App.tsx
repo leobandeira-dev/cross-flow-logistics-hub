@@ -31,6 +31,9 @@ import ConferenciaCarga from "./pages/armazenagem/carregamento/ConferenciaCarga"
 import EnderecamentoCaminhao from "./pages/armazenagem/carregamento/EnderecamentoCaminhao";
 import ChecklistCarga from "./pages/armazenagem/carregamento/ChecklistCarga";
 
+// Users Module Pages
+import CadastroUsuarios from "./pages/usuarios/CadastroUsuarios";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -71,6 +74,9 @@ const App = () => (
           <Route path="/armazenagem/carregamento/conferencia" element={<ConferenciaCarga />} />
           <Route path="/armazenagem/carregamento/enderecamento" element={<EnderecamentoCaminhao />} />
           <Route path="/armazenagem/carregamento/checklist" element={<ChecklistCarga />} />
+          
+          {/* Usuarios Routes */}
+          <Route path="/usuarios/cadastro" element={<CadastroUsuarios />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

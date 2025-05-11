@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
-  Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map
+  Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, UserPlus
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -118,6 +118,11 @@ const Sidebar: React.FC = () => {
         <SubMenu icon={Users} label="Motoristas" defaultOpen={false}>
           <SidebarItem icon={Users} label="Cadastro" href="/motoristas/cadastro" />
           <SidebarItem icon={PackageOpen} label="Cargas" href="/motoristas/cargas" />
+        </SubMenu>
+        
+        {/* Novo menu de Usuários */}
+        <SubMenu icon={UserPlus} label="Usuários" defaultOpen={false}>
+          <SidebarItem icon={UserPlus} label="Cadastro" href="/usuarios/cadastro" />
         </SubMenu>
         
         <SidebarItem icon={MessageSquare} label="SAC" href="/sac" />
