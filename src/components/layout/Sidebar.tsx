@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Truck, PackageOpen, BarChart3, LayoutDashboard, MessageSquare, FileText, 
+  Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
   Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map
 } from 'lucide-react';
 
@@ -120,7 +120,6 @@ const Sidebar: React.FC = () => {
           <SidebarItem icon={PackageOpen} label="Cargas" href="/motoristas/cargas" />
         </SubMenu>
         
-        <SidebarItem icon={BarChart3} label="Dashboards" href="/dashboards" />
         <SidebarItem icon={MessageSquare} label="SAC" href="/sac" />
         <SidebarItem icon={FileText} label="Expedição" href="/expedicao" />
       </nav>

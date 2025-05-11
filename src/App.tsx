@@ -43,7 +43,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/coletas/solicitacoes" element={<SolicitacoesColeta />} />
           <Route path="/coletas/aprovacoes" element={<AprovacoesColeta />} />
-          <Route path="/coletas/alocacao" element={<CargasAlocacao />} /> {/* Nova rota adicionada */}
+          <Route path="/coletas/alocacao" element={<CargasAlocacao />} />
           <Route path="/motoristas/cadastro" element={<CadastroMotoristas />} />
           <Route path="/motoristas/cargas" element={<CargasMotoristas />} />
           <Route path="/sac" element={<Ocorrencias />} />
