@@ -61,7 +61,8 @@ export const extractNFInfoFromXML = async (file: File): Promise<{
         cidade: getValue(emit, ['enderemit', 'xmun']),
         uf: getValue(emit, ['enderemit', 'uf']),
         cep: getValue(emit, ['enderemit', 'cep']),
-      }
+      },
+      enderecoFormatado: '' // Will be populated later
     };
     
     // Extract destinatario (recipient) information
@@ -77,7 +78,8 @@ export const extractNFInfoFromXML = async (file: File): Promise<{
         cidade: getValue(dest, ['enderdest', 'xmun']),
         uf: getValue(dest, ['enderdest', 'uf']),
         cep: getValue(dest, ['enderdest', 'cep']),
-      }
+      },
+      enderecoFormatado: '' // Will be populated later
     };
     
     // Format addresses for display
@@ -172,7 +174,7 @@ export const processMultipleXMLFiles = async (files: FileList): Promise<{
     toast({
       title: "Atenção",
       description: "Foram detectadas notas fiscais com remetentes ou destinatários diferentes. Elas devem ser incluídas em solicitações separadas.",
-      variant: "warning"
+      variant: "destructive"  // Changed from 'warning' to 'destructive'
     });
   }
   

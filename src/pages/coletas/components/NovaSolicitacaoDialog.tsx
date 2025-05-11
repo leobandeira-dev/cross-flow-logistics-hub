@@ -27,6 +27,10 @@ interface SolicitacaoForm {
   dataColeta: string;
   observacoes: string;
   notasFiscais: NotaFiscalVolume[];
+  remetente_cnpj?: string;
+  destinatario_cnpj?: string;
+  remetenteInfo?: any;
+  destinatarioInfo?: any;
 }
 
 const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({ 
@@ -120,21 +124,28 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
     setIsLoading(true);
     
     try {
-      const nfInfo = await extractNFInfoFromXML(file);
-      if (nfInfo) {
+      const result = await extractNFInfoFromXML(file);
+      if (result && result.nfInfo && result.nfInfo.numeroNF) {
+        // Update form data with XML results
         setFormData(prev => ({
           ...prev,
           notasFiscais: [
             {
-              numeroNF: nfInfo.numeroNF || '',
-              volumes: nfInfo.volumes || []
+              numeroNF: result.nfInfo.numeroNF || '',
+              volumes: result.nfInfo.volumes || []
             }
-          ]
+          ],
+          remetenteInfo: result.remetente,
+          destinatarioInfo: result.destinatario,
+          origem: result.remetente?.enderecoFormatado || prev.origem,
+          destino: result.destinatario?.enderecoFormatado || prev.destino,
+          remetente_cnpj: result.remetente?.cnpj,
+          destinatario_cnpj: result.destinatario?.cnpj || result.destinatario?.cpf
         }));
         
         toast({
           title: "XML importado",
-          description: `Nota fiscal ${nfInfo.numeroNF} importada com sucesso.`
+          description: `Nota fiscal ${result.nfInfo.numeroNF} importada com sucesso.`
         });
       }
     } catch (error) {
@@ -157,17 +168,24 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
     setIsLoading(true);
     
     try {
-      const importedNFs = await processMultipleXMLFiles(files);
+      const result = await processMultipleXMLFiles(files);
       
-      if (importedNFs.length > 0) {
+      if (result.notasFiscais.length > 0) {
+        // Update form data with batch XML results
         setFormData(prev => ({
           ...prev,
-          notasFiscais: importedNFs
+          notasFiscais: result.notasFiscais,
+          remetenteInfo: result.remetente,
+          destinatarioInfo: result.destinatario,
+          origem: result.remetente?.enderecoFormatado || prev.origem,
+          destino: result.destinatario?.enderecoFormatado || prev.destino,
+          remetente_cnpj: result.remetente?.cnpj,
+          destinatario_cnpj: result.destinatario?.cnpj || result.destinatario?.cpf
         }));
         
         toast({
           title: "XML importados",
-          description: `${importedNFs.length} notas fiscais importadas com sucesso.`
+          description: `${result.notasFiscais.length} notas fiscais importadas com sucesso.`
         });
       } else {
         toast({
@@ -195,17 +213,21 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
     setIsLoading(true);
     
     try {
-      const importedNFs = await processExcelFile(file);
+      const result = await processExcelFile(file);
       
-      if (importedNFs.length > 0) {
+      if (result.notasFiscais.length > 0) {
         setFormData(prev => ({
           ...prev,
-          notasFiscais: importedNFs
+          notasFiscais: result.notasFiscais,
+          remetenteInfo: result.remetente,
+          destinatarioInfo: result.destinatario,
+          remetente_cnpj: result.remetente?.cnpj,
+          destinatario_cnpj: result.destinatario?.cnpj || result.destinatario?.cpf
         }));
         
         toast({
           title: "Planilha importada",
-          description: `${importedNFs.length} notas fiscais importadas com sucesso.`
+          description: `${result.notasFiscais.length} notas fiscais importadas com sucesso.`
         });
       } else {
         toast({

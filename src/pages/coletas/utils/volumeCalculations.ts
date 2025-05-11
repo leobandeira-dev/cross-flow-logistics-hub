@@ -36,6 +36,17 @@ export const calcularPesoCubado = (volume: number): number => {
   return volume * 300; // Standard factor is 300 kg/m³
 };
 
+// Calculate volume for a single item considering quantity
+export const calcularVolumeTotalItem = (item: VolumeItem): number => {
+  const volumeUnitario = calcularVolume(item.altura, item.largura, item.profundidade);
+  return volumeUnitario * item.quantidade;
+};
+
+// Calculate total weight for a single item considering quantity
+export const calcularPesoTotalItem = (item: VolumeItem): number => {
+  return item.peso * item.quantidade;
+};
+
 // Calculate subtotals for a single invoice's volumes
 export const calcularSubtotaisNota = (volumes: VolumeItem[]): VolumeSubtotals => {
   let volumeTotal = 0;

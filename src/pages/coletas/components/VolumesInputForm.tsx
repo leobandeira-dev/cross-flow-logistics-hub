@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { VolumeItem, calcularVolumeTotalItem, calcularPesoTotalItem, generateVolumeId } from '../utils/volumeCalculations';
+import { VolumeItem, calcularVolume, calcularPesoCubado, generateVolumeId } from '../utils/volumeCalculations';
 import { Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -37,6 +37,17 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({ volumes, onChange }
       return vol;
     });
     onChange(novosVolumes);
+  };
+
+  // Calculate volume for a single item considering quantity
+  const calcularVolumeTotalItem = (item: VolumeItem): number => {
+    const volumeUnitario = calcularVolume(item.altura, item.largura, item.profundidade);
+    return volumeUnitario * item.quantidade;
+  };
+
+  // Calculate total weight for a single item considering quantity
+  const calcularPesoTotalItem = (item: VolumeItem): number => {
+    return item.peso * item.quantidade;
   };
 
   return (
