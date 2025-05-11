@@ -22,58 +22,101 @@ export const usePDFGenerator = (
       // Wait for any pending renders to complete
       await new Promise(resolve => setTimeout(resolve, 100));
       
+      // Convert the layout to canvas with optimal settings
       const canvas = await html2canvas(layoutRef.current, {
-        scale: 1.5, // Lower scale to avoid memory issues
+        scale: 1, // Reduce scale to prevent memory issues
         useCORS: true,
         logging: false,
-        allowTaint: true, 
+        allowTaint: true,
         backgroundColor: '#ffffff',
       });
       
-      // Get image data with specific format and quality
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      // Get image data
+      const imgData = canvas.toDataURL('image/jpeg', 0.9);
       
-      // Set PDF orientation and size based on layout
+      // Calculate page orientation based on canvas dimensions
       const isLandscape = canvas.width > canvas.height;
-      const pdf = new jsPDF(isLandscape ? 'l' : 'p', 'mm', 'a4');
+      const pdf = new jsPDF({
+        orientation: isLandscape ? 'landscape' : 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
       
-      // A4 size dimensions
-      const pageWidth = isLandscape ? 297 : 210;
-      const pageHeight = isLandscape ? 210 : 297;
+      // A4 dimensions
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Calculate dimensions to fit the page with margins
+      // Calculate image dimensions to fit the page with margins
       const margin = 10;
-      const availableWidth = pageWidth - (2 * margin);
-      const imgWidth = availableWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const availableWidth = pdfWidth - (2 * margin);
+      const availableHeight = pdfHeight - (2 * margin);
       
-      let heightLeft = imgHeight;
-      let position = margin;
-      let pageNum = 1;
-
-      // Add title at the top of the first page
+      // Calculate image aspect ratio
+      const imageRatio = canvas.height / canvas.width;
+      
+      // Calculate dimensions that maintain the aspect ratio
+      const imgWidth = availableWidth;
+      const imgHeight = imgWidth * imageRatio;
+      
+      // Add title if not a DANFE document
+      let yPosition = margin;
       if (!options?.isDANFE) {
         pdf.setFontSize(14);
-        pdf.text(`${documentType} - ${documentId}`, margin, position);
-        position += 10; // Move down for the image
+        pdf.text(`${documentType} - ${documentId}`, margin, yPosition);
+        yPosition += 10;
       }
-
-      // Add first page with fixed positioning
-      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
       
-      // Calculate remaining height for additional pages
-      heightLeft -= (pageHeight - position - margin);
-      
-      // Add more pages if needed for large layouts
-      while (heightLeft > 0) { // Changed from >= to > to avoid potential infinite loop
-        pdf.addPage();
-        // Use a fixed offset calculation to avoid the scaling issue
-        const offsetY = (pageHeight - 2 * margin) * pageNum;
-        pdf.addImage(imgData, 'JPEG', margin, position - offsetY, imgWidth, imgHeight);
-        heightLeft -= (pageHeight - 2 * margin);
-        pageNum++;
+      // If the image fits on one page
+      if (imgHeight <= availableHeight) {
+        pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, imgHeight);
+      } else {
+        // For multi-page, we'll slice the image
+        let remainingHeight = canvas.height;
+        let sourceY = 0;
+        let pageIndex = 0;
+        
+        while (remainingHeight > 0) {
+          // Calculate how much of the image we can fit on this page
+          const pageCanvasHeight = pageIndex === 0 
+            ? (availableHeight - (yPosition - margin)) / imgHeight * canvas.height 
+            : availableHeight / imgHeight * canvas.height;
+          
+          // Create a temporary canvas for this slice
+          const tmpCanvas = document.createElement('canvas');
+          tmpCanvas.width = canvas.width;
+          tmpCanvas.height = Math.min(pageCanvasHeight, remainingHeight);
+          
+          // Draw the slice to the temporary canvas
+          const ctx = tmpCanvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(
+              canvas, 
+              0, sourceY, canvas.width, tmpCanvas.height,
+              0, 0, tmpCanvas.width, tmpCanvas.height
+            );
+            
+            // Convert the slice to image data
+            const sliceData = tmpCanvas.toDataURL('image/jpeg', 0.9);
+            
+            // Calculate the height of this slice in PDF
+            const sliceHeight = (tmpCanvas.height / canvas.width) * imgWidth;
+            
+            // Add the slice to the PDF
+            pdf.addImage(sliceData, 'JPEG', margin, yPosition, imgWidth, sliceHeight);
+            
+            // Update for next slice
+            sourceY += tmpCanvas.height;
+            remainingHeight -= tmpCanvas.height;
+            
+            if (remainingHeight > 0) {
+              pdf.addPage();
+              yPosition = margin;
+              pageIndex++;
+            }
+          }
+        }
       }
-
+      
       return pdf;
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
