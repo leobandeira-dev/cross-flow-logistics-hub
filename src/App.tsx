@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SolicitacoesColeta from "./pages/coletas/SolicitacoesColeta";
 import AprovacoesColeta from "./pages/coletas/AprovacoesColeta";
-import CargasAlocacao from "./pages/coletas/CargasAlocacao"; // Nova página adicionada
+import CargasAlocacao from "./pages/coletas/CargasAlocacao";
 import CadastroMotoristas from "./pages/motoristas/CadastroMotoristas";
 import CargasMotoristas from "./pages/motoristas/CargasMotoristas";
 import Ocorrencias from "./pages/sac/Ocorrencias";
