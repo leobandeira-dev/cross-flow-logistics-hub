@@ -1,23 +1,30 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
-import { SolicitacaoDialogProps } from './SolicitacaoTypes';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useSolicitacaoForm } from './useSolicitacaoForm';
 import SolicitacaoProgress from './SolicitacaoProgress';
+import SolicitacaoFormHeader from './SolicitacaoFormHeader';
 import NotasFiscaisStep from './NotasFiscaisStep';
 import ConfirmationStep from './ConfirmationStep';
 import SolicitacaoFooter from './SolicitacaoFooter';
-import { useSolicitacaoForm } from './useSolicitacaoForm';
 
-const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({ 
-  isOpen, 
-  setIsOpen,
-  activeTab,
-  setActiveTab
+interface NovaSolicitacaoDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
+  open,
+  setOpen
 }) => {
   const {
     isLoading,
+    isImporting,
     currentStep,
     formData,
     handleInputChange,
@@ -25,63 +32,46 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
     prevStep,
     handleSubmit,
     handleImportSuccess
-  } = useSolicitacaoForm(setIsOpen);
-
-  const renderStep = () => {
-    switch(currentStep) {
-      case 1:
-        return (
-          <NotasFiscaisStep
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            formData={formData}
-            onImportSuccess={handleImportSuccess}
-            onChangeRemetente={(dados) => handleInputChange('remetente', dados)}
-            onChangeDestinatario={(dados) => handleInputChange('destinatario', dados)}
-            onChangeDataColeta={(data) => handleInputChange('dataColeta', data)}
-            onChangeNotasFiscais={(notasFiscais) => handleInputChange('notasFiscais', notasFiscais)}
-          />
-        );
-      case 2:
-        return (
-          <ConfirmationStep
-            formData={formData}
-            onChangeObservacoes={(value) => handleInputChange('observacoes', value)}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+  } = useSolicitacaoForm(setOpen);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-cross-blue hover:bg-cross-blueDark">
-          <Plus className="mr-2 h-4 w-4" /> Nova Solicitação
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Nova Solicitação de Coleta</DialogTitle>
-          <DialogDescription>
-            Preencha os dados abaixo para criar uma nova solicitação de coleta.
-          </DialogDescription>
         </DialogHeader>
         
-        <SolicitacaoProgress currentStep={currentStep} totalSteps={2} />
+        <SolicitacaoProgress currentStep={currentStep} />
         
-        <div className="grid gap-6 py-4">
-          {renderStep()}
+        <SolicitacaoFormHeader 
+          currentStep={currentStep}
+          isLoading={isLoading || isImporting}
+        />
+        
+        <div>
+          {currentStep === 1 && (
+            <NotasFiscaisStep 
+              formData={formData}
+              handleInputChange={handleInputChange}
+              handleImportSuccess={handleImportSuccess}
+              isImporting={isImporting}
+            />
+          )}
+          
+          {currentStep === 2 && (
+            <ConfirmationStep 
+              formData={formData}
+              handleInputChange={handleInputChange}
+            />
+          )}
         </div>
         
-        <SolicitacaoFooter
+        <SolicitacaoFooter 
           currentStep={currentStep}
-          isLoading={isLoading}
-          onPrevStep={prevStep}
-          onNextStep={nextStep}
+          onPrev={prevStep}
+          onNext={nextStep}
           onSubmit={handleSubmit}
-          onClose={() => setIsOpen(false)}
+          isLoading={isLoading || isImporting}
         />
       </DialogContent>
     </Dialog>

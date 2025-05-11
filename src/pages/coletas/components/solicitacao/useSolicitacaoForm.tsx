@@ -7,6 +7,7 @@ import { EMPTY_EMPRESA } from './EmpresaInfoForm';
 
 export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<SolicitacaoFormData>({
     remetente: EMPTY_EMPRESA,
@@ -21,6 +22,7 @@ export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void) => {
     if (formData.remetenteInfo) {
       const newRemetente = {
         cnpj: formData.remetenteInfo.cnpj || '',
+        cpf: formData.remetenteInfo.cpf || '',
         razaoSocial: formData.remetenteInfo.nome || '',
         nomeFantasia: formData.remetenteInfo.nome || '',
         endereco: {
@@ -138,16 +140,34 @@ export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void) => {
   };
 
   const handleImportSuccess = (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => {
-    setFormData(prev => ({
-      ...prev,
-      notasFiscais,
-      remetenteInfo,
-      destinatarioInfo
-    }));
+    setIsImporting(true);
+    try {
+      toast({
+        title: "Notas fiscais importadas",
+        description: `${notasFiscais.length} notas fiscais importadas com sucesso.`
+      });
+      
+      setFormData(prev => ({
+        ...prev,
+        notasFiscais,
+        remetenteInfo,
+        destinatarioInfo
+      }));
+    } catch (error) {
+      console.error("Erro ao processar notas fiscais importadas:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível processar as notas fiscais importadas.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   return {
     isLoading,
+    isImporting,
     currentStep,
     formData,
     handleInputChange,

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { NotaFiscalVolume } from '../utils/volumeCalculations';
 import NotasFiscaisHeader from './notasFiscais/NotasFiscaisHeader';
 import EmptyNotasFiscais from './notasFiscais/EmptyNotasFiscais';
@@ -9,11 +9,13 @@ import NotasFiscaisSummary from './notasFiscais/NotasFiscaisSummary';
 interface NotasFiscaisManagerProps {
   notasFiscais: NotaFiscalVolume[];
   onChangeNotasFiscais: (notasFiscais: NotaFiscalVolume[]) => void;
+  isLoading?: boolean;
 }
 
 const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
   notasFiscais,
-  onChangeNotasFiscais
+  onChangeNotasFiscais,
+  isLoading = false
 }) => {
   const adicionarNF = () => {
     onChangeNotasFiscais([...notasFiscais, { 
@@ -64,10 +66,10 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
 
   return (
     <div className="space-y-4">
-      <NotasFiscaisHeader onAddNF={adicionarNF} />
+      <NotasFiscaisHeader onAddNF={adicionarNF} isLoading={isLoading} />
 
       {notasFiscais.length === 0 ? (
-        <EmptyNotasFiscais />
+        <EmptyNotasFiscais withIcon={true} />
       ) : (
         <>
           {notasFiscais.map((nf, index) => (
@@ -81,6 +83,7 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
               onUpdateDestinatario={(destinatario) => atualizarDestinatario(index, destinatario)}
               onUpdateValorTotal={(valorTotal) => atualizarValorTotal(index, valorTotal)}
               onUpdateVolumes={(volumes) => atualizarVolumes(index, volumes)}
+              isReadOnly={isLoading}
             />
           ))}
           

@@ -1,75 +1,74 @@
 
-import React from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import NotasFiscaisManager from '../NotasFiscaisManager';
-import EmpresaInfoForm from './EmpresaInfoForm';
-import ImportacaoTabs from './ImportacaoTabs';
+import React, { useState } from 'react';
 import { SolicitacaoFormData } from './SolicitacaoTypes';
-import { NotaFiscalVolume } from '../../utils/volumeCalculations';
+import { Card, CardContent } from '@/components/ui/card';
+import NotasFiscaisManager from '../NotasFiscaisManager';
+import ImportacaoTabs from './ImportacaoTabs';
+import EmpresaInfoForm from './EmpresaInfoForm';
 
 interface NotasFiscaisStepProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
   formData: SolicitacaoFormData;
-  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
-  onChangeRemetente: (dados: any) => void;
-  onChangeDestinatario: (dados: any) => void;
-  onChangeDataColeta: (data: string) => void;
-  onChangeNotasFiscais: (notasFiscais: NotaFiscalVolume[]) => void;
+  handleInputChange: <K extends keyof SolicitacaoFormData>(field: K, value: SolicitacaoFormData[K]) => void;
+  handleImportSuccess: (notasFiscais: any[], remetenteInfo?: any, destinatarioInfo?: any) => void;
+  isImporting?: boolean;
 }
 
-const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
-  activeTab,
-  setActiveTab,
-  formData,
-  onImportSuccess,
-  onChangeRemetente,
-  onChangeDestinatario,
-  onChangeDataColeta,
-  onChangeNotasFiscais
+const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({ 
+  formData, 
+  handleInputChange, 
+  handleImportSuccess,
+  isImporting = false
 }) => {
-  return (
-    <>
-      <ImportacaoTabs 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onImportSuccess={onImportSuccess}
-      />
+  const [activeTab, setActiveTab] = useState('unica');
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EmpresaInfoForm 
-          tipo="remetente"
-          dados={formData.remetente}
-          onDadosChange={onChangeRemetente}
-          readOnly={!!formData.remetenteInfo}
-        />
-        
-        <EmpresaInfoForm 
-          tipo="destinatario"
-          dados={formData.destinatario}
-          onDadosChange={onChangeDestinatario}
-          readOnly={!!formData.destinatarioInfo}
-        />
-      </div>
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardContent className="pt-6">
+          <h3 className="font-semibold text-lg mb-4">Importação de Notas Fiscais</h3>
+          <ImportacaoTabs 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            onImportSuccess={handleImportSuccess}
+            isLoading={isImporting}
+          />
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardContent className="pt-6">
+          <NotasFiscaisManager 
+            notasFiscais={formData.notasFiscais}
+            onChangeNotasFiscais={(notasFiscais) => handleInputChange('notasFiscais', notasFiscais)}
+            isLoading={isImporting}
+          />
+        </CardContent>
+      </Card>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="data">Data da Coleta</Label>
-          <Input 
-            id="data" 
-            type="date" 
-            value={formData.dataColeta}
-            onChange={(e) => onChangeDataColeta(e.target.value)}
-          />
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="font-semibold text-lg mb-4">Dados do Remetente</h3>
+            <EmpresaInfoForm
+              empresa={formData.remetente}
+              onChange={(remetente) => handleInputChange('remetente', remetente)}
+              label="Remetente"
+            />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="font-semibold text-lg mb-4">Dados do Destinatário</h3>
+            <EmpresaInfoForm
+              empresa={formData.destinatario}
+              onChange={(destinatario) => handleInputChange('destinatario', destinatario)}
+              label="Destinatário"
+            />
+          </CardContent>
+        </Card>
       </div>
-
-      <NotasFiscaisManager 
-        notasFiscais={formData.notasFiscais}
-        onChangeNotasFiscais={onChangeNotasFiscais}
-      />
-    </>
+    </div>
   );
 };
 
