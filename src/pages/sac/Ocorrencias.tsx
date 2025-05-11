@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
@@ -11,10 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, FileImage, FileText, MoreHorizontal } from 'lucide-react';
+import { Plus, FileImage, FileText, MoreHorizontal, Link, Package, DollarSign } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { toast } from '@/hooks/use-toast';
+import { Checkbox } from "@/components/ui/checkbox";
 
-// Mock data
+// Mock data for occurrences
 const ocorrencias = [
   { 
     id: 'OC-2023-001', 
@@ -25,7 +27,10 @@ const ocorrencias = [
     nf: '12345',
     descricao: 'Volume não localizado após entrega.',
     status: 'open',
-    prioridade: 'high'
+    prioridade: 'high',
+    documentoVinculado: 'NF-12345',
+    tipoDocumento: 'nota',
+    valorPrejuizo: '1500,00'
   },
   { 
     id: 'OC-2023-002', 
@@ -36,7 +41,10 @@ const ocorrencias = [
     nf: '98765',
     descricao: 'Entrega realizada com 2 dias de atraso.',
     status: 'in_progress',
-    prioridade: 'medium'
+    prioridade: 'medium',
+    documentoVinculado: 'COL-456',
+    tipoDocumento: 'coleta',
+    valorPrejuizo: '0,00'
   },
   { 
     id: 'OC-2023-003', 
@@ -62,12 +70,34 @@ const ocorrencias = [
   },
 ];
 
+// Mock data for documents that can be linked to occurrences
+const documentosMock = {
+  notas: [
+    { id: 'NF-12345', numero: '12345', cliente: 'Indústria ABC Ltda', data: '08/05/2023', valor: '15000,00' },
+    { id: 'NF-23456', numero: '23456', cliente: 'Eletrônicos Tech', data: '06/05/2023', valor: '8750,00' },
+    { id: 'NF-34567', numero: '34567', cliente: 'Distribuidora XYZ', data: '05/05/2023', valor: '12300,00' },
+  ],
+  coletas: [
+    { id: 'COL-456', numero: '456', cliente: 'Indústria ABC Ltda', data: '08/05/2023', notasFiscais: ['NF-12345', 'NF-13579'] },
+    { id: 'COL-789', numero: '789', cliente: 'Distribuidora XYZ', data: '07/05/2023', notasFiscais: ['NF-98765'] },
+  ],
+  ordens: [
+    { id: 'OC-2023-150', numero: '150/2023', cliente: 'Eletrônicos Tech', data: '05/05/2023', notasFiscais: ['NF-23456'] },
+    { id: 'OC-2023-151', numero: '151/2023', cliente: 'Farmacêutica Beta', data: '04/05/2023', notasFiscais: ['NF-54321'] },
+  ]
+};
+
 const Ocorrencias = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedOcorrencia, setSelectedOcorrencia] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('pendentes');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLinkDocumentDialogOpen, setIsLinkDocumentDialogOpen] = useState(false);
+  const [selectedDocumentType, setSelectedDocumentType] = useState('nota');
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [selectedNfs, setSelectedNfs] = useState<string[]>([]);
+  const [showBatchOptions, setShowBatchOptions] = useState(false);
   
   const filters = [
     {
@@ -99,6 +129,15 @@ const Ocorrencias = () => {
         { label: 'Baixa', value: 'low' },
       ]
     },
+    {
+      name: 'Documento',
+      options: [
+        { label: 'Todos', value: 'all' },
+        { label: 'Nota Fiscal', value: 'nota' },
+        { label: 'Coleta', value: 'coleta' },
+        { label: 'Ordem de Carregamento', value: 'oc' },
+      ]
+    }
   ];
   
   const handleSearch = (value: string) => {
@@ -114,6 +153,80 @@ const Ocorrencias = () => {
   const showDetail = (ocorrencia: any) => {
     setSelectedOcorrencia(ocorrencia);
     setIsDetailDialogOpen(true);
+  };
+
+  const handleLinkDocument = (ocorrencia: any = null) => {
+    if (ocorrencia) {
+      setSelectedOcorrencia(ocorrencia);
+    }
+    setSelectedDocumentType('nota');
+    setSelectedDocument(null);
+    setSelectedNfs([]);
+    setShowBatchOptions(false);
+    setIsLinkDocumentDialogOpen(true);
+  };
+
+  const handleDocumentTypeChange = (type: string) => {
+    setSelectedDocumentType(type);
+    setSelectedDocument(null);
+    setSelectedNfs([]);
+    setShowBatchOptions(false);
+  };
+
+  const handleDocumentSelection = (docId: string) => {
+    setSelectedDocument(docId);
+    
+    // If document has multiple NFs, show batch options
+    if (selectedDocumentType !== 'nota') {
+      const doc = documentosMock[selectedDocumentType === 'coleta' ? 'coletas' : 'ordens']
+        .find(d => d.id === docId);
+      
+      if (doc && doc.notasFiscais && doc.notasFiscais.length > 1) {
+        setShowBatchOptions(true);
+        setSelectedNfs(doc.notasFiscais);
+      } else {
+        setShowBatchOptions(false);
+        setSelectedNfs(doc?.notasFiscais || []);
+      }
+    }
+  };
+
+  const handleNfSelectionChange = (nfId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedNfs(prev => [...prev, nfId]);
+    } else {
+      setSelectedNfs(prev => prev.filter(id => id !== nfId));
+    }
+  };
+
+  const handleSelectAllNfs = (checked: boolean) => {
+    if (selectedDocument && selectedDocumentType !== 'nota') {
+      const doc = documentosMock[selectedDocumentType === 'coleta' ? 'coletas' : 'ordens']
+        .find(d => d.id === selectedDocument);
+      
+      if (checked && doc) {
+        setSelectedNfs(doc.notasFiscais || []);
+      } else {
+        setSelectedNfs([]);
+      }
+    }
+  };
+
+  const handleLinkConfirm = () => {
+    if (selectedOcorrencia) {
+      if (selectedDocumentType === 'nota' && selectedDocument) {
+        toast({
+          title: "Documento vinculado",
+          description: `Nota fiscal ${selectedDocument} vinculada à ocorrência ${selectedOcorrencia.id}.`,
+        });
+      } else if (selectedNfs.length > 0) {
+        toast({
+          title: "Documento vinculado",
+          description: `${selectedNfs.length} nota(s) fiscal(is) do documento ${selectedDocument} vinculada(s) à ocorrência ${selectedOcorrencia.id}.`,
+        });
+      }
+    }
+    setIsLinkDocumentDialogOpen(false);
   };
   
   const getStatusBadge = (status: string) => {
@@ -135,6 +248,15 @@ const Ocorrencias = () => {
     };
     const prioridadeData = prioridadeMap[prioridade];
     return <StatusBadge status={prioridadeData.type} text={prioridadeData.text} />;
+  };
+
+  const getDocumentTypeText = (tipo: string) => {
+    const tipoMap: any = {
+      'nota': 'Nota Fiscal',
+      'coleta': 'Coleta',
+      'oc': 'Ordem de Carregamento',
+    };
+    return tipoMap[tipo] || tipo;
   };
 
   return (
@@ -217,6 +339,25 @@ const Ocorrencias = () => {
                 </div>
               </div>
               
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="doc-vinculo">Vincular ao Documento</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full flex justify-between items-center" 
+                    onClick={() => handleLinkDocument()}
+                  >
+                    <span>Selecionar documento</span>
+                    <Link className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="valor">Valor do Prejuízo (R$)</Label>
+                  <Input id="valor" placeholder="0,00" />
+                </div>
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="descricao">Descrição Detalhada *</Label>
                 <Textarea 
@@ -285,6 +426,40 @@ const Ocorrencias = () => {
                   },
                   { header: 'Data Registro', accessor: 'dataRegistro' },
                   { 
+                    header: 'Doc. Vinculado', 
+                    accessor: 'documentoVinculado',
+                    cell: (row) => (
+                      <div className="flex items-center">
+                        {row.documentoVinculado ? (
+                          <>
+                            {row.tipoDocumento === 'nota' ? <FileText className="mr-1 h-4 w-4" /> : 
+                             row.tipoDocumento === 'coleta' ? <Package className="mr-1 h-4 w-4" /> : 
+                             <FileText className="mr-1 h-4 w-4" />}
+                            <span>{row.documentoVinculado}</span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </div>
+                    )
+                  },
+                  { 
+                    header: 'Valor Prejuízo', 
+                    accessor: 'valorPrejuizo',
+                    cell: (row) => (
+                      <div className="flex items-center">
+                        {parseFloat(row.valorPrejuizo?.replace(',', '.')) > 0 ? (
+                          <>
+                            <DollarSign className="mr-1 h-4 w-4 text-red-500" />
+                            <span className="text-red-500 font-medium">R$ {row.valorPrejuizo}</span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">R$ 0,00</span>
+                        )}
+                      </div>
+                    )
+                  },
+                  { 
                     header: 'Prioridade', 
                     accessor: 'prioridade',
                     cell: (row) => getPrioridadeBadge(row.prioridade)
@@ -299,6 +474,17 @@ const Ocorrencias = () => {
                     accessor: '',
                     cell: (row) => (
                       <div className="flex space-x-2 justify-end">
+                        <Button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleLinkDocument(row);
+                          }}
+                          size="sm"
+                          variant="outline"
+                          title="Vincular a documento"
+                        >
+                          <Link className="h-4 w-4" />
+                        </Button>
                         <Button 
                           onClick={(e) => {
                             e.stopPropagation();
@@ -358,6 +544,40 @@ const Ocorrencias = () => {
                   },
                   { header: 'Data Registro', accessor: 'dataRegistro' },
                   { 
+                    header: 'Doc. Vinculado', 
+                    accessor: 'documentoVinculado',
+                    cell: (row) => (
+                      <div className="flex items-center">
+                        {row.documentoVinculado ? (
+                          <>
+                            {row.tipoDocumento === 'nota' ? <FileText className="mr-1 h-4 w-4" /> : 
+                             row.tipoDocumento === 'coleta' ? <Package className="mr-1 h-4 w-4" /> : 
+                             <FileText className="mr-1 h-4 w-4" />}
+                            <span>{row.documentoVinculado}</span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </div>
+                    )
+                  },
+                  { 
+                    header: 'Valor Prejuízo', 
+                    accessor: 'valorPrejuizo',
+                    cell: (row) => (
+                      <div className="flex items-center">
+                        {parseFloat(row.valorPrejuizo?.replace(',', '.')) > 0 ? (
+                          <>
+                            <DollarSign className="mr-1 h-4 w-4 text-red-500" />
+                            <span className="text-red-500 font-medium">R$ {row.valorPrejuizo}</span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">R$ 0,00</span>
+                        )}
+                      </div>
+                    )
+                  },
+                  { 
                     header: 'Prioridade', 
                     accessor: 'prioridade',
                     cell: (row) => getPrioridadeBadge(row.prioridade)
@@ -372,6 +592,17 @@ const Ocorrencias = () => {
                     accessor: '',
                     cell: (row) => (
                       <div className="flex space-x-2 justify-end">
+                        <Button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleLinkDocument(row);
+                          }}
+                          size="sm"
+                          variant="outline"
+                          title="Vincular a documento"
+                        >
+                          <Link className="h-4 w-4" />
+                        </Button>
                         <Button 
                           onClick={(e) => {
                             e.stopPropagation();
@@ -431,6 +662,40 @@ const Ocorrencias = () => {
                   },
                   { header: 'Data Registro', accessor: 'dataRegistro' },
                   { 
+                    header: 'Doc. Vinculado', 
+                    accessor: 'documentoVinculado',
+                    cell: (row) => (
+                      <div className="flex items-center">
+                        {row.documentoVinculado ? (
+                          <>
+                            {row.tipoDocumento === 'nota' ? <FileText className="mr-1 h-4 w-4" /> : 
+                             row.tipoDocumento === 'coleta' ? <Package className="mr-1 h-4 w-4" /> : 
+                             <FileText className="mr-1 h-4 w-4" />}
+                            <span>{row.documentoVinculado}</span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </div>
+                    )
+                  },
+                  { 
+                    header: 'Valor Prejuízo', 
+                    accessor: 'valorPrejuizo',
+                    cell: (row) => (
+                      <div className="flex items-center">
+                        {parseFloat(row.valorPrejuizo?.replace(',', '.')) > 0 ? (
+                          <>
+                            <DollarSign className="mr-1 h-4 w-4 text-red-500" />
+                            <span className="text-red-500 font-medium">R$ {row.valorPrejuizo}</span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">R$ 0,00</span>
+                        )}
+                      </div>
+                    )
+                  },
+                  { 
                     header: 'Status', 
                     accessor: 'status',
                     cell: (row) => getStatusBadge(row.status)
@@ -467,6 +732,7 @@ const Ocorrencias = () => {
         </TabsContent>
       </Tabs>
       
+      {/* Dialog para detalhes da ocorrência */}
       {selectedOcorrencia && (
         <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
           <DialogContent className="sm:max-w-[700px]">
@@ -510,7 +776,7 @@ const Ocorrencias = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Data do Registro</p>
                   <p className="font-medium">{selectedOcorrencia.dataRegistro}</p>
@@ -518,6 +784,51 @@ const Ocorrencias = () => {
                 <div>
                   <p className="text-sm text-gray-500">Data da Ocorrência</p>
                   <p className="font-medium">{selectedOcorrencia.dataOcorrencia}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Valor do Prejuízo</p>
+                  <p className={`font-medium ${parseFloat(selectedOcorrencia.valorPrejuizo?.replace(',', '.')) > 0 ? 'text-red-500' : ''}`}>
+                    {parseFloat(selectedOcorrencia.valorPrejuizo?.replace(',', '.')) > 0 ? 
+                      `R$ ${selectedOcorrencia.valorPrejuizo}` : 
+                      'R$ 0,00'}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500">Documento Vinculado</p>
+                <div className="mt-1 flex items-center">
+                  {selectedOcorrencia.documentoVinculado ? (
+                    <>
+                      {selectedOcorrencia.tipoDocumento === 'nota' ? (
+                        <FileText className="mr-2 h-5 w-5 text-blue-600" />
+                      ) : selectedOcorrencia.tipoDocumento === 'coleta' ? (
+                        <Package className="mr-2 h-5 w-5 text-green-600" />
+                      ) : (
+                        <FileText className="mr-2 h-5 w-5 text-purple-600" />
+                      )}
+                      <div>
+                        <p className="font-medium">{selectedOcorrencia.documentoVinculado}</p>
+                        <p className="text-xs text-gray-500">{getDocumentTypeText(selectedOcorrencia.tipoDocumento)}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center">
+                      <span className="text-gray-400 mr-2">Nenhum documento vinculado</span>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex items-center gap-1"
+                        onClick={() => {
+                          setIsDetailDialogOpen(false);
+                          setTimeout(() => handleLinkDocument(selectedOcorrencia), 100);
+                        }}
+                      >
+                        <Link className="h-4 w-4" />
+                        Vincular agora
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -592,6 +903,146 @@ const Ocorrencias = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Dialog para vincular documentos */}
+      <Dialog open={isLinkDocumentDialogOpen} onOpenChange={setIsLinkDocumentDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Vincular a Documento</DialogTitle>
+            <DialogDescription>
+              Selecione o documento que deseja vincular à ocorrência
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Tipo de Documento</Label>
+              <div className="flex space-x-2">
+                <Button 
+                  type="button" 
+                  variant={selectedDocumentType === 'nota' ? 'default' : 'outline'}
+                  className={selectedDocumentType === 'nota' ? 'bg-cross-blue hover:bg-cross-blueDark' : ''}
+                  onClick={() => handleDocumentTypeChange('nota')}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Nota Fiscal
+                </Button>
+                <Button 
+                  type="button" 
+                  variant={selectedDocumentType === 'coleta' ? 'default' : 'outline'}
+                  className={selectedDocumentType === 'coleta' ? 'bg-cross-blue hover:bg-cross-blueDark' : ''}
+                  onClick={() => handleDocumentTypeChange('coleta')}
+                >
+                  <Package className="mr-2 h-4 w-4" />
+                  Coleta
+                </Button>
+                <Button 
+                  type="button" 
+                  variant={selectedDocumentType === 'oc' ? 'default' : 'outline'}
+                  className={selectedDocumentType === 'oc' ? 'bg-cross-blue hover:bg-cross-blueDark' : ''}
+                  onClick={() => handleDocumentTypeChange('oc')}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Ordem de Carregamento
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="documento">Selecionar {selectedDocumentType === 'nota' ? 'Nota Fiscal' : 
+                                              selectedDocumentType === 'coleta' ? 'Coleta' :
+                                              'Ordem de Carregamento'}</Label>
+              <Select onValueChange={handleDocumentSelection}>
+                <SelectTrigger id="documento">
+                  <SelectValue placeholder={`Selecione ${selectedDocumentType === 'nota' ? 'uma nota fiscal' : 
+                                              selectedDocumentType === 'coleta' ? 'uma coleta' :
+                                              'uma ordem de carregamento'}`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedDocumentType === 'nota' && documentosMock.notas.map(nota => (
+                    <SelectItem key={nota.id} value={nota.id}>
+                      {nota.numero} - {nota.cliente}
+                    </SelectItem>
+                  ))}
+                  {selectedDocumentType === 'coleta' && documentosMock.coletas.map(coleta => (
+                    <SelectItem key={coleta.id} value={coleta.id}>
+                      {coleta.numero} - {coleta.cliente} ({coleta.notasFiscais.length} NFs)
+                    </SelectItem>
+                  ))}
+                  {selectedDocumentType === 'oc' && documentosMock.ordens.map(ordem => (
+                    <SelectItem key={ordem.id} value={ordem.id}>
+                      {ordem.numero} - {ordem.cliente} ({ordem.notasFiscais.length} NFs)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {showBatchOptions && selectedNfs.length > 0 && (
+              <div className="space-y-3 border rounded-md p-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-medium">Notas Fiscais Vinculadas ao Documento</h4>
+                  <div className="flex items-center">
+                    <Checkbox 
+                      id="select-all" 
+                      checked={selectedNfs.length === documentosMock[selectedDocumentType === 'coleta' ? 'coletas' : 'ordens']
+                        .find(d => d.id === selectedDocument)?.notasFiscais.length}
+                      onCheckedChange={handleSelectAllNfs}
+                    />
+                    <label htmlFor="select-all" className="ml-2 text-sm">
+                      Selecionar todas
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto">
+                  {documentosMock[selectedDocumentType === 'coleta' ? 'coletas' : 'ordens']
+                    .find(d => d.id === selectedDocument)?.notasFiscais.map((nfId: string) => {
+                    const nf = documentosMock.notas.find(n => n.id === nfId);
+                    return (
+                      <div key={nfId} className="flex items-center space-x-2 border rounded p-2">
+                        <Checkbox 
+                          id={`nf-${nfId}`} 
+                          checked={selectedNfs.includes(nfId)}
+                          onCheckedChange={(checked) => handleNfSelectionChange(nfId, !!checked)}
+                        />
+                        <label htmlFor={`nf-${nfId}`} className="flex-1 text-sm">
+                          <div className="font-medium">{nf?.numero}</div>
+                          <div className="text-xs text-gray-500">R$ {nf?.valor}</div>
+                        </label>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {selectedDocumentType === 'nota' && selectedDocument && (
+              <div className="space-y-2">
+                <Label htmlFor="valor-prejuizo">Valor do Prejuízo (R$)</Label>
+                <Input
+                  id="valor-prejuizo"
+                  placeholder="0,00"
+                  type="text"
+                />
+                <p className="text-xs text-gray-500">Informe o valor do prejuízo em caso de avarias, faltas ou outros danos.</p>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsLinkDocumentDialogOpen(false)}>Cancelar</Button>
+            <Button 
+              className="bg-cross-blue hover:bg-cross-blueDark"
+              onClick={handleLinkConfirm}
+              disabled={!selectedDocument || (showBatchOptions && selectedNfs.length === 0)}
+            >
+              Vincular Documento
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </MainLayout>
   );
 };
