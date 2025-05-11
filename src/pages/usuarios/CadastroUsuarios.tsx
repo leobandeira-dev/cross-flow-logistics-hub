@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { User, UserPlus, Users, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { DataTable } from '@/components/ui/table';
+import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import CadastroForm from './components/CadastroForm';
 import AprovacoesUsuario from './components/AprovacoesUsuario';
