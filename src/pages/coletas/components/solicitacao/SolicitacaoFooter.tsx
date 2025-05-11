@@ -3,15 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Loader2 } from 'lucide-react';
-
-interface SolicitacaoFooterProps {
-  currentStep: number;
-  isLoading: boolean;
-  onPrevStep: () => void;
-  onNextStep: () => void;
-  onSubmit: () => void;
-  onClose: () => void;
-}
+import { SolicitacaoFooterProps } from './SolicitacaoTypes';
 
 const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
   currentStep,
@@ -20,14 +12,20 @@ const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
   onNextStep,
   onSubmit,
   onClose,
+  onPrev,
+  onNext
 }) => {
+  const handlePrev = onPrevStep || onPrev || (() => {});
+  const handleNext = onNextStep || onNext || (() => {});
+  const handleClose = onClose || (() => {});
+
   if (currentStep === 1) {
     return (
       <DialogFooter>
-        <Button variant="outline" onClick={onClose} disabled={isLoading}>Cancelar</Button>
+        <Button variant="outline" onClick={handleClose} disabled={isLoading}>Cancelar</Button>
         <Button 
           className="bg-cross-blue hover:bg-cross-blueDark"
-          onClick={onNextStep}
+          onClick={handleNext}
         >
           Continuar
         </Button>
@@ -36,7 +34,7 @@ const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
   } else {
     return (
       <DialogFooter>
-        <Button variant="outline" onClick={onPrevStep} disabled={isLoading}>Voltar</Button>
+        <Button variant="outline" onClick={handlePrev} disabled={isLoading}>Voltar</Button>
         <Button 
           className="bg-cross-blue hover:bg-cross-blueDark"
           onClick={onSubmit}

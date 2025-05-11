@@ -3,30 +3,22 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-interface SolicitacaoFormHeaderProps {
-  cliente: string;
-  dataColeta: string;
-  origem: string;
-  destino: string;
-  onClienteChange: (value: string) => void;
-  onDataColetaChange: (value: string) => void;
-  onOrigemChange: (value: string) => void;
-  onDestinoChange: (value: string) => void;
-  readOnlyAddresses?: boolean;
-}
+import { SolicitacaoFormHeaderProps } from './SolicitacaoTypes';
 
 const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
-  cliente,
-  dataColeta,
-  origem,
-  destino,
-  onClienteChange,
-  onDataColetaChange,
-  onOrigemChange,
-  onDestinoChange,
+  cliente = '',
+  dataColeta = '',
+  origem = '',
+  destino = '',
+  onClienteChange = () => {},
+  onDataColetaChange = () => {},
+  onOrigemChange = () => {},
+  onDestinoChange = () => {},
   readOnlyAddresses = false,
+  currentStep,
+  isLoading
 }) => {
+  // You can use currentStep and isLoading to show different content
   return (
     <>
       <div className="grid grid-cols-2 gap-4">

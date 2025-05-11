@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Upload, FileText, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { processMultipleXMLFiles, extractNFInfoFromXML } from '../../utils/xmlImportHelper';
-import { NotaFiscalVolume } from '../../utils/volumeCalculations';
+import { NotaFiscalVolume, convertVolumesToVolumeItems } from '../../utils/volumeCalculations';
 
 interface XmlImportFormProps {
   onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
@@ -71,7 +71,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({ onImportSuccess, isSingle
         // Criar objeto NotaFiscalVolume
         const notaFiscal: NotaFiscalVolume = {
           numeroNF: result.nfInfo.numeroNF,
-          volumes: result.nfInfo.volumes || [],
+          volumes: result.nfInfo.volumes ? convertVolumesToVolumeItems(result.nfInfo.volumes) : [],
           remetente: result.nfInfo.remetente || result.remetente.nome,
           destinatario: result.nfInfo.destinatario || result.destinatario.nome,
           valorTotal: result.nfInfo.valorTotal || 0
@@ -95,8 +95,17 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({ onImportSuccess, isSingle
           throw new Error('Não foi possível extrair notas fiscais dos XMLs selecionados.');
         }
         
+        // Garantir que cada nota fiscal tem os campos obrigatórios
+        const validatedNotasFiscais = result.notasFiscais.map(nf => ({
+          ...nf,
+          volumes: nf.volumes ? convertVolumesToVolumeItems(nf.volumes) : [],
+          remetente: nf.remetente || '',
+          destinatario: nf.destinatario || '',
+          valorTotal: nf.valorTotal || 0
+        }));
+        
         onImportSuccess(
-          result.notasFiscais,
+          validatedNotasFiscais,
           result.remetente,
           result.destinatario
         );

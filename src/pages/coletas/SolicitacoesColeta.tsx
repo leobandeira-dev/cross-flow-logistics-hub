@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
@@ -79,8 +80,8 @@ const SolicitacoesColeta = () => {
         </div>
         
         <NovaSolicitacaoDialog 
-          isOpen={isDialogOpen}
-          setIsOpen={setIsDialogOpen}
+          open={isDialogOpen}
+          setOpen={setIsDialogOpen}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
         />

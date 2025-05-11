@@ -1,15 +1,7 @@
-
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { DadosEmpresa, EnderecoCompleto } from './SolicitacaoTypes';
-
-interface EmpresaInfoFormProps {
-  tipo: 'remetente' | 'destinatario';
-  dados: DadosEmpresa;
-  onDadosChange: (dados: DadosEmpresa) => void;
-  readOnly?: boolean;
-}
+import { DadosEmpresa, EnderecoCompleto, EmpresaInfoFormProps } from './SolicitacaoTypes';
 
 const EMPTY_ENDERECO: EnderecoCompleto = {
   logradouro: '',
@@ -35,18 +27,24 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
   tipo, 
   dados = EMPTY_EMPRESA,
   onDadosChange,
-  readOnly = false 
+  readOnly = false,
+  empresa,
+  onChange,
+  label
 }) => {
-  const title = tipo === 'remetente' ? 'Remetente' : 'Destinatário';
+  // Support both new and old prop patterns
+  const actualDados = dados || empresa || EMPTY_EMPRESA;
+  const actualOnDadosChange = onDadosChange || onChange || (() => {});
+  const title = label || (tipo === 'remetente' ? 'Remetente' : 'Destinatário');
   
   const handleChange = (field: keyof DadosEmpresa, value: string) => {
-    onDadosChange({ ...dados, [field]: value });
+    actualOnDadosChange({ ...actualDados, [field]: value });
   };
   
   const handleEnderecoChange = (field: keyof EnderecoCompleto, value: string) => {
-    const newEndereco = { ...dados.endereco, [field]: value };
-    onDadosChange({ 
-      ...dados, 
+    const newEndereco = { ...actualDados.endereco, [field]: value };
+    actualOnDadosChange({ 
+      ...actualDados, 
       endereco: newEndereco,
       enderecoFormatado: formatarEndereco(newEndereco)
     });
@@ -75,7 +73,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
           <Input 
             id={`${tipo}-cnpj`}
             placeholder="00.000.000/0000-00" 
-            value={dados.cnpj || ''}
+            value={actualDados.cnpj || ''}
             onChange={(e) => handleChange('cnpj', e.target.value)}
             readOnly={readOnly}
             className={readOnly ? "bg-gray-100" : ""}
@@ -87,7 +85,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
           <Input 
             id={`${tipo}-cpf`}
             placeholder="000.000.000-00" 
-            value={dados.cpf || ''}
+            value={actualDados.cpf || ''}
             onChange={(e) => handleChange('cpf', e.target.value)}
             readOnly={readOnly}
             className={readOnly ? "bg-gray-100" : ""}
@@ -99,7 +97,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
           <Input 
             id={`${tipo}-razao`}
             placeholder="Razão Social" 
-            value={dados.razaoSocial || ''}
+            value={actualDados.razaoSocial || ''}
             onChange={(e) => handleChange('razaoSocial', e.target.value)}
             readOnly={readOnly}
             className={readOnly ? "bg-gray-100" : ""}
@@ -111,7 +109,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
           <Input 
             id={`${tipo}-nome`}
             placeholder="Nome Fantasia" 
-            value={dados.nomeFantasia || ''}
+            value={actualDados.nomeFantasia || ''}
             onChange={(e) => handleChange('nomeFantasia', e.target.value)}
             readOnly={readOnly}
             className={readOnly ? "bg-gray-100" : ""}
@@ -128,7 +126,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
             <Input 
               id={`${tipo}-logradouro`}
               placeholder="Rua/Avenida" 
-              value={dados.endereco.logradouro || ''}
+              value={actualDados.endereco.logradouro || ''}
               onChange={(e) => handleEnderecoChange('logradouro', e.target.value)}
               readOnly={readOnly}
               className={readOnly ? "bg-gray-100" : ""}
@@ -141,7 +139,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
               <Input 
                 id={`${tipo}-numero`}
                 placeholder="Número" 
-                value={dados.endereco.numero || ''}
+                value={actualDados.endereco.numero || ''}
                 onChange={(e) => handleEnderecoChange('numero', e.target.value)}
                 readOnly={readOnly}
                 className={readOnly ? "bg-gray-100" : ""}
@@ -153,7 +151,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
               <Input 
                 id={`${tipo}-complemento`}
                 placeholder="Complemento" 
-                value={dados.endereco.complemento || ''}
+                value={actualDados.endereco.complemento || ''}
                 onChange={(e) => handleEnderecoChange('complemento', e.target.value)}
                 readOnly={readOnly}
                 className={readOnly ? "bg-gray-100" : ""}
@@ -166,7 +164,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
             <Input 
               id={`${tipo}-bairro`}
               placeholder="Bairro" 
-              value={dados.endereco.bairro || ''}
+              value={actualDados.endereco.bairro || ''}
               onChange={(e) => handleEnderecoChange('bairro', e.target.value)}
               readOnly={readOnly}
               className={readOnly ? "bg-gray-100" : ""}
@@ -179,7 +177,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
               <Input 
                 id={`${tipo}-cidade`}
                 placeholder="Cidade" 
-                value={dados.endereco.cidade || ''}
+                value={actualDados.endereco.cidade || ''}
                 onChange={(e) => handleEnderecoChange('cidade', e.target.value)}
                 readOnly={readOnly}
                 className={readOnly ? "bg-gray-100" : ""}
@@ -191,7 +189,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
               <Input 
                 id={`${tipo}-uf`}
                 placeholder="UF" 
-                value={dados.endereco.uf || ''}
+                value={actualDados.endereco.uf || ''}
                 onChange={(e) => handleEnderecoChange('uf', e.target.value)}
                 readOnly={readOnly}
                 maxLength={2}
@@ -205,7 +203,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
             <Input 
               id={`${tipo}-cep`}
               placeholder="00000-000" 
-              value={dados.endereco.cep || ''}
+              value={actualDados.endereco.cep || ''}
               onChange={(e) => handleEnderecoChange('cep', e.target.value)}
               readOnly={readOnly}
               className={readOnly ? "bg-gray-100" : ""}

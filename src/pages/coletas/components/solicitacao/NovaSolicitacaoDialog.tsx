@@ -12,15 +12,13 @@ import SolicitacaoFormHeader from './SolicitacaoFormHeader';
 import NotasFiscaisStep from './NotasFiscaisStep';
 import ConfirmationStep from './ConfirmationStep';
 import SolicitacaoFooter from './SolicitacaoFooter';
+import { SolicitacaoDialogProps } from './SolicitacaoTypes';
 
-interface NovaSolicitacaoDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-}
-
-const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
+const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
   open,
-  setOpen
+  setOpen,
+  activeTab,
+  setActiveTab
 }) => {
   const {
     isLoading,
@@ -46,6 +44,15 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
         <SolicitacaoFormHeader 
           currentStep={currentStep}
           isLoading={isLoading || isImporting}
+          cliente={formData.cliente}
+          dataColeta={formData.dataColeta}
+          origem={formData.origem}
+          destino={formData.destino}
+          onClienteChange={(value) => handleInputChange('cliente', value)}
+          onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
+          onOrigemChange={(value) => handleInputChange('origem', value)}
+          onDestinoChange={(value) => handleInputChange('destino', value)}
+          readOnlyAddresses={formData.remetenteInfo !== undefined || formData.destinatarioInfo !== undefined}
         />
         
         <div>

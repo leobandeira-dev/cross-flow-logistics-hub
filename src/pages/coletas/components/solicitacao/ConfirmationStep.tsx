@@ -7,14 +7,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 interface ConfirmationStepProps {
   formData: SolicitacaoFormData;
-  onChangeObservacoes: (value: string) => void;
+  onChangeObservacoes?: (value: string) => void;
+  handleInputChange?: <K extends keyof SolicitacaoFormData>(field: K, value: SolicitacaoFormData[K]) => void;
 }
 
 const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ 
   formData, 
-  onChangeObservacoes 
+  onChangeObservacoes,
+  handleInputChange
 }) => {
   const totalValor = formData.notasFiscais.reduce((acc, nf) => acc + (nf.valorTotal || 0), 0);
+  
+  const handleObservacoesChange = (value: string) => {
+    if (onChangeObservacoes) {
+      onChangeObservacoes(value);
+    } else if (handleInputChange) {
+      handleInputChange('observacoes', value);
+    }
+  };
   
   return (
     <div className="space-y-4">
@@ -24,7 +34,7 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           id="observacoes" 
           placeholder="Informações adicionais"
           value={formData.observacoes}
-          onChange={(e) => onChangeObservacoes(e.target.value)}
+          onChange={(e) => handleObservacoesChange(e.target.value)}
         />
       </div>
       

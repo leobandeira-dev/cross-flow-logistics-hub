@@ -1,20 +1,31 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { NotaFiscalVolume } from '../../utils/volumeCalculations';
+import { NotaFiscalVolume, convertVolumesToVolumeItems } from '../../utils/volumeCalculations';
 import { SolicitacaoFormData } from './SolicitacaoTypes';
 import { EMPTY_EMPRESA } from './EmpresaInfoForm';
+
+// Extend SolicitacaoFormData with backwards compatibility fields
+interface InternalFormData extends SolicitacaoFormData {
+  cliente?: string;
+  origem?: string;
+  destino?: string;
+  [key: string]: any;
+}
 
 export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<SolicitacaoFormData>({
+  const [formData, setFormData] = useState<InternalFormData>({
     remetente: EMPTY_EMPRESA,
     destinatario: EMPTY_EMPRESA,
     dataColeta: '',
     observacoes: '',
-    notasFiscais: []
+    notasFiscais: [],
+    cliente: '',
+    origem: '',
+    destino: ''
   });
 
   // Effect to update remetente/destinatario when XML data changes
@@ -39,7 +50,8 @@ export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void) => {
       
       setFormData(prev => ({
         ...prev,
-        remetente: newRemetente
+        remetente: newRemetente,
+        origem: formData.remetenteInfo.enderecoFormatado || prev.origem
       }));
     }
     
@@ -63,12 +75,13 @@ export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void) => {
       
       setFormData(prev => ({
         ...prev,
-        destinatario: newDestinatario
+        destinatario: newDestinatario,
+        destino: formData.destinatarioInfo.enderecoFormatado || prev.destino
       }));
     }
   }, [formData.remetenteInfo, formData.destinatarioInfo]);
 
-  const handleInputChange = <K extends keyof SolicitacaoFormData>(field: K, value: SolicitacaoFormData[K]) => {
+  const handleInputChange = <K extends keyof InternalFormData>(field: K, value: InternalFormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -132,24 +145,38 @@ export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void) => {
         destinatario: EMPTY_EMPRESA,
         dataColeta: '',
         observacoes: '',
-        notasFiscais: []
+        notasFiscais: [],
+        cliente: '',
+        origem: '',
+        destino: ''
       });
       setCurrentStep(1);
       setIsOpen(false);
     }, 1500);
   };
 
-  const handleImportSuccess = (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => {
+  const handleImportSuccess = (notasFiscais: NotaFiscalVolume[] | any[], remetenteInfo?: any, destinatarioInfo?: any) => {
     setIsImporting(true);
     try {
+      // Ensure all notasFiscais have the required properties
+      const validatedNotasFiscais = notasFiscais.map(nf => {
+        return {
+          numeroNF: nf.numeroNF,
+          volumes: Array.isArray(nf.volumes) ? convertVolumesToVolumeItems(nf.volumes) : [],
+          remetente: nf.remetente || '',
+          destinatario: nf.destinatario || '',
+          valorTotal: nf.valorTotal || 0
+        };
+      });
+      
       toast({
         title: "Notas fiscais importadas",
-        description: `${notasFiscais.length} notas fiscais importadas com sucesso.`
+        description: `${validatedNotasFiscais.length} notas fiscais importadas com sucesso.`
       });
       
       setFormData(prev => ({
         ...prev,
-        notasFiscais,
+        notasFiscais: validatedNotasFiscais,
         remetenteInfo,
         destinatarioInfo
       }));

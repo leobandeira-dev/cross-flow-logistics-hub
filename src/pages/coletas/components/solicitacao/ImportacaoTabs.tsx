@@ -1,44 +1,36 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { NotaFiscalVolume } from '../../utils/volumeCalculations';
 import XmlImportForm from '../importacao/XmlImportForm';
-import ExcelImportForm from '../importacao/ExcelImportForm';
 import { Button } from '@/components/ui/button';
-import { Loader2, Upload, FileText, Table } from 'lucide-react';
+import { Download } from 'lucide-react';
+import { generateExcelTemplate } from '../../utils/xmlImportHelper';
 
 interface ImportacaoTabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
+  onImportSuccess: (notasFiscais: any[], remetenteInfo?: any, destinatarioInfo?: any) => void;
   isLoading?: boolean;
 }
 
-const ImportacaoTabs: React.FC<ImportacaoTabsProps> = ({ 
-  activeTab, 
-  setActiveTab, 
+const ImportacaoTabs: React.FC<ImportacaoTabsProps> = ({
+  activeTab,
+  setActiveTab,
   onImportSuccess,
   isLoading = false
 }) => {
+  // Function to download Excel template
+  const handleDownloadTemplate = () => {
+    generateExcelTemplate();
+  };
+
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs defaultValue="unica" className="w-full" value={activeTab} onValueChange={setActiveTab}>
       <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="unica" disabled={isLoading}>
-          <FileText className="h-4 w-4 mr-2" />
-          NF Única
-        </TabsTrigger>
-        <TabsTrigger value="lote" disabled={isLoading}>
-          <Upload className="h-4 w-4 mr-2" />
-          NF em Lote
-        </TabsTrigger>
-        <TabsTrigger value="manual" disabled={isLoading}>
-          <Table className="h-4 w-4 mr-2" />
-          Manual
-        </TabsTrigger>
-        <TabsTrigger value="excel" disabled={isLoading}>
-          <FileText className="h-4 w-4 mr-2" />
-          Importar Excel
-        </TabsTrigger>
+        <TabsTrigger value="unica">NF Única</TabsTrigger>
+        <TabsTrigger value="lote">NF em Lote</TabsTrigger>
+        <TabsTrigger value="manual">Manual</TabsTrigger>
+        <TabsTrigger value="excel">Importar Excel</TabsTrigger>
       </TabsList>
       
       <TabsContent value="unica" className="space-y-4 py-4">
@@ -56,15 +48,40 @@ const ImportacaoTabs: React.FC<ImportacaoTabsProps> = ({
       </TabsContent>
       
       <TabsContent value="manual" className="py-4">
-        <div className="text-sm text-gray-500 mb-4 p-4 bg-gray-50 rounded-md border border-gray-200">
-          <p className="font-medium mb-2">Cadastro Manual</p>
-          <p>Cadastre manualmente as notas fiscais e volumes na seção abaixo.</p>
-          <p className="mt-2">Para adicionar uma nota fiscal, clique no botão "Adicionar Nota Fiscal" na seção de Notas Fiscais.</p>
+        <div className="text-sm text-gray-500 mb-4">
+          Cadastre manualmente as notas fiscais e volumes na seção abaixo.
         </div>
       </TabsContent>
       
       <TabsContent value="excel" className="py-4">
-        <ExcelImportForm onImportSuccess={onImportSuccess} />
+        <div className="border rounded-md p-4 space-y-4">
+          <div className="flex justify-between items-center">
+            <p className="text-sm">Use nosso modelo para importar notas fiscais via planilha.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadTemplate}
+              className="flex items-center gap-1"
+              type="button"
+            >
+              <Download className="h-4 w-4" /> Baixar Modelo
+            </Button>
+          </div>
+          
+          <XmlImportForm 
+            onImportSuccess={onImportSuccess}
+            isSingleFile={true}
+          />
+          
+          <div className="text-xs text-gray-500">
+            <p>Faça download do modelo acima e preencha conforme as instruções:</p>
+            <ul className="list-disc list-inside mt-1">
+              <li>Mantenha a estrutura do arquivo sem alterar as colunas</li>
+              <li>Para volumes da mesma nota fiscal, repita o número da NF em linhas diferentes</li>
+              <li>Salve o arquivo como Excel (.xlsx) ou CSV (.csv) antes de fazer o upload</li>
+            </ul>
+          </div>
+        </div>
       </TabsContent>
     </Tabs>
   );

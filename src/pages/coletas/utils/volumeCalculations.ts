@@ -1,3 +1,4 @@
+
 export interface VolumeItem {
   id: string;
   altura: number;
@@ -15,13 +16,26 @@ export interface NotaFiscalVolume {
   valorTotal: number;
 }
 
+// For backward compatibility with older code
+export interface Volume extends Omit<VolumeItem, "id"> {
+  id?: string;
+}
+
 // Função para gerar ID único para volumes
 export const generateVolumeId = (): string => {
   return Math.random().toString(36).substring(2, 15);
 };
 
+// Função para garantir que um Volume sempre tenha um ID válido
+export const ensureVolumeId = (volume: Volume | VolumeItem): VolumeItem => {
+  if (volume.id) {
+    return volume as VolumeItem;
+  }
+  return { ...volume, id: generateVolumeId() } as VolumeItem;
+};
+
 // Função para calcular o volume de um item
-export const calcularVolume = (volume: VolumeItem): number => {
+export const calcularVolume = (volume: VolumeItem | Volume): number => {
   return volume.altura * volume.largura * volume.comprimento * volume.quantidade;
 };
 
@@ -69,5 +83,21 @@ export const calcularTotaisColeta = (notasFiscais: NotaFiscalVolume[]): { volume
     volumeTotal,
     pesoTotal,
     pesoCubadoTotal
+  };
+};
+
+// Helper para converter arrays de Volume para VolumeItem
+export const convertVolumesToVolumeItems = (volumes: Volume[]): VolumeItem[] => {
+  return volumes.map(vol => ensureVolumeId(vol));
+};
+
+// Helper para converter uma nota fiscal parcial para NotaFiscalVolume completa
+export const createNotaFiscal = (numeroNF: string, volumes: Volume[], remetente: string = '', destinatario: string = '', valorTotal: number = 0): NotaFiscalVolume => {
+  return {
+    numeroNF,
+    volumes: convertVolumesToVolumeItems(volumes),
+    remetente,
+    destinatario,
+    valorTotal
   };
 };

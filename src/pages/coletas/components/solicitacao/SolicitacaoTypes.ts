@@ -31,8 +31,49 @@ export interface SolicitacaoFormData {
 }
 
 export interface SolicitacaoDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+}
+
+export interface SolicitacaoFormHeaderProps {
+  cliente?: string;
+  dataColeta?: string;
+  origem?: string;
+  destino?: string;
+  onClienteChange?: (value: string) => void;
+  onDataColetaChange?: (value: string) => void;
+  onOrigemChange?: (value: string) => void;
+  onDestinoChange?: (value: string) => void;
+  readOnlyAddresses?: boolean;
+  currentStep?: number;
+  isLoading?: boolean;
+}
+
+export interface ConfirmationStepProps {
+  formData: SolicitacaoFormData;
+  onChangeObservacoes?: (value: string) => void;
+  handleInputChange?: <K extends keyof SolicitacaoFormData>(field: K, value: SolicitacaoFormData[K]) => void;
+}
+
+export interface SolicitacaoFooterProps {
+  currentStep: number;
+  isLoading: boolean;
+  onPrevStep?: () => void;
+  onNextStep?: () => void;
+  onSubmit: () => void;
+  onClose?: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+}
+
+export interface EmpresaInfoFormProps {
+  tipo: 'remetente' | 'destinatario';
+  dados: DadosEmpresa;
+  onDadosChange: (dados: DadosEmpresa) => void;
+  readOnly?: boolean;
+  empresa?: DadosEmpresa;
+  onChange?: (dados: DadosEmpresa) => void;
+  label?: string;
 }

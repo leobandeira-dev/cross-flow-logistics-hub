@@ -50,8 +50,9 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
           <CardContent className="pt-6">
             <h3 className="font-semibold text-lg mb-4">Dados do Remetente</h3>
             <EmpresaInfoForm
-              empresa={formData.remetente}
-              onChange={(remetente) => handleInputChange('remetente', remetente)}
+              tipo="remetente"
+              dados={formData.remetente}
+              onDadosChange={(remetente) => handleInputChange('remetente', remetente)}
               label="Remetente"
             />
           </CardContent>
@@ -61,8 +62,9 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
           <CardContent className="pt-6">
             <h3 className="font-semibold text-lg mb-4">Dados do Destinatário</h3>
             <EmpresaInfoForm
-              empresa={formData.destinatario}
-              onChange={(destinatario) => handleInputChange('destinatario', destinatario)}
+              tipo="destinatario"
+              dados={formData.destinatario}
+              onDadosChange={(destinatario) => handleInputChange('destinatario', destinatario)}
               label="Destinatário"
             />
           </CardContent>
