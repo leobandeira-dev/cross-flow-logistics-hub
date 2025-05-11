@@ -5,12 +5,14 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useFormContext } from 'react-hook-form';
+import { Loader2 } from 'lucide-react';
 
 interface ImportarPorChaveProps {
   onBuscarNota: () => void;
+  isLoading?: boolean;
 }
 
-const ImportarPorChave: React.FC<ImportarPorChaveProps> = ({ onBuscarNota }) => {
+const ImportarPorChave: React.FC<ImportarPorChaveProps> = ({ onBuscarNota, isLoading = false }) => {
   const { control } = useFormContext();
   
   return (
@@ -25,7 +27,7 @@ const ImportarPorChave: React.FC<ImportarPorChaveProps> = ({ onBuscarNota }) => 
                 <FormItem>
                   <FormLabel>Chave de Acesso da NF-e</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite a chave de acesso da nota fiscal" {...field} />
+                    <Input placeholder="Digite a chave de acesso da nota fiscal" {...field} disabled={isLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -36,8 +38,16 @@ const ImportarPorChave: React.FC<ImportarPorChaveProps> = ({ onBuscarNota }) => 
             type="button" 
             onClick={onBuscarNota}
             className="bg-cross-blue hover:bg-cross-blue/90"
+            disabled={isLoading}
           >
-            Buscar Nota
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Buscando...
+              </>
+            ) : (
+              'Buscar Nota'
+            )}
           </Button>
         </div>
       </CardContent>

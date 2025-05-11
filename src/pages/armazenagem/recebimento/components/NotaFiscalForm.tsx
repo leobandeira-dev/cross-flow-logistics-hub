@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 
 // Import schema and types
 import { notaFiscalSchema, defaultValues, NotaFiscalSchemaType } from './forms/notaFiscalSchema';
@@ -29,7 +30,7 @@ const NotaFiscalForm: React.FC = () => {
     defaultValues,
   });
   
-  const { handleSubmit, handleFileUpload, handleKeySearch } = useNotaFiscalForm();
+  const { handleSubmit, handleFileUpload, handleKeySearch, isLoading } = useNotaFiscalForm();
   
   const onSubmit = (data: NotaFiscalSchemaType) => {
     handleSubmit(data);
@@ -48,12 +49,14 @@ const NotaFiscalForm: React.FC = () => {
           <TabsContent value="chave" className="space-y-4 py-4">
             <ImportarPorChave 
               onBuscarNota={() => handleKeySearch(form.getValues, form.setValue)} 
+              isLoading={isLoading}
             />
           </TabsContent>
           
           <TabsContent value="xml" className="space-y-4 py-4">
             <ImportarViaXML 
               onFileUpload={(e) => handleFileUpload(e, form.setValue)} 
+              isLoading={isLoading}
             />
           </TabsContent>
           
@@ -71,9 +74,20 @@ const NotaFiscalForm: React.FC = () => {
         <InformacoesComplementares />
 
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline">Cancelar</Button>
-          <Button type="submit" className="bg-cross-blue hover:bg-cross-blue/90">
-            Cadastrar Nota Fiscal
+          <Button type="button" variant="outline" disabled={isLoading}>Cancelar</Button>
+          <Button 
+            type="submit" 
+            className="bg-cross-blue hover:bg-cross-blue/90"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processando...
+              </>
+            ) : (
+              'Cadastrar Nota Fiscal'
+            )}
           </Button>
         </div>
       </form>
