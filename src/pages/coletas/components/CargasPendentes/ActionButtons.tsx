@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { FileText, UserPlus, MessageSquare } from 'lucide-react';
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Carga } from '../../types/coleta.types';
-import CargasSupportDialog from '../../components/CargasSupportDialog';
+import CargasSupportDialog from '../../../coletas/components/CargasSupportDialog';
 
 interface ActionButtonsProps {
   carga: Carga;
