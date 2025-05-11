@@ -1,3 +1,4 @@
+
 import React from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +11,7 @@ import { FileText, Truck, Calendar, Search } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
+import { FilterConfig } from '@/components/common/SearchFilter';
 
 // Mock data
 const ordensCarregamento = [
@@ -45,6 +47,28 @@ const OrdemCarregamento: React.FC = () => {
   const handleSubmit = (data: any) => {
     console.log('Form data submitted:', data);
   };
+
+  // Updated filter configuration to match the new interface
+  const filters: FilterConfig[] = [
+    {
+      id: "status",
+      label: "Status",
+      options: [
+        { id: "pending", label: "Pendente" },
+        { id: "processing", label: "Em Carregamento" },
+        { id: "completed", label: "Concluído" }
+      ]
+    },
+    {
+      id: "periodo",
+      label: "Período",
+      options: [
+        { id: "today", label: "Hoje" },
+        { id: "tomorrow", label: "Amanhã" },
+        { id: "thisWeek", label: "Esta semana" }
+      ]
+    }
+  ];
 
   return (
     <MainLayout title="Ordem de Carregamento">
@@ -230,24 +254,7 @@ const OrdemCarregamento: React.FC = () => {
             <CardContent>
               <SearchFilter 
                 placeholder="Buscar por ID, cliente ou destino..." 
-                filters={[
-                  {
-                    name: "Status",
-                    options: [
-                      { label: "Pendente", value: "pending" },
-                      { label: "Em Carregamento", value: "processing" },
-                      { label: "Concluído", value: "completed" }
-                    ]
-                  },
-                  {
-                    name: "Período",
-                    options: [
-                      { label: "Hoje", value: "today" },
-                      { label: "Amanhã", value: "tomorrow" },
-                      { label: "Esta semana", value: "thisWeek" }
-                    ]
-                  }
-                ]}
+                filters={filters}
               />
               
               <DataTable
@@ -272,7 +279,7 @@ const OrdemCarregamento: React.FC = () => {
                   },
                   {
                     header: 'Ações',
-                    accessor: 'actions', // Add this line
+                    accessor: 'actions', 
                     cell: (row) => (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import SearchFilter from '@/components/common/SearchFilter';
+import SearchFilter, { FilterConfig } from '@/components/common/SearchFilter';
 import StatusBadge from '@/components/common/StatusBadge';
 import DataTable from '@/components/common/DataTable';
 
@@ -15,6 +15,28 @@ const recebimentosPendentes = [
 ];
 
 const PendingReceipts: React.FC = () => {
+  // Updated filters to match the new interface
+  const filters: FilterConfig[] = [
+    {
+      id: "tipo",
+      label: "Tipo",
+      options: [
+        { id: "fornecedor", label: "Fornecedor" },
+        { id: "coleta", label: "Coleta" },
+        { id: "filial", label: "Filial" }
+      ]
+    },
+    {
+      id: "status",
+      label: "Status",
+      options: [
+        { id: "pending", label: "Pendente" },
+        { id: "processing", label: "Em Processamento" },
+        { id: "completed", label: "Concluído" }
+      ]
+    }
+  ];
+
   return (
     <Card>
       <CardHeader>
@@ -23,24 +45,7 @@ const PendingReceipts: React.FC = () => {
       <CardContent>
         <SearchFilter 
           placeholder="Buscar recebimentos..." 
-          filters={[
-            {
-              name: "Tipo",
-              options: [
-                { label: "Fornecedor", value: "fornecedor" },
-                { label: "Coleta", value: "coleta" },
-                { label: "Filial", value: "filial" }
-              ]
-            },
-            {
-              name: "Status",
-              options: [
-                { label: "Pendente", value: "pending" },
-                { label: "Em Processamento", value: "processing" },
-                { label: "Concluído", value: "completed" }
-              ]
-            }
-          ]}
+          filters={filters}
         />
         
         <DataTable

@@ -1,15 +1,6 @@
 
 import { subDays, startOfMonth, endOfMonth, format } from 'date-fns';
-
-export interface FilterOption {
-  label: string;
-  value: string;
-}
-
-export interface FilterConfig {
-  name: string;
-  options: FilterOption[];
-}
+import { FilterOption, FilterConfig } from './SearchFilter';
 
 // Helper function to get date ranges
 export const getDateRanges = () => {
@@ -37,128 +28,140 @@ export const getDateRanges = () => {
 
 // Standard date range filter options
 export const dateRangeFilterOptions: FilterOption[] = [
-  { label: 'Últimos 7 dias', value: 'last7Days' },
-  { label: 'Últimos 30 dias', value: 'last30Days' },
-  { label: 'Mês atual', value: 'currentMonth' },
-  { label: 'Personalizado', value: 'custom' }
+  { id: 'last7Days', label: 'Últimos 7 dias' },
+  { id: 'last30Days', label: 'Últimos 30 dias' },
+  { id: 'currentMonth', label: 'Mês atual' },
+  { id: 'custom', label: 'Personalizado' }
 ];
 
 // Standard filter configurations that can be used across the application
 export const getStandardFilters = () => {
   return {
     remetente: {
-      name: 'Remetente',
+      id: 'remetente',
+      label: 'Remetente',
       options: [
-        { label: 'Todos', value: 'all' },
-        { label: 'MegaCorp LTDA', value: 'megacorp' },
-        { label: 'TechSolutions S.A.', value: 'techsolutions' },
-        { label: 'Indústria ABC', value: 'abc' },
-        { label: 'Comércio Global', value: 'global' }
+        { id: 'all', label: 'Todos' },
+        { id: 'megacorp', label: 'MegaCorp LTDA' },
+        { id: 'techsolutions', label: 'TechSolutions S.A.' },
+        { id: 'abc', label: 'Indústria ABC' },
+        { id: 'global', label: 'Comércio Global' }
       ]
     },
     destinatario: {
-      name: 'Destinatário',
+      id: 'destinatario',
+      label: 'Destinatário',
       options: [
-        { label: 'Todos', value: 'all' },
-        { label: 'Varejo Nacional', value: 'varejo' },
-        { label: 'Distribuidor XYZ', value: 'xyz' },
-        { label: 'Rede Mercados', value: 'mercados' },
-        { label: 'Loja Central', value: 'central' }
+        { id: 'all', label: 'Todos' },
+        { id: 'varejo', label: 'Varejo Nacional' },
+        { id: 'xyz', label: 'Distribuidor XYZ' },
+        { id: 'mercados', label: 'Rede Mercados' },
+        { id: 'central', label: 'Loja Central' }
       ]
     },
     motorista: {
-      name: 'Motorista',
+      id: 'motorista',
+      label: 'Motorista',
       options: [
-        { label: 'Todos', value: 'all' },
-        { label: 'José da Silva', value: 'jose' },
-        { label: 'Carlos Santos', value: 'carlos' },
-        { label: 'Pedro Oliveira', value: 'pedro' },
-        { label: 'Antônio Ferreira', value: 'antonio' },
-        { label: 'Manuel Costa', value: 'manuel' }
+        { id: 'all', label: 'Todos' },
+        { id: 'jose', label: 'José da Silva' },
+        { id: 'carlos', label: 'Carlos Santos' },
+        { id: 'pedro', label: 'Pedro Oliveira' },
+        { id: 'antonio', label: 'Antônio Ferreira' },
+        { id: 'manuel', label: 'Manuel Costa' }
       ]
     },
     tipoCarga: {
-      name: 'Tipo de Carga',
+      id: 'tipoCarga',
+      label: 'Tipo de Carga',
       options: [
-        { label: 'Todos', value: 'all' },
-        { label: 'Fracionado', value: 'fracionado' },
-        { label: 'Lotação', value: 'lotacao' }
+        { id: 'all', label: 'Todos' },
+        { id: 'fracionado', label: 'Fracionado' },
+        { id: 'lotacao', label: 'Lotação' }
       ]
     },
     cidadeOrigem: {
-      name: 'Cidade Origem',
+      id: 'cidadeOrigem',
+      label: 'Cidade Origem',
       options: [
-        { label: 'Todas', value: 'all' },
-        { label: 'São Paulo', value: 'sp' },
-        { label: 'Rio de Janeiro', value: 'rj' },
-        { label: 'Belo Horizonte', value: 'bh' },
-        { label: 'Curitiba', value: 'curitiba' },
-        { label: 'Porto Alegre', value: 'poa' }
+        { id: 'all', label: 'Todas' },
+        { id: 'sp', label: 'São Paulo' },
+        { id: 'rj', label: 'Rio de Janeiro' },
+        { id: 'bh', label: 'Belo Horizonte' },
+        { id: 'curitiba', label: 'Curitiba' },
+        { id: 'poa', label: 'Porto Alegre' }
       ]
     },
     cidadeDestino: {
-      name: 'Cidade Destino',
+      id: 'cidadeDestino',
+      label: 'Cidade Destino',
       options: [
-        { label: 'Todas', value: 'all' },
-        { label: 'São Paulo', value: 'sp' },
-        { label: 'Rio de Janeiro', value: 'rj' },
-        { label: 'Belo Horizonte', value: 'bh' },
-        { label: 'Curitiba', value: 'curitiba' },
-        { label: 'Porto Alegre', value: 'poa' }
+        { id: 'all', label: 'Todas' },
+        { id: 'sp', label: 'São Paulo' },
+        { id: 'rj', label: 'Rio de Janeiro' },
+        { id: 'bh', label: 'Belo Horizonte' },
+        { id: 'curitiba', label: 'Curitiba' },
+        { id: 'poa', label: 'Porto Alegre' }
       ]
     }
   };
 };
 
 // Generate document-specific filters
-export const getDocumentFilters = (documentType: 'coleta' | 'cte' | 'nf' | 'pedido' | 'romaneio') => {
+export const getDocumentFilters = (documentType: 'coleta' | 'cte' | 'nf' | 'pedido' | 'romaneio'): FilterConfig => {
   switch (documentType) {
     case 'coleta':
       return {
-        name: 'Nº CT-e de Coleta',
+        id: 'ctColeta',
+        label: 'Nº CT-e de Coleta',
         options: [
-          { label: 'Todos', value: 'all' },
-          { label: 'Buscar por número', value: 'search' }
+          { id: 'all', label: 'Todos' },
+          { id: 'search', label: 'Buscar por número' }
         ]
       };
     case 'cte':
       return {
-        name: 'Nº CT-e de Viagem',
+        id: 'ctViagem',
+        label: 'Nº CT-e de Viagem',
         options: [
-          { label: 'Todos', value: 'all' },
-          { label: 'Buscar por número', value: 'search' }
+          { id: 'all', label: 'Todos' },
+          { id: 'search', label: 'Buscar por número' }
         ]
       };
     case 'nf':
       return {
-        name: 'Nº Nota Fiscal',
+        id: 'notaFiscal',
+        label: 'Nº Nota Fiscal',
         options: [
-          { label: 'Todos', value: 'all' },
-          { label: 'Buscar por número', value: 'search' }
+          { id: 'all', label: 'Todos' },
+          { id: 'search', label: 'Buscar por número' }
         ]
       };
     case 'pedido':
       return {
-        name: 'Nº Pedido',
+        id: 'pedido',
+        label: 'Nº Pedido',
         options: [
-          { label: 'Todos', value: 'all' },
-          { label: 'Buscar por número', value: 'search' }
+          { id: 'all', label: 'Todos' },
+          { id: 'search', label: 'Buscar por número' }
         ]
       };
     case 'romaneio':
       return {
-        name: 'Nº Romaneio',
+        id: 'romaneio',
+        label: 'Nº Romaneio',
         options: [
-          { label: 'Todos', value: 'all' },
-          { label: 'Buscar por número', value: 'search' }
+          { id: 'all', label: 'Todos' },
+          { id: 'search', label: 'Buscar por número' }
         ]
       };
     default:
       return {
-        name: 'Documento',
+        id: 'documento',
+        label: 'Documento',
         options: [
-          { label: 'Todos', value: 'all' },
-          { label: 'Buscar por número', value: 'search' }
+          { id: 'all', label: 'Todos' },
+          { id: 'search', label: 'Buscar por número' }
         ]
       };
   }

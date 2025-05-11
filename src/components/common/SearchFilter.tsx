@@ -11,20 +11,23 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export interface FilterOption {
-  id: string;
+  id?: string;
+  value?: string;
   label: string;
 }
 
 export interface FilterConfig {
-  id: string;
-  label: string;
+  id?: string;
+  name?: string; // Keep 'name' for backward compatibility
+  label?: string; // Add 'label' as required by some components
   options: FilterOption[];
 }
 
 interface SearchFilterProps {
   placeholder?: string;
   filters?: FilterConfig[];
-  onSearch?: (searchTerm: string, activeFilters: Record<string, string[]>) => void;
+  onSearch?: (searchTerm: string, activeFilters?: Record<string, string[]>) => void;
+  onFilterChange?: (filter: string, value: string) => void;
   className?: string;
   type?: "search";
 }
@@ -33,6 +36,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   placeholder = 'Buscar...',
   filters = [],
   onSearch,
+  onFilterChange,
   className,
   type = "search"
 }) => {
@@ -67,6 +71,18 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
     }
   };
 
+  // Handle filter change with the new interface
+  const handleFilterChange = (filterName: string, optionValue: string, isChecked: boolean) => {
+    // For backward compatibility with onFilterChange
+    if (onFilterChange && isChecked) {
+      onFilterChange(filterName, optionValue);
+    }
+    
+    // For components using the activeFilters object
+    const filterId = filterName;
+    updateFilter(filterId, optionValue, isChecked);
+  };
+
   return (
     <div className={`flex gap-2 mb-4 ${className}`}>
       <div className="relative flex-grow">
@@ -91,17 +107,22 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             {filters.map(filter => (
-              <div key={filter.id} className="p-2">
-                <div className="font-medium text-sm mb-1">{filter.label}</div>
-                {filter.options.map(option => (
-                  <DropdownMenuCheckboxItem
-                    key={option.id}
-                    checked={Boolean(activeFilters[filter.id]?.includes(option.id))}
-                    onCheckedChange={(checked) => updateFilter(filter.id, option.id, checked)}
-                  >
-                    {option.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
+              <div key={filter.id || filter.name || filter.label} className="p-2">
+                <div className="font-medium text-sm mb-1">{filter.label || filter.name}</div>
+                {filter.options.map(option => {
+                  const optionId = option.id || option.value || option.label;
+                  const filterId = filter.id || filter.name || filter.label || '';
+                  
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={optionId}
+                      checked={Boolean(activeFilters[filterId]?.includes(optionId))}
+                      onCheckedChange={(checked) => handleFilterChange(filterId, optionId, checked)}
+                    >
+                      {option.label}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
               </div>
             ))}
           </DropdownMenuContent>
