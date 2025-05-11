@@ -6,7 +6,8 @@ export const solicitacoesIniciais: SolicitacaoColeta[] = [
   { 
     id: 'COL-2023-001', 
     cliente: 'Indústria ABC Ltda', 
-    data: '10/05/2023', 
+    data: '10/05/2023',
+    dataSolicitacao: '10/05/2023', 
     origem: 'São Paulo, SP', 
     destino: 'Campinas, SP', 
     status: 'pending' as const,
@@ -19,7 +20,8 @@ export const solicitacoesIniciais: SolicitacaoColeta[] = [
   {
     id: 'COL-2023-002', 
     cliente: 'Distribuidora XYZ', 
-    data: '10/05/2023', 
+    data: '10/05/2023',
+    dataSolicitacao: '10/05/2023', 
     origem: 'Rio de Janeiro, RJ', 
     destino: 'Niterói, RJ', 
     status: 'approved' as const,
@@ -34,7 +36,8 @@ export const solicitacoesIniciais: SolicitacaoColeta[] = [
   {
     id: 'COL-2023-003', 
     cliente: 'Transportes Rápidos', 
-    data: '09/05/2023', 
+    data: '09/05/2023',
+    dataSolicitacao: '09/05/2023', 
     origem: 'Belo Horizonte, MG', 
     destino: 'São Paulo, SP', 
     status: 'rejected' as const,
@@ -49,7 +52,8 @@ export const solicitacoesIniciais: SolicitacaoColeta[] = [
   { 
     id: 'COL-2023-004', 
     cliente: 'Logística Expressa', 
-    data: '09/05/2023', 
+    data: '09/05/2023',
+    dataSolicitacao: '09/05/2023', 
     origem: 'Curitiba, PR', 
     destino: 'Florianópolis, SC', 
     status: 'approved' as const,

@@ -39,7 +39,7 @@ const DocumentoAprovacaoRenderer: React.FC<DocumentoAprovacaoRendererProps> = ({
           <p className="text-sm font-medium text-gray-500">Data Solicitação</p>
           <p>{documento.data}</p>
         </div>
-        {'dataAprovacao' in documento && (
+        {'dataAprovacao' in documento && documento.dataAprovacao && (
           <div>
             <p className="text-sm font-medium text-gray-500">Data Aprovação/Recusa</p>
             <p>{documento.dataAprovacao}</p>
@@ -54,7 +54,7 @@ const DocumentoAprovacaoRenderer: React.FC<DocumentoAprovacaoRendererProps> = ({
              documento.status === 'rejected' ? 'Recusado' : 'Pendente'}
           </p>
         </div>
-        {'aprovador' in documento && (
+        {'aprovador' in documento && documento.aprovador && (
           <div>
             <p className="text-sm font-medium text-gray-500">Aprovador/Rejeitante</p>
             <p className="font-semibold">{documento.aprovador}</p>
@@ -86,7 +86,7 @@ const DocumentoAprovacaoRenderer: React.FC<DocumentoAprovacaoRendererProps> = ({
       
       <div>
         <p className="text-sm font-medium text-gray-500">Notas Fiscais</p>
-        <p>{documento.notas.join(', ')}</p>
+        <p>{documento.notas && documento.notas.join(', ')}</p>
       </div>
       
       {'observacoes' in documento && documento.observacoes && (
@@ -96,7 +96,7 @@ const DocumentoAprovacaoRenderer: React.FC<DocumentoAprovacaoRendererProps> = ({
         </div>
       )}
       
-      {'motivoRecusa' in documento && (
+      {'motivoRecusa' in documento && documento.motivoRecusa && (
         <div className="border-t pt-4">
           <p className="text-sm font-medium text-gray-500 text-red-600 font-bold">Motivo da Recusa</p>
           <p className="text-red-600 bg-red-50 p-3 border border-red-200 rounded-md">{documento.motivoRecusa}</p>

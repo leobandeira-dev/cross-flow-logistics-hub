@@ -6,7 +6,8 @@ export const solicitacoesPendentes: SolicitacaoPendente[] = [
   { 
     id: 'COL-2023-001', 
     cliente: 'Indústria ABC Ltda', 
-    data: '10/05/2023', 
+    data: '10/05/2023',
+    dataSolicitacao: '10/05/2023', 
     origem: 'São Paulo, SP', 
     destino: 'Campinas, SP', 
     status: 'pending',
@@ -19,7 +20,8 @@ export const solicitacoesPendentes: SolicitacaoPendente[] = [
   { 
     id: 'COL-2023-008', 
     cliente: 'Farmacêutica Beta', 
-    data: '12/05/2023', 
+    data: '12/05/2023',
+    dataSolicitacao: '12/05/2023', 
     origem: 'Campinas, SP', 
     destino: 'São Paulo, SP', 
     status: 'pending',
@@ -32,7 +34,8 @@ export const solicitacoesPendentes: SolicitacaoPendente[] = [
   { 
     id: 'COL-2023-012', 
     cliente: 'Eletrônicos Tech', 
-    data: '13/05/2023', 
+    data: '13/05/2023',
+    dataSolicitacao: '13/05/2023', 
     origem: 'São José dos Campos, SP', 
     destino: 'São Paulo, SP', 
     status: 'pending',
@@ -49,7 +52,8 @@ export const historicoAprovacoes: (SolicitacaoAprovada | SolicitacaoRecusada)[] 
   { 
     id: 'COL-2023-002', 
     cliente: 'Distribuidora XYZ', 
-    data: '10/05/2023', 
+    data: '10/05/2023',
+    dataSolicitacao: '10/05/2023', 
     origem: 'Rio de Janeiro, RJ', 
     destino: 'Niterói, RJ', 
     status: 'approved',
@@ -63,7 +67,8 @@ export const historicoAprovacoes: (SolicitacaoAprovada | SolicitacaoRecusada)[] 
   { 
     id: 'COL-2023-003', 
     cliente: 'Transportes Rápidos', 
-    data: '09/05/2023', 
+    data: '09/05/2023',
+    dataSolicitacao: '09/05/2023', 
     origem: 'Belo Horizonte, MG', 
     destino: 'São Paulo, SP', 
     status: 'rejected',
@@ -78,7 +83,8 @@ export const historicoAprovacoes: (SolicitacaoAprovada | SolicitacaoRecusada)[] 
   { 
     id: 'COL-2023-004', 
     cliente: 'Logística Expressa', 
-    data: '09/05/2023', 
+    data: '09/05/2023',
+    dataSolicitacao: '09/05/2023', 
     origem: 'Curitiba, PR', 
     destino: 'Florianópolis, SC', 
     status: 'approved',

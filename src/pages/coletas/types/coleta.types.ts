@@ -20,6 +20,11 @@ export interface SolicitacaoColeta {
   volumes?: number;
   peso?: string;
   notas?: string[];
+  // Adding additional properties needed for approval flows
+  prioridade?: string;
+  aprovador?: string;
+  dataAprovacao?: string;
+  motivoRecusa?: string;
 }
 
 // Adding the missing Carga interface that many components are trying to import
@@ -37,3 +42,21 @@ export interface Carga {
   valorTotal?: number;
 }
 
+// Adding specialized types for approval flows
+export interface SolicitacaoPendente extends SolicitacaoColeta {
+  status: 'pending';
+  prioridade: string;
+}
+
+export interface SolicitacaoAprovada extends SolicitacaoColeta {
+  status: 'approved';
+  aprovador: string;
+  dataAprovacao: string;
+}
+
+export interface SolicitacaoRecusada extends SolicitacaoColeta {
+  status: 'rejected';
+  aprovador: string;
+  dataAprovacao: string;
+  motivoRecusa: string;
+}
