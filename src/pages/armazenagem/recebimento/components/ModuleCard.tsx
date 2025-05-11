@@ -13,8 +13,8 @@ interface ModuleCardProps {
 
 const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, icon: Icon, link }) => {
   return (
-    <Card className="hover:shadow-md transition-all cursor-pointer">
-      <Link to={link}>
+    <Card className="hover:shadow-lg hover:border-cross-blue/30 transition-all cursor-pointer">
+      <Link to={link} className="block h-full">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center text-lg">
             <Icon className="mr-2 text-cross-blue" size={20} />

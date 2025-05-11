@@ -10,12 +10,28 @@ export const useNotaFiscalForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const handleSubmit = (data: NotaFiscalSchemaType) => {
-    console.log('Formulário enviado:', data);
-    // Here you can add logic to save the data
-    toast({
-      title: "Nota fiscal enviada",
-      description: "Os dados da nota fiscal foram enviados com sucesso.",
-    });
+    setIsLoading(true);
+    try {
+      console.log('Formulário enviado:', data);
+      // Here you can add logic to save the data
+      
+      // Simulate API call with timeout
+      setTimeout(() => {
+        setIsLoading(false);
+        toast({
+          title: "Nota fiscal cadastrada",
+          description: "Os dados da nota fiscal foram enviados e cadastrados com sucesso.",
+        });
+      }, 1000);
+    } catch (error) {
+      console.error("Erro ao cadastrar nota fiscal:", error);
+      setIsLoading(false);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao cadastrar a nota fiscal. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, setValue: any) => {
