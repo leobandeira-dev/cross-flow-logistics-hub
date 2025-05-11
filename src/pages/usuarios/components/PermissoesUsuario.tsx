@@ -1,220 +1,201 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Check } from 'lucide-react';
+import { Settings, Check, Search, Plus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import SearchFilter from '@/components/common/SearchFilter';
 import { FilterConfig } from '@/components/common/SearchFilter';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
-// Define types for our modules and permissions
-interface Permission {
-  id: string;
-  name: string;
-}
-
-interface Module {
-  id: string;
-  name: string;
-  tabs: Tab[];
-}
-
-interface Tab {
-  id: string;
-  name: string;
-  routines: Routine[];
-}
-
-interface Routine {
-  id: string;
-  name: string;
-}
-
-// Mock data for system modules, tabs, and routines
-const systemModules: Module[] = [
+// Mock modules similar to empresa permissions
+const systemModules = [
   {
     id: 'armazenagem',
-    name: 'Armazenagem',
-    tabs: [
+    nome: 'Armazenagem',
+    tabelas: [
       {
         id: 'recebimento',
-        name: 'Recebimento',
-        routines: [
-          { id: 'notas', name: 'Entrada de Notas' },
-          { id: 'fornecedor', name: 'Recebimento de Fornecedor' },
-          { id: 'filiais', name: 'Recebimento de Filiais' },
-          { id: 'coleta', name: 'Recebimento de Coleta' },
-          { id: 'etiquetas', name: 'Geração de Etiquetas' },
+        nome: 'Recebimento',
+        rotinas: [
+          { id: 'notas', nome: 'Entrada de Notas' },
+          { id: 'fornecedor', nome: 'Recebimento de Fornecedor' },
+          { id: 'filiais', nome: 'Recebimento de Filiais' },
+          { id: 'coleta', nome: 'Recebimento de Coleta' },
+          { id: 'etiquetas', nome: 'Geração de Etiquetas' },
         ]
       },
-      {
-        id: 'movimentacoes',
-        name: 'Movimentações',
-        routines: [
-          { id: 'enderecamento', name: 'Enderecamento' },
-          { id: 'unitizacao', name: 'Unitização de Paletes' },
-          { id: 'movinternas', name: 'Movimentações Internas' },
-        ]
-      },
-      {
-        id: 'carregamento',
-        name: 'Carregamento',
-        routines: [
-          { id: 'ordemcar', name: 'Ordem de Carregamento' },
-          { id: 'enderecamcaminhao', name: 'Enderecamento de Caminhão' },
-          { id: 'conferencia', name: 'Conferência de Carga' },
-          { id: 'checklist', name: 'Checklist de Carga' },
-        ]
-      },
+      // ... outros módulos similares aos do componente PermissoesEmpresa
     ]
-  },
-  {
-    id: 'coletas',
-    name: 'Coletas',
-    tabs: [
-      {
-        id: 'solicitacoes',
-        name: 'Solicitações de Coleta',
-        routines: [
-          { id: 'novasol', name: 'Nova Solicitação' },
-          { id: 'consulta', name: 'Consultar Solicitações' },
-        ]
-      },
-      {
-        id: 'aprovacoes',
-        name: 'Aprovações de Coleta',
-        routines: [
-          { id: 'aprovar', name: 'Aprovar Coletas' },
-          { id: 'historico', name: 'Histórico de Aprovações' },
-        ]
-      },
-      {
-        id: 'alocacao',
-        name: 'Alocação de Cargas',
-        routines: [
-          { id: 'alocar', name: 'Alocar Cargas' },
-          { id: 'consultar', name: 'Consultar Alocações' },
-        ]
-      },
-    ]
-  },
-  {
-    id: 'usuarios',
-    name: 'Usuários',
-    tabs: [
-      {
-        id: 'cadastro',
-        name: 'Cadastro de Usuários',
-        routines: [
-          { id: 'novo', name: 'Novo Cadastro' },
-          { id: 'aprovacoes', name: 'Aprovações Pendentes' },
-          { id: 'listagem', name: 'Listagem de Usuários' },
-          { id: 'permissoes', name: 'Gerenciar Permissões' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'motoristas',
-    name: 'Motoristas',
-    tabs: [
-      {
-        id: 'cadastro',
-        name: 'Cadastro de Motoristas',
-        routines: [
-          { id: 'novo', name: 'Novo Motorista' },
-          { id: 'listar', name: 'Listar Motoristas' },
-        ]
-      },
-      {
-        id: 'cargas',
-        name: 'Cargas de Motoristas',
-        routines: [
-          { id: 'ativas', name: 'Cargas Ativas' },
-          { id: 'historico', name: 'Histórico de Cargas' },
-        ]
-      }
-    ]
-  },
+  }
 ];
 
-// Available user profiles - Updated terminology
-const profiles = [
-  "Cliente",
-  "Fornecedor",
-  "Funcionário Operacional",
-  "Funcionário Supervisor",
-  "Administrador"
+// Mock profiles for users
+const userProfiles = [
+  "Administrador",
+  "Gerente",
+  "Operador",
+  "Visualizador"
 ];
+
+// Mock users for select
+const usersMock = [
+  { id: "1", nome: "João Silva", email: "joao.silva@exemplo.com", perfil: "Administrador" },
+  { id: "2", nome: "Maria Oliveira", email: "maria.oliveira@exemplo.com", perfil: "Gerente" },
+  { id: "3", nome: "Carlos Santos", email: "carlos.santos@exemplo.com", perfil: "Operador" },
+  { id: "4", nome: "Ana Pereira", email: "ana.pereira@exemplo.com", perfil: "Visualizador" },
+];
+
+const PerfilDialog = ({ onAddPerfil }: { onAddPerfil: (nome: string, descricao: string) => void }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [nome, setNome] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const { toast } = useToast();
+
+  const handleSubmit = () => {
+    if (!nome) {
+      toast({
+        title: "Erro",
+        description: "Nome do perfil é obrigatório",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onAddPerfil(nome, descricao);
+    setIsOpen(false);
+    setNome('');
+    setDescricao('');
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-1">
+          <Plus size={14} />
+          Novo Perfil
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Adicionar Novo Perfil de Usuário</DialogTitle>
+          <DialogDescription>
+            Crie um novo perfil para usuários do sistema com permissões específicas.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="nome">Nome do Perfil</Label>
+            <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Supervisor" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="descricao">Descrição (opcional)</Label>
+            <Input id="descricao" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Descrição do perfil" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
+          <Button onClick={handleSubmit} className="bg-cross-blue hover:bg-cross-blue/90">Adicionar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const PermissoesUsuario: React.FC = () => {
   const { toast } = useToast();
-  const [selectedProfile, setSelectedProfile] = useState<string>("Administrador");
+  const [selectedUsuario, setSelectedUsuario] = useState<string>("");
+  const [selectedPerfil, setSelectedPerfil] = useState<string>("");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
-
-  // Filter config for search filter
+  const [filteredUsuarios, setFilteredUsuarios] = useState(usersMock);
+  const [customProfiles, setCustomProfiles] = useState<string[]>([]);
+  const [allProfiles, setAllProfiles] = useState<string[]>(userProfiles);
+  
+  // Filter configs
   const filterConfigs: FilterConfig[] = [
     {
-      id: 'profile',
+      id: 'perfil',
       label: 'Perfil',
-      options: profiles.map(profile => ({ id: profile, label: profile }))
+      options: allProfiles.map(profile => ({ id: profile, label: profile }))
     }
   ];
 
-  // Initialize permissions with all true for Administrador profile
-  React.useEffect(() => {
-    if (selectedProfile === "Administrador") {
-      const allPermissions: Record<string, boolean> = {};
-      
-      systemModules.forEach(module => {
-        // Module level permission
-        allPermissions[`module_${module.id}`] = true;
-        
-        module.tabs.forEach(tab => {
-          // Tab level permission
-          allPermissions[`tab_${module.id}_${tab.id}`] = true;
-          
-          tab.routines.forEach(routine => {
-            // Routine level permission
-            allPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = true;
-          });
-        });
-      });
-      
-      setPermissions(allPermissions);
-    } else if (selectedProfile === "Funcionário Supervisor") {
-      // Example: Supervisors have access to most features except some administrative ones
-      const supervisorPermissions: Record<string, boolean> = {};
-      
-      systemModules.forEach(module => {
-        // Give access to most modules
-        supervisorPermissions[`module_${module.id}`] = true;
-        
-        module.tabs.forEach(tab => {
-          supervisorPermissions[`tab_${module.id}_${tab.id}`] = true;
-          
-          tab.routines.forEach(routine => {
-            // Restrict certain administrative functions
-            if (module.id === 'usuarios' && tab.id === 'cadastro' && routine.id === 'permissoes') {
-              supervisorPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = false;
-            } else {
-              supervisorPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = true;
-            }
-          });
-        });
-      });
-      
-      setPermissions(supervisorPermissions);
-    } else {
-      // For other profiles, start with more restricted permissions
-      setPermissions({});
-    }
-  }, [selectedProfile]);
+  // Update all profiles when custom profiles change
+  useEffect(() => {
+    setAllProfiles([...userProfiles, ...customProfiles]);
+  }, [customProfiles]);
 
-  const handleProfileChange = (value: string) => {
-    setSelectedProfile(value);
+  // Initialize permissions when user and profile are selected
+  useEffect(() => {
+    if (selectedUsuario && selectedPerfil) {
+      // Initialize permissions based on profile (similar to empresa permissions)
+      const initialPermissions: Record<string, boolean> = {};
+      
+      // Set default permissions based on selected profile
+      if (selectedPerfil === 'Administrador') {
+        // Full access for admin
+        systemModules.forEach(module => {
+          initialPermissions[`module_${module.id}`] = true;
+          
+          module.tabelas.forEach(tab => {
+            initialPermissions[`tab_${module.id}_${tab.id}`] = true;
+            
+            tab.rotinas.forEach(routine => {
+              initialPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = true;
+            });
+          });
+        });
+      } else if (selectedPerfil === 'Gerente') {
+        // Most access for manager, except some admin functions
+        systemModules.forEach(module => {
+          initialPermissions[`module_${module.id}`] = true;
+          
+          module.tabelas.forEach(tab => {
+            initialPermissions[`tab_${module.id}_${tab.id}`] = true;
+            
+            tab.rotinas.forEach(routine => {
+              initialPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = true;
+            });
+          });
+        });
+      } else {
+        // Limited access for other roles
+        systemModules.forEach(module => {
+          initialPermissions[`module_${module.id}`] = selectedPerfil === 'Operador';
+          
+          module.tabelas.forEach(tab => {
+            initialPermissions[`tab_${module.id}_${tab.id}`] = selectedPerfil === 'Operador';
+            
+            tab.rotinas.forEach(routine => {
+              initialPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = selectedPerfil === 'Operador' && 
+                !routine.id.includes('admin');
+            });
+          });
+        });
+      }
+      
+      setPermissions(initialPermissions);
+    }
+  }, [selectedUsuario, selectedPerfil]);
+
+  const handleUsuarioChange = (value: string) => {
+    setSelectedUsuario(value);
+  };
+
+  const handlePerfilChange = (value: string) => {
+    setSelectedPerfil(value);
   };
 
   const handlePermissionChange = (key: string, checked: boolean) => {
@@ -227,11 +208,11 @@ const PermissoesUsuario: React.FC = () => {
         const module = systemModules.find(m => m.id === moduleId);
         
         if (module) {
-          module.tabs.forEach(tab => {
+          module.tabelas.forEach(tab => {
             const tabKey = `tab_${moduleId}_${tab.id}`;
             updated[tabKey] = checked;
             
-            tab.routines.forEach(routine => {
+            tab.rotinas.forEach(routine => {
               const routineKey = `routine_${moduleId}_${tab.id}_${routine.id}`;
               updated[routineKey] = checked;
             });
@@ -243,9 +224,9 @@ const PermissoesUsuario: React.FC = () => {
         const module = systemModules.find(m => m.id === moduleId);
         
         if (module) {
-          const tab = module.tabs.find(t => t.id === tabId);
+          const tab = module.tabelas.find(t => t.id === tabId);
           if (tab) {
-            tab.routines.forEach(routine => {
+            tab.rotinas.forEach(routine => {
               const routineKey = `routine_${moduleId}_${tabId}_${routine.id}`;
               updated[routineKey] = checked;
             });
@@ -259,11 +240,45 @@ const PermissoesUsuario: React.FC = () => {
 
   const handleSavePermissions = () => {
     // Here you would typically save the permissions to a database
-    // For this demo, we'll just show a success message
     toast({
       title: "Permissões salvas",
-      description: `As permissões para o perfil "${selectedProfile}" foram salvas com sucesso.`,
+      description: `As permissões para o usuário foram salvas com sucesso.`,
     });
+  };
+
+  const getUsuarioName = (id: string) => {
+    const usuario = usersMock.find(u => u.id === id);
+    return usuario ? `${usuario.nome} (${usuario.email})` : '';
+  };
+
+  // Handle adding a new profile
+  const handleAddPerfil = (nome: string, descricao: string) => {
+    setCustomProfiles(prev => [...prev, nome]);
+    toast({
+      title: "Perfil adicionado",
+      description: `O perfil "${nome}" foi adicionado com sucesso.`,
+    });
+  };
+
+  // Handle search and filtering
+  const handleSearch = (term: string, activeFilters?: Record<string, string[]>) => {
+    let results = usersMock;
+    
+    // Apply search term filter
+    if (term) {
+      const searchLower = term.toLowerCase();
+      results = results.filter(usuario => 
+        usuario.nome.toLowerCase().includes(searchLower) ||
+        usuario.email.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Apply perfil filters
+    if (activeFilters && activeFilters.perfil && activeFilters.perfil.length > 0) {
+      results = results.filter(usuario => activeFilters.perfil.includes(usuario.perfil));
+    }
+    
+    setFilteredUsuarios(results);
   };
 
   return (
@@ -271,119 +286,147 @@ const PermissoesUsuario: React.FC = () => {
       <CardHeader>
         <CardTitle className="text-lg flex items-center">
           <Settings className="mr-2 text-cross-blue" size={20} />
-          Gerenciamento de Permissões por Perfil
+          Gerenciamento de Permissões por Usuário
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="mb-6">
-          <Label htmlFor="profile-search" className="mb-2 block">Buscar Perfis</Label>
+          <Label htmlFor="usuario-search" className="mb-2 block">Buscar Usuário</Label>
           <SearchFilter
-            placeholder="Buscar perfil..."
-            onSearch={(term, activeFilters) => {
-              if (activeFilters?.profile?.length === 1) {
-                setSelectedProfile(activeFilters.profile[0]);
-              }
-            }}
+            placeholder="Buscar por nome ou email..."
+            onSearch={handleSearch}
             filters={filterConfigs}
             className="mb-4"
           />
           
-          <Label htmlFor="profile-select">Selecione o Perfil</Label>
-          <Select value={selectedProfile} onValueChange={handleProfileChange}>
-            <SelectTrigger id="profile-select" className="w-full md:w-[300px]">
-              <SelectValue placeholder="Selecione um perfil" />
+          <Label htmlFor="usuario-select" className="mb-2 block">Selecione o Usuário</Label>
+          <Select value={selectedUsuario} onValueChange={handleUsuarioChange}>
+            <SelectTrigger id="usuario-select" className="w-full md:w-[400px]">
+              <SelectValue placeholder="Selecione um usuário" />
             </SelectTrigger>
             <SelectContent>
-              {profiles.map(profile => (
-                <SelectItem key={profile} value={profile}>
-                  {profile}
+              {filteredUsuarios.map(usuario => (
+                <SelectItem key={usuario.id} value={usuario.id}>
+                  {usuario.nome} - {usuario.email} ({usuario.perfil})
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="border rounded-md">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-100 border-b">
-                <th className="px-4 py-2 text-left font-medium">Módulo / Aba / Rotina</th>
-                <th className="px-4 py-2 text-center w-24 font-medium">Acesso</th>
-              </tr>
-            </thead>
-            <tbody>
-              {systemModules.map(module => (
-                <React.Fragment key={module.id}>
-                  {/* Module row */}
-                  <tr className="bg-gray-50 hover:bg-gray-100 border-b">
-                    <td className="px-4 py-3 font-medium">
-                      {module.name}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <Checkbox
-                        id={`module_${module.id}`}
-                        checked={permissions[`module_${module.id}`] || false}
-                        onCheckedChange={(checked) => 
-                          handlePermissionChange(`module_${module.id}`, checked === true)
-                        }
-                      />
-                    </td>
+        <div className="mb-6 flex items-end gap-2">
+          <div className="flex-grow">
+            <Label htmlFor="perfil-select" className="mb-2 block">Selecione o Perfil</Label>
+            <Select value={selectedPerfil} onValueChange={handlePerfilChange}>
+              <SelectTrigger id="perfil-select" className="w-full">
+                <SelectValue placeholder="Selecione um perfil" />
+              </SelectTrigger>
+              <SelectContent>
+                {allProfiles.map(profile => (
+                  <SelectItem key={profile} value={profile}>
+                    {profile}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <PerfilDialog onAddPerfil={handleAddPerfil} />
+          </div>
+        </div>
+
+        {selectedUsuario && selectedPerfil && (
+          <>
+            <div className="mb-4 p-4 bg-blue-50 rounded-md">
+              <p className="font-medium">Configurando permissões para:</p>
+              <p className="text-lg">{getUsuarioName(selectedUsuario)}</p>
+              <p className="text-sm text-gray-500">Perfil: {selectedPerfil}</p>
+            </div>
+
+            <div className="border rounded-md">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-100 border-b">
+                    <th className="px-4 py-2 text-left font-medium">Módulo / Aba / Rotina</th>
+                    <th className="px-4 py-2 text-center w-24 font-medium">Acesso</th>
                   </tr>
-                  
-                  {/* Tab rows */}
-                  {module.tabs.map(tab => (
-                    <React.Fragment key={`${module.id}_${tab.id}`}>
-                      <tr className="hover:bg-gray-50 border-b">
-                        <td className="px-4 py-2 pl-8">
-                          {tab.name}
+                </thead>
+                <tbody>
+                  {systemModules.map(module => (
+                    <React.Fragment key={module.id}>
+                      {/* Module row */}
+                      <tr className="bg-gray-50 hover:bg-gray-100 border-b">
+                        <td className="px-4 py-3 font-medium">
+                          {module.nome}
                         </td>
-                        <td className="px-4 py-2 text-center">
+                        <td className="px-4 py-3 text-center">
                           <Checkbox
-                            id={`tab_${module.id}_${tab.id}`}
-                            checked={permissions[`tab_${module.id}_${tab.id}`] || false}
-                            disabled={!permissions[`module_${module.id}`]}
+                            id={`module_${module.id}`}
+                            checked={permissions[`module_${module.id}`] || false}
                             onCheckedChange={(checked) => 
-                              handlePermissionChange(`tab_${module.id}_${tab.id}`, checked === true)
+                              handlePermissionChange(`module_${module.id}`, checked === true)
                             }
                           />
                         </td>
                       </tr>
                       
-                      {/* Routine rows */}
-                      {tab.routines.map(routine => (
-                        <tr key={`${module.id}_${tab.id}_${routine.id}`} className="hover:bg-gray-50 border-b">
-                          <td className="px-4 py-2 pl-12 text-sm">
-                            {routine.name}
-                          </td>
-                          <td className="px-4 py-2 text-center">
-                            <Checkbox
-                              id={`routine_${module.id}_${tab.id}_${routine.id}`}
-                              checked={permissions[`routine_${module.id}_${tab.id}_${routine.id}`] || false}
-                              disabled={!permissions[`tab_${module.id}_${tab.id}`]}
-                              onCheckedChange={(checked) => 
-                                handlePermissionChange(`routine_${module.id}_${tab.id}_${routine.id}`, checked === true)
-                              }
-                            />
-                          </td>
-                        </tr>
+                      {/* Tab rows */}
+                      {module.tabelas.map(tab => (
+                        <React.Fragment key={`${module.id}_${tab.id}`}>
+                          <tr className="hover:bg-gray-50 border-b">
+                            <td className="px-4 py-2 pl-8">
+                              {tab.nome}
+                            </td>
+                            <td className="px-4 py-2 text-center">
+                              <Checkbox
+                                id={`tab_${module.id}_${tab.id}`}
+                                checked={permissions[`tab_${module.id}_${tab.id}`] || false}
+                                disabled={!permissions[`module_${module.id}`]}
+                                onCheckedChange={(checked) => 
+                                  handlePermissionChange(`tab_${module.id}_${tab.id}`, checked === true)
+                                }
+                              />
+                            </td>
+                          </tr>
+                          
+                          {/* Routine rows */}
+                          {tab.rotinas.map(routine => (
+                            <tr key={`${module.id}_${tab.id}_${routine.id}`} className="hover:bg-gray-50 border-b">
+                              <td className="px-4 py-2 pl-12 text-sm">
+                                {routine.nome}
+                              </td>
+                              <td className="px-4 py-2 text-center">
+                                <Checkbox
+                                  id={`routine_${module.id}_${tab.id}_${routine.id}`}
+                                  checked={permissions[`routine_${module.id}_${tab.id}_${routine.id}`] || false}
+                                  disabled={!permissions[`tab_${module.id}_${tab.id}`]}
+                                  onCheckedChange={(checked) => 
+                                    handlePermissionChange(`routine_${module.id}_${tab.id}_${routine.id}`, checked === true)
+                                  }
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </React.Fragment>
                       ))}
                     </React.Fragment>
                   ))}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="mt-6 flex justify-end">
-          <Button 
-            onClick={handleSavePermissions}
-            className="bg-cross-blue hover:bg-cross-blue/90"
-          >
-            <Check size={16} className="mr-2" />
-            Salvar Permissões
-          </Button>
-        </div>
+                </tbody>
+              </table>
+            </div>
+            
+            <div className="mt-6 flex justify-end">
+              <Button 
+                onClick={handleSavePermissions}
+                className="bg-cross-blue hover:bg-cross-blue/90"
+                disabled={!selectedUsuario}
+              >
+                <Check size={16} className="mr-2" />
+                Salvar Permissões
+              </Button>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

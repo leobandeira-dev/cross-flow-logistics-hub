@@ -1,15 +1,26 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Check, Search } from 'lucide-react';
+import { Settings, Check, Search, Plus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { ModuloEmpresa } from '../types/empresa.types';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { ModuloEmpresa, PerfilEmpresa } from '../types/empresa.types';
 import SearchFilter from '@/components/common/SearchFilter';
 import { FilterConfig } from '@/components/common/SearchFilter';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Similar to user permissions, adapted for companies
 const systemModules: ModuloEmpresa[] = [
@@ -134,21 +145,84 @@ const empresasMock = [
   { id: "4", nome: "Fornecedor XYZ S.A.", cnpj: "56.789.012/0001-34", perfil: "Fornecedor" },
 ];
 
+const PerfilDialog = ({ onAddPerfil }: { onAddPerfil: (nome: string, descricao: string) => void }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [nome, setNome] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const { toast } = useToast();
+
+  const handleSubmit = () => {
+    if (!nome) {
+      toast({
+        title: "Erro",
+        description: "Nome do perfil é obrigatório",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onAddPerfil(nome, descricao);
+    setIsOpen(false);
+    setNome('');
+    setDescricao('');
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-1">
+          <Plus size={14} />
+          Novo Perfil
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Adicionar Novo Perfil de Empresa</DialogTitle>
+          <DialogDescription>
+            Crie um novo perfil para categorizar as empresas do sistema.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="nome">Nome do Perfil</Label>
+            <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Prestador de Serviços" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="descricao">Descrição (opcional)</Label>
+            <Input id="descricao" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Descrição do perfil" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
+          <Button onClick={handleSubmit} className="bg-cross-blue hover:bg-cross-blue/90">Adicionar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const PermissoesEmpresa: React.FC = () => {
   const { toast } = useToast();
   const [selectedEmpresa, setSelectedEmpresa] = useState<string>("");
   const [selectedPerfil, setSelectedPerfil] = useState<string>("Transportadora");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
   const [filteredEmpresas, setFilteredEmpresas] = useState(empresasMock);
+  const [customProfiles, setCustomProfiles] = useState<string[]>([]);
+  const [allProfiles, setAllProfiles] = useState<string[]>(profiles);
   
   // Search filter config
   const filterConfigs: FilterConfig[] = [
     {
       id: 'perfil',
       label: 'Perfil',
-      options: profiles.map(profile => ({ id: profile, label: profile }))
+      options: allProfiles.map(profile => ({ id: profile, label: profile }))
     }
   ];
+
+  // Update all profiles when custom profiles change
+  useEffect(() => {
+    setAllProfiles([...profiles, ...customProfiles]);
+  }, [customProfiles]);
 
   // Initialize permissions based on company and profile selection
   React.useEffect(() => {
@@ -292,6 +366,15 @@ const PermissoesEmpresa: React.FC = () => {
     return empresa ? `${empresa.nome} (${empresa.cnpj})` : '';
   };
 
+  // Handle adding a new profile
+  const handleAddPerfil = (nome: string, descricao: string) => {
+    setCustomProfiles(prev => [...prev, nome]);
+    toast({
+      title: "Perfil adicionado",
+      description: `O perfil "${nome}" foi adicionado com sucesso.`,
+    });
+  };
+
   // Handle search and filtering
   const handleSearch = (term: string, activeFilters?: Record<string, string[]>) => {
     let results = empresasMock;
@@ -346,20 +429,25 @@ const PermissoesEmpresa: React.FC = () => {
           </Select>
         </div>
 
-        <div className="mb-6">
-          <Label htmlFor="perfil-select">Tipo de Perfil</Label>
-          <Select value={selectedPerfil} onValueChange={handlePerfilChange}>
-            <SelectTrigger id="perfil-select" className="w-full md:w-[400px]">
-              <SelectValue placeholder="Selecione um perfil" />
-            </SelectTrigger>
-            <SelectContent>
-              {profiles.map(profile => (
-                <SelectItem key={profile} value={profile}>
-                  {profile}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="mb-6 flex items-end gap-2">
+          <div className="flex-grow">
+            <Label htmlFor="perfil-select" className="mb-2 block">Tipo de Perfil</Label>
+            <Select value={selectedPerfil} onValueChange={handlePerfilChange}>
+              <SelectTrigger id="perfil-select" className="w-full">
+                <SelectValue placeholder="Selecione um perfil" />
+              </SelectTrigger>
+              <SelectContent>
+                {allProfiles.map(profile => (
+                  <SelectItem key={profile} value={profile}>
+                    {profile}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <PerfilDialog onAddPerfil={handleAddPerfil} />
+          </div>
         </div>
 
         {selectedEmpresa && (

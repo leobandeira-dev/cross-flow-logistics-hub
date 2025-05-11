@@ -39,3 +39,12 @@ export interface RotinaEmpresa {
   id: string;
   nome: string;
 }
+
+// Novo: Interface para perfis customizados
+export interface PerfilCustomizado {
+  id: string;
+  nome: string;
+  descricao?: string;
+  tipo: 'usuario' | 'empresa';
+  permissoes?: Record<string, boolean>;
+}
