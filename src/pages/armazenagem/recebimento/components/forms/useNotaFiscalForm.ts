@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { NotaFiscalSchemaType } from './notaFiscalSchema';
 import { useToast } from "@/hooks/use-toast";
-import * as xml2js from 'xml2js';
 
 export const useNotaFiscalForm = () => {
   const { toast } = useToast();
@@ -24,27 +23,23 @@ export const useNotaFiscalForm = () => {
       reader.onload = (e) => {
         if (e.target?.result) {
           try {
+            // Usando uma abordagem mais simples para fazer o parse do XML
             const xmlContent = e.target.result as string;
             
-            // Usando o método parseString diretamente sem criar instâncias
-            xml2js.parseString(
-              xmlContent, 
-              { 
-                explicitArray: false, 
-                mergeAttrs: true,
-                normalizeTags: true, // Normaliza tags para lowercase
-                trim: true // Remove espaços em branco
-              }, 
-              (err, result) => {
-                if (err) {
-                  console.error("Erro ao fazer parse do XML:", err);
-                  reject(err);
-                } else {
-                  console.log("XML parseado com sucesso:", result);
-                  resolve(result);
-                }
-              }
-            );
+            // Parse XML de forma manual
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlContent, "text/xml");
+            
+            if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+              console.error("Erro ao fazer parse do XML: Formato inválido");
+              reject(new Error("Formato de XML inválido"));
+              return;
+            }
+            
+            console.log("XML parseado com sucesso usando DOMParser");
+            const result = xmlToJson(xmlDoc);
+            console.log("Convertido para objeto:", result);
+            resolve(result);
           } catch (error) {
             console.error("Erro ao processar o XML:", error);
             reject(error);
@@ -61,17 +56,92 @@ export const useNotaFiscalForm = () => {
       reader.readAsText(file);
     });
   };
+  
+  // Função para converter um documento XML em um objeto JavaScript
+  const xmlToJson = (xml: Document): Record<string, any> => {
+    // Criar uma função para transformar um nó XML em um objeto JSON
+    const convertNodeToJson = (node: Node): any => {
+      // Elemento básico
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.nodeValue?.trim();
+        return text ? text : null;
+      }
+      
+      // Se for um elemento
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        const obj: Record<string, any> = {};
+        
+        // Adicionar atributos
+        if (element.attributes && element.attributes.length > 0) {
+          for (let i = 0; i < element.attributes.length; i++) {
+            const attr = element.attributes[i];
+            obj[attr.name] = attr.value;
+          }
+        }
+        
+        // Processar nós filhos
+        for (let i = 0; i < element.childNodes.length; i++) {
+          const child = element.childNodes[i];
+          
+          // Pular nós de texto vazios
+          if (child.nodeType === Node.TEXT_NODE && (!child.nodeValue || !child.nodeValue.trim())) {
+            continue;
+          }
+          
+          if (child.nodeType === Node.ELEMENT_NODE) {
+            const childElement = child as Element;
+            const tagName = childElement.tagName.toLowerCase();
+            
+            // Se o nó já existe, transformá-lo em array
+            if (obj[tagName]) {
+              if (!Array.isArray(obj[tagName])) {
+                obj[tagName] = [obj[tagName]];
+              }
+              obj[tagName].push(convertNodeToJson(child));
+            } else {
+              // Caso contrário, adicionar normalmente
+              obj[tagName] = convertNodeToJson(child);
+            }
+          } else if (child.nodeType === Node.TEXT_NODE && child.nodeValue && child.nodeValue.trim()) {
+            // Se há apenas texto, usar o valor diretamente
+            if (element.childNodes.length === 1) {
+              return child.nodeValue.trim();
+            }
+          }
+        }
+        
+        return obj;
+      }
+      
+      return null;
+    };
+    
+    // Começar com o elemento raiz
+    const rootElement = xml.documentElement;
+    const result: Record<string, any> = {};
+    result[rootElement.tagName.toLowerCase()] = convertNodeToJson(rootElement);
+    
+    return result;
+  };
 
   const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> => {
     try {
       console.log("Tentando extrair dados do XML:", xmlData);
       
-      // Tratando diferentes estruturas possíveis do XML
-      // Alguns XMLs da NFe podem ter estruturas ligeiramente diferentes
+      // Navegando pela estrutura do XML usando a nova abordagem
       const nfeProc = xmlData.nfeproc || xmlData.nfeProc || {};
-      const nfe = nfeProc.nfe || nfeProc.NFe || {};
-      const infNFe = nfe.infnfe || nfe.infNFe || {};
       
+      // Acessando o conteúdo do XML de forma mais resiliente
+      const nfe = nfeProc.nfe || nfeProc.nfe;
+      const infNFe = nfe?.infnfe || nfe?.infnfe;
+      
+      if (!infNFe) {
+        console.error("Estrutura de XML não reconhecida:", xmlData);
+        return {};
+      }
+      
+      // Extraindo dados básicos
       const ide = infNFe.ide || {};
       const emit = infNFe.emit || {};
       const dest = infNFe.dest || {};
@@ -86,40 +156,57 @@ export const useNotaFiscalForm = () => {
         total: total
       });
       
+      // Função auxiliar para extrair um valor de forma segura
+      const getValue = (obj: any, path: string[], defaultValue: string = ''): string => {
+        let current = obj;
+        
+        for (const key of path) {
+          if (current && typeof current === 'object' && key in current) {
+            current = current[key];
+          } else {
+            return defaultValue;
+          }
+        }
+        
+        return current?.toString() || defaultValue;
+      };
+      
+      // Extraindo dados com a função auxiliar
       return {
         // Dados da nota
-        chaveNF: infNFe.id || infNFe.Id || '',
-        numeroNF: ide.nnf || ide.nNF || '',
-        serieNF: ide.serie || '',
-        dataHoraEmissao: ide.dhemi || ide.dhEmi ? new Date(ide.dhemi || ide.dhEmi).toISOString().split('T')[0] : '',
-        valorTotal: total.icmstot?.vnf || total.ICMSTot?.vNF || '',
+        chaveNF: getValue(infNFe, ['id']) || getValue(infNFe, ['Id']),
+        numeroNF: getValue(ide, ['nnf']) || getValue(ide, ['nnf']),
+        serieNF: getValue(ide, ['serie']),
+        dataHoraEmissao: getValue(ide, ['dhemi']) ? 
+          new Date(getValue(ide, ['dhemi'])).toISOString().split('T')[0] : '',
+        valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['icmstot', 'vnf']),
         
         // Dados do emitente
-        emitenteCNPJ: emit.cnpj || emit.CNPJ || '',
-        emitenteRazaoSocial: emit.xnome || emit.xNome || '',
-        emitenteEndereco: `${(emit.enderemit?.xlgr || emit.enderEmit?.xLgr || '')}, ${emit.enderemit?.nro || emit.enderEmit?.nro || ''}`,
-        emitenteBairro: emit.enderemit?.xbairro || emit.enderEmit?.xBairro || '',
-        emitenteCidade: emit.enderemit?.xmun || emit.enderEmit?.xMun || '',
-        emitenteUF: emit.enderemit?.uf || emit.enderEmit?.UF || '',
-        emitenteCEP: emit.enderemit?.cep || emit.enderEmit?.CEP || '',
-        emitenteTelefone: emit.enderemit?.fone || emit.enderEmit?.fone || '',
+        emitenteCNPJ: getValue(emit, ['cnpj']),
+        emitenteRazaoSocial: getValue(emit, ['xnome']),
+        emitenteEndereco: `${getValue(emit, ['enderemit', 'xlgr'])}, ${getValue(emit, ['enderemit', 'nro'])}`,
+        emitenteBairro: getValue(emit, ['enderemit', 'xbairro']),
+        emitenteCidade: getValue(emit, ['enderemit', 'xmun']),
+        emitenteUF: getValue(emit, ['enderemit', 'uf']),
+        emitenteCEP: getValue(emit, ['enderemit', 'cep']),
+        emitenteTelefone: getValue(emit, ['enderemit', 'fone']),
         
         // Dados do destinatário
-        destinatarioCNPJ: dest.cnpj || dest.CNPJ || '',
-        destinatarioRazaoSocial: dest.xnome || dest.xNome || '',
-        destinatarioEndereco: `${(dest.enderdest?.xlgr || dest.enderDest?.xLgr || '')}, ${dest.enderdest?.nro || dest.enderDest?.nro || ''}`,
-        destinatarioBairro: dest.enderdest?.xbairro || dest.enderDest?.xBairro || '',
-        destinatarioCidade: dest.enderdest?.xmun || dest.enderDest?.xMun || '',
-        destinatarioUF: dest.enderdest?.uf || dest.enderDest?.UF || '',
-        destinatarioCEP: dest.enderdest?.cep || dest.enderDest?.CEP || '',
-        destinatarioTelefone: dest.enderdest?.fone || dest.enderDest?.fone || '',
+        destinatarioCNPJ: getValue(dest, ['cnpj']),
+        destinatarioRazaoSocial: getValue(dest, ['xnome']),
+        destinatarioEndereco: `${getValue(dest, ['enderdest', 'xlgr'])}, ${getValue(dest, ['enderdest', 'nro'])}`,
+        destinatarioBairro: getValue(dest, ['enderdest', 'xbairro']),
+        destinatarioCidade: getValue(dest, ['enderdest', 'xmun']),
+        destinatarioUF: getValue(dest, ['enderdest', 'uf']),
+        destinatarioCEP: getValue(dest, ['enderdest', 'cep']),
+        destinatarioTelefone: getValue(dest, ['enderdest', 'fone']),
         
         // Informações de transporte
-        responsavelEntrega: transp.transporta?.xnome || transp.transporta?.xNome || '',
-        motorista: transp.veictransp?.placa ? `Placa: ${transp.veictransp?.placa}` : 
-                  transp.veicTransp?.placa ? `Placa: ${transp.veicTransp?.placa}` : '',
-        volumesTotal: transp.vol?.qvol || transp.vol?.qVol || '',
-        pesoTotalBruto: transp.vol?.pesob || transp.vol?.pesoB || '',
+        responsavelEntrega: getValue(transp, ['transporta', 'xnome']),
+        motorista: getValue(transp, ['veictransp', 'placa']) ? 
+          `Placa: ${getValue(transp, ['veictransp', 'placa'])}` : '',
+        volumesTotal: getValue(transp, ['vol', 'qvol']),
+        pesoTotalBruto: getValue(transp, ['vol', 'pesob']),
       };
     } catch (error) {
       console.error("Erro ao extrair dados do XML:", error);
