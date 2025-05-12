@@ -82,25 +82,27 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
     navigate('/armazenagem/recebimento/etiquetas', { 
       state: {
         notaFiscal: nota.id,
-        // Pass all the necessary data from the nota fiscal to populate the etiqueta fields
         numeroPedido: nota.numeroPedido || '',
         volumesTotal: nota.volumesTotal || '',
+        // Sender data
         remetente: nota.fornecedor || '',
-        destinatario: nota.destinatarioRazaoSocial || '', // Fixed property reference
+        emitente: nota.emitenteRazaoSocial || '',
+        // Recipient data - ensure all required fields are included
+        destinatario: nota.destinatarioRazaoSocial || '',
         endereco: nota.destinatarioEndereco || '',
         cidade: nota.destinatarioCidade || '',
         cidadeCompleta: `${nota.destinatarioCidade || ''} - ${nota.destinatarioUF || ''}`,
         uf: nota.destinatarioUF || '',
-        pesoTotal: nota.pesoTotal || '',
+        // Weight information
+        pesoTotal: nota.pesoTotalBruto || nota.pesoTotal || '',
         chaveNF: nota.chaveNF || '',
-        // Add additional fields for delivery address
+        // Additional recipient address details
         enderecoDestinatario: nota.destinatarioEndereco || '',
         bairroDestinatario: nota.destinatarioBairro || '',
         cidadeDestinatario: nota.destinatarioCidade || '',
         cepDestinatario: nota.destinatarioCEP || '',
         ufDestinatario: nota.destinatarioUF || '',
-        // Add other necessary data
-        emitente: nota.emitenteRazaoSocial || '',
+        // Date information
         dataEmissao: nota.dataHoraEmissao || nota.data || '',
       }
     });

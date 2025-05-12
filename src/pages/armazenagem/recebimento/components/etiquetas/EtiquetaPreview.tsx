@@ -43,7 +43,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
             )}
             
             {layoutStyle === 'compact' && (
-              // Compact layout preview - Fixed layout conflicts
+              // Compact layout preview with fixed visual conflicts
               renderCompactPreview(tipoEtiqueta, isQuimico)
             )}
             
@@ -128,27 +128,40 @@ const renderStandardPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolea
   </div>
 );
 
-// Helper function to render the compact layout preview - Fixed visual conflicts by improving layout
+// Helper function to render the compact layout preview - Fixed visual conflicts with improved layout
 const renderCompactPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
   <div className={`p-2 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-gray-500 bg-gray-50'}`}>
-    <div className="flex items-center space-x-2">
-      <div className="flex-shrink-0">
-        <QrCode size={24} className="mx-auto" />
+    <div className="flex justify-between items-center mb-1">
+      <div className="flex items-center">
+        <QrCode size={16} className="mr-1" />
+        <span className={`text-xs font-bold ${tipoEtiqueta === 'mae' ? 'text-red-600' : isQuimico ? 'text-red-500' : ''}`}>
+          {tipoEtiqueta === 'mae' ? 'ETIQ. MÃE' : 'VOL 1/2'}
+        </span>
       </div>
-      <div className="flex-1 min-w-0">
-        {tipoEtiqueta === 'mae' ? (
-          <p className="font-bold text-red-600 text-xs truncate">ETIQUETA MÃE</p>
-        ) : isQuimico ? (
-          <div className="flex items-center">
-            <Biohazard size={14} className="mr-1 text-red-500 flex-shrink-0" />
-            <span className="font-bold text-red-500 text-xs truncate">QUÍMICO</span>
-          </div>
-        ) : (
-          <p className="font-bold text-xs truncate">VOLUME 1/2</p>
-        )}
-        <p className="text-xs truncate">Braspress</p>
-        <p className="text-xs font-medium text-blue-600 truncate">DESTINATÁRIO</p>
+      <span className="text-xs">Braspress</span>
+    </div>
+    
+    {isQuimico && (
+      <div className="flex items-center bg-yellow-100 p-1 mb-1 rounded border border-yellow-500">
+        <Biohazard size={12} className="mr-1 text-red-500" />
+        <span className="text-xs font-bold">QUÍMICO</span>
       </div>
+    )}
+    
+    <div className="grid grid-cols-2 gap-1 text-xs">
+      <div>
+        <span className="text-gray-600">REMETENTE:</span>
+        <div className="truncate font-medium">EMPRESA XYZ</div>
+      </div>
+      <div>
+        <span className="text-gray-600">DESTINO:</span>
+        <div className="truncate font-medium">SÃO PAULO - SP</div>
+      </div>
+    </div>
+    
+    <div className="text-xs mt-1 border-t pt-1">
+      <span className="text-blue-600 font-medium">DESTINATÁRIO:</span>
+      <div className="truncate">CLIENTE ABC LTDA</div>
     </div>
   </div>
 );
