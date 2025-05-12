@@ -15,9 +15,9 @@ const notasFilterConfig = [
     name: "Status",
     options: [
       { label: "Todos", value: "all" },
-      { label: "Processada", value: "processada" },
-      { label: "Aguardando", value: "aguardando" },
-      { label: "Rejeitada", value: "rejeitada" }
+      { label: "Processada", value: "completed" },
+      { label: "Aguardando", value: "pending" },
+      { label: "Rejeitada", value: "processing" }
     ]
   },
   {
@@ -48,7 +48,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       const matchesSearch = 
         nota.id.toLowerCase().includes(searchLower) ||
         nota.fornecedor.toLowerCase().includes(searchLower) ||
-        nota.destinatarioRazaoSocial?.toLowerCase().includes(searchLower); // Fixed property name
+        nota.destinatarioRazaoSocial?.toLowerCase().includes(searchLower);
       
       if (!matchesSearch) return false;
     }
@@ -118,7 +118,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       <CardContent>
         <SearchFilter 
           placeholder="Buscar por número, fornecedor ou destinatário..." 
-          filters={notasFilterConfig} // Use the locally defined filter config
+          filters={notasFilterConfig} 
           onSearch={handleSearch}
         />
         
@@ -127,7 +127,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
             columns={[
               { header: 'Número NF', accessor: 'id' },
               { header: 'Fornecedor', accessor: 'fornecedor' },
-              { header: 'Destinatário', accessor: 'destinatarioRazaoSocial' }, // Fixed property reference
+              { header: 'Destinatário', accessor: 'destinatarioRazaoSocial' },
               { header: 'Valor Total', accessor: 'valor' },
               { header: 'Data Emissão', accessor: 'dataEmissao' },
               { 
@@ -135,11 +135,11 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
                 accessor: 'status',
                 cell: (row) => {
                   switch (row.status) {
-                    case 'processada':
+                    case 'completed':
                       return <StatusBadge status="success" text="Processada" />;
-                    case 'aguardando':
+                    case 'pending':
                       return <StatusBadge status="pending" text="Aguardando" />;
-                    case 'rejeitada':
+                    case 'processing':
                       return <StatusBadge status="error" text="Rejeitada" />;
                     default:
                       return <StatusBadge status="pending" text={row.status} />;
