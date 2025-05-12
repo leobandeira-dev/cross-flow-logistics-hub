@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Biohazard, Printer } from 'lucide-react';
+import { Biohazard, Printer, Edit } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 
@@ -20,12 +20,14 @@ interface VolumesTableProps {
   volumes: Volume[];
   notaFiscalFilter?: string;
   handlePrintEtiquetas: (volume: Volume) => void;
+  handleClassifyVolume?: (volume: Volume) => void;
 }
 
 const VolumesTable: React.FC<VolumesTableProps> = ({
   volumes,
   notaFiscalFilter,
-  handlePrintEtiquetas
+  handlePrintEtiquetas,
+  handleClassifyVolume
 }) => {
   // Filter volumes based on the nota fiscal if provided
   const filteredVolumes = notaFiscalFilter
@@ -70,6 +72,16 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
               accessor: 'actions',
               cell: (row) => (
                 <div className="flex gap-2">
+                  {handleClassifyVolume && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleClassifyVolume(row)}
+                    >
+                      <Edit size={16} className="mr-1" />
+                      Classificar
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     size="sm"

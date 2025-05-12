@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
-import { Barcode, QrCode, Search } from 'lucide-react';
+import { Barcode, QrCode, Search, Package } from 'lucide-react';
 
 interface EtiquetaFormPanelProps {
   form: UseFormReturn<any>;
   tipoEtiqueta: 'volume' | 'mae';
   setTipoEtiqueta: (tipo: 'volume' | 'mae') => void;
   isQuimico: boolean;
+  handleGenerateVolumes: () => void;
   handleCreateEtiquetaMae: () => void;
 }
 
@@ -20,6 +21,7 @@ const EtiquetaFormPanel: React.FC<EtiquetaFormPanelProps> = ({
   tipoEtiqueta,
   setTipoEtiqueta,
   isQuimico,
+  handleGenerateVolumes,
   handleCreateEtiquetaMae
 }) => {
   return (
@@ -114,60 +116,18 @@ const EtiquetaFormPanel: React.FC<EtiquetaFormPanelProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <FormField
-                  control={form.control}
-                  name="tipoVolume"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tipo de Volume</FormLabel>
-                      <FormControl>
-                        <select 
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
-                          {...field}
-                        >
-                          <option value="geral">Carga Geral</option>
-                          <option value="quimico">Produto Químico</option>
-                        </select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              {isQuimico && (
-                <div className="md:col-span-1 flex items-center gap-2">
-                  <div className="flex-1">
-                    <FormField
-                      control={form.control}
-                      name="codigoONU"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Código ONU</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Ex: 1203" {...field} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <FormField
-                      control={form.control}
-                      name="codigoRisco"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Código de Risco</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Ex: 33" {...field} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+            <FormField
+              control={form.control}
+              name="pesoTotalBruto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Peso Total Bruto</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: 25,5 Kg" {...field} />
+                  </FormControl>
+                </FormItem>
               )}
-            </div>
+            />
             
             {tipoEtiqueta === 'mae' && (
               <div>
@@ -191,7 +151,7 @@ const EtiquetaFormPanel: React.FC<EtiquetaFormPanelProps> = ({
               <Button 
                 type="button" 
                 className="bg-cross-blue hover:bg-cross-blue/90"
-                onClick={tipoEtiqueta === 'mae' ? handleCreateEtiquetaMae : undefined}
+                onClick={tipoEtiqueta === 'mae' ? handleCreateEtiquetaMae : handleGenerateVolumes}
               >
                 {tipoEtiqueta === 'mae' ? (
                   <>
@@ -200,8 +160,8 @@ const EtiquetaFormPanel: React.FC<EtiquetaFormPanelProps> = ({
                   </>
                 ) : (
                   <>
-                    <Barcode size={16} className="mr-2" />
-                    Gerar Etiquetas de Volume
+                    <Package size={16} className="mr-2" />
+                    Gerar Volumes
                   </>
                 )}
               </Button>

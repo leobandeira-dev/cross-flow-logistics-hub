@@ -13,6 +13,7 @@ import EtiquetaPreview from './components/etiquetas/EtiquetaPreview';
 import VolumesTable from './components/etiquetas/VolumesTable';
 import ConsultaEtiquetasTab from './components/etiquetas/ConsultaEtiquetasTab';
 import EtiquetasMaeTab from './components/etiquetas/EtiquetasMaeTab';
+import ClassifyVolumeDialog from './components/etiquetas/ClassifyVolumeDialog';
 import { volumesParaEtiquetar, etiquetasMae } from './components/etiquetas/mockData';
 
 const GeracaoEtiquetas: React.FC = () => {
@@ -20,6 +21,10 @@ const GeracaoEtiquetas: React.FC = () => {
   const notaFiscalData = location.state;
   const [activeTab, setActiveTab] = useState('gerar');
   const [tipoEtiqueta, setTipoEtiqueta] = useState<'volume' | 'mae'>('volume');
+  const [generatedVolumes, setGeneratedVolumes] = useState<any[]>([]);
+  const [volumes, setVolumes] = useState(volumesParaEtiquetar);
+  const [classifyDialogOpen, setClassifyDialogOpen] = useState(false);
+  const [selectedVolume, setSelectedVolume] = useState<any>(null);
   
   const form = useForm({
     defaultValues: {
@@ -30,7 +35,8 @@ const GeracaoEtiquetas: React.FC = () => {
       tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
-      etiquetaMaeId: ''
+      etiquetaMaeId: '',
+      pesoTotalBruto: ''
     }
   });
   
@@ -43,10 +49,71 @@ const GeracaoEtiquetas: React.FC = () => {
     }
   }, [notaFiscalData, form]);
 
+  // Function to generate volumes based on form data
+  const handleGenerateVolumes = () => {
+    const notaFiscal = form.getValues('notaFiscal');
+    const volumesTotal = parseInt(form.getValues('volumesTotal'), 10);
+    const pesoTotalBruto = form.getValues('pesoTotalBruto') || '0,00 Kg';
+    
+    if (!notaFiscal) {
+      toast({
+        title: "Erro",
+        description: "Informe o número da nota fiscal.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!volumesTotal || isNaN(volumesTotal) || volumesTotal <= 0) {
+      toast({
+        title: "Erro",
+        description: "Informe uma quantidade válida de volumes.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Generate new volumes based on the quantity
+    const newVolumes = [];
+    for (let i = 1; i <= volumesTotal; i++) {
+      const newVolume = {
+        id: `VOL-${notaFiscal}-${i.toString().padStart(3, '0')}`,
+        notaFiscal,
+        descricao: `Volume ${i} de ${volumesTotal}`,
+        quantidade: 1,
+        etiquetado: false,
+        tipoVolume: 'geral',
+        remetente: "A definir",
+        destinatario: "A definir",
+        endereco: "A definir",
+        cidade: "A definir",
+        cidadeCompleta: "A definir",
+        uf: "UF",
+        pesoTotal: pesoTotalBruto
+      };
+      newVolumes.push(newVolume);
+    }
+    
+    // Add to existing volumes
+    setVolumes(prevVolumes => {
+      // Remove any existing volumes for this nota fiscal
+      const filteredVolumes = prevVolumes.filter(vol => vol.notaFiscal !== notaFiscal);
+      // Add the new volumes
+      return [...filteredVolumes, ...newVolumes];
+    });
+    
+    setGeneratedVolumes(newVolumes);
+    
+    toast({
+      title: "Volumes gerados",
+      description: `${volumesTotal} volumes gerados para a nota fiscal ${notaFiscal}.`,
+    });
+  };
+
   // Function to handle printing etiquetas for selected volumes
   const handlePrintEtiquetas = (volume: any) => {
     // Get volumes with the same nota fiscal
-    const volumesNota = volumesParaEtiquetar.filter(vol => vol.notaFiscal === volume.notaFiscal);
+    const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
     
     // Prepare nota data for the etiquetas
     const notaData = {
@@ -65,6 +132,15 @@ const GeracaoEtiquetas: React.FC = () => {
     // Generate etiquetas for all volumes of this nota fiscal
     generateEtiquetasPDF(volumesNota, notaData, formatoImpressao);
     
+    // Mark volumes as printed
+    setVolumes(prevVolumes => 
+      prevVolumes.map(vol => 
+        vol.notaFiscal === volume.notaFiscal 
+          ? { ...vol, etiquetado: true } 
+          : vol
+      )
+    );
+    
     toast({
       title: "Etiquetas Geradas",
       description: `Etiquetas para NF ${volume.notaFiscal} geradas com sucesso.`,
@@ -74,7 +150,7 @@ const GeracaoEtiquetas: React.FC = () => {
   // Function to handle printing etiquetas for all volumes
   const handleReimprimirEtiquetas = (volume: any) => {
     // For reimprimir, we generate etiquetas regardless of etiquetado status
-    const volumesNota = volumesParaEtiquetar.filter(vol => vol.notaFiscal === volume.notaFiscal);
+    const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
     
     const notaData = {
       fornecedor: volume.remetente,
@@ -100,7 +176,7 @@ const GeracaoEtiquetas: React.FC = () => {
   // Function to handle printing master etiqueta
   const handlePrintEtiquetaMae = (etiquetaMae: any) => {
     // Get volumes with the same nota fiscal
-    const volumesNota = volumesParaEtiquetar.filter(vol => vol.notaFiscal === etiquetaMae.notaFiscal);
+    const volumesNota = volumes.filter(vol => vol.notaFiscal === etiquetaMae.notaFiscal);
     
     if (volumesNota.length === 0) {
       toast({
@@ -139,7 +215,7 @@ const GeracaoEtiquetas: React.FC = () => {
     const notaFiscal = form.getValues('notaFiscal');
     const etiquetaMaeId = form.getValues('etiquetaMaeId') || `MASTER-${notaFiscal}-${Date.now()}`;
     
-    const volumesNota = volumesParaEtiquetar.filter(vol => vol.notaFiscal === notaFiscal);
+    const volumesNota = volumes.filter(vol => vol.notaFiscal === notaFiscal);
     
     if (volumesNota.length === 0) {
       toast({
@@ -173,6 +249,33 @@ const GeracaoEtiquetas: React.FC = () => {
     });
   };
 
+  // Open dialog for classifying volume
+  const handleClassifyVolume = (volume: any) => {
+    setSelectedVolume(volume);
+    setClassifyDialogOpen(true);
+  };
+
+  // Save volume classification
+  const handleSaveVolumeClassification = (volume: any, formData: any) => {
+    setVolumes(prevVolumes => 
+      prevVolumes.map(vol => 
+        vol.id === volume.id 
+          ? { 
+              ...vol, 
+              tipoVolume: formData.tipoVolume,
+              codigoONU: formData.codigoONU,
+              codigoRisco: formData.codigoRisco
+            } 
+          : vol
+      )
+    );
+    
+    toast({
+      title: "Volume Classificado",
+      description: `O volume ${volume.id} foi classificado como ${formData.tipoVolume === 'quimico' ? 'Produto Químico' : 'Carga Geral'}.`,
+    });
+  };
+
   // Show/hide chemical product fields based on type selection
   const watchTipoVolume = form.watch('tipoVolume');
   const isQuimico = watchTipoVolume === 'quimico';
@@ -199,15 +302,24 @@ const GeracaoEtiquetas: React.FC = () => {
                 tipoEtiqueta={tipoEtiqueta}
                 setTipoEtiqueta={setTipoEtiqueta}
                 isQuimico={isQuimico}
+                handleGenerateVolumes={handleGenerateVolumes} 
                 handleCreateEtiquetaMae={handleCreateEtiquetaMae}
               />
               
-              {activeTab === 'gerar' && (
+              {activeTab === 'gerar' && generatedVolumes.length > 0 && (
                 <VolumesTable 
-                  volumes={volumesParaEtiquetar}
-                  notaFiscalFilter={notaFiscalData?.notaFiscal}
+                  volumes={generatedVolumes}
                   handlePrintEtiquetas={handlePrintEtiquetas}
+                  handleClassifyVolume={handleClassifyVolume}
                 />
+              )}
+
+              {activeTab === 'gerar' && generatedVolumes.length === 0 && (
+                <div className="mt-6 p-8 text-center border rounded-md bg-gray-50">
+                  <p className="text-gray-600">
+                    Informe a nota fiscal e a quantidade de volumes, depois clique em "Gerar Volumes" para criar etiquetas.
+                  </p>
+                </div>
               )}
             </div>
             
@@ -222,7 +334,7 @@ const GeracaoEtiquetas: React.FC = () => {
         
         <TabsContent value="consultar">
           <ConsultaEtiquetasTab 
-            volumes={volumesParaEtiquetar}
+            volumes={volumes}
             handleReimprimirEtiquetas={handleReimprimirEtiquetas}
           />
         </TabsContent>
@@ -234,6 +346,14 @@ const GeracaoEtiquetas: React.FC = () => {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Classification Dialog */}
+      <ClassifyVolumeDialog 
+        volume={selectedVolume}
+        open={classifyDialogOpen}
+        onClose={() => setClassifyDialogOpen(false)}
+        onSave={handleSaveVolumeClassification}
+      />
     </MainLayout>
   );
 };
