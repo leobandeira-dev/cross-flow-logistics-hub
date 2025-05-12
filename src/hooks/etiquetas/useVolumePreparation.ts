@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/VolumesTable';
 
 export interface VolumeData {
   id: string;
@@ -11,6 +12,9 @@ export interface VolumeData {
   notaFiscal: string;
   etiquetaMae?: string | null;
   endereco?: string | null;
+  quantidade?: number;
+  etiquetado?: boolean;
+  [key: string]: any; // Allow additional properties to make it compatible with Volume
 }
 
 export const useVolumePreparation = () => {

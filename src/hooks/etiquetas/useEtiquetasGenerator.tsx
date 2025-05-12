@@ -59,7 +59,7 @@ export const useEtiquetasGenerator = () => {
         // Generate one master label for all volumes
         // Create a "master" volume that contains all the info
         const tipoEtiquetaMae = volumes[0].tipoEtiquetaMae || 'geral';
-        const masterVolume: Volume = {
+        const masterVolume = {
           ...volumes[0],
           id: etiquetaMaeId || `MASTER-${notaFiscal}-${Date.now()}`,
           etiquetaMae: etiquetaMaeId || `MASTER-${notaFiscal}-${Date.now()}`,
@@ -67,7 +67,7 @@ export const useEtiquetasGenerator = () => {
           tipoEtiquetaMae: tipoEtiquetaMae
         };
         
-        const preparedMasterVolume = prepareVolumeData(masterVolume, notaData);
+        const preparedMasterVolume = prepareVolumeData(masterVolume);
         
         // Create temporary element
         const tempEtiqueta = createTempElement(hiddenDiv);
@@ -94,7 +94,7 @@ export const useEtiquetasGenerator = () => {
       } else {
         // For each volume, render the etiqueta and add to PDF
         for (let i = 0; i < volumes.length; i++) {
-          const volumeData = prepareVolumeData(volumes[i], notaData);
+          const volumeData = prepareVolumeData(volumes[i]);
           
           // Create temporary element
           const tempEtiqueta = createTempElement(hiddenDiv);
