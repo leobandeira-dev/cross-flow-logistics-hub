@@ -35,7 +35,7 @@ export const useEtiquetasGenerator = () => {
 
     setIsGenerating(true);
     const totalVolumes = volumes.length;
-    const notaFiscal = volumes[0].notaFiscal;
+    const notaFiscal = volumes[0].notaFiscal || 'SEM-NF';
 
     try {
       // Create a hidden div to hold all etiquetas
@@ -126,7 +126,7 @@ export const useEtiquetasGenerator = () => {
       
       // Generate file name based on nota fiscal and type
       const typePrefix = tipo === 'mae' ? 'etiqueta_mae' : 'etiquetas_volume';
-      const fileName = `${typePrefix}_nf_${notaFiscal}_${new Date().toISOString().slice(0,10)}.pdf`;
+      const fileName = `${typePrefix}_${tipo === 'mae' ? etiquetaMaeId : 'nf_' + notaFiscal}_${new Date().toISOString().slice(0,10)}.pdf`;
       
       // Save the PDF
       pdf.save(fileName);

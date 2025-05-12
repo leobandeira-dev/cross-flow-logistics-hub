@@ -26,6 +26,7 @@ export const useGeracaoEtiquetas = () => {
       codigoONU: '',
       codigoRisco: '',
       etiquetaMaeId: '',
+      descricaoEtiquetaMae: '',
       pesoTotalBruto: ''
     }
   });
@@ -176,81 +177,123 @@ export const useGeracaoEtiquetas = () => {
   
   // Function to handle printing master etiqueta
   const handlePrintEtiquetaMae = (etiquetaMae: any) => {
-    // Get volumes with the same nota fiscal
-    const volumesNota = volumes.filter(vol => vol.notaFiscal === etiquetaMae.notaFiscal);
+    // For etiqueta mãe that's already created and possibly linked to volumes
+    const linkedVolumes = volumes.filter(vol => vol.etiquetaMae === etiquetaMae.id);
     
-    if (volumesNota.length === 0) {
-      toast({
-        title: "Erro",
-        description: "Nenhum volume encontrado para esta etiqueta mãe.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Prepare nota data
-    const notaData = {
-      fornecedor: volumesNota[0].remetente || notaFiscalData?.remetente || '',
-      destinatario: volumesNota[0].destinatario || notaFiscalData?.destinatario || '',
-      endereco: volumesNota[0].endereco || notaFiscalData?.endereco || '',
-      cidade: volumesNota[0].cidade || notaFiscalData?.cidade || '',
-      cidadeCompleta: volumesNota[0].cidadeCompleta || notaFiscalData?.cidadeCompleta || '',
-      uf: volumesNota[0].uf || notaFiscalData?.uf || '',
-      pesoTotal: volumesNota[0].pesoTotal || notaFiscalData?.pesoTotal || '',
-      chaveNF: volumesNota[0].chaveNF || notaFiscalData?.chaveNF || ''
+    // Prepare nota data based on the first linked volume or use generic info
+    const notaData = linkedVolumes.length > 0 ? {
+      fornecedor: linkedVolumes[0].remetente || '',
+      destinatario: linkedVolumes[0].destinatario || '',
+      endereco: linkedVolumes[0].endereco || '',
+      cidade: linkedVolumes[0].cidade || '',
+      cidadeCompleta: linkedVolumes[0].cidadeCompleta || '',
+      uf: linkedVolumes[0].uf || '',
+      pesoTotal: calculateTotalPeso(linkedVolumes),
+      chaveNF: linkedVolumes[0].chaveNF || ''
+    } : {
+      fornecedor: '',
+      destinatario: '',
+      endereco: '',
+      cidade: '',
+      cidadeCompleta: '',
+      uf: '',
+      pesoTotal: '0 Kg',
+      chaveNF: ''
     };
     
     // Get formato de impressão and layout style from form
     const formatoImpressao = form.getValues('formatoImpressao');
     const layoutStyle = form.getValues('layoutStyle') || 'standard';
     
+    // Create a dummy volume to represent the master etiqueta
+    const dummyMasterVolume: Volume[] = [{
+      id: etiquetaMae.id,
+      notaFiscal: linkedVolumes.length > 0 ? linkedVolumes[0].notaFiscal : '',
+      descricao: etiquetaMae.descricao || 'Etiqueta Mãe',
+      quantidade: linkedVolumes.length,
+      etiquetado: true,
+      remetente: notaData.fornecedor,
+      destinatario: notaData.destinatario,
+      endereco: notaData.endereco,
+      cidade: notaData.cidade,
+      cidadeCompleta: notaData.cidadeCompleta,
+      uf: notaData.uf,
+      pesoTotal: notaData.pesoTotal,
+      chaveNF: notaData.chaveNF,
+      etiquetaMae: etiquetaMae.id
+    }];
+    
     // Generate master etiqueta
-    generateEtiquetaMaePDF(volumesNota, notaData, formatoImpressao, etiquetaMae.id, layoutStyle as any);
+    generateEtiquetaMaePDF(dummyMasterVolume, notaData, formatoImpressao, etiquetaMae.id, layoutStyle as any);
     
     toast({
       title: "Etiqueta Mãe Gerada",
-      description: `Etiqueta mãe para NF ${etiquetaMae.notaFiscal} gerada com sucesso.`,
+      description: `Etiqueta mãe ${etiquetaMae.id} gerada com sucesso.`,
     });
+  };
+  
+  // Calculate total peso from a collection of volumes
+  const calculateTotalPeso = (volumes: Volume[]): string => {
+    if (volumes.length === 0) return '0 Kg';
+    
+    let totalPeso = 0;
+    
+    volumes.forEach(vol => {
+      const pesoStr = vol.pesoTotal || '0 Kg';
+      const pesoNum = parseFloat(pesoStr.replace(/[^0-9.,]/g, '').replace(',', '.'));
+      if (!isNaN(pesoNum)) {
+        totalPeso += pesoNum;
+      }
+    });
+    
+    return `${totalPeso.toFixed(2).replace('.', ',')} Kg`;
   };
   
   // Function to create a new master etiqueta
   const handleCreateEtiquetaMae = () => {
-    const notaFiscal = form.getValues('notaFiscal');
-    const etiquetaMaeId = form.getValues('etiquetaMaeId') || `MASTER-${notaFiscal}-${Date.now()}`;
+    const etiquetaMaeId = form.getValues('etiquetaMaeId') || `MASTER-${Date.now()}`;
+    const descricao = form.getValues('descricaoEtiquetaMae') || 'Etiqueta Mãe';
     
-    const volumesNota = volumes.filter(vol => vol.notaFiscal === notaFiscal);
-    
-    if (volumesNota.length === 0) {
-      toast({
-        title: "Erro",
-        description: "Nenhum volume encontrado para esta nota fiscal.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Prepare nota data
-    const notaData = {
-      fornecedor: volumesNota[0].remetente || notaFiscalData?.remetente || '',
-      destinatario: volumesNota[0].destinatario || notaFiscalData?.destinatario || '',
-      endereco: volumesNota[0].endereco || notaFiscalData?.endereco || '',
-      cidade: volumesNota[0].cidade || notaFiscalData?.cidade || '',
-      cidadeCompleta: volumesNota[0].cidadeCompleta || notaFiscalData?.cidadeCompleta || '',
-      uf: volumesNota[0].uf || notaFiscalData?.uf || '',
-      pesoTotal: volumesNota[0].pesoTotal || notaFiscalData?.pesoTotal || '',
-      chaveNF: volumesNota[0].chaveNF || notaFiscalData?.chaveNF || ''
-    };
+    // Create a standalone master etiqueta not attached to any nota fiscal
+    const dummyMasterVolume: Volume[] = [{
+      id: etiquetaMaeId,
+      notaFiscal: '',
+      descricao: descricao,
+      quantidade: 0,
+      etiquetado: true,
+      remetente: '',
+      destinatario: '',
+      endereco: '',
+      cidade: '',
+      cidadeCompleta: '',
+      uf: '',
+      pesoTotal: '0 Kg',
+      chaveNF: '',
+      etiquetaMae: etiquetaMaeId
+    }];
     
     // Get formato de impressão and layout style from form
     const formatoImpressao = form.getValues('formatoImpressao');
     const layoutStyle = form.getValues('layoutStyle') || 'standard';
     
+    // Empty nota data since this is a standalone master etiqueta
+    const emptyNotaData = {
+      fornecedor: '',
+      destinatario: '',
+      endereco: '',
+      cidade: '',
+      cidadeCompleta: '',
+      uf: '',
+      pesoTotal: '0 Kg',
+      chaveNF: ''
+    };
+    
     // Generate master etiqueta
-    generateEtiquetaMaePDF(volumesNota, notaData, formatoImpressao, etiquetaMaeId, layoutStyle as any);
+    generateEtiquetaMaePDF(dummyMasterVolume, emptyNotaData, formatoImpressao, etiquetaMaeId, layoutStyle as any);
     
     toast({
       title: "Etiqueta Mãe Criada",
-      description: `Nova etiqueta mãe para NF ${notaFiscal} criada com sucesso.`,
+      description: `Nova etiqueta mãe ${etiquetaMaeId} criada com sucesso.`,
     });
   };
 

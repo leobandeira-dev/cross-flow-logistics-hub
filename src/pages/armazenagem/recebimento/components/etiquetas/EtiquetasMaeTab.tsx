@@ -6,7 +6,7 @@ import { FileText, Printer, Link as LinkIcon } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import SearchFilter from '@/components/common/SearchFilter';
 import VinculoEtiquetaMaeDialog from './VinculoEtiquetaMaeDialog';
-import EtiquetaFormPanel from './EtiquetaFormPanel';
+import EtiquetaMaeFormPanel from './EtiquetaMaeFormPanel';
 import EtiquetaPreview from './EtiquetaPreview';
 import { UseFormReturn } from 'react-hook-form';
 
@@ -70,12 +70,9 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
       {form && handleCreateEtiquetaMae && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <EtiquetaFormPanel 
+            <EtiquetaMaeFormPanel 
               form={form}
-              tipoEtiqueta="mae"
-              isQuimico={false}
               handleCreateEtiquetaMae={handleCreateEtiquetaMae}
-              showEtiquetaMaeOption={true}
             />
           </div>
           <div>
@@ -93,7 +90,7 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
         </CardHeader>
         <CardContent>
           <SearchFilter 
-            placeholder="Buscar por ID, nota fiscal ou remetente..." 
+            placeholder="Buscar por ID ou descrição..." 
             filters={[
               {
                 name: "Status",
@@ -116,18 +113,18 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
           <DataTable
             columns={[
               { header: 'ID', accessor: 'id' },
-              { header: 'Nota Fiscal', accessor: 'notaFiscal' },
-              { header: 'Volumes', accessor: 'quantidadeVolumes' },
-              { header: 'Remetente', accessor: 'remetente' },
-              { header: 'Destinatário', accessor: 'destinatario' },
-              { header: 'Cidade/UF', accessor: 'cidade',
+              { header: 'Descrição', accessor: 'descricao', 
                 cell: (row) => (
-                  <div>
-                    {row.cidade} - <span className="font-bold">{row.uf}</span>
-                  </div>
+                  <div>{row.descricao || 'Etiqueta Mãe'}</div>
+                )
+              },
+              { header: 'Volumes', accessor: 'quantidadeVolumes',
+                cell: (row) => (
+                  <div>{row.quantidadeVolumes || '0'}</div>
                 )
               },
               { header: 'Data Criação', accessor: 'dataCriacao' },
+              { header: 'Status', accessor: 'status' },
               {
                 header: 'Ações',
                 accessor: 'actions',

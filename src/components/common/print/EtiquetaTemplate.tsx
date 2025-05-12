@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Biohazard, QrCode, Package, Truck } from 'lucide-react';
@@ -20,6 +19,8 @@ interface EtiquetaTemplateProps {
     codigoRisco?: string;
     etiquetaMae?: string;
     chaveNF?: string;
+    descricao?: string;
+    quantidade?: number;
   };
   volumeNumber: number;
   totalVolumes: number;
@@ -36,6 +37,9 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
     const isQuimico = volumeData.tipoVolume === 'quimico';
     const isMae = tipo === 'mae';
     const displayCidade = volumeData.cidadeCompleta || volumeData.cidade;
+    
+    // For etiqueta mãe with no linked volumes
+    const isStandaloneEtiquetaMae = isMae && !volumeData.notaFiscal;
     
     // Render the selected layout based on layoutStyle
     const renderLayout = () => {
@@ -139,6 +143,7 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
           <div className="mb-2 text-center bg-red-500 text-white p-1 rounded">
             <div className="font-bold text-lg">ETIQUETA MÃE</div>
             <div className="text-sm">ID: {volumeData.etiquetaMae}</div>
+            {volumeData.descricao && <div className="text-sm">{volumeData.descricao}</div>}
           </div>
         )}
         
@@ -148,13 +153,13 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
             {/* Remetente */}
             <div>
               <div className="text-xs text-gray-600">REMETENTE</div>
-              <div className="font-bold text-base">{volumeData.remetente}</div>
+              <div className="font-bold text-base">{volumeData.remetente || 'A definir'}</div>
             </div>
             
             {/* Nota Fiscal */}
             <div className="p-1 bg-gray-100">
               <div className="text-xs text-gray-600">NOTA FISCAL</div>
-              <div className="font-bold text-lg">{volumeData.notaFiscal}</div>
+              <div className="font-bold text-lg">{volumeData.notaFiscal || 'N/A'}</div>
             </div>
             
             {/* Tipo de Volume */}
@@ -171,18 +176,18 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
             {/* Destinatário - Highlighted like other important fields */}
             <div className="p-1 bg-gray-100">
               <div className="text-xs text-gray-600">DESTINATÁRIO</div>
-              <div className="font-bold text-base">{volumeData.destinatario}</div>
-              <div className="text-xs">{volumeData.endereco}</div>
+              <div className="font-bold text-base">{volumeData.destinatario || 'A definir'}</div>
+              <div className="text-xs">{volumeData.endereco || ''}</div>
             </div>
             
             {/* Destino */}
             <div className="flex space-x-2 items-center">
               <div className="flex-1">
                 <div className="text-xs text-gray-600">CIDADE</div>
-                <div className="font-bold text-base">{displayCidade}</div>
+                <div className="font-bold text-base">{displayCidade || 'A definir'}</div>
               </div>
               <div className="w-16 p-1 border border-black flex items-center justify-center">
-                <div className="font-bold text-xl">{volumeData.uf}</div>
+                <div className="font-bold text-xl">{volumeData.uf || '-'}</div>
               </div>
             </div>
             
@@ -197,16 +202,22 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
           <div className="flex flex-col space-y-3">
             {/* Cabeçalho - Número do Volume */}
             <div className="text-center bg-gray-100 p-2 border border-gray-300">
-              <div className="text-xs">ETIQUETA DE VOLUME</div>
-              <div className="font-bold text-xl">
-                {volumeNumber}/{totalVolumes}
-              </div>
+              <div className="text-xs">ETIQUETA DE {isMae ? 'MÃE' : 'VOLUME'}</div>
+              {isMae ? (
+                <div className="font-bold text-xl">
+                  Volumes: {volumeData.quantidade || '0'}
+                </div>
+              ) : (
+                <div className="font-bold text-xl">
+                  {volumeNumber}/{totalVolumes}
+                </div>
+              )}
             </div>
             
             {/* Peso total */}
             <div className="p-1 bg-gray-100">
               <div className="text-xs text-gray-600">PESO TOTAL</div>
-              <div className="font-bold text-base">{volumeData.pesoTotal}</div>
+              <div className="font-bold text-base">{volumeData.pesoTotal || '0 Kg'}</div>
             </div>
             
             {/* Informações de produto químico se aplicável */}
@@ -247,7 +258,7 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                 {isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
               </div>
               <div className="text-sm">
-                {isMae ? `ID: ${volumeData.etiquetaMae}` : `VOL: ${volumeNumber}/${totalVolumes}`}
+                {isMae ? `ID: ${volumeData.etiquetaMae}` : `VOL: ${volumeNumber}/{totalVolumes}`}
               </div>
             </div>
           </div>
@@ -279,7 +290,9 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                     <div className="text-xs font-bold">PRODUTO QUÍMICO</div>
                     <div className="text-xs">
                       <span className="font-bold">ONU:</span> {volumeData.codigoONU}
-                      <span className="font-bold ml-2">RISCO:</span> {volumeData.codigoRisco}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-bold">RISCO:</span> {volumeData.codigoRisco}
                     </div>
                   </div>
                 </div>
