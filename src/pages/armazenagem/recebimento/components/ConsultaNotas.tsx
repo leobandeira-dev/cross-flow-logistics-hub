@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -101,6 +100,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({
         uf: nota.destinatarioUF || '',
         // Weight information
         pesoTotal: nota.pesoTotalBruto || nota.pesoTotal || '',
+        pesoTotalBruto: nota.pesoTotalBruto || nota.pesoTotal || '',
         chaveNF: nota.chaveNF || '',
         // Additional recipient address details
         enderecoDestinatario: nota.destinatarioEndereco || '',

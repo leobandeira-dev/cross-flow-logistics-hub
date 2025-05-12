@@ -1,5 +1,4 @@
 
-
 /**
  * Utility functions for extracting data from XML for Nota Fiscal
  */
