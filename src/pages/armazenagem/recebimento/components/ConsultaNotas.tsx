@@ -33,9 +33,13 @@ const notasFilterConfig = [
 
 interface ConsultaNotasProps {
   onPrintClick: (notaId: string) => void;
+  isGeneratingDANFE?: boolean;
 }
 
-const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
+const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ 
+  onPrintClick,
+  isGeneratingDANFE = false
+}) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
@@ -85,7 +89,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       state: {
         notaFiscal: nota.id,
         numeroPedido: nota.numeroPedido || '',
-        volumesTotal: nota.volumesTotal || '',
+        volumesTotal: nota.volumesTotal || nota.vol?.qVol || '',
         // Sender data
         remetente: nota.fornecedor || '',
         emitente: nota.emitenteRazaoSocial || '',
@@ -155,9 +159,10 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
                       size="sm"
                       variant="outline"
                       onClick={() => onPrintClick(row.id)}
+                      disabled={isGeneratingDANFE}
                     >
                       <Printer className="h-4 w-4 mr-1" />
-                      DANFE
+                      {isGeneratingDANFE ? 'Gerando...' : 'DANFE'}
                     </Button>
                     <Button
                       size="sm"

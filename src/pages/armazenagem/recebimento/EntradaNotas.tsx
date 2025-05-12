@@ -8,10 +8,13 @@ import ConsultaNotas from './components/ConsultaNotas';
 import NotaPrintTemplate from './components/NotaPrintTemplate';
 import DANFELayout from './components/print/DANFELayout';
 import { notasFiscais } from './data/mockData';
+import { generateDANFEFromXML, createPDFDataUrl } from './utils/danfeAPI';
+import { toast } from '@/hooks/use-toast';
 
 const EntradaNotas: React.FC = () => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedNota, setSelectedNota] = useState<string>('');
+  const [isGeneratingDANFE, setIsGeneratingDANFE] = useState(false);
   const notaFiscalRef = useRef<HTMLDivElement>(null);
   const danfeRef = useRef<HTMLDivElement>(null);
   const simplifiedDanfeRef = useRef<HTMLDivElement>(null);
@@ -30,8 +33,44 @@ const EntradaNotas: React.FC = () => {
     }
   }, [selectedNota]);
   
-  const handlePrintClick = (notaId: string) => {
+  const handlePrintClick = async (notaId: string) => {
     setSelectedNota(notaId);
+    
+    // Obter a nota fiscal correspondente
+    const nota = notasFiscais.find(nota => nota.id === notaId);
+    
+    // Se tiver conteúdo XML, tentar gerar via API
+    if (nota && nota.xmlContent) {
+      try {
+        setIsGeneratingDANFE(true);
+        toast({
+          title: "Gerando DANFE",
+          description: "Aguarde enquanto o DANFE está sendo gerado...",
+        });
+        
+        // Gerar DANFE via API
+        const pdfBase64 = await generateDANFEFromXML(nota.xmlContent);
+        
+        if (pdfBase64) {
+          // Abrir PDF em nova janela
+          const dataUrl = createPDFDataUrl(pdfBase64);
+          window.open(dataUrl, '_blank');
+          
+          toast({
+            title: "DANFE gerado",
+            description: "O DANFE foi aberto em uma nova janela.",
+          });
+          return; // Se gerou com sucesso, não precisa abrir o modal
+        }
+      } catch (error) {
+        console.error("Erro ao gerar DANFE via API:", error);
+        // Continue para abrir o modal de impressão como fallback
+      } finally {
+        setIsGeneratingDANFE(false);
+      }
+    }
+    
+    // Fallback: abrir o modal de impressão com o DANFE renderizado
     setPrintModalOpen(true);
   };
 
@@ -102,7 +141,10 @@ const EntradaNotas: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="consultar">
-          <ConsultaNotas onPrintClick={handlePrintClick} />
+          <ConsultaNotas 
+            onPrintClick={handlePrintClick}
+            isGeneratingDANFE={isGeneratingDANFE}
+          />
         </TabsContent>
       </Tabs>
       
