@@ -58,11 +58,10 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
               data: dataEmissao,
               dataHoraEmissao: extractedData.dataHoraEmissao || "",
               valor: valorTotal,
-              volumesTotal: extractedData.volumesTotal || "",
               pesoTotalBruto: extractedData.pesoTotalBruto || "",
               pesoTotal: extractedData.pesoTotalBruto || "",
               chaveNF: extractedData.chaveNF || "",
-              status: 'pending', // Fixed: changed from 'aguardando' to 'pending'
+              status: 'pending', 
               xmlContent: content // Store XML content for DANFE generation
             };
             
