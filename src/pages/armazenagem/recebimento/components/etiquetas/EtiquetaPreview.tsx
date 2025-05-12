@@ -128,26 +128,27 @@ const renderStandardPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolea
   </div>
 );
 
-// Helper function to render the compact layout preview
+// Helper function to render the compact layout preview - Fixed layout conflicts
 const renderCompactPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
   <div className={`p-2 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-gray-500 bg-gray-50'}`}>
-    <div className="text-xs grid grid-cols-3 gap-1">
-      <div className="col-span-1">
-        <QrCode size={30} className="mx-auto mb-1" />
+    <div className="flex items-center">
+      <div className="flex-shrink-0 mr-2">
+        <QrCode size={30} className="mx-auto" />
       </div>
-      <div className="col-span-2">
+      <div className="flex-grow min-w-0">
         {tipoEtiqueta === 'mae' ? (
-          <p className="font-bold text-red-600 text-sm">ETIQUETA MÃE</p>
+          <p className="font-bold text-red-600 text-sm truncate">ETIQUETA MÃE</p>
         ) : isQuimico ? (
           <div className="flex items-center">
-            <Biohazard size={16} className="mr-1 text-red-500" />
-            <span className="font-bold text-red-500 text-sm">QUÍMICO</span>
+            <Biohazard size={16} className="mr-1 text-red-500 flex-shrink-0" />
+            <span className="font-bold text-red-500 text-sm truncate">QUÍMICO</span>
           </div>
         ) : (
-          <p className="font-bold text-sm">VOLUME 1/2</p>
+          <p className="font-bold text-sm truncate">VOLUME 1/2</p>
         )}
-        <p className="text-xs mt-1">Braspress</p>
+        <p className="text-xs">Braspress</p>
         <p className="text-xs">Layout Compacto</p>
+        <p className="text-xs font-medium text-blue-600 truncate">DESTINATÁRIO</p>
       </div>
     </div>
   </div>
@@ -167,6 +168,7 @@ const renderModernPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean)
       <QrCode size={30} className="mx-auto mb-1" />
       <p className="text-xs font-bold">Jadlog/UPS</p>
       <p className="text-xs">Layout Moderno</p>
+      <p className="text-xs font-medium text-blue-600 mt-1">DESTINATÁRIO</p>
     </div>
   </div>
 );

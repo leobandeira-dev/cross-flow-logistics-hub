@@ -18,7 +18,7 @@ import { volumesParaEtiquetar, etiquetasMae } from './components/etiquetas/mockD
 
 const GeracaoEtiquetas: React.FC = () => {
   const location = useLocation();
-  const notaFiscalData = location.state;
+  const notaFiscalData = location.state || {};
   const [activeTab, setActiveTab] = useState('gerar');
   const [tipoEtiqueta, setTipoEtiqueta] = useState<'volume' | 'mae'>('volume');
   const [generatedVolumes, setGeneratedVolumes] = useState<Volume[]>([]);
@@ -46,7 +46,17 @@ const GeracaoEtiquetas: React.FC = () => {
   useEffect(() => {
     // If nota fiscal data is provided, pre-fill the form
     if (notaFiscalData?.notaFiscal) {
+      // Set all the available data from the nota fiscal
       form.setValue('notaFiscal', notaFiscalData.notaFiscal);
+      form.setValue('volumesTotal', notaFiscalData.volumesTotal || '');
+      form.setValue('pesoTotalBruto', notaFiscalData.pesoTotal || '');
+      
+      console.log("Nota fiscal data received:", notaFiscalData);
+      
+      // If volumes total is provided, automatically generate volumes
+      if (notaFiscalData.volumesTotal && parseInt(notaFiscalData.volumesTotal) > 0) {
+        setTimeout(() => handleGenerateVolumes(), 300);
+      }
     }
   }, [notaFiscalData, form]);
 
@@ -54,7 +64,7 @@ const GeracaoEtiquetas: React.FC = () => {
   const handleGenerateVolumes = () => {
     const notaFiscal = form.getValues('notaFiscal');
     const volumesTotal = parseInt(form.getValues('volumesTotal'), 10);
-    const pesoTotalBruto = form.getValues('pesoTotalBruto') || '0,00 Kg';
+    const pesoTotalBruto = form.getValues('pesoTotalBruto') || notaFiscalData?.pesoTotal || '0,00 Kg';
     
     if (!notaFiscal) {
       toast({
@@ -74,7 +84,7 @@ const GeracaoEtiquetas: React.FC = () => {
       return;
     }
     
-    // Generate new volumes based on the quantity
+    // Generate new volumes based on the quantity, using data from nota fiscal if available
     const newVolumes: Volume[] = [];
     for (let i = 1; i <= volumesTotal; i++) {
       const newVolume: Volume = {
@@ -86,14 +96,15 @@ const GeracaoEtiquetas: React.FC = () => {
         tipoVolume: form.getValues('tipoVolume') as 'geral' | 'quimico',
         codigoONU: form.getValues('codigoONU') || '',
         codigoRisco: form.getValues('codigoRisco') || '',
-        remetente: "A definir",
-        destinatario: "A definir",
-        endereco: "A definir",
-        cidade: "A definir",
-        cidadeCompleta: "A definir",
-        uf: "UF",
+        // Use data from the nota fiscal if available
+        remetente: notaFiscalData?.remetente || "A definir",
+        destinatario: notaFiscalData?.destinatario || "A definir",
+        endereco: notaFiscalData?.endereco || "A definir",
+        cidade: notaFiscalData?.cidade || "A definir",
+        cidadeCompleta: notaFiscalData?.cidadeCompleta || "A definir",
+        uf: notaFiscalData?.uf || "UF",
         pesoTotal: pesoTotalBruto,
-        chaveNF: '' // Add empty chaveNF field
+        chaveNF: notaFiscalData?.chaveNF || ''
       };
       newVolumes.push(newVolume);
     }
@@ -121,14 +132,14 @@ const GeracaoEtiquetas: React.FC = () => {
     
     // Prepare nota data for the etiquetas
     const notaData = {
-      fornecedor: volume.remetente || '',
-      destinatario: volume.destinatario || '',
-      endereco: volume.endereco || '',
-      cidade: volume.cidade || '',
-      cidadeCompleta: volume.cidadeCompleta || '',
-      uf: volume.uf || '',
-      pesoTotal: volume.pesoTotal || '',
-      chaveNF: volume.chaveNF || ''
+      fornecedor: volume.remetente || notaFiscalData?.remetente || '',
+      destinatario: volume.destinatario || notaFiscalData?.destinatario || '',
+      endereco: volume.endereco || notaFiscalData?.endereco || '',
+      cidade: volume.cidade || notaFiscalData?.cidade || '',
+      cidadeCompleta: volume.cidadeCompleta || notaFiscalData?.cidadeCompleta || '',
+      uf: volume.uf || notaFiscalData?.uf || '',
+      pesoTotal: volume.pesoTotal || notaFiscalData?.pesoTotal || '',
+      chaveNF: volume.chaveNF || notaFiscalData?.chaveNF || ''
     };
     
     // Get formato de impressão and layout style from form
@@ -164,14 +175,14 @@ const GeracaoEtiquetas: React.FC = () => {
     const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
     
     const notaData = {
-      fornecedor: volume.remetente || '',
-      destinatario: volume.destinatario || '',
-      endereco: volume.endereco || '',
-      cidade: volume.cidade || '',
-      cidadeCompleta: volume.cidadeCompleta || '',
-      uf: volume.uf || '',
-      pesoTotal: volume.pesoTotal || '',
-      chaveNF: volume.chaveNF || ''
+      fornecedor: volume.remetente || notaFiscalData?.remetente || '',
+      destinatario: volume.destinatario || notaFiscalData?.destinatario || '',
+      endereco: volume.endereco || notaFiscalData?.endereco || '',
+      cidade: volume.cidade || notaFiscalData?.cidade || '',
+      cidadeCompleta: volume.cidadeCompleta || notaFiscalData?.cidadeCompleta || '',
+      uf: volume.uf || notaFiscalData?.uf || '',
+      pesoTotal: volume.pesoTotal || notaFiscalData?.pesoTotal || '',
+      chaveNF: volume.chaveNF || notaFiscalData?.chaveNF || ''
     };
     
     // Get formato de impressão and layout style from form
@@ -202,14 +213,14 @@ const GeracaoEtiquetas: React.FC = () => {
     
     // Prepare nota data
     const notaData = {
-      fornecedor: volumesNota[0].remetente || '',
-      destinatario: volumesNota[0].destinatario || '',
-      endereco: volumesNota[0].endereco || '',
-      cidade: volumesNota[0].cidade || '',
-      cidadeCompleta: volumesNota[0].cidadeCompleta || '',
-      uf: volumesNota[0].uf || '',
-      pesoTotal: volumesNota[0].pesoTotal || '',
-      chaveNF: volumesNota[0].chaveNF || ''
+      fornecedor: volumesNota[0].remetente || notaFiscalData?.remetente || '',
+      destinatario: volumesNota[0].destinatario || notaFiscalData?.destinatario || '',
+      endereco: volumesNota[0].endereco || notaFiscalData?.endereco || '',
+      cidade: volumesNota[0].cidade || notaFiscalData?.cidade || '',
+      cidadeCompleta: volumesNota[0].cidadeCompleta || notaFiscalData?.cidadeCompleta || '',
+      uf: volumesNota[0].uf || notaFiscalData?.uf || '',
+      pesoTotal: volumesNota[0].pesoTotal || notaFiscalData?.pesoTotal || '',
+      chaveNF: volumesNota[0].chaveNF || notaFiscalData?.chaveNF || ''
     };
     
     // Get formato de impressão and layout style from form
@@ -243,14 +254,14 @@ const GeracaoEtiquetas: React.FC = () => {
     
     // Prepare nota data
     const notaData = {
-      fornecedor: volumesNota[0].remetente || '',
-      destinatario: volumesNota[0].destinatario || '',
-      endereco: volumesNota[0].endereco || '',
-      cidade: volumesNota[0].cidade || '',
-      cidadeCompleta: volumesNota[0].cidadeCompleta || '',
-      uf: volumesNota[0].uf || '',
-      pesoTotal: volumesNota[0].pesoTotal || '',
-      chaveNF: volumesNota[0].chaveNF || ''
+      fornecedor: volumesNota[0].remetente || notaFiscalData?.remetente || '',
+      destinatario: volumesNota[0].destinatario || notaFiscalData?.destinatario || '',
+      endereco: volumesNota[0].endereco || notaFiscalData?.endereco || '',
+      cidade: volumesNota[0].cidade || notaFiscalData?.cidade || '',
+      cidadeCompleta: volumesNota[0].cidadeCompleta || notaFiscalData?.cidadeCompleta || '',
+      uf: volumesNota[0].uf || notaFiscalData?.uf || '',
+      pesoTotal: volumesNota[0].pesoTotal || notaFiscalData?.pesoTotal || '',
+      chaveNF: volumesNota[0].chaveNF || notaFiscalData?.chaveNF || ''
     };
     
     // Get formato de impressão and layout style from form
