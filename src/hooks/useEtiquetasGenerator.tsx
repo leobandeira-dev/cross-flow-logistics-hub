@@ -1,7 +1,6 @@
 
 import React, { useRef, useState } from 'react';
 import { toast } from "@/hooks/use-toast";
-import { usePDFGenerator } from '@/components/common/print/usePDFGenerator';
 import EtiquetaTemplate from '@/components/common/print/EtiquetaTemplate';
 
 interface VolumeData {
@@ -10,6 +9,9 @@ interface VolumeData {
   descricao: string;
   quantidade: number;
   etiquetado: boolean;
+  tipoVolume?: 'geral' | 'quimico';
+  codigoONU?: string;
+  codigoRisco?: string;
   // Extended data needed for labels
   remetente?: string;
   destinatario?: string;
@@ -32,17 +34,24 @@ export const useEtiquetasGenerator = () => {
   const prepareVolumeData = (volume: VolumeData, notaData: any = {}): VolumeData => {
     return {
       ...volume,
-      remetente: notaData.fornecedor || "REMETENTE NÃO INFORMADO",
-      destinatario: notaData.destinatario || "DESTINATÁRIO NÃO INFORMADO",
-      endereco: notaData.endereco || "ENDEREÇO NÃO INFORMADO",
-      cidade: notaData.cidade || "CIDADE NÃO INFORMADA",
-      uf: notaData.uf || "UF",
-      pesoTotal: notaData.pesoTotal || "0,00 Kg"
+      remetente: notaData.fornecedor || volume.remetente || "REMETENTE NÃO INFORMADO",
+      destinatario: notaData.destinatario || volume.destinatario || "DESTINATÁRIO NÃO INFORMADO",
+      endereco: notaData.endereco || volume.endereco || "ENDEREÇO NÃO INFORMADO",
+      cidade: notaData.cidade || volume.cidade || "CIDADE NÃO INFORMADA",
+      uf: notaData.uf || volume.uf || "UF",
+      pesoTotal: notaData.pesoTotal || volume.pesoTotal || "0,00 Kg",
+      tipoVolume: volume.tipoVolume || 'geral',
+      codigoONU: volume.codigoONU || '',
+      codigoRisco: volume.codigoRisco || ''
     };
   };
 
   // Generate and download the PDF with all labels
-  const generateEtiquetasPDF = async (volumes: VolumeData[], notaData: any = {}) => {
+  const generateEtiquetasPDF = async (
+    volumes: VolumeData[], 
+    notaData: any = {}, 
+    formatoImpressao: string = '50x100'
+  ) => {
     if (!volumes || volumes.length === 0) {
       toast({
         title: "Erro",
@@ -63,12 +72,31 @@ export const useEtiquetasGenerator = () => {
       hiddenDiv.style.left = '-9999px';
       document.body.appendChild(hiddenDiv);
       
+      // Configure PDF format based on user selection
+      let pdfFormat: string;
+      let pdfOrientation: 'portrait' | 'landscape';
+      let etiquetaFormat: 'small' | 'a4';
+      
+      switch (formatoImpressao) {
+        case 'a4':
+          pdfFormat = 'a4';
+          pdfOrientation = 'landscape';
+          etiquetaFormat = 'a4';
+          break;
+        case '50x100':
+        default:
+          pdfFormat = [100, 50]; // width x height in mm
+          pdfOrientation = 'landscape';
+          etiquetaFormat = 'small';
+          break;
+      }
+      
       // Create a PDF document
       const { jsPDF } = await import('jspdf');
       const pdf = new jsPDF({
-        orientation: 'portrait',
+        orientation: pdfOrientation,
         unit: 'mm',
-        format: 'a6' // Small format suitable for labels
+        format: pdfFormat
       });
       
       // For each volume, render the etiqueta and add to PDF
@@ -89,6 +117,7 @@ export const useEtiquetasGenerator = () => {
             volumeData={volumeData as any}
             volumeNumber={i + 1}
             totalVolumes={totalVolumes}
+            format={etiquetaFormat}
           />
         );
         

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { FileText, Barcode, Printer, Search } from 'lucide-react';
+import { FileText, Barcode, Printer, Search, Biohazard } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
@@ -28,7 +28,8 @@ const volumesParaEtiquetar = [
     endereco: 'Rua das Indústrias, 1000 - São Paulo/SP',
     cidade: 'SAO',
     uf: 'SP',
-    pesoTotal: '25,5 Kg'
+    pesoTotal: '25,5 Kg',
+    tipoVolume: 'geral' as 'geral' | 'quimico'
   },
   { 
     id: 'VOL-2023-002', 
@@ -41,7 +42,8 @@ const volumesParaEtiquetar = [
     endereco: 'Rua das Indústrias, 1000 - São Paulo/SP',
     cidade: 'SAO',
     uf: 'SP',
-    pesoTotal: '25,5 Kg'
+    pesoTotal: '25,5 Kg',
+    tipoVolume: 'geral' as 'geral' | 'quimico'
   },
   { 
     id: 'VOL-2023-003', 
@@ -54,7 +56,10 @@ const volumesParaEtiquetar = [
     endereco: 'Av. Principal, 500 - Rio de Janeiro/RJ',
     cidade: 'RIO',
     uf: 'RJ',
-    pesoTotal: '12,3 Kg'
+    pesoTotal: '12,3 Kg',
+    tipoVolume: 'quimico' as 'geral' | 'quimico',
+    codigoONU: '1203',
+    codigoRisco: '33'
   },
 ];
 
@@ -62,7 +67,18 @@ const GeracaoEtiquetas: React.FC = () => {
   const location = useLocation();
   const notaFiscalData = location.state;
   
-  const form = useForm();
+  const form = useForm({
+    defaultValues: {
+      notaFiscal: '',
+      tipoEtiqueta: '',
+      volumesTotal: '',
+      formatoImpressao: '50x100',
+      tipoVolume: 'geral',
+      codigoONU: '',
+      codigoRisco: ''
+    }
+  });
+  
   const { generateEtiquetasPDF, isGenerating } = useEtiquetasGenerator();
   
   useEffect(() => {
@@ -91,8 +107,11 @@ const GeracaoEtiquetas: React.FC = () => {
       pesoTotal: volume.pesoTotal
     };
     
+    // Get formato de impressão from form
+    const formatoImpressao = form.getValues('formatoImpressao');
+    
     // Generate etiquetas for all volumes of this nota fiscal
-    generateEtiquetasPDF(volumesNota, notaData);
+    generateEtiquetasPDF(volumesNota, notaData, formatoImpressao);
     
     // Mark the volume as etiquetado in our UI (for demonstration purposes)
     // In a real application, you would update this in the database
@@ -116,13 +135,20 @@ const GeracaoEtiquetas: React.FC = () => {
       pesoTotal: volume.pesoTotal
     };
     
-    generateEtiquetasPDF(volumesNota, notaData);
+    // Get formato de impressão from form
+    const formatoImpressao = form.getValues('formatoImpressao');
+    
+    generateEtiquetasPDF(volumesNota, notaData, formatoImpressao);
     
     toast({
       title: "Etiquetas Reimpressas",
       description: `Etiquetas para NF ${volume.notaFiscal} reimpressas com sucesso.`,
     });
   };
+
+  // Show/hide chemical product fields based on type selection
+  const watchTipoVolume = form.watch('tipoVolume');
+  const isQuimico = watchTipoVolume === 'quimico';
 
   return (
     <MainLayout title="Geração de Etiquetas">
@@ -219,16 +245,69 @@ const GeracaoEtiquetas: React.FC = () => {
                                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
                                     {...field}
                                   >
-                                    <option value="">Selecione</option>
-                                    <option value="10x15">10x15 cm</option>
-                                    <option value="15x20">15x20 cm</option>
-                                    <option value="a4">Folha A4</option>
+                                    <option value="50x100">50x100 mm (Padrão)</option>
+                                    <option value="a4">A4 Horizontal</option>
                                   </select>
                                 </FormControl>
                               </FormItem>
                             )}
                           />
                         </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <FormField
+                            control={form.control}
+                            name="tipoVolume"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Tipo de Volume</FormLabel>
+                                <FormControl>
+                                  <select 
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+                                    {...field}
+                                  >
+                                    <option value="geral">Carga Geral</option>
+                                    <option value="quimico">Produto Químico</option>
+                                  </select>
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        {isQuimico && (
+                          <div className="md:col-span-1 flex items-center gap-2">
+                            <div className="flex-1">
+                              <FormField
+                                control={form.control}
+                                name="codigoONU"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Código ONU</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Ex: 1203" {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <FormField
+                                control={form.control}
+                                name="codigoRisco"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Código de Risco</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Ex: 33" {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex justify-end gap-2">
@@ -253,6 +332,18 @@ const GeracaoEtiquetas: React.FC = () => {
                       { header: 'ID', accessor: 'id' },
                       { header: 'Nota Fiscal', accessor: 'notaFiscal' },
                       { header: 'Descrição', accessor: 'descricao' },
+                      { 
+                        header: 'Tipo', 
+                        accessor: 'tipoVolume',
+                        cell: (row) => {
+                          return row.tipoVolume === 'quimico' ? 
+                            <div className="flex items-center">
+                              <Biohazard size={16} className="text-red-500 mr-1" />
+                              <span>Químico</span>
+                            </div> : 
+                            <span>Carga Geral</span>;
+                        }
+                      },
                       { header: 'Quantidade', accessor: 'quantidade' },
                       { 
                         header: 'Status', 
@@ -298,10 +389,20 @@ const GeracaoEtiquetas: React.FC = () => {
                   <CardTitle className="text-lg">Modelo de Etiqueta</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="border rounded-md p-4 h-48 flex items-center justify-center">
+                  <div className="border rounded-md p-4 h-auto flex items-center justify-center">
                     <div className="text-center">
-                      <Barcode size={40} className="mx-auto mb-2 text-cross-blue" />
-                      <p className="text-sm text-gray-500">Selecione um tipo de etiqueta para visualizar o modelo</p>
+                      {isQuimico ? (
+                        <div className="p-3 border-2 border-yellow-500 rounded-md bg-yellow-50">
+                          <Biohazard size={40} className="mx-auto mb-2 text-red-500" />
+                          <p className="font-bold text-red-500">PRODUTO QUÍMICO</p>
+                          <p className="text-sm mt-2">ONU / Risco exibido na etiqueta</p>
+                        </div>
+                      ) : (
+                        <>
+                          <Barcode size={40} className="mx-auto mb-2 text-cross-blue" />
+                          <p className="text-sm text-gray-500">Etiqueta para carga geral</p>
+                        </>
+                      )}
                     </div>
                   </div>
                   
@@ -310,9 +411,16 @@ const GeracaoEtiquetas: React.FC = () => {
                     <ul className="text-sm space-y-1">
                       <li>• ID único do volume</li>
                       <li>• Número da nota fiscal</li>
-                      <li>• Código de barras</li>
-                      <li>• Origem/Destino</li>
-                      <li>• Data de recebimento</li>
+                      <li>• Remetente / Destinatário</li>
+                      <li>• Cidade (abreviada) / UF</li>
+                      <li>• Tipo de volume (Geral / Químico)</li>
+                      {isQuimico && (
+                        <>
+                          <li>• Código ONU</li>
+                          <li>• Código de Risco</li>
+                          <li>• Simbologia de Perigo</li>
+                        </>
+                      )}
                     </ul>
                   </div>
                   
@@ -348,6 +456,13 @@ const GeracaoEtiquetas: React.FC = () => {
                     ]
                   },
                   {
+                    name: "Tipo",
+                    options: [
+                      { label: "Carga Geral", value: "geral" },
+                      { label: "Produto Químico", value: "quimico" }
+                    ]
+                  },
+                  {
                     name: "Período",
                     options: [
                       { label: "Hoje", value: "today" },
@@ -363,6 +478,18 @@ const GeracaoEtiquetas: React.FC = () => {
                   { header: 'ID', accessor: 'id' },
                   { header: 'Nota Fiscal', accessor: 'notaFiscal' },
                   { header: 'Descrição', accessor: 'descricao' },
+                  { 
+                    header: 'Tipo', 
+                    accessor: 'tipoVolume',
+                    cell: (row) => {
+                      return row.tipoVolume === 'quimico' ? 
+                        <div className="flex items-center">
+                          <Biohazard size={16} className="text-red-500 mr-1" />
+                          <span>Químico</span>
+                        </div> : 
+                        <span>Carga Geral</span>;
+                    }
+                  },
                   { header: 'Quantidade', accessor: 'quantidade' },
                   { 
                     header: 'Status', 

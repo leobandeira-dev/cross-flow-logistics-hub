@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
+import { Biohazard } from 'lucide-react';
 
 interface EtiquetaTemplateProps {
   volumeData: {
@@ -12,69 +13,116 @@ interface EtiquetaTemplateProps {
     cidade: string;
     uf: string;
     pesoTotal: string;
+    tipoVolume?: 'geral' | 'quimico';
+    codigoONU?: string;
+    codigoRisco?: string;
   };
   volumeNumber: number;
   totalVolumes: number;
+  format?: 'small' | 'a4';
 }
 
 const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>(
-  ({ volumeData, volumeNumber, totalVolumes }, ref) => {
+  ({ volumeData, volumeNumber, totalVolumes, format = 'small' }, ref) => {
+    // Define width based on format
+    const isA4 = format === 'a4';
+    const width = isA4 ? 'max-w-[800px]' : 'max-w-[500px]';
+    const isQuimico = volumeData.tipoVolume === 'quimico';
+    
     return (
       <div 
         ref={ref}
-        className="etiqueta-container bg-white p-4 border border-gray-300 w-full max-w-[380px]"
-        style={{ pageBreakInside: 'avoid', pageBreakAfter: 'always' }}
+        className={`etiqueta-container bg-white p-4 border border-gray-300 w-full ${width}`}
+        style={{ 
+          pageBreakInside: 'avoid', 
+          pageBreakAfter: 'always',
+        }}
       >
         <Card className="border-2 border-black p-3">
-          {/* Cabeçalho */}
-          <div className="border-b-2 border-black pb-2 mb-2">
-            <div className="flex justify-between items-center">
-              <div className="text-xs">ETIQUETA DE VOLUME</div>
-              <div className="font-bold text-lg">
-                {volumeNumber}/{totalVolumes}
+          <div className="grid grid-cols-3 gap-4">
+            {/* Coluna 1: Dados do remetente e Nota Fiscal */}
+            <div className="flex flex-col space-y-3">
+              {/* Remetente */}
+              <div>
+                <div className="text-xs text-gray-600">REMETENTE</div>
+                <div className="font-bold text-base">{volumeData.remetente}</div>
+              </div>
+              
+              {/* Nota Fiscal */}
+              <div className="p-1 bg-gray-100">
+                <div className="text-xs text-gray-600">NOTA FISCAL</div>
+                <div className="font-bold text-lg">{volumeData.notaFiscal}</div>
+              </div>
+              
+              {/* Tipo de Volume */}
+              <div className="p-1 bg-gray-100">
+                <div className="text-xs text-gray-600">TIPO DE VOLUME</div>
+                <div className="font-bold text-base">
+                  {isQuimico ? 'QUÍMICO' : 'CARGA GERAL'}
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Remetente */}
-          <div className="mb-3">
-            <div className="text-xs text-gray-600">REMETENTE</div>
-            <div className="font-bold text-base">{volumeData.remetente}</div>
-          </div>
-          
-          {/* Nota Fiscal */}
-          <div className="mb-3 p-1 bg-gray-100">
-            <div className="text-xs text-gray-600">NOTA FISCAL</div>
-            <div className="font-bold text-lg">{volumeData.notaFiscal}</div>
-          </div>
-          
-          {/* Destinatário */}
-          <div className="mb-3">
-            <div className="text-xs text-gray-600">DESTINATÁRIO</div>
-            <div className="text-sm">{volumeData.destinatario}</div>
-            <div className="text-xs">{volumeData.endereco}</div>
-          </div>
-          
-          {/* Destino */}
-          <div className="flex justify-between mb-3">
-            <div className="flex-1 mr-2">
-              <div className="text-xs text-gray-600">CIDADE</div>
-              <div className="font-bold text-base">{volumeData.cidade}</div>
+            
+            {/* Coluna 2: Destinatário e código do volume */}
+            <div className="flex flex-col space-y-3">
+              {/* Destinatário */}
+              <div>
+                <div className="text-xs text-gray-600">DESTINATÁRIO</div>
+                <div className="text-sm">{volumeData.destinatario}</div>
+                <div className="text-xs">{volumeData.endereco}</div>
+              </div>
+              
+              {/* Destino */}
+              <div className="flex space-x-2 items-center">
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600">CIDADE</div>
+                  <div className="font-bold text-base">{volumeData.cidade}</div>
+                </div>
+                <div className="w-16 p-1 border border-black flex items-center justify-center">
+                  <div className="font-bold text-xl">{volumeData.uf}</div>
+                </div>
+              </div>
+              
+              {/* Código do volume */}
+              <div className="pt-2 text-center">
+                <div className="font-mono font-bold">{volumeData.id}</div>
+              </div>
             </div>
-            <div className="w-16 p-1 border border-black flex items-center justify-center">
-              <div className="font-bold text-xl">{volumeData.uf}</div>
+            
+            {/* Coluna 3: Número de volume e informações químicas */}
+            <div className="flex flex-col space-y-3">
+              {/* Cabeçalho - Número do Volume */}
+              <div className="text-center bg-gray-100 p-2 border border-gray-300">
+                <div className="text-xs">ETIQUETA DE VOLUME</div>
+                <div className="font-bold text-xl">
+                  {volumeNumber}/{totalVolumes}
+                </div>
+              </div>
+              
+              {/* Peso total */}
+              <div className="p-1 bg-gray-100">
+                <div className="text-xs text-gray-600">PESO TOTAL</div>
+                <div className="font-bold text-base">{volumeData.pesoTotal}</div>
+              </div>
+              
+              {/* Informações de produto químico se aplicável */}
+              {isQuimico && (
+                <div className="bg-yellow-100 p-2 border-2 border-yellow-500 rounded">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-bold">PRODUTO QUÍMICO</div>
+                      <div className="text-sm">
+                        <span className="font-bold">ONU:</span> {volumeData.codigoONU}
+                      </div>
+                      <div className="text-sm">
+                        <span className="font-bold">RISCO:</span> {volumeData.codigoRisco}
+                      </div>
+                    </div>
+                    <Biohazard size={40} className="text-red-600" />
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-          
-          {/* Peso total */}
-          <div className="p-1 bg-gray-100">
-            <div className="text-xs text-gray-600">PESO TOTAL</div>
-            <div className="font-bold text-base">{volumeData.pesoTotal}</div>
-          </div>
-          
-          {/* Código do volume */}
-          <div className="mt-3 pt-2 border-t-2 border-black text-center">
-            <div className="font-mono font-bold">{volumeData.id}</div>
           </div>
         </Card>
       </div>
