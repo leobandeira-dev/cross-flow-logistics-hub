@@ -2,14 +2,13 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Printer, FileText, Download, Tag } from 'lucide-react';
+import { Printer } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import { notasFiscais } from '../data/mockData';
 import { generateDANFEFromXML, createPDFDataUrl } from '../utils/danfeAPI';
 import { toast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 interface ConsultaNotasProps {
   onPrintClick: (notaId: string) => void;
@@ -17,8 +16,6 @@ interface ConsultaNotasProps {
 
 const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const [loadingDanfe, setLoadingDanfe] = useState<string | null>(null);
-  const [selectedNotaId, setSelectedNotaId] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const handleDirectPrintDANFE = async (notaId: string) => {
     // Find the nota with XML content
@@ -66,58 +63,6 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
     } finally {
       setLoadingDanfe(null);
     }
-  };
-
-  const handleDownloadXML = (notaId: string) => {
-    // Find the nota with XML content
-    const nota = notasFiscais.find(nota => nota.id === notaId);
-    
-    if (!nota || !nota.xmlContent) {
-      toast({
-        title: "Erro",
-        description: "XML não disponível para esta nota fiscal.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    try {
-      // Create a blob from the XML content
-      const blob = new Blob([nota.xmlContent], { type: 'application/xml' });
-      const url = URL.createObjectURL(blob);
-      
-      // Create a temporary link and trigger download
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `NFe-${notaId}.xml`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up the URL
-      URL.revokeObjectURL(url);
-      
-      toast({
-        title: "Sucesso",
-        description: "XML baixado com sucesso.",
-      });
-    } catch (error) {
-      console.error("Erro ao baixar XML:", error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao baixar o XML.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleShowDetails = (notaId: string) => {
-    setSelectedNotaId(notaId === selectedNotaId ? null : notaId);
-  };
-
-  const handleGenerateVolumes = (notaId: string) => {
-    // Navigate to the etiquetas page with nota ID as query parameter
-    navigate(`/armazenagem/recebimento/etiquetas?notaId=${notaId}`);
   };
 
   return (
@@ -175,30 +120,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
               accessor: 'actions',
               cell: (row) => (
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleShowDetails(row.id)}
-                    title="Exibir detalhes"
-                  >
-                    <FileText className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleGenerateVolumes(row.id)}
-                    title="Gerar volumes"
-                  >
-                    <Tag className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDownloadXML(row.id)}
-                    title="Baixar XML"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
+                  <Button variant="outline" size="sm">Detalhes</Button>
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -224,41 +146,6 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
           ]}
           data={notasFiscais}
         />
-
-        {selectedNotaId && (
-          <div className="mt-4 p-4 border rounded-lg bg-gray-50">
-            <h3 className="text-lg font-medium mb-2">Detalhes da Nota Fiscal</h3>
-            {(() => {
-              const nota = notasFiscais.find(n => n.id === selectedNotaId);
-              if (!nota) return <p>Nota não encontrada</p>;
-              
-              return (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-500">Informações Gerais</h4>
-                    <div className="mt-2 space-y-1">
-                      <p><span className="font-medium">Número:</span> {nota.numero}</p>
-                      <p><span className="font-medium">Fornecedor:</span> {nota.fornecedor}</p>
-                      <p><span className="font-medium">Data:</span> {nota.data}</p>
-                      <p><span className="font-medium">Valor:</span> R$ {parseFloat(nota.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-500">Informações Adicionais</h4>
-                    <div className="mt-2 space-y-1">
-                      <p><span className="font-medium">Status:</span> {
-                        nota.status === 'pending' ? 'Pendente' : 
-                        nota.status === 'processing' ? 'Em Processamento' : 'Concluída'
-                      }</p>
-                      <p><span className="font-medium">Volumes:</span> {nota.volumes || 'Não informado'}</p>
-                      <p><span className="font-medium">Transportadora:</span> {nota.transportadora || 'Não informada'}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        )}
       </CardContent>
     </Card>
   );
