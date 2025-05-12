@@ -44,6 +44,7 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
 
   React.useEffect(() => {
     if (volume) {
+      // Reset form with current volume data whenever volume changes
       form.reset({
         tipoVolume: volume.tipoVolume || 'geral',
         codigoONU: volume.codigoONU || '',
@@ -98,6 +99,7 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
                   <Select 
                     onValueChange={field.onChange} 
                     defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
@@ -50,11 +51,20 @@ const GeracaoEtiquetas: React.FC = () => {
       
       // Set all the available data from the nota fiscal
       form.setValue('notaFiscal', notaFiscalData.notaFiscal);
-      form.setValue('volumesTotal', notaFiscalData.volumesTotal || '');
+      
+      // FIX: Properly check for volumesTotal in notaFiscalData and set it
+      if (notaFiscalData.volumesTotal) {
+        form.setValue('volumesTotal', notaFiscalData.volumesTotal);
+      } else if (notaFiscalData.volumesTotais) {
+        // Try alternate field name if exists
+        form.setValue('volumesTotal', notaFiscalData.volumesTotais);
+      }
+      
       form.setValue('pesoTotalBruto', notaFiscalData.pesoTotal || '');
       
       // If volumes total is provided, automatically generate volumes
-      if (notaFiscalData.volumesTotal && parseInt(notaFiscalData.volumesTotal) > 0) {
+      if ((notaFiscalData.volumesTotal || notaFiscalData.volumesTotais) && 
+          parseInt(notaFiscalData.volumesTotal || notaFiscalData.volumesTotais) > 0) {
         setTimeout(() => handleGenerateVolumes(), 300);
       }
     }
@@ -289,7 +299,22 @@ const GeracaoEtiquetas: React.FC = () => {
 
   // Save volume classification
   const handleSaveVolumeClassification = (volume: Volume, formData: any) => {
+    // Update both states: volumes and generatedVolumes to ensure UI is consistent
     setVolumes(prevVolumes => 
+      prevVolumes.map(vol => 
+        vol.id === volume.id 
+          ? { 
+              ...vol, 
+              tipoVolume: formData.tipoVolume,
+              codigoONU: formData.codigoONU,
+              codigoRisco: formData.codigoRisco
+            } 
+          : vol
+      )
+    );
+    
+    // Also update generatedVolumes to ensure the type is updated in the "Volumes para etiquetar" list
+    setGeneratedVolumes(prevVolumes => 
       prevVolumes.map(vol => 
         vol.id === volume.id 
           ? { 
