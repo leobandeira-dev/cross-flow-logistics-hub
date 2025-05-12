@@ -50,6 +50,9 @@ import CadastroUsuarios from "./pages/usuarios/CadastroUsuarios";
 // Módulo de Empresas
 import CadastroEmpresas from "./pages/empresas/CadastroEmpresas";
 
+// Módulo de Cadastros
+import CadastroEnderecamento from "./pages/cadastros/enderecamento/CadastroEnderecamento";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -104,6 +107,9 @@ const App = () => (
             {/* Empresas Routes */}
             <Route path="/empresas/cadastro" element={<CadastroEmpresas />} />
             <Route path="/empresas/permissoes" element={<CadastroEmpresas initialTab="permissoes" />} />
+            
+            {/* Cadastros Routes */}
+            <Route path="/cadastros/enderecamento" element={<CadastroEnderecamento />} />
             
             {/* Rota de captura 404 */}
             <Route path="*" element={<NotFound />} />
