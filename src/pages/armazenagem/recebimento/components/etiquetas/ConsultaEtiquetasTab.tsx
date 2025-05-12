@@ -7,18 +7,7 @@ import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import { toast } from '@/hooks/use-toast';
-
-interface Volume {
-  id: string;
-  notaFiscal: string;
-  descricao: string;
-  quantidade: number;
-  etiquetado: boolean;
-  tipoVolume?: 'geral' | 'quimico';
-  etiquetaMae?: string;
-  chaveNF?: string;
-  [key: string]: any;
-}
+import { Volume } from './VolumesTable';
 
 interface ConsultaEtiquetasTabProps {
   volumes: Volume[];
@@ -97,7 +86,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
       toast({
         title: "Aviso",
         description: "Esta etiqueta já foi impressa. Será gerada uma cópia de segurança.",
-        variant: "warning"
+        variant: "default"
       });
     }
     handleReimprimirEtiquetas(volume);
@@ -182,7 +171,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               cell: (row) => {
                 return row.etiquetado ? 
                   <StatusBadge status="success" text="Etiquetado" /> : 
-                  <StatusBadge status="warning" text="Pendente" />;
+                  <StatusBadge status="default" text="Pendente" />;
               }
             },
             {

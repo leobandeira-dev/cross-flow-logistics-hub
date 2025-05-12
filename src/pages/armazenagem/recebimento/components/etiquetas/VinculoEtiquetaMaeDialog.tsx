@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,19 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import DataTable from '@/components/common/DataTable';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-
-interface Volume {
-  id: string;
-  notaFiscal: string;
-  descricao: string;
-  quantidade: number;
-  etiquetado: boolean;
-  tipoVolume?: 'geral' | 'quimico';
-  codigoONU?: string;
-  codigoRisco?: string;
-  etiquetaMae?: string;
-  chaveNF?: string; // Added chaveNF field
-}
+import { Volume } from './VolumesTable';
 
 interface EtiquetaMae {
   id: string;

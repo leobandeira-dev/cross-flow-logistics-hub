@@ -10,7 +10,7 @@ import { useEtiquetasGenerator } from '@/hooks/useEtiquetasGenerator';
 // Import refactored components
 import EtiquetaFormPanel from './components/etiquetas/EtiquetaFormPanel';
 import EtiquetaPreview from './components/etiquetas/EtiquetaPreview';
-import VolumesTable from './components/etiquetas/VolumesTable';
+import VolumesTable, { Volume } from './components/etiquetas/VolumesTable';
 import ConsultaEtiquetasTab from './components/etiquetas/ConsultaEtiquetasTab';
 import EtiquetasMaeTab from './components/etiquetas/EtiquetasMaeTab';
 import ClassifyVolumeDialog from './components/etiquetas/ClassifyVolumeDialog';
@@ -21,10 +21,10 @@ const GeracaoEtiquetas: React.FC = () => {
   const notaFiscalData = location.state;
   const [activeTab, setActiveTab] = useState('gerar');
   const [tipoEtiqueta, setTipoEtiqueta] = useState<'volume' | 'mae'>('volume');
-  const [generatedVolumes, setGeneratedVolumes] = useState<any[]>([]);
-  const [volumes, setVolumes] = useState(volumesParaEtiquetar);
+  const [generatedVolumes, setGeneratedVolumes] = useState<Volume[]>([]);
+  const [volumes, setVolumes] = useState<Volume[]>(volumesParaEtiquetar);
   const [classifyDialogOpen, setClassifyDialogOpen] = useState(false);
-  const [selectedVolume, setSelectedVolume] = useState<any>(null);
+  const [selectedVolume, setSelectedVolume] = useState<Volume | null>(null);
   
   const form = useForm({
     defaultValues: {
@@ -75,15 +75,15 @@ const GeracaoEtiquetas: React.FC = () => {
     }
     
     // Generate new volumes based on the quantity
-    const newVolumes = [];
+    const newVolumes: Volume[] = [];
     for (let i = 1; i <= volumesTotal; i++) {
-      const newVolume = {
+      const newVolume: Volume = {
         id: `VOL-${notaFiscal}-${i.toString().padStart(3, '0')}`,
         notaFiscal,
         descricao: `Volume ${i} de ${volumesTotal}`,
         quantidade: 1,
         etiquetado: false,
-        tipoVolume: form.getValues('tipoVolume'),
+        tipoVolume: form.getValues('tipoVolume') as 'geral' | 'quimico',
         codigoONU: form.getValues('codigoONU') || '',
         codigoRisco: form.getValues('codigoRisco') || '',
         remetente: "A definir",
@@ -115,19 +115,19 @@ const GeracaoEtiquetas: React.FC = () => {
   };
 
   // Function to handle printing etiquetas for selected volumes
-  const handlePrintEtiquetas = (volume: any) => {
+  const handlePrintEtiquetas = (volume: Volume) => {
     // Get volumes with the same nota fiscal
     const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
     
     // Prepare nota data for the etiquetas
     const notaData = {
-      fornecedor: volume.remetente,
-      destinatario: volume.destinatario,
-      endereco: volume.endereco,
-      cidade: volume.cidade,
-      cidadeCompleta: volume.cidadeCompleta,
-      uf: volume.uf,
-      pesoTotal: volume.pesoTotal,
+      fornecedor: volume.remetente || '',
+      destinatario: volume.destinatario || '',
+      endereco: volume.endereco || '',
+      cidade: volume.cidade || '',
+      cidadeCompleta: volume.cidadeCompleta || '',
+      uf: volume.uf || '',
+      pesoTotal: volume.pesoTotal || '',
       chaveNF: volume.chaveNF || ''
     };
     
@@ -159,18 +159,18 @@ const GeracaoEtiquetas: React.FC = () => {
   };
 
   // Function to handle printing etiquetas for all volumes
-  const handleReimprimirEtiquetas = (volume: any) => {
+  const handleReimprimirEtiquetas = (volume: Volume) => {
     // For reimprimir, we generate etiquetas regardless of etiquetado status
     const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
     
     const notaData = {
-      fornecedor: volume.remetente,
-      destinatario: volume.destinatario,
-      endereco: volume.endereco,
-      cidade: volume.cidade,
-      cidadeCompleta: volume.cidadeCompleta,
-      uf: volume.uf,
-      pesoTotal: volume.pesoTotal,
+      fornecedor: volume.remetente || '',
+      destinatario: volume.destinatario || '',
+      endereco: volume.endereco || '',
+      cidade: volume.cidade || '',
+      cidadeCompleta: volume.cidadeCompleta || '',
+      uf: volume.uf || '',
+      pesoTotal: volume.pesoTotal || '',
       chaveNF: volume.chaveNF || ''
     };
     
@@ -202,13 +202,13 @@ const GeracaoEtiquetas: React.FC = () => {
     
     // Prepare nota data
     const notaData = {
-      fornecedor: volumesNota[0].remetente,
-      destinatario: volumesNota[0].destinatario,
-      endereco: volumesNota[0].endereco,
-      cidade: volumesNota[0].cidade,
-      cidadeCompleta: volumesNota[0].cidadeCompleta,
-      uf: volumesNota[0].uf,
-      pesoTotal: volumesNota[0].pesoTotal,
+      fornecedor: volumesNota[0].remetente || '',
+      destinatario: volumesNota[0].destinatario || '',
+      endereco: volumesNota[0].endereco || '',
+      cidade: volumesNota[0].cidade || '',
+      cidadeCompleta: volumesNota[0].cidadeCompleta || '',
+      uf: volumesNota[0].uf || '',
+      pesoTotal: volumesNota[0].pesoTotal || '',
       chaveNF: volumesNota[0].chaveNF || ''
     };
     
@@ -243,13 +243,13 @@ const GeracaoEtiquetas: React.FC = () => {
     
     // Prepare nota data
     const notaData = {
-      fornecedor: volumesNota[0].remetente,
-      destinatario: volumesNota[0].destinatario,
-      endereco: volumesNota[0].endereco,
-      cidade: volumesNota[0].cidade,
-      cidadeCompleta: volumesNota[0].cidadeCompleta,
-      uf: volumesNota[0].uf,
-      pesoTotal: volumesNota[0].pesoTotal,
+      fornecedor: volumesNota[0].remetente || '',
+      destinatario: volumesNota[0].destinatario || '',
+      endereco: volumesNota[0].endereco || '',
+      cidade: volumesNota[0].cidade || '',
+      cidadeCompleta: volumesNota[0].cidadeCompleta || '',
+      uf: volumesNota[0].uf || '',
+      pesoTotal: volumesNota[0].pesoTotal || '',
       chaveNF: volumesNota[0].chaveNF || ''
     };
     
@@ -267,13 +267,13 @@ const GeracaoEtiquetas: React.FC = () => {
   };
 
   // Open dialog for classifying volume
-  const handleClassifyVolume = (volume: any) => {
+  const handleClassifyVolume = (volume: Volume) => {
     setSelectedVolume(volume);
     setClassifyDialogOpen(true);
   };
 
   // Save volume classification
-  const handleSaveVolumeClassification = (volume: any, formData: any) => {
+  const handleSaveVolumeClassification = (volume: Volume, formData: any) => {
     setVolumes(prevVolumes => 
       prevVolumes.map(vol => 
         vol.id === volume.id 

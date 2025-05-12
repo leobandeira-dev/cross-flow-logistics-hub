@@ -6,7 +6,8 @@ import { Biohazard, Printer, Edit, LinkIcon } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 
-interface Volume {
+// Updated Volume interface to include all necessary properties
+export interface Volume {
   id: string;
   notaFiscal: string;
   descricao: string;
@@ -16,6 +17,14 @@ interface Volume {
   codigoONU?: string;
   codigoRisco?: string;
   etiquetaMae?: string;
+  remetente?: string;
+  destinatario?: string;
+  endereco?: string;
+  cidade?: string;
+  cidadeCompleta?: string;
+  uf?: string;
+  pesoTotal?: string;
+  chaveNF?: string;
   [key: string]: any;
 }
 

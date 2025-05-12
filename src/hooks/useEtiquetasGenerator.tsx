@@ -1,40 +1,19 @@
-
 import React, { useRef, useState } from 'react';
 import { toast } from "@/hooks/use-toast";
 import EtiquetaTemplate from '@/components/common/print/EtiquetaTemplate';
-
-interface VolumeData {
-  id: string;
-  notaFiscal: string;
-  descricao: string;
-  quantidade: number;
-  etiquetado: boolean;
-  tipoVolume?: 'geral' | 'quimico';
-  codigoONU?: string;
-  codigoRisco?: string;
-  // Extended data needed for labels
-  remetente?: string;
-  destinatario?: string;
-  endereco?: string;
-  cidade?: string;
-  cidadeCompleta?: string;
-  uf?: string;
-  pesoTotal?: string;
-  etiquetaMae?: string;
-  chaveNF?: string;
-}
+import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/VolumesTable';
 
 export const useEtiquetasGenerator = () => {
   const etiquetaRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentEtiqueta, setCurrentEtiqueta] = useState<{
-    volumeData: VolumeData;
+    volumeData: Volume;
     volumeNumber: number;
     totalVolumes: number;
   } | null>(null);
 
   // Function to prepare volume data with default values for missing fields
-  const prepareVolumeData = (volume: VolumeData, notaData: any = {}): VolumeData => {
+  const prepareVolumeData = (volume: Volume, notaData: any = {}): Volume => {
     return {
       ...volume,
       remetente: notaData.fornecedor || volume.remetente || "REMETENTE NÃO INFORMADO",
@@ -53,7 +32,7 @@ export const useEtiquetasGenerator = () => {
 
   // Generate and download the PDF with all labels
   const generateEtiquetasPDF = async (
-    volumes: VolumeData[], 
+    volumes: Volume[], 
     notaData: any = {}, 
     formatoImpressao: string = '50x100',
     tipo: 'volume' | 'mae' = 'volume',
@@ -110,7 +89,7 @@ export const useEtiquetasGenerator = () => {
       if (tipo === 'mae') {
         // Generate one master label for all volumes
         // Create a "master" volume that contains all the info
-        const masterVolume: VolumeData = {
+        const masterVolume: Volume = {
           ...volumes[0],
           id: etiquetaMaeId || `MASTER-${notaFiscal}-${Date.now()}`,
           etiquetaMae: etiquetaMaeId || `MASTER-${notaFiscal}-${Date.now()}`,
@@ -250,7 +229,7 @@ export const useEtiquetasGenerator = () => {
 
   // Generate master label for a group of volumes
   const generateEtiquetaMaePDF = async (
-    volumes: VolumeData[],
+    volumes: Volume[],
     notaData: any = {},
     formatoImpressao: string = '50x100',
     etiquetaMaeId?: string,
