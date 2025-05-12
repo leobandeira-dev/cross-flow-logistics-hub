@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Printer, FileText, Download } from 'lucide-react';
+import { Printer, FileText, Download, Tag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
@@ -17,6 +18,7 @@ interface ConsultaNotasProps {
 }
 
 const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
+  const navigate = useNavigate();
   const [loadingDanfe, setLoadingDanfe] = useState<string | null>(null);
   const [loadingXml, setLoadingXml] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -125,6 +127,17 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
     setDetailsOpen(true);
   };
 
+  const handleGenerateLabels = (nota: any) => {
+    // Navigate to the labels generation page with the nota fiscal data
+    navigate(`/armazenagem/recebimento/etiquetas`, {
+      state: {
+        notaFiscal: nota.numero,
+        notaFiscalId: nota.id,
+        fornecedor: nota.fornecedor
+      }
+    });
+  };
+
   return (
     <>
       <Card>
@@ -189,6 +202,15 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
                     >
                       <FileText className="h-4 w-4 mr-1" />
                       Detalhes
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleGenerateLabels(row)}
+                      title="Gerar etiquetas de volume"
+                    >
+                      <Tag className="h-4 w-4 mr-1" />
+                      Etiquetas
                     </Button>
                     <div className="flex">
                       <Button 

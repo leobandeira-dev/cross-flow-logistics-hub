@@ -1,4 +1,6 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,7 +21,17 @@ const volumesParaEtiquetar = [
 ];
 
 const GeracaoEtiquetas: React.FC = () => {
+  const location = useLocation();
+  const notaFiscalData = location.state;
+  
   const form = useForm();
+  
+  useEffect(() => {
+    // If nota fiscal data is provided, pre-fill the form
+    if (notaFiscalData?.notaFiscal) {
+      form.setValue('notaFiscal', notaFiscalData.notaFiscal);
+    }
+  }, [notaFiscalData, form]);
   
   const handleSubmit = (data: any) => {
     console.log('Form data submitted:', data);
@@ -166,7 +178,7 @@ const GeracaoEtiquetas: React.FC = () => {
                       },
                       {
                         header: 'Ações',
-                        accessor: 'actions', // Add this line
+                        accessor: 'actions',
                         cell: (row) => (
                           <div className="flex gap-2">
                             <Button 
@@ -182,7 +194,11 @@ const GeracaoEtiquetas: React.FC = () => {
                         )
                       }
                     ]}
-                    data={volumesParaEtiquetar}
+                    // Filter the volumes based on the nota fiscal if one is provided
+                    data={notaFiscalData?.notaFiscal 
+                      ? volumesParaEtiquetar.filter(vol => vol.notaFiscal === notaFiscalData.notaFiscal)
+                      : volumesParaEtiquetar
+                    }
                   />
                 </CardContent>
               </Card>
