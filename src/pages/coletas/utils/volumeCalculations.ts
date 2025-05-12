@@ -34,6 +34,39 @@ export const ensureVolumeId = (volume: Volume | VolumeItem): VolumeItem => {
   return { ...volume, id: generateVolumeId() } as VolumeItem;
 };
 
+// Helper to ensure a partial NotaFiscal has all required fields
+export const ensureCompleteNotaFiscal = (
+  notaFiscal: Partial<NotaFiscalVolume>, 
+  defaultRemetente: string = '', 
+  defaultDestinatario: string = ''
+): NotaFiscalVolume => {
+  return {
+    numeroNF: notaFiscal.numeroNF || '',
+    volumes: Array.isArray(notaFiscal.volumes) 
+      ? convertVolumesToVolumeItems(notaFiscal.volumes) 
+      : [],
+    remetente: notaFiscal.remetente || defaultRemetente,
+    destinatario: notaFiscal.destinatario || defaultDestinatario,
+    valorTotal: notaFiscal.valorTotal || 0
+  };
+};
+
+// Helper para converter arrays de Volume para VolumeItem
+export const convertVolumesToVolumeItems = (volumes: Volume[]): VolumeItem[] => {
+  return volumes.map(vol => ensureVolumeId(vol));
+};
+
+// Helper para converter uma nota fiscal parcial para NotaFiscalVolume completa
+export const createNotaFiscal = (numeroNF: string, volumes: Volume[], remetente: string = '', destinatario: string = '', valorTotal: number = 0): NotaFiscalVolume => {
+  return {
+    numeroNF,
+    volumes: convertVolumesToVolumeItems(volumes),
+    remetente,
+    destinatario,
+    valorTotal
+  };
+};
+
 // Função para calcular o volume de um item
 export const calcularVolume = (volume: VolumeItem | Volume): number => {
   return volume.altura * volume.largura * volume.comprimento * volume.quantidade;
@@ -83,38 +116,5 @@ export const calcularTotaisColeta = (notasFiscais: NotaFiscalVolume[]): { volume
     volumeTotal,
     pesoTotal,
     pesoCubadoTotal
-  };
-};
-
-// Helper para converter arrays de Volume para VolumeItem
-export const convertVolumesToVolumeItems = (volumes: Volume[]): VolumeItem[] => {
-  return volumes.map(vol => ensureVolumeId(vol));
-};
-
-// Helper para converter uma nota fiscal parcial para NotaFiscalVolume completa
-export const createNotaFiscal = (numeroNF: string, volumes: Volume[], remetente: string = '', destinatario: string = '', valorTotal: number = 0): NotaFiscalVolume => {
-  return {
-    numeroNF,
-    volumes: convertVolumesToVolumeItems(volumes),
-    remetente,
-    destinatario,
-    valorTotal
-  };
-};
-
-// Helper to ensure a partial NotaFiscal has all required fields
-export const ensureCompleteNotaFiscal = (
-  notaFiscal: Partial<NotaFiscalVolume>, 
-  defaultRemetente: string = '', 
-  defaultDestinatario: string = ''
-): NotaFiscalVolume => {
-  return {
-    numeroNF: notaFiscal.numeroNF || '',
-    volumes: Array.isArray(notaFiscal.volumes) 
-      ? convertVolumesToVolumeItems(notaFiscal.volumes) 
-      : [],
-    remetente: notaFiscal.remetente || defaultRemetente,
-    destinatario: notaFiscal.destinatario || defaultDestinatario,
-    valorTotal: notaFiscal.valorTotal || 0
   };
 };

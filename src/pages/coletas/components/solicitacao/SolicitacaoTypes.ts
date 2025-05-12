@@ -40,6 +40,13 @@ export interface SolicitacaoDialogProps {
   setActiveTab: (tab: string) => void;
 }
 
+export interface NovaSolicitacaoDialogProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}
+
 export interface SolicitacaoFormHeaderProps {
   cliente?: string;
   dataColeta?: string;

@@ -9,16 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Plus, Upload, Download, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { NotaFiscalVolume } from '../utils/volumeCalculations';
+import { NotaFiscalVolume, ensureCompleteNotaFiscal, convertVolumesToVolumeItems } from '../utils/volumeCalculations';
 import NotasFiscaisManager from './NotasFiscaisManager';
 import { extractNFInfoFromXML, processMultipleXMLFiles, generateExcelTemplate, processExcelFile } from '../utils/xmlImportHelper';
-
-interface NovaSolicitacaoDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
+import { NovaSolicitacaoDialogProps } from './solicitacao/SolicitacaoTypes';
 
 interface SolicitacaoForm {
   cliente: string;
@@ -127,13 +121,13 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
       const result = await extractNFInfoFromXML(file);
       if (result && result.nfInfo && result.nfInfo.numeroNF) {
         // Ensure we create a complete NotaFiscalVolume object
-        const completeNotaFiscal: NotaFiscalVolume = {
+        const completeNotaFiscal = ensureCompleteNotaFiscal({
           numeroNF: result.nfInfo.numeroNF || '',
           volumes: result.nfInfo.volumes || [],
           remetente: result.remetente?.razaoSocial || '',
           destinatario: result.destinatario?.razaoSocial || '',
           valorTotal: result.nfInfo.valorTotal || 0
-        };
+        });
         
         // Update form data with XML results
         setFormData(prev => ({
@@ -176,13 +170,15 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
       
       if (result.notasFiscais.length > 0) {
         // Ensure each nota fiscal has all required properties
-        const completeNotasFiscais: NotaFiscalVolume[] = result.notasFiscais.map(nf => ({
-          numeroNF: nf.numeroNF || '',
-          volumes: nf.volumes || [],
-          remetente: nf.remetente || result.remetente?.razaoSocial || '',
-          destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
-          valorTotal: nf.valorTotal || 0
-        }));
+        const completeNotasFiscais = result.notasFiscais.map(nf => 
+          ensureCompleteNotaFiscal({
+            numeroNF: nf.numeroNF || '',
+            volumes: nf.volumes || [],
+            remetente: nf.remetente || result.remetente?.razaoSocial || '',
+            destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
+            valorTotal: nf.valorTotal || 0
+          })
+        );
         
         // Update form data with batch XML results
         setFormData(prev => ({
@@ -230,13 +226,15 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
       
       if (result.notasFiscais.length > 0) {
         // Ensure each nota fiscal has all required properties
-        const completeNotasFiscais: NotaFiscalVolume[] = result.notasFiscais.map(nf => ({
-          numeroNF: nf.numeroNF || '',
-          volumes: nf.volumes || [],
-          remetente: nf.remetente || result.remetente?.razaoSocial || '',
-          destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
-          valorTotal: nf.valorTotal || 0
-        }));
+        const completeNotasFiscais = result.notasFiscais.map(nf => 
+          ensureCompleteNotaFiscal({
+            numeroNF: nf.numeroNF || '',
+            volumes: nf.volumes || [],
+            remetente: nf.remetente || result.remetente?.razaoSocial || '',
+            destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
+            valorTotal: nf.valorTotal || 0
+          })
+        );
         
         setFormData(prev => ({
           ...prev,
