@@ -32,6 +32,7 @@ const GeracaoEtiquetas: React.FC = () => {
       tipoEtiqueta: 'volume',
       volumesTotal: '',
       formatoImpressao: '50x100',
+      layoutStyle: 'standard',
       tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
@@ -82,14 +83,17 @@ const GeracaoEtiquetas: React.FC = () => {
         descricao: `Volume ${i} de ${volumesTotal}`,
         quantidade: 1,
         etiquetado: false,
-        tipoVolume: 'geral',
+        tipoVolume: form.getValues('tipoVolume'),
+        codigoONU: form.getValues('codigoONU') || '',
+        codigoRisco: form.getValues('codigoRisco') || '',
         remetente: "A definir",
         destinatario: "A definir",
         endereco: "A definir",
         cidade: "A definir",
         cidadeCompleta: "A definir",
         uf: "UF",
-        pesoTotal: pesoTotalBruto
+        pesoTotal: pesoTotalBruto,
+        chaveNF: '' // Add empty chaveNF field
       };
       newVolumes.push(newVolume);
     }
@@ -123,28 +127,35 @@ const GeracaoEtiquetas: React.FC = () => {
       cidade: volume.cidade,
       cidadeCompleta: volume.cidadeCompleta,
       uf: volume.uf,
-      pesoTotal: volume.pesoTotal
+      pesoTotal: volume.pesoTotal,
+      chaveNF: volume.chaveNF || ''
     };
     
-    // Get formato de impressão from form
+    // Get formato de impressão and layout style from form
     const formatoImpressao = form.getValues('formatoImpressao');
+    const layoutStyle = form.getValues('layoutStyle') || 'standard';
     
     // Generate etiquetas for all volumes of this nota fiscal
-    generateEtiquetasPDF(volumesNota, notaData, formatoImpressao);
+    const result = generateEtiquetasPDF(volumesNota, notaData, formatoImpressao, 'volume', undefined, layoutStyle as any);
     
-    // Mark volumes as printed
-    setVolumes(prevVolumes => 
-      prevVolumes.map(vol => 
-        vol.notaFiscal === volume.notaFiscal 
-          ? { ...vol, etiquetado: true } 
-          : vol
-      )
-    );
-    
-    toast({
-      title: "Etiquetas Geradas",
-      description: `Etiquetas para NF ${volume.notaFiscal} geradas com sucesso.`,
-    });
+    // Update volumes state if labels were successfully generated
+    if (result && typeof result.then === 'function') {
+      result.then((res) => {
+        if (res && res.status === 'success' && res.volumes) {
+          setVolumes(prevVolumes => 
+            prevVolumes.map(vol => {
+              const updatedVol = res.volumes.find(v => v.id === vol.id);
+              return updatedVol || vol;
+            })
+          );
+          
+          toast({
+            title: "Etiquetas Geradas",
+            description: `Etiquetas para NF ${volume.notaFiscal} geradas com sucesso.`,
+          });
+        }
+      });
+    }
   };
 
   // Function to handle printing etiquetas for all volumes
@@ -159,13 +170,15 @@ const GeracaoEtiquetas: React.FC = () => {
       cidade: volume.cidade,
       cidadeCompleta: volume.cidadeCompleta,
       uf: volume.uf,
-      pesoTotal: volume.pesoTotal
+      pesoTotal: volume.pesoTotal,
+      chaveNF: volume.chaveNF || ''
     };
     
-    // Get formato de impressão from form
+    // Get formato de impressão and layout style from form
     const formatoImpressao = form.getValues('formatoImpressao');
+    const layoutStyle = form.getValues('layoutStyle') || 'standard';
     
-    generateEtiquetasPDF(volumesNota, notaData, formatoImpressao);
+    generateEtiquetasPDF(volumesNota, notaData, formatoImpressao, 'volume', undefined, layoutStyle as any);
     
     toast({
       title: "Etiquetas Reimpressas",
@@ -195,14 +208,16 @@ const GeracaoEtiquetas: React.FC = () => {
       cidade: volumesNota[0].cidade,
       cidadeCompleta: volumesNota[0].cidadeCompleta,
       uf: volumesNota[0].uf,
-      pesoTotal: volumesNota[0].pesoTotal
+      pesoTotal: volumesNota[0].pesoTotal,
+      chaveNF: volumesNota[0].chaveNF || ''
     };
     
-    // Get formato de impressão from form
+    // Get formato de impressão and layout style from form
     const formatoImpressao = form.getValues('formatoImpressao');
+    const layoutStyle = form.getValues('layoutStyle') || 'standard';
     
     // Generate master etiqueta
-    generateEtiquetaMaePDF(volumesNota, notaData, formatoImpressao, etiquetaMae.id);
+    generateEtiquetaMaePDF(volumesNota, notaData, formatoImpressao, etiquetaMae.id, layoutStyle as any);
     
     toast({
       title: "Etiqueta Mãe Gerada",
@@ -234,14 +249,16 @@ const GeracaoEtiquetas: React.FC = () => {
       cidade: volumesNota[0].cidade,
       cidadeCompleta: volumesNota[0].cidadeCompleta,
       uf: volumesNota[0].uf,
-      pesoTotal: volumesNota[0].pesoTotal
+      pesoTotal: volumesNota[0].pesoTotal,
+      chaveNF: volumesNota[0].chaveNF || ''
     };
     
-    // Get formato de impressão from form
+    // Get formato de impressão and layout style from form
     const formatoImpressao = form.getValues('formatoImpressao');
+    const layoutStyle = form.getValues('layoutStyle') || 'standard';
     
     // Generate master etiqueta
-    generateEtiquetaMaePDF(volumesNota, notaData, formatoImpressao, etiquetaMaeId);
+    generateEtiquetaMaePDF(volumesNota, notaData, formatoImpressao, etiquetaMaeId, layoutStyle as any);
     
     toast({
       title: "Etiqueta Mãe Criada",

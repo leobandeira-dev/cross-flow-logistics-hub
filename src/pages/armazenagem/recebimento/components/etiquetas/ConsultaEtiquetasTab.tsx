@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Printer, Biohazard, LinkIcon } from 'lucide-react';
+import { FileText, Printer, Biohazard, LinkIcon, AlertTriangle } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
+import { toast } from '@/hooks/use-toast';
 
 interface Volume {
   id: string;
@@ -15,7 +16,7 @@ interface Volume {
   etiquetado: boolean;
   tipoVolume?: 'geral' | 'quimico';
   etiquetaMae?: string;
-  chaveNF?: string;  // Add chaveNF field
+  chaveNF?: string;
   [key: string]: any;
 }
 
@@ -89,6 +90,17 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
     });
     
     setFilteredVolumes(filtered);
+  };
+
+  const handleReimprimirClick = (volume: Volume) => {
+    if (volume.etiquetado) {
+      toast({
+        title: "Aviso",
+        description: "Esta etiqueta já foi impressa. Será gerada uma cópia de segurança.",
+        variant: "warning"
+      });
+    }
+    handleReimprimirEtiquetas(volume);
   };
   
   return (
@@ -185,10 +197,12 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => handleReimprimirEtiquetas(row)}
+                    onClick={() => handleReimprimirClick(row)}
+                    className={row.etiquetado ? "border-yellow-500 text-yellow-600 hover:bg-yellow-50" : ""}
                   >
-                    <Printer size={16} className="mr-1" />
-                    Reimprimir
+                    {row.etiquetado && <AlertTriangle size={16} className="mr-1 text-yellow-600" />}
+                    {!row.etiquetado && <Printer size={16} className="mr-1" />}
+                    {row.etiquetado ? "Reimprimir" : "Imprimir"}
                   </Button>
                 </div>
               )

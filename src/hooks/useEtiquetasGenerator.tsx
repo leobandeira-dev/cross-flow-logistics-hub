@@ -21,6 +21,7 @@ interface VolumeData {
   uf?: string;
   pesoTotal?: string;
   etiquetaMae?: string;
+  chaveNF?: string;
 }
 
 export const useEtiquetasGenerator = () => {
@@ -45,7 +46,8 @@ export const useEtiquetasGenerator = () => {
       pesoTotal: notaData.pesoTotal || volume.pesoTotal || "0,00 Kg",
       tipoVolume: volume.tipoVolume || 'geral',
       codigoONU: volume.codigoONU || '',
-      codigoRisco: volume.codigoRisco || ''
+      codigoRisco: volume.codigoRisco || '',
+      chaveNF: volume.chaveNF || notaData.chaveNF || ''
     };
   };
 
@@ -55,7 +57,8 @@ export const useEtiquetasGenerator = () => {
     notaData: any = {}, 
     formatoImpressao: string = '50x100',
     tipo: 'volume' | 'mae' = 'volume',
-    etiquetaMaeId?: string
+    etiquetaMaeId?: string,
+    layoutStyle: 'standard' | 'compact' | 'modern' = 'standard'
   ) => {
     if (!volumes || volumes.length === 0) {
       toast({
@@ -132,6 +135,7 @@ export const useEtiquetasGenerator = () => {
             totalVolumes={1}
             format={etiquetaFormat}
             tipo="mae"
+            layoutStyle={layoutStyle}
           />
         );
         
@@ -176,6 +180,7 @@ export const useEtiquetasGenerator = () => {
               totalVolumes={totalVolumes}
               format={etiquetaFormat}
               tipo="volume"
+              layoutStyle={layoutStyle}
             />
           );
           
@@ -224,6 +229,12 @@ export const useEtiquetasGenerator = () => {
           : `${totalVolumes} etiquetas de volume geradas com sucesso.`,
       });
       
+      // Mark volumes as used (etiquetado = true) since each label can only be printed once
+      return {
+        status: 'success',
+        volumes: volumes.map(vol => ({...vol, etiquetado: true}))
+      };
+      
     } catch (error) {
       console.error('Erro ao gerar etiquetas:', error);
       toast({
@@ -231,6 +242,7 @@ export const useEtiquetasGenerator = () => {
         description: "Ocorreu um erro ao gerar as etiquetas. Tente novamente.",
         variant: "destructive"
       });
+      return { status: 'error', error };
     } finally {
       setIsGenerating(false);
     }
@@ -241,9 +253,10 @@ export const useEtiquetasGenerator = () => {
     volumes: VolumeData[],
     notaData: any = {},
     formatoImpressao: string = '50x100',
-    etiquetaMaeId?: string
+    etiquetaMaeId?: string,
+    layoutStyle: 'standard' | 'compact' | 'modern' = 'standard'
   ) => {
-    return generateEtiquetasPDF(volumes, notaData, formatoImpressao, 'mae', etiquetaMaeId);
+    return generateEtiquetasPDF(volumes, notaData, formatoImpressao, 'mae', etiquetaMaeId, layoutStyle);
   };
 
   return {

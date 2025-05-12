@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Biohazard, QrCode } from 'lucide-react';
+import { Biohazard, QrCode, Package } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface EtiquetaPreviewProps {
   tipoEtiqueta: 'volume' | 'mae';
@@ -12,32 +13,43 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
   tipoEtiqueta,
   isQuimico 
 }) => {
+  const [layoutStyle, setLayoutStyle] = useState<'standard' | 'compact' | 'modern'>('standard');
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">Modelo de Etiqueta</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="mb-4">
+          <label className="text-sm font-medium mb-2 block">Layout da Etiqueta</label>
+          <Select value={layoutStyle} onValueChange={(value: 'standard' | 'compact' | 'modern') => setLayoutStyle(value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione um layout" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="standard">Padrão (Sedex)</SelectItem>
+              <SelectItem value="compact">Compacto (Braspress)</SelectItem>
+              <SelectItem value="modern">Moderno (Jadlog/UPS)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="border rounded-md p-4 h-auto flex items-center justify-center">
           <div className="text-center">
-            {tipoEtiqueta === 'mae' ? (
-              <div className="p-3 border-2 border-red-500 rounded-md bg-red-50">
-                <QrCode size={40} className="mx-auto mb-2 text-red-600" />
-                <p className="font-bold text-red-600">ETIQUETA MÃE</p>
-                <p className="text-sm mt-2">Agrupa múltiplos volumes</p>
-              </div>
-            ) : isQuimico ? (
-              <div className="p-3 border-2 border-yellow-500 rounded-md bg-yellow-50">
-                <Biohazard size={40} className="mx-auto mb-2 text-red-500" />
-                <p className="font-bold text-red-500">PRODUTO QUÍMICO</p>
-                <p className="text-sm mt-2">ONU / Risco exibido na etiqueta</p>
-              </div>
-            ) : (
-              <div className="p-3 border-2 border-blue-500 rounded-md bg-blue-50">
-                <QrCode size={40} className="mx-auto mb-2 text-blue-600" />
-                <p className="font-bold text-blue-600">ETIQUETA DE VOLUME</p>
-                <p className="text-sm mt-2">Com QR code e ID único</p>
-              </div>
+            {layoutStyle === 'standard' && (
+              // Standard layout preview
+              renderStandardPreview(tipoEtiqueta, isQuimico)
+            )}
+            
+            {layoutStyle === 'compact' && (
+              // Compact layout preview
+              renderCompactPreview(tipoEtiqueta, isQuimico)
+            )}
+            
+            {layoutStyle === 'modern' && (
+              // Modern layout preview
+              renderModernPreview(tipoEtiqueta, isQuimico)
             )}
           </div>
         </div>
@@ -53,6 +65,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
                 <li>• Quantidade total de volumes</li>
                 <li>• Remetente / Destinatário</li>
                 <li>• Cidade completa / UF</li>
+                <li>• Peso total dos volumes</li>
               </>
             ) : (
               <>
@@ -62,6 +75,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
                 <li>• Remetente / Destinatário</li>
                 <li>• Cidade completa / UF</li>
                 <li>• Tipo de volume (Geral / Químico)</li>
+                <li>• Peso total dos volumes</li>
                 {isQuimico && (
                   <>
                     <li>• Código ONU</li>
@@ -87,5 +101,74 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
     </Card>
   );
 };
+
+// Helper function to render the standard layout preview
+const renderStandardPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
+  <div className={`p-3 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-blue-500 bg-blue-50'}`}>
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <QrCode size={40} className={`mx-auto mb-2 ${tipoEtiqueta === 'mae' ? 'text-red-600' : isQuimico ? 'text-yellow-600' : 'text-blue-600'}`} />
+        {tipoEtiqueta === 'mae' ? (
+          <p className="font-bold text-red-600">ETIQUETA MÃE</p>
+        ) : isQuimico ? (
+          <div>
+            <Biohazard size={20} className="inline-block mr-1 text-red-500" />
+            <span className="font-bold text-red-500">PRODUTO QUÍMICO</span>
+          </div>
+        ) : (
+          <p className="font-bold text-blue-600">ETIQUETA DE VOLUME</p>
+        )}
+      </div>
+      <div>
+        <div className="font-bold">Sedex</div>
+        <div className="text-xs mt-1">Layout Padrão</div>
+        <div className="text-xs mt-2">Otimizado para informações completas</div>
+      </div>
+    </div>
+  </div>
+);
+
+// Helper function to render the compact layout preview
+const renderCompactPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
+  <div className={`p-2 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-gray-500 bg-gray-50'}`}>
+    <div className="text-xs grid grid-cols-3 gap-1">
+      <div className="col-span-1">
+        <QrCode size={30} className="mx-auto mb-1" />
+      </div>
+      <div className="col-span-2">
+        {tipoEtiqueta === 'mae' ? (
+          <p className="font-bold text-red-600 text-sm">ETIQUETA MÃE</p>
+        ) : isQuimico ? (
+          <div className="flex items-center">
+            <Biohazard size={16} className="mr-1 text-red-500" />
+            <span className="font-bold text-red-500 text-sm">QUÍMICO</span>
+          </div>
+        ) : (
+          <p className="font-bold text-sm">VOLUME 1/2</p>
+        )}
+        <p className="text-xs mt-1">Braspress</p>
+        <p className="text-xs">Layout Compacto</p>
+      </div>
+    </div>
+  </div>
+);
+
+// Helper function to render the modern layout preview
+const renderModernPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
+  <div className="border-2 border-black rounded overflow-hidden">
+    <div className={`${tipoEtiqueta === 'mae' ? 'bg-red-500' : 'bg-black'} text-white p-2 text-sm`}>
+      <div className="flex items-center justify-between">
+        <Package size={16} className="mr-1" />
+        <span className="font-bold">{tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA VOLUME'}</span>
+      </div>
+    </div>
+    <div className="p-2 bg-white text-center">
+      {isQuimico && <Biohazard size={20} className="mx-auto mb-1 text-red-500" />}
+      <QrCode size={30} className="mx-auto mb-1" />
+      <p className="text-xs font-bold">Jadlog/UPS</p>
+      <p className="text-xs">Layout Moderno</p>
+    </div>
+  </div>
+);
 
 export default EtiquetaPreview;
