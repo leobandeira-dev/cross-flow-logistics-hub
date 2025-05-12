@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Printer } from 'lucide-react';
+import { FileText, Printer, Link as LinkIcon } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import SearchFilter from '@/components/common/SearchFilter';
+import VinculoEtiquetaMaeDialog from './VinculoEtiquetaMaeDialog';
 
 interface EtiquetaMae {
   id: string;
@@ -18,15 +19,45 @@ interface EtiquetaMae {
   status: string;
 }
 
+interface Volume {
+  id: string;
+  notaFiscal: string;
+  descricao: string;
+  quantidade: number;
+  etiquetado: boolean;
+  tipoVolume?: 'geral' | 'quimico';
+  codigoONU?: string;
+  codigoRisco?: string;
+  etiquetaMae?: string;
+}
+
 interface EtiquetasMaeTabProps {
   etiquetasMae: EtiquetaMae[];
+  volumes: Volume[];
   handlePrintEtiquetaMae: (etiquetaMae: EtiquetaMae) => void;
+  handleVincularVolumes?: (etiquetaMaeId: string, volumeIds: string[]) => void;
 }
 
 const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
   etiquetasMae,
-  handlePrintEtiquetaMae
+  volumes,
+  handlePrintEtiquetaMae,
+  handleVincularVolumes
 }) => {
+  const [vinculoDialogOpen, setVinculoDialogOpen] = useState(false);
+  const [selectedEtiquetaMae, setSelectedEtiquetaMae] = useState<EtiquetaMae | null>(null);
+
+  const handleOpenVinculoDialog = (etiquetaMae: EtiquetaMae) => {
+    setSelectedEtiquetaMae(etiquetaMae);
+    setVinculoDialogOpen(true);
+  };
+
+  const handleVincularVolumesSave = (etiquetaMaeId: string, volumeIds: string[]) => {
+    if (handleVincularVolumes) {
+      handleVincularVolumes(etiquetaMaeId, volumeIds);
+    }
+  };
+  
   return (
     <Card>
       <CardHeader>
@@ -78,6 +109,16 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
                     <FileText size={16} className="mr-1" />
                     Detalhes
                   </Button>
+                  {handleVincularVolumes && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleOpenVinculoDialog(row)}
+                    >
+                      <LinkIcon size={16} className="mr-1" />
+                      Vincular
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -91,6 +132,15 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
             }
           ]}
           data={etiquetasMae}
+        />
+
+        {/* Dialog for linking volumes to master label */}
+        <VinculoEtiquetaMaeDialog
+          open={vinculoDialogOpen}
+          onClose={() => setVinculoDialogOpen(false)}
+          etiquetaMae={selectedEtiquetaMae}
+          volumes={volumes}
+          onSave={handleVincularVolumesSave}
         />
       </CardContent>
     </Card>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
@@ -276,6 +275,23 @@ const GeracaoEtiquetas: React.FC = () => {
     });
   };
 
+  // Function to handle linking volumes to master label
+  const handleVincularVolumes = (etiquetaMaeId: string, volumeIds: string[]) => {
+    // Update volumes with the etiqueta mae link
+    setVolumes(prevVolumes => 
+      prevVolumes.map(vol => 
+        volumeIds.includes(vol.id)
+          ? { ...vol, etiquetaMae: etiquetaMaeId }
+          : vol
+      )
+    );
+    
+    toast({
+      title: "Volumes Vinculados",
+      description: `${volumeIds.length} volumes foram vinculados à etiqueta mãe ${etiquetaMaeId}.`,
+    });
+  };
+
   // Show/hide chemical product fields based on type selection
   const watchTipoVolume = form.watch('tipoVolume');
   const isQuimico = watchTipoVolume === 'quimico';
@@ -311,6 +327,7 @@ const GeracaoEtiquetas: React.FC = () => {
                   volumes={generatedVolumes}
                   handlePrintEtiquetas={handlePrintEtiquetas}
                   handleClassifyVolume={handleClassifyVolume}
+                  showEtiquetaMaeColumn={true}
                 />
               )}
 
@@ -342,7 +359,9 @@ const GeracaoEtiquetas: React.FC = () => {
         <TabsContent value="etiquetasMae">
           <EtiquetasMaeTab 
             etiquetasMae={etiquetasMae}
+            volumes={volumes}
             handlePrintEtiquetaMae={handlePrintEtiquetaMae}
+            handleVincularVolumes={handleVincularVolumes}
           />
         </TabsContent>
       </Tabs>
