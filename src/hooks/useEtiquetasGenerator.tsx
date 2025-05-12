@@ -1,0 +1,155 @@
+
+import React, { useRef, useState } from 'react';
+import { toast } from "@/hooks/use-toast";
+import { usePDFGenerator } from '@/components/common/print/usePDFGenerator';
+import EtiquetaTemplate from '@/components/common/print/EtiquetaTemplate';
+
+interface VolumeData {
+  id: string;
+  notaFiscal: string;
+  descricao: string;
+  quantidade: number;
+  etiquetado: boolean;
+  // Extended data needed for labels
+  remetente?: string;
+  destinatario?: string;
+  endereco?: string;
+  cidade?: string;
+  uf?: string;
+  pesoTotal?: string;
+}
+
+export const useEtiquetasGenerator = () => {
+  const etiquetaRef = useRef<HTMLDivElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [currentEtiqueta, setCurrentEtiqueta] = useState<{
+    volumeData: VolumeData;
+    volumeNumber: number;
+    totalVolumes: number;
+  } | null>(null);
+
+  // Function to prepare volume data with default values for missing fields
+  const prepareVolumeData = (volume: VolumeData, notaData: any = {}): VolumeData => {
+    return {
+      ...volume,
+      remetente: notaData.fornecedor || "REMETENTE NÃO INFORMADO",
+      destinatario: notaData.destinatario || "DESTINATÁRIO NÃO INFORMADO",
+      endereco: notaData.endereco || "ENDEREÇO NÃO INFORMADO",
+      cidade: notaData.cidade || "CIDADE NÃO INFORMADA",
+      uf: notaData.uf || "UF",
+      pesoTotal: notaData.pesoTotal || "0,00 Kg"
+    };
+  };
+
+  // Generate and download the PDF with all labels
+  const generateEtiquetasPDF = async (volumes: VolumeData[], notaData: any = {}) => {
+    if (!volumes || volumes.length === 0) {
+      toast({
+        title: "Erro",
+        description: "Nenhum volume disponível para gerar etiquetas.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    const totalVolumes = volumes.length;
+    const notaFiscal = volumes[0].notaFiscal;
+
+    try {
+      // Create a hidden div to hold all etiquetas
+      const hiddenDiv = document.createElement('div');
+      hiddenDiv.style.position = 'absolute';
+      hiddenDiv.style.left = '-9999px';
+      document.body.appendChild(hiddenDiv);
+      
+      // Create a PDF document
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a6' // Small format suitable for labels
+      });
+      
+      // For each volume, render the etiqueta and add to PDF
+      for (let i = 0; i < volumes.length; i++) {
+        const volumeData = prepareVolumeData(volumes[i], notaData);
+        
+        // Create temporary element
+        const tempEtiqueta = document.createElement('div');
+        hiddenDiv.appendChild(tempEtiqueta);
+        
+        // Render etiqueta to the temporary element
+        const { createRoot } = await import('react-dom/client');
+        const root = createRoot(tempEtiqueta);
+        
+        // Render the component
+        root.render(
+          <EtiquetaTemplate
+            volumeData={volumeData as any}
+            volumeNumber={i + 1}
+            totalVolumes={totalVolumes}
+          />
+        );
+        
+        // Wait for rendering
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Capture as image
+        const { default: html2canvas } = await import('html2canvas');
+        const canvas = await html2canvas(tempEtiqueta, {
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          allowTaint: true
+        });
+        
+        // Add to PDF
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        
+        // Clean up
+        root.unmount();
+        hiddenDiv.removeChild(tempEtiqueta);
+      }
+      
+      // Generate file name based on nota fiscal
+      const fileName = `etiquetas_nf_${notaFiscal}_${new Date().toISOString().slice(0,10)}.pdf`;
+      
+      // Save the PDF
+      pdf.save(fileName);
+      
+      // Clean up the hidden div
+      document.body.removeChild(hiddenDiv);
+      
+      toast({
+        title: "Sucesso",
+        description: `${totalVolumes} etiquetas geradas com sucesso.`,
+      });
+      
+    } catch (error) {
+      console.error('Erro ao gerar etiquetas:', error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao gerar as etiquetas. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return {
+    etiquetaRef,
+    isGenerating,
+    currentEtiqueta,
+    setCurrentEtiqueta,
+    generateEtiquetasPDF
+  };
+};

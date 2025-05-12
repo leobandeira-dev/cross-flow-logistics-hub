@@ -12,12 +12,50 @@ import { FileText, Barcode, Printer, Search } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
+import { toast } from '@/hooks/use-toast';
+import { useEtiquetasGenerator } from '@/hooks/useEtiquetasGenerator';
 
 // Mock data
 const volumesParaEtiquetar = [
-  { id: 'VOL-2023-001', notaFiscal: '12345', descricao: 'Caixa 30x20x15', quantidade: 10, etiquetado: false },
-  { id: 'VOL-2023-002', notaFiscal: '12345', descricao: 'Caixa 40x30x25', quantidade: 5, etiquetado: false },
-  { id: 'VOL-2023-003', notaFiscal: '12346', descricao: 'Pacote 50x40', quantidade: 20, etiquetado: true },
+  { 
+    id: 'VOL-2023-001', 
+    notaFiscal: '12345', 
+    descricao: 'Caixa 30x20x15', 
+    quantidade: 10, 
+    etiquetado: false,
+    remetente: 'Empresa XYZ Ltda',
+    destinatario: 'Cross Commerce - CD',
+    endereco: 'Rua das Indústrias, 1000 - São Paulo/SP',
+    cidade: 'SAO',
+    uf: 'SP',
+    pesoTotal: '25,5 Kg'
+  },
+  { 
+    id: 'VOL-2023-002', 
+    notaFiscal: '12345', 
+    descricao: 'Caixa 40x30x25', 
+    quantidade: 5, 
+    etiquetado: false,
+    remetente: 'Empresa XYZ Ltda',
+    destinatario: 'Cross Commerce - CD',
+    endereco: 'Rua das Indústrias, 1000 - São Paulo/SP',
+    cidade: 'SAO',
+    uf: 'SP',
+    pesoTotal: '25,5 Kg'
+  },
+  { 
+    id: 'VOL-2023-003', 
+    notaFiscal: '12346', 
+    descricao: 'Pacote 50x40', 
+    quantidade: 20, 
+    etiquetado: true,
+    remetente: 'Distribuidora ABC S.A.',
+    destinatario: 'Cross Commerce - Filial',
+    endereco: 'Av. Principal, 500 - Rio de Janeiro/RJ',
+    cidade: 'RIO',
+    uf: 'RJ',
+    pesoTotal: '12,3 Kg'
+  },
 ];
 
 const GeracaoEtiquetas: React.FC = () => {
@@ -25,6 +63,7 @@ const GeracaoEtiquetas: React.FC = () => {
   const notaFiscalData = location.state;
   
   const form = useForm();
+  const { generateEtiquetasPDF, isGenerating } = useEtiquetasGenerator();
   
   useEffect(() => {
     // If nota fiscal data is provided, pre-fill the form
@@ -35,6 +74,54 @@ const GeracaoEtiquetas: React.FC = () => {
   
   const handleSubmit = (data: any) => {
     console.log('Form data submitted:', data);
+  };
+
+  // Function to handle printing etiquetas for selected volumes
+  const handlePrintEtiquetas = (volume: any) => {
+    // Get volumes with the same nota fiscal
+    const volumesNota = volumesParaEtiquetar.filter(vol => vol.notaFiscal === volume.notaFiscal);
+    
+    // Prepare nota data for the etiquetas
+    const notaData = {
+      fornecedor: volume.remetente,
+      destinatario: volume.destinatario,
+      endereco: volume.endereco,
+      cidade: volume.cidade,
+      uf: volume.uf,
+      pesoTotal: volume.pesoTotal
+    };
+    
+    // Generate etiquetas for all volumes of this nota fiscal
+    generateEtiquetasPDF(volumesNota, notaData);
+    
+    // Mark the volume as etiquetado in our UI (for demonstration purposes)
+    // In a real application, you would update this in the database
+    toast({
+      title: "Etiquetas Geradas",
+      description: `Etiquetas para NF ${volume.notaFiscal} geradas com sucesso.`,
+    });
+  };
+
+  // Function to handle printing etiquetas for all volumes
+  const handleReimprimirEtiquetas = (volume: any) => {
+    // For reimprimir, we generate etiquetas regardless of etiquetado status
+    const volumesNota = volumesParaEtiquetar.filter(vol => vol.notaFiscal === volume.notaFiscal);
+    
+    const notaData = {
+      fornecedor: volume.remetente,
+      destinatario: volume.destinatario,
+      endereco: volume.endereco,
+      cidade: volume.cidade,
+      uf: volume.uf,
+      pesoTotal: volume.pesoTotal
+    };
+    
+    generateEtiquetasPDF(volumesNota, notaData);
+    
+    toast({
+      title: "Etiquetas Reimpressas",
+      description: `Etiquetas para NF ${volume.notaFiscal} reimpressas com sucesso.`,
+    });
   };
 
   return (
@@ -185,6 +272,7 @@ const GeracaoEtiquetas: React.FC = () => {
                               variant="outline" 
                               size="sm"
                               disabled={row.etiquetado}
+                              onClick={() => handlePrintEtiquetas(row)}
                               className={`${!row.etiquetado ? 'bg-cross-blue text-white hover:bg-cross-blue/90' : ''}`}
                             >
                               <Printer size={16} className="mr-1" />
@@ -287,14 +375,18 @@ const GeracaoEtiquetas: React.FC = () => {
                   },
                   {
                     header: 'Ações',
-                    accessor: 'actions', // Add this line
-                    cell: () => (
+                    accessor: 'actions',
+                    cell: (row) => (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">
                           <FileText size={16} className="mr-1" />
                           Detalhes
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleReimprimirEtiquetas(row)}
+                        >
                           <Printer size={16} className="mr-1" />
                           Reimprimir
                         </Button>
