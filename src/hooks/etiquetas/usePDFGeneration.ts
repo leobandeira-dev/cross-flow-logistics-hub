@@ -58,6 +58,9 @@ export const usePDFGeneration = () => {
   ) => {
     const root = createRoot(tempEtiqueta);
     
+    // Log volume data for debugging
+    console.log(`Rendering etiqueta for volume ${volumeNumber} of ${totalVolumes}:`, volumeData);
+    
     // Render the component
     root.render(
       React.createElement(EtiquetaTemplate, {

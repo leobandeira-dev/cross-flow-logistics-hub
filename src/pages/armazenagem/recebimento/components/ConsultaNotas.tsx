@@ -80,12 +80,27 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const handleGerarEtiquetasClick = (nota: any) => {
     console.log("Nota sendo passada para geração de etiquetas:", nota);
     
+    // Calculate or extract volumesTotal based on available information
+    let volumesTotal = '';
+    
+    // Check for volumesTotal in different properties
+    if (nota.volumesTotal) {
+      volumesTotal = nota.volumesTotal;
+    } else if (nota.volumes) {
+      // If nota has a volumes array, use its length
+      volumesTotal = nota.volumes.length.toString();
+    } else if (nota.itens && nota.itens.length > 0) {
+      // If nota has items, we could estimate volumes based on items
+      // This is a fallback and may not be accurate in all cases
+      volumesTotal = nota.itens.length.toString();
+    }
+    
     // Navigate to GeracaoEtiquetas with complete nota data
     navigate('/armazenagem/recebimento/etiquetas', { 
       state: {
         notaFiscal: nota.id,
         numeroPedido: nota.numeroPedido || '',
-        volumesTotal: nota.volumesTotal || '',
+        volumesTotal: volumesTotal,
         // Sender data
         remetente: nota.fornecedor || '',
         emitente: nota.emitenteRazaoSocial || '',

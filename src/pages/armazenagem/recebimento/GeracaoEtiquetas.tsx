@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
@@ -52,14 +51,16 @@ const GeracaoEtiquetas: React.FC = () => {
       // Set all the available data from the nota fiscal
       form.setValue('notaFiscal', notaFiscalData.notaFiscal);
       
-      // FIX: Properly check for volumesTotal in notaFiscalData and set it
+      // Check for volumesTotal in different possible field names and set it
       if (notaFiscalData.volumesTotal) {
+        console.log("Setting volumesTotal from notaFiscalData.volumesTotal:", notaFiscalData.volumesTotal);
         form.setValue('volumesTotal', notaFiscalData.volumesTotal);
       } else if (notaFiscalData.volumesTotais) {
-        // Try alternate field name if exists
+        console.log("Setting volumesTotal from notaFiscalData.volumesTotais:", notaFiscalData.volumesTotais);
         form.setValue('volumesTotal', notaFiscalData.volumesTotais);
       }
       
+      // Set peso total
       form.setValue('pesoTotalBruto', notaFiscalData.pesoTotal || '');
       
       // If volumes total is provided, automatically generate volumes
@@ -95,6 +96,7 @@ const GeracaoEtiquetas: React.FC = () => {
     }
     
     console.log("Gerando volumes com os dados da nota fiscal:", notaFiscalData);
+    console.log("Quantidade de volumes a gerar:", volumesTotal);
     
     // Generate new volumes based on the quantity, using data from nota fiscal if available
     const newVolumes: Volume[] = [];
