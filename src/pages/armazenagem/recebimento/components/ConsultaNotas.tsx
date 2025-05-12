@@ -8,7 +8,28 @@ import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import { notasFiscais } from '../data/mockData';
-import { filterConfig } from '../filterConfig';
+
+// Define filter config directly inside this component instead of importing
+const notasFilterConfig = [
+  {
+    name: "Status",
+    options: [
+      { label: "Todos", value: "all" },
+      { label: "Processada", value: "processada" },
+      { label: "Aguardando", value: "aguardando" },
+      { label: "Rejeitada", value: "rejeitada" }
+    ]
+  },
+  {
+    name: "Fornecedor",
+    options: [
+      { label: "Todos", value: "all" },
+      { label: "Fornecedor A", value: "Fornecedor A" },
+      { label: "Fornecedor B", value: "Fornecedor B" },
+      { label: "Fornecedor C", value: "Fornecedor C" }
+    ]
+  }
+];
 
 interface ConsultaNotasProps {
   onPrintClick: (notaId: string) => void;
@@ -27,7 +48,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       const matchesSearch = 
         nota.id.toLowerCase().includes(searchLower) ||
         nota.fornecedor.toLowerCase().includes(searchLower) ||
-        nota.destinatario.toLowerCase().includes(searchLower);
+        nota.destinatarioRazaoSocial?.toLowerCase().includes(searchLower); // Fixed property name
       
       if (!matchesSearch) return false;
     }
@@ -65,13 +86,22 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
         numeroPedido: nota.numeroPedido || '',
         volumesTotal: nota.volumesTotal || '',
         remetente: nota.fornecedor || '',
-        destinatario: nota.destinatario || '',
-        endereco: nota.enderecoDestinatario || '',
-        cidade: nota.cidadeDestinatario || '',
-        cidadeCompleta: `${nota.cidadeDestinatario || ''} - ${nota.ufDestinatario || ''}`,
-        uf: nota.ufDestinatario || '',
+        destinatario: nota.destinatarioRazaoSocial || '', // Fixed property reference
+        endereco: nota.destinatarioEndereco || '',
+        cidade: nota.destinatarioCidade || '',
+        cidadeCompleta: `${nota.destinatarioCidade || ''} - ${nota.destinatarioUF || ''}`,
+        uf: nota.destinatarioUF || '',
         pesoTotal: nota.pesoTotal || '',
         chaveNF: nota.chaveNF || '',
+        // Add additional fields for delivery address
+        enderecoDestinatario: nota.destinatarioEndereco || '',
+        bairroDestinatario: nota.destinatarioBairro || '',
+        cidadeDestinatario: nota.destinatarioCidade || '',
+        cepDestinatario: nota.destinatarioCEP || '',
+        ufDestinatario: nota.destinatarioUF || '',
+        // Add other necessary data
+        emitente: nota.emitenteRazaoSocial || '',
+        dataEmissao: nota.dataHoraEmissao || nota.data || '',
       }
     });
   };
@@ -84,7 +114,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       <CardContent>
         <SearchFilter 
           placeholder="Buscar por número, fornecedor ou destinatário..." 
-          filters={filterConfig}
+          filters={notasFilterConfig} // Use the locally defined filter config
           onSearch={handleSearch}
         />
         
@@ -93,7 +123,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
             columns={[
               { header: 'Número NF', accessor: 'id' },
               { header: 'Fornecedor', accessor: 'fornecedor' },
-              { header: 'Destinatário', accessor: 'destinatario' },
+              { header: 'Destinatário', accessor: 'destinatarioRazaoSocial' }, // Fixed property reference
               { header: 'Valor Total', accessor: 'valor' },
               { header: 'Data Emissão', accessor: 'dataEmissao' },
               { 

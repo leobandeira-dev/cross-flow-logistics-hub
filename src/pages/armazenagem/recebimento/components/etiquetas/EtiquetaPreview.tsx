@@ -43,7 +43,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
             )}
             
             {layoutStyle === 'compact' && (
-              // Compact layout preview
+              // Compact layout preview - Fixed layout conflicts
               renderCompactPreview(tipoEtiqueta, isQuimico)
             )}
             
@@ -128,26 +128,25 @@ const renderStandardPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolea
   </div>
 );
 
-// Helper function to render the compact layout preview - Fixed layout conflicts
+// Helper function to render the compact layout preview - Fixed visual conflicts by improving layout
 const renderCompactPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
   <div className={`p-2 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-gray-500 bg-gray-50'}`}>
-    <div className="flex items-center">
-      <div className="flex-shrink-0 mr-2">
-        <QrCode size={30} className="mx-auto" />
+    <div className="flex items-center space-x-2">
+      <div className="flex-shrink-0">
+        <QrCode size={24} className="mx-auto" />
       </div>
-      <div className="flex-grow min-w-0">
+      <div className="flex-1 min-w-0">
         {tipoEtiqueta === 'mae' ? (
-          <p className="font-bold text-red-600 text-sm truncate">ETIQUETA MÃE</p>
+          <p className="font-bold text-red-600 text-xs truncate">ETIQUETA MÃE</p>
         ) : isQuimico ? (
           <div className="flex items-center">
-            <Biohazard size={16} className="mr-1 text-red-500 flex-shrink-0" />
-            <span className="font-bold text-red-500 text-sm truncate">QUÍMICO</span>
+            <Biohazard size={14} className="mr-1 text-red-500 flex-shrink-0" />
+            <span className="font-bold text-red-500 text-xs truncate">QUÍMICO</span>
           </div>
         ) : (
-          <p className="font-bold text-sm truncate">VOLUME 1/2</p>
+          <p className="font-bold text-xs truncate">VOLUME 1/2</p>
         )}
-        <p className="text-xs">Braspress</p>
-        <p className="text-xs">Layout Compacto</p>
+        <p className="text-xs truncate">Braspress</p>
         <p className="text-xs font-medium text-blue-600 truncate">DESTINATÁRIO</p>
       </div>
     </div>
