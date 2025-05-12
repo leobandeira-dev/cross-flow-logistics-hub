@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
@@ -36,22 +36,22 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
 }) => {
   const form = useForm({
     defaultValues: {
-      tipoVolume: volume?.tipoVolume || 'geral',
-      codigoONU: volume?.codigoONU || '',
-      codigoRisco: volume?.codigoRisco || ''
+      tipoVolume: 'geral',
+      codigoONU: '',
+      codigoRisco: ''
     }
   });
 
-  React.useEffect(() => {
-    if (volume) {
-      // Reset form with current volume data whenever volume changes
+  // Reset form with volume data whenever the dialog opens or the volume changes
+  useEffect(() => {
+    if (volume && open) {
       form.reset({
         tipoVolume: volume.tipoVolume || 'geral',
         codigoONU: volume.codigoONU || '',
         codigoRisco: volume.codigoRisco || ''
       });
     }
-  }, [volume, form]);
+  }, [volume, form, open]);
 
   const watchTipoVolume = form.watch('tipoVolume');
   const isQuimico = watchTipoVolume === 'quimico';

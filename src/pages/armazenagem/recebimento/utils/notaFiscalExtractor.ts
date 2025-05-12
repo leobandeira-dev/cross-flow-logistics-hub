@@ -1,244 +1,120 @@
 
-import { NotaFiscalSchemaType } from '../components/forms/notaFiscalSchema';
+/**
+ * Utility functions for extracting data from XML for Nota Fiscal
+ */
+
+import { toast } from "@/hooks/use-toast";
 
 /**
- * Extract data from an XML object to populate a NotaFiscal form
+ * Search for a Nota Fiscal using the access key
  */
-export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> => {
-  try {
-    console.log("Tentando extrair dados do XML:", xmlData);
-    
-    // Navigate through the XML structure using the new approach
-    const nfeProc = xmlData.nfeproc || xmlData.nfeProc || {};
-    
-    // Accessing the XML content in a more resilient way
-    const nfe = nfeProc.nfe || nfeProc.nfe;
-    const infNFe = nfe?.infnfe || nfe?.infnfe;
-    
-    if (!infNFe) {
-      console.error("Estrutura de XML não reconhecida:", xmlData);
-      return {};
-    }
-    
-    // Extracting basic data
-    const ide = infNFe.ide || {};
-    const emit = infNFe.emit || {};
-    const dest = infNFe.dest || {};
-    const transp = infNFe.transp || {};
-    const total = infNFe.total || {};
-    const infAdic = infNFe.infadic || {};
-    
-    console.log("Estrutura encontrada:", {
-      ide: ide,
-      emit: emit,
-      dest: dest,
-      transp: transp,
-      total: total,
-      infAdic: infAdic
-    });
-    
-    // Helper function to safely extract a value
-    const getValue = (obj: any, path: string[], defaultValue: string = ''): string => {
-      let current = obj;
-      
-      for (const key of path) {
-        if (current && typeof current === 'object' && key in current) {
-          current = current[key];
-        } else {
-          return defaultValue;
-        }
-      }
-      
-      return current?.toString() || defaultValue;
-    };
-
-    // New function to extract order number from product details
-    const extractOrderNumberFromProducts = (infNFe: any): string => {
-      try {
-        // Access the product information
-        const det = infNFe.det;
-        
-        // If det is an array, look through each product
-        if (Array.isArray(det)) {
-          for (const item of det) {
-            if (item.prod && item.prod.xped) {
-              // Found the order number, remove any hyphens
-              return item.prod.xped.toString().replace(/-/g, '');
-            }
-          }
-        } 
-        // If det is a single object
-        else if (det && det.prod && det.prod.xped) {
-          return det.prod.xped.toString().replace(/-/g, '');
-        }
-        
-        return '';
-      } catch (error) {
-        console.error("Erro ao extrair número de pedido dos produtos:", error);
-        return '';
-      }
-    };
-
-    // Helper function to split address and number
-    const splitAddressAndNumber = (fullAddress: string): { address: string, number: string } => {
-      // Common patterns for addresses with numbers
-      const numberPattern = /,\s*n[º°]?\s*(\d+\w*)/i;
-      const commaPattern = /(.*),\s*(\d+\w*)/;
-      
-      let match = fullAddress.match(numberPattern) || fullAddress.match(commaPattern);
-      
-      if (match) {
-        return {
-          address: match[1].trim(),
-          number: match[2] || ''
-        };
-      }
-      
-      // If no match, try splitting by comma
-      const parts = fullAddress.split(',');
-      if (parts.length > 1) {
-        const potentialNumber = parts[1].trim();
-        if (/^\d+\w*$/.test(potentialNumber)) {
-          return {
-            address: parts[0].trim(),
-            number: potentialNumber
-          };
-        }
-      }
-      
-      // Default: return original address and empty number
-      return {
-        address: fullAddress,
-        number: ''
-      };
-    };
-
-    // Extract order number from product details
-    const orderNumber = extractOrderNumberFromProducts(infNFe);
-    console.log("Número do pedido extraído dos produtos:", orderNumber);
-    
-    // Process emission date and time
-    let emissionDate = '';
-    const dhEmi = getValue(ide, ['dhemi']);
-    const dEmi = getValue(ide, ['demi']);
-    const hEmi = getValue(ide, ['hemi']);
-    
-    if (dhEmi) {
-      // If we have a complete date+time string
-      try {
-        emissionDate = new Date(dhEmi).toISOString().slice(0, 16);
-      } catch (e) {
-        console.log("Erro ao converter data/hora de emissão:", e);
-      }
-    } else if (dEmi) {
-      // If date and time are separate fields
-      try {
-        const dateStr = dEmi + (hEmi ? `T${hEmi}` : 'T00:00');
-        emissionDate = new Date(dateStr).toISOString().slice(0, 16);
-      } catch (e) {
-        console.log("Erro ao converter data/hora de emissão separados:", e);
-      }
-    }
-    
-    console.log("Data de emissão processada:", emissionDate);
-    
-    // Process sender address
-    const emitentEndereco = getValue(emit, ['enderemit', 'xlgr']);
-    const emitenteNumero = getValue(emit, ['enderemit', 'nro']);
-    
-    // Process recipient address
-    const destinatarioEndereco = getValue(dest, ['enderdest', 'xlgr']);
-    const destinatarioNumero = getValue(dest, ['enderdest', 'nro']);
-    
-    // If we don't have explicit number fields, try to extract them from addresses
-    let emitenteEnderecoFinal = emitentEndereco;
-    let emitenteNumeroFinal = emitenteNumero;
-    
-    if (!emitenteNumero && emitentEndereco) {
-      const { address, number } = splitAddressAndNumber(emitentEndereco);
-      emitenteEnderecoFinal = address;
-      emitenteNumeroFinal = number;
-    }
-    
-    let destinatarioEnderecoFinal = destinatarioEndereco;
-    let destinatarioNumeroFinal = destinatarioNumero;
-    
-    if (!destinatarioNumero && destinatarioEndereco) {
-      const { address, number } = splitAddressAndNumber(destinatarioEndereco);
-      destinatarioEnderecoFinal = address;
-      destinatarioNumeroFinal = number;
-    }
-    
-    // Extract infCpl for informacoes complementares
-    const informacoesComplementares = getValue(infAdic, ['infcpl']);
-    console.log("Informações complementares extraídas:", informacoesComplementares);
-    
-    // Extracting data with the helper function
-    return {
-      // Note data
-      chaveNF: getValue(infNFe, ['id']) || getValue(infNFe, ['Id']),
-      numeroNF: getValue(ide, ['nnf']) || getValue(ide, ['nnf']),
-      serieNF: getValue(ide, ['serie']),
-      dataHoraEmissao: emissionDate,
-      valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['icmstot', 'vnf']),
-      numeroPedido: orderNumber, // Updated to use product-based order number
-      
-      // Sender data
-      emitenteCNPJ: getValue(emit, ['cnpj']),
-      emitenteRazaoSocial: getValue(emit, ['xnome']),
-      emitenteTelefone: getValue(emit, ['enderemit', 'fone']),
-      emitenteUF: getValue(emit, ['enderemit', 'uf']),
-      emitenteCidade: getValue(emit, ['enderemit', 'xmun']),
-      emitenteBairro: getValue(emit, ['enderemit', 'xbairro']),
-      emitenteEndereco: emitenteEnderecoFinal,
-      emitenteNumero: emitenteNumeroFinal,
-      emitenteCEP: getValue(emit, ['enderemit', 'cep']),
-      
-      // Recipient data
-      destinatarioCNPJ: getValue(dest, ['cnpj']),
-      destinatarioRazaoSocial: getValue(dest, ['xnome']),
-      destinatarioTelefone: getValue(dest, ['enderdest', 'fone']),
-      destinatarioUF: getValue(dest, ['enderdest', 'uf']),
-      destinatarioCidade: getValue(dest, ['enderdest', 'xmun']),
-      destinatarioBairro: getValue(dest, ['enderdest', 'xbairro']),
-      destinatarioEndereco: destinatarioEnderecoFinal,
-      destinatarioNumero: destinatarioNumeroFinal,
-      destinatarioCEP: getValue(dest, ['enderdest', 'cep']),
-      
-      // Transport information
-      responsavelEntrega: getValue(transp, ['transporta', 'xnome']),
-      motorista: getValue(transp, ['veictransp', 'placa']) ? 
-        `Placa: ${getValue(transp, ['veictransp', 'placa'])}` : '',
-      volumesTotal: getValue(transp, ['vol', 'qvol']),
-      pesoTotalBruto: getValue(transp, ['vol', 'pesob']),
-      
-      // Additional information
-      informacoesComplementares: informacoesComplementares,
-    };
-  } catch (error) {
-    console.error("Erro ao extrair dados do XML:", error);
-    return {};
-  }
+export const searchNotaFiscalByChave = async (chave: string): Promise<Record<string, any>> => {
+  // This is a mock implementation
+  // In a real application, this would call your API to search for the NF
+  console.log(`Searching for Nota Fiscal with chave: ${chave}`);
+  
+  // Simulate API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Mock data
+      resolve({
+        notaFiscal: `NF-${chave.substring(0, 6)}`,
+        numeroNF: chave.substring(0, 6),
+        chaveNF: chave,
+        emitenteRazaoSocial: "EMPRESA EMITENTE LTDA",
+        emitenteCNPJ: "12.345.678/0001-90",
+        emitenteEndereco: "Rua Exemplo, 123",
+        emitenteBairro: "Centro",
+        emitenteCidade: "São Paulo",
+        emitenteUF: "SP",
+        emitenteCEP: "01234-567",
+        destinatarioRazaoSocial: "EMPRESA DESTINATÁRIA LTDA",
+        destinatarioCNPJ: "98.765.432/0001-10",
+        destinatarioEndereco: "Avenida Teste, 456",
+        destinatarioBairro: "Jardim",
+        destinatarioCidade: "Rio de Janeiro",
+        destinatarioUF: "RJ",
+        destinatarioCEP: "98765-432",
+        valorTotal: "1850.75",
+        dataHoraEmissao: "2023-05-10T10:30:00-03:00",
+        pesoTotalBruto: "125.500",
+        volumesTotal: "5"
+      });
+    }, 1000);
+  });
 };
 
 /**
- * Mock data search for a nota fiscal
+ * Extract data from XML object for a Nota Fiscal
  */
-export const searchNotaFiscalByChave = async (chaveNF: string): Promise<Partial<NotaFiscalSchemaType>> => {
-  console.log('Buscando nota fiscal pela chave:', chaveNF);
-  
-  // Simulate an API call with setTimeout
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Simulate filling in some fields
-      resolve({
-        numeroNF: '654321',
-        serieNF: '001',
-        dataHoraEmissao: '2023-05-10',
-        valorTotal: '1850.75',
-        emitenteRazaoSocial: 'Fornecedor ABC Ltda',
-        emitenteCNPJ: '12.345.678/0001-90',
-      });
-    }, 1500);
-  });
+export const extractDataFromXml = (xmlData: any): Record<string, any> => {
+  try {
+    console.log("Extracting data from XML object:", xmlData);
+    
+    // Extract NFe data
+    const nfe = xmlData.nfe || {};
+    const infNFe = nfe.infnfe || {};
+    
+    // Extract ide section
+    const ide = infNFe.ide || {};
+    
+    // Extract emit section (emitente)
+    const emit = infNFe.emit || {};
+    const enderEmit = emit.enderemit || {};
+    
+    // Extract dest section (destinatario)
+    const dest = infNFe.dest || {};
+    const enderDest = dest.enderdest || {};
+    
+    // Extract total section
+    const total = infNFe.total || {};
+    const icmsTot = total.icmstot || {};
+    
+    // Extract transport section
+    const transp = infNFe.transp || {};
+    const vol = transp.vol || {};
+    
+    // Build the extracted data object
+    const extractedData = {
+      chaveNF: infNFe.id ? infNFe.id.replace('NFe', '') : "",
+      numeroNF: ide.nnf || "",
+      serieNF: ide.serie || "",
+      dataHoraEmissao: ide.dhemi || "",
+      valorTotal: icmsTot.vnf || "",
+      
+      // Emitente data
+      emitenteCNPJ: emit.cnpj || "",
+      emitenteRazaoSocial: emit.xnome || "",
+      emitenteEndereco: `${enderEmit.xlgr || ""}, ${enderEmit.nro || ""}`,
+      emitenteBairro: enderEmit.xbairro || "",
+      emitenteCidade: enderEmit.xmun || "",
+      emitenteUF: enderEmit.uf || "",
+      emitenteCEP: enderEmit.cep || "",
+      
+      // Destinatario data
+      destinatarioCNPJ: dest.cnpj || "",
+      destinatarioRazaoSocial: dest.xnome || "",
+      destinatarioEndereco: `${enderDest.xlgr || ""}, ${enderDest.nro || ""}`,
+      destinatarioBairro: enderDest.xbairro || "",
+      destinatarioCidade: enderDest.xmun || "",
+      destinatarioUF: enderDest.uf || "",
+      destinatarioCEP: enderDest.cep || "",
+      
+      // Volume data - adicionando suporte para quantidade de volumes
+      pesoTotalBruto: vol.pesob || vol.pesobruto || "",
+      volumesTotal: vol.qvol || ""
+    };
+    
+    console.log("Extracted data:", extractedData);
+    return extractedData;
+    
+  } catch (error) {
+    console.error("Error extracting data from XML:", error);
+    toast({
+      title: "Erro",
+      description: "Ocorreu um erro ao extrair os dados do XML.",
+      variant: "destructive"
+    });
+    return {};
+  }
 };
