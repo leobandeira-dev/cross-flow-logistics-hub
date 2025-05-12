@@ -169,6 +169,10 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       destinatarioNumeroFinal = number;
     }
     
+    // Extract infCpl for informacoes complementares
+    const informacoesComplementares = getValue(infAdic, ['infcpl']);
+    console.log("Informações complementares extraídas:", informacoesComplementares);
+    
     // Extracting data with the helper function
     return {
       // Note data
@@ -182,24 +186,24 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       // Sender data
       emitenteCNPJ: getValue(emit, ['cnpj']),
       emitenteRazaoSocial: getValue(emit, ['xnome']),
+      emitenteTelefone: getValue(emit, ['enderemit', 'fone']),
+      emitenteUF: getValue(emit, ['enderemit', 'uf']),
+      emitenteCidade: getValue(emit, ['enderemit', 'xmun']),
+      emitenteBairro: getValue(emit, ['enderemit', 'xbairro']),
       emitenteEndereco: emitenteEnderecoFinal,
       emitenteNumero: emitenteNumeroFinal,
-      emitenteBairro: getValue(emit, ['enderemit', 'xbairro']),
-      emitenteCidade: getValue(emit, ['enderemit', 'xmun']),
-      emitenteUF: getValue(emit, ['enderemit', 'uf']),
       emitenteCEP: getValue(emit, ['enderemit', 'cep']),
-      emitenteTelefone: getValue(emit, ['enderemit', 'fone']),
       
       // Recipient data
       destinatarioCNPJ: getValue(dest, ['cnpj']),
       destinatarioRazaoSocial: getValue(dest, ['xnome']),
+      destinatarioTelefone: getValue(dest, ['enderdest', 'fone']),
+      destinatarioUF: getValue(dest, ['enderdest', 'uf']),
+      destinatarioCidade: getValue(dest, ['enderdest', 'xmun']),
+      destinatarioBairro: getValue(dest, ['enderdest', 'xbairro']),
       destinatarioEndereco: destinatarioEnderecoFinal,
       destinatarioNumero: destinatarioNumeroFinal,
-      destinatarioBairro: getValue(dest, ['enderdest', 'xbairro']),
-      destinatarioCidade: getValue(dest, ['enderdest', 'xmun']),
-      destinatarioUF: getValue(dest, ['enderdest', 'uf']),
       destinatarioCEP: getValue(dest, ['enderdest', 'cep']),
-      destinatarioTelefone: getValue(dest, ['enderdest', 'fone']),
       
       // Transport information
       responsavelEntrega: getValue(transp, ['transporta', 'xnome']),
@@ -207,6 +211,9 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
         `Placa: ${getValue(transp, ['veictransp', 'placa'])}` : '',
       volumesTotal: getValue(transp, ['vol', 'qvol']),
       pesoTotalBruto: getValue(transp, ['vol', 'pesob']),
+      
+      // Additional information
+      informacoesComplementares: informacoesComplementares,
     };
   } catch (error) {
     console.error("Erro ao extrair dados do XML:", error);
