@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
@@ -305,7 +306,7 @@ const GeracaoEtiquetas: React.FC = () => {
       
       <Tabs defaultValue="gerar" className="mb-6" onValueChange={(value) => setActiveTab(value)}>
         <TabsList className="mb-4">
-          <TabsTrigger value="gerar">Gerar Etiquetas</TabsTrigger>
+          <TabsTrigger value="gerar">Etiquetas Volumes</TabsTrigger>
           <TabsTrigger value="consultar">Consultar Etiquetas</TabsTrigger>
           <TabsTrigger value="etiquetasMae">Etiquetas Mãe</TabsTrigger>
         </TabsList>
@@ -315,11 +316,10 @@ const GeracaoEtiquetas: React.FC = () => {
             <div className="lg:col-span-2">
               <EtiquetaFormPanel 
                 form={form}
-                tipoEtiqueta={tipoEtiqueta}
-                setTipoEtiqueta={setTipoEtiqueta}
+                tipoEtiqueta="volume"
                 isQuimico={isQuimico}
                 handleGenerateVolumes={handleGenerateVolumes} 
-                handleCreateEtiquetaMae={handleCreateEtiquetaMae}
+                showEtiquetaMaeOption={false}
               />
               
               {activeTab === 'gerar' && generatedVolumes.length > 0 && (
@@ -342,7 +342,7 @@ const GeracaoEtiquetas: React.FC = () => {
             
             <div>
               <EtiquetaPreview 
-                tipoEtiqueta={tipoEtiqueta}
+                tipoEtiqueta="volume"
                 isQuimico={isQuimico}
               />
             </div>
@@ -362,6 +362,8 @@ const GeracaoEtiquetas: React.FC = () => {
             volumes={volumes}
             handlePrintEtiquetaMae={handlePrintEtiquetaMae}
             handleVincularVolumes={handleVincularVolumes}
+            handleCreateEtiquetaMae={handleCreateEtiquetaMae}
+            form={form}
           />
         </TabsContent>
       </Tabs>

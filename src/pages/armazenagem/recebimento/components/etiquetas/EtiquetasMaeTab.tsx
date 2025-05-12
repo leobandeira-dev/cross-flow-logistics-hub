@@ -6,6 +6,9 @@ import { FileText, Printer, Link as LinkIcon } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import SearchFilter from '@/components/common/SearchFilter';
 import VinculoEtiquetaMaeDialog from './VinculoEtiquetaMaeDialog';
+import EtiquetaFormPanel from './EtiquetaFormPanel';
+import EtiquetaPreview from './EtiquetaPreview';
+import { UseFormReturn } from 'react-hook-form';
 
 interface EtiquetaMae {
   id: string;
@@ -36,13 +39,17 @@ interface EtiquetasMaeTabProps {
   volumes: Volume[];
   handlePrintEtiquetaMae: (etiquetaMae: EtiquetaMae) => void;
   handleVincularVolumes?: (etiquetaMaeId: string, volumeIds: string[]) => void;
+  handleCreateEtiquetaMae?: () => void;
+  form?: UseFormReturn<any>;
 }
 
 const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
   etiquetasMae,
   volumes,
   handlePrintEtiquetaMae,
-  handleVincularVolumes
+  handleVincularVolumes,
+  handleCreateEtiquetaMae,
+  form
 }) => {
   const [vinculoDialogOpen, setVinculoDialogOpen] = useState(false);
   const [selectedEtiquetaMae, setSelectedEtiquetaMae] = useState<EtiquetaMae | null>(null);
@@ -59,91 +66,113 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
   };
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Etiquetas Mãe</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <SearchFilter 
-          placeholder="Buscar por ID, nota fiscal ou remetente..." 
-          filters={[
-            {
-              name: "Status",
-              options: [
-                { label: "Ativo", value: "ativo" },
-                { label: "Inativo", value: "inativo" }
-              ]
-            },
-            {
-              name: "Período",
-              options: [
-                { label: "Hoje", value: "today" },
-                { label: "Esta semana", value: "thisWeek" },
-                { label: "Este mês", value: "thisMonth" }
-              ]
-            }
-          ]}
-        />
-        
-        <DataTable
-          columns={[
-            { header: 'ID', accessor: 'id' },
-            { header: 'Nota Fiscal', accessor: 'notaFiscal' },
-            { header: 'Volumes', accessor: 'quantidadeVolumes' },
-            { header: 'Remetente', accessor: 'remetente' },
-            { header: 'Destinatário', accessor: 'destinatario' },
-            { header: 'Cidade/UF', accessor: 'cidade',
-              cell: (row) => (
-                <div>
-                  {row.cidade} - <span className="font-bold">{row.uf}</span>
-                </div>
-              )
-            },
-            { header: 'Data Criação', accessor: 'dataCriacao' },
-            {
-              header: 'Ações',
-              accessor: 'actions',
-              cell: (row) => (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <FileText size={16} className="mr-1" />
-                    Detalhes
-                  </Button>
-                  {handleVincularVolumes && (
+    <div className="space-y-6">
+      {form && handleCreateEtiquetaMae && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <EtiquetaFormPanel 
+              form={form}
+              tipoEtiqueta="mae"
+              isQuimico={false}
+              handleCreateEtiquetaMae={handleCreateEtiquetaMae}
+              showEtiquetaMaeOption={true}
+            />
+          </div>
+          <div>
+            <EtiquetaPreview 
+              tipoEtiqueta="mae"
+              isQuimico={false}
+            />
+          </div>
+        </div>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Etiquetas Mãe</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SearchFilter 
+            placeholder="Buscar por ID, nota fiscal ou remetente..." 
+            filters={[
+              {
+                name: "Status",
+                options: [
+                  { label: "Ativo", value: "ativo" },
+                  { label: "Inativo", value: "inativo" }
+                ]
+              },
+              {
+                name: "Período",
+                options: [
+                  { label: "Hoje", value: "today" },
+                  { label: "Esta semana", value: "thisWeek" },
+                  { label: "Este mês", value: "thisMonth" }
+                ]
+              }
+            ]}
+          />
+          
+          <DataTable
+            columns={[
+              { header: 'ID', accessor: 'id' },
+              { header: 'Nota Fiscal', accessor: 'notaFiscal' },
+              { header: 'Volumes', accessor: 'quantidadeVolumes' },
+              { header: 'Remetente', accessor: 'remetente' },
+              { header: 'Destinatário', accessor: 'destinatario' },
+              { header: 'Cidade/UF', accessor: 'cidade',
+                cell: (row) => (
+                  <div>
+                    {row.cidade} - <span className="font-bold">{row.uf}</span>
+                  </div>
+                )
+              },
+              { header: 'Data Criação', accessor: 'dataCriacao' },
+              {
+                header: 'Ações',
+                accessor: 'actions',
+                cell: (row) => (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <FileText size={16} className="mr-1" />
+                      Detalhes
+                    </Button>
+                    {handleVincularVolumes && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleOpenVinculoDialog(row)}
+                      >
+                        <LinkIcon size={16} className="mr-1" />
+                        Vincular
+                      </Button>
+                    )}
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => handleOpenVinculoDialog(row)}
+                      onClick={() => handlePrintEtiquetaMae(row)}
                     >
-                      <LinkIcon size={16} className="mr-1" />
-                      Vincular
+                      <Printer size={16} className="mr-1" />
+                      Imprimir
                     </Button>
-                  )}
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handlePrintEtiquetaMae(row)}
-                  >
-                    <Printer size={16} className="mr-1" />
-                    Imprimir
-                  </Button>
-                </div>
-              )
-            }
-          ]}
-          data={etiquetasMae}
-        />
+                  </div>
+                )
+              }
+            ]}
+            data={etiquetasMae}
+          />
 
-        {/* Dialog for linking volumes to master label */}
-        <VinculoEtiquetaMaeDialog
-          open={vinculoDialogOpen}
-          onClose={() => setVinculoDialogOpen(false)}
-          etiquetaMae={selectedEtiquetaMae}
-          volumes={volumes}
-          onSave={handleVincularVolumesSave}
-        />
-      </CardContent>
-    </Card>
+          {/* Dialog for linking volumes to master label */}
+          <VinculoEtiquetaMaeDialog
+            open={vinculoDialogOpen}
+            onClose={() => setVinculoDialogOpen(false)}
+            etiquetaMae={selectedEtiquetaMae}
+            volumes={volumes}
+            onSave={handleVincularVolumesSave}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

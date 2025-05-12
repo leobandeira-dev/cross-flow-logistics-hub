@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Printer, Biohazard } from 'lucide-react';
+import { FileText, Printer, Biohazard, LinkIcon } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
@@ -14,6 +14,7 @@ interface Volume {
   quantidade: number;
   etiquetado: boolean;
   tipoVolume?: 'geral' | 'quimico';
+  etiquetaMae?: string;
   [key: string]: any;
 }
 
@@ -33,7 +34,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
       </CardHeader>
       <CardContent>
         <SearchFilter 
-          placeholder="Buscar por ID, nota fiscal ou descrição..." 
+          placeholder="Buscar por ID, nota fiscal, descrição ou etiqueta mãe..." 
           filters={[
             {
               name: "Status",
@@ -47,6 +48,13 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               options: [
                 { label: "Carga Geral", value: "geral" },
                 { label: "Produto Químico", value: "quimico" }
+              ]
+            },
+            {
+              name: "Etiqueta Mãe",
+              options: [
+                { label: "Com Etiqueta Mãe", value: "comEtiquetaMae" },
+                { label: "Sem Etiqueta Mãe", value: "semEtiquetaMae" }
               ]
             },
             {
@@ -78,6 +86,19 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               }
             },
             { header: 'Quantidade', accessor: 'quantidade' },
+            { 
+              header: 'Etiqueta Mãe', 
+              accessor: 'etiquetaMae',
+              cell: (row) => {
+                if (!row.etiquetaMae) return <span className="text-gray-400">-</span>;
+                return (
+                  <div className="flex items-center">
+                    <LinkIcon size={14} className="mr-1 text-blue-500" />
+                    <span>{row.etiquetaMae}</span>
+                  </div>
+                );
+              }
+            },
             { 
               header: 'Status', 
               accessor: 'etiquetado',
