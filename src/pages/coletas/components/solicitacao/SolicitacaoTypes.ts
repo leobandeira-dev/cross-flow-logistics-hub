@@ -87,3 +87,34 @@ export interface EmpresaInfoFormProps {
   onChange?: (dados: DadosEmpresa) => void;
   label?: string;
 }
+
+export interface ImportTabContentProps {
+  isLoading: boolean;
+  handleUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+}
+
+export interface BatchImportTabContentProps extends ImportTabContentProps {}
+
+export interface ExcelImportTabContentProps extends ImportTabContentProps {
+  handleDownloadTemplate: () => void;
+}
+
+export interface SolicitacaoFormProps {
+  formData: {
+    cliente: string;
+    origem: string;
+    destino: string;
+    dataColeta: string;
+    observacoes: string;
+    notasFiscais: NotaFiscalVolume[];
+    [key: string]: any;
+  };
+  handleInputChange: (field: string, value: any) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  isLoading: boolean;
+  handleSingleXmlUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  handleBatchXmlUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  handleExcelUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  handleDownloadTemplate: () => void;
+}
