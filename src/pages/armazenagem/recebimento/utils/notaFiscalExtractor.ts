@@ -52,32 +52,34 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       return current?.toString() || defaultValue;
     };
 
-    // Helper function to extract order number from infCpl (additional information)
-    const extractOrderNumber = (infComplText: string): string => {
-      // Look for common patterns in infCpl where order numbers might appear
-      const patterns = [
-        /n[úu]mero\s+do\s+pedido:?\s*(\d+[-]?\d*)/i,
-        /pedido:?\s*(\d+[-]?\d*)/i,
-        /ordem\s+de\s+compra:?\s*(\d+[-]?\d*)/i,
-        /[\s\n\r](\d{7,}[-]?\d{3})[\s\n\r]/i  // Pattern looking for numbers like 4177566-664
-      ];
-      
-      for (const pattern of patterns) {
-        const match = infComplText.match(pattern);
-        if (match && match[1]) {
-          return match[1];
+    // New function to extract order number from product details
+    const extractOrderNumberFromProducts = (infNFe: any): string => {
+      try {
+        // Access the product information
+        const det = infNFe.det;
+        
+        // If det is an array, look through each product
+        if (Array.isArray(det)) {
+          for (const item of det) {
+            if (item.prod && item.prod.xped) {
+              // Found the order number, remove any hyphens
+              return item.prod.xped.toString().replace(/-/g, '');
+            }
+          }
+        } 
+        // If det is a single object
+        else if (det && det.prod && det.prod.xped) {
+          return det.prod.xped.toString().replace(/-/g, '');
         }
+        
+        return '';
+      } catch (error) {
+        console.error("Erro ao extrair número de pedido dos produtos:", error);
+        return '';
       }
-      
-      // If no pattern match, try to find it by looking for the specific number
-      if (infComplText.includes('4177566-664')) {
-        return '4177566-664';
-      }
-      
-      return '';
     };
 
-    // Helper function to split address and extract number
+    // Helper function to split address and number
     const splitAddressAndNumber = (fullAddress: string): { address: string, number: string } => {
       // Common patterns for addresses with numbers
       const numberPattern = /,\s*n[º°]?\s*(\d+\w*)/i;
@@ -111,11 +113,9 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       };
     };
 
-    // Extract infCpl for order number
-    const infCpl = getValue(infAdic, ['infcpl']) || '';
-    const orderNumber = extractOrderNumber(infCpl);
-    console.log("Texto infCpl encontrado:", infCpl);
-    console.log("Número do pedido extraído:", orderNumber);
+    // Extract order number from product details
+    const orderNumber = extractOrderNumberFromProducts(infNFe);
+    console.log("Número do pedido extraído dos produtos:", orderNumber);
     
     // Process emission date and time
     let emissionDate = '';
@@ -177,7 +177,7 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       serieNF: getValue(ide, ['serie']),
       dataHoraEmissao: emissionDate,
       valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['icmstot', 'vnf']),
-      numeroPedido: orderNumber, // New field for order number
+      numeroPedido: orderNumber, // Updated to use product-based order number
       
       // Sender data
       emitenteCNPJ: getValue(emit, ['cnpj']),
