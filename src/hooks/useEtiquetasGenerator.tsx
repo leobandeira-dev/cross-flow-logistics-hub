@@ -17,8 +17,10 @@ interface VolumeData {
   destinatario?: string;
   endereco?: string;
   cidade?: string;
+  cidadeCompleta?: string;
   uf?: string;
   pesoTotal?: string;
+  etiquetaMae?: string;
 }
 
 export const useEtiquetasGenerator = () => {
@@ -38,6 +40,7 @@ export const useEtiquetasGenerator = () => {
       destinatario: notaData.destinatario || volume.destinatario || "DESTINATÁRIO NÃO INFORMADO",
       endereco: notaData.endereco || volume.endereco || "ENDEREÇO NÃO INFORMADO",
       cidade: notaData.cidade || volume.cidade || "CIDADE NÃO INFORMADA",
+      cidadeCompleta: notaData.cidadeCompleta || volume.cidadeCompleta || notaData.cidade || volume.cidade || "CIDADE NÃO INFORMADA",
       uf: notaData.uf || volume.uf || "UF",
       pesoTotal: notaData.pesoTotal || volume.pesoTotal || "0,00 Kg",
       tipoVolume: volume.tipoVolume || 'geral',
@@ -50,7 +53,9 @@ export const useEtiquetasGenerator = () => {
   const generateEtiquetasPDF = async (
     volumes: VolumeData[], 
     notaData: any = {}, 
-    formatoImpressao: string = '50x100'
+    formatoImpressao: string = '50x100',
+    tipo: 'volume' | 'mae' = 'volume',
+    etiquetaMaeId?: string
   ) => {
     if (!volumes || volumes.length === 0) {
       toast({
@@ -99,9 +104,17 @@ export const useEtiquetasGenerator = () => {
         format: pdfFormat
       });
       
-      // For each volume, render the etiqueta and add to PDF
-      for (let i = 0; i < volumes.length; i++) {
-        const volumeData = prepareVolumeData(volumes[i], notaData);
+      if (tipo === 'mae') {
+        // Generate one master label for all volumes
+        // Create a "master" volume that contains all the info
+        const masterVolume: VolumeData = {
+          ...volumes[0],
+          id: etiquetaMaeId || `MASTER-${notaFiscal}-${Date.now()}`,
+          etiquetaMae: etiquetaMaeId || `MASTER-${notaFiscal}-${Date.now()}`,
+          quantidade: totalVolumes
+        };
+        
+        const preparedMasterVolume = prepareVolumeData(masterVolume, notaData);
         
         // Create temporary element
         const tempEtiqueta = document.createElement('div');
@@ -114,10 +127,11 @@ export const useEtiquetasGenerator = () => {
         // Render the component
         root.render(
           <EtiquetaTemplate
-            volumeData={volumeData as any}
-            volumeNumber={i + 1}
-            totalVolumes={totalVolumes}
+            volumeData={preparedMasterVolume as any}
+            volumeNumber={1}
+            totalVolumes={1}
             format={etiquetaFormat}
+            tipo="mae"
           />
         );
         
@@ -133,11 +147,6 @@ export const useEtiquetasGenerator = () => {
           allowTaint: true
         });
         
-        // Add to PDF
-        if (i > 0) {
-          pdf.addPage();
-        }
-        
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -146,10 +155,61 @@ export const useEtiquetasGenerator = () => {
         // Clean up
         root.unmount();
         hiddenDiv.removeChild(tempEtiqueta);
+      } else {
+        // For each volume, render the etiqueta and add to PDF
+        for (let i = 0; i < volumes.length; i++) {
+          const volumeData = prepareVolumeData(volumes[i], notaData);
+          
+          // Create temporary element
+          const tempEtiqueta = document.createElement('div');
+          hiddenDiv.appendChild(tempEtiqueta);
+          
+          // Render etiqueta to the temporary element
+          const { createRoot } = await import('react-dom/client');
+          const root = createRoot(tempEtiqueta);
+          
+          // Render the component
+          root.render(
+            <EtiquetaTemplate
+              volumeData={volumeData as any}
+              volumeNumber={i + 1}
+              totalVolumes={totalVolumes}
+              format={etiquetaFormat}
+              tipo="volume"
+            />
+          );
+          
+          // Wait for rendering
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          // Capture as image
+          const { default: html2canvas } = await import('html2canvas');
+          const canvas = await html2canvas(tempEtiqueta, {
+            scale: 2,
+            logging: false,
+            useCORS: true,
+            allowTaint: true
+          });
+          
+          // Add to PDF
+          if (i > 0) {
+            pdf.addPage();
+          }
+          
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+          
+          // Clean up
+          root.unmount();
+          hiddenDiv.removeChild(tempEtiqueta);
+        }
       }
       
-      // Generate file name based on nota fiscal
-      const fileName = `etiquetas_nf_${notaFiscal}_${new Date().toISOString().slice(0,10)}.pdf`;
+      // Generate file name based on nota fiscal and type
+      const typePrefix = tipo === 'mae' ? 'etiqueta_mae' : 'etiquetas_volume';
+      const fileName = `${typePrefix}_nf_${notaFiscal}_${new Date().toISOString().slice(0,10)}.pdf`;
       
       // Save the PDF
       pdf.save(fileName);
@@ -159,7 +219,9 @@ export const useEtiquetasGenerator = () => {
       
       toast({
         title: "Sucesso",
-        description: `${totalVolumes} etiquetas geradas com sucesso.`,
+        description: tipo === 'mae' 
+          ? `Etiqueta mãe gerada com sucesso.`
+          : `${totalVolumes} etiquetas de volume geradas com sucesso.`,
       });
       
     } catch (error) {
@@ -174,11 +236,22 @@ export const useEtiquetasGenerator = () => {
     }
   };
 
+  // Generate master label for a group of volumes
+  const generateEtiquetaMaePDF = async (
+    volumes: VolumeData[],
+    notaData: any = {},
+    formatoImpressao: string = '50x100',
+    etiquetaMaeId?: string
+  ) => {
+    return generateEtiquetasPDF(volumes, notaData, formatoImpressao, 'mae', etiquetaMaeId);
+  };
+
   return {
     etiquetaRef,
     isGenerating,
     currentEtiqueta,
     setCurrentEtiqueta,
-    generateEtiquetasPDF
+    generateEtiquetasPDF,
+    generateEtiquetaMaePDF
   };
 };

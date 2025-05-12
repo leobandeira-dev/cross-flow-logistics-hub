@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Biohazard } from 'lucide-react';
+import { Biohazard, QrCode } from 'lucide-react';
+import QRCodeGenerator from './QRCodeGenerator';
 
 interface EtiquetaTemplateProps {
   volumeData: {
@@ -11,23 +12,28 @@ interface EtiquetaTemplateProps {
     destinatario: string;
     endereco: string;
     cidade: string;
+    cidadeCompleta?: string;
     uf: string;
     pesoTotal: string;
     tipoVolume?: 'geral' | 'quimico';
     codigoONU?: string;
     codigoRisco?: string;
+    etiquetaMae?: string;
   };
   volumeNumber: number;
   totalVolumes: number;
   format?: 'small' | 'a4';
+  tipo?: 'volume' | 'mae';
 }
 
 const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>(
-  ({ volumeData, volumeNumber, totalVolumes, format = 'small' }, ref) => {
+  ({ volumeData, volumeNumber, totalVolumes, format = 'small', tipo = 'volume' }, ref) => {
     // Define width based on format
     const isA4 = format === 'a4';
     const width = isA4 ? 'max-w-[800px]' : 'max-w-[500px]';
     const isQuimico = volumeData.tipoVolume === 'quimico';
+    const isMae = tipo === 'mae';
+    const displayCidade = volumeData.cidadeCompleta || volumeData.cidade;
     
     return (
       <div 
@@ -38,7 +44,14 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
           pageBreakAfter: 'always',
         }}
       >
-        <Card className="border-2 border-black p-3">
+        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-3`}>
+          {isMae && (
+            <div className="mb-2 text-center bg-red-500 text-white p-1 rounded">
+              <div className="font-bold text-lg">ETIQUETA MÃE</div>
+              <div className="text-sm">ID: {volumeData.etiquetaMae}</div>
+            </div>
+          )}
+          
           <div className="grid grid-cols-3 gap-4">
             {/* Coluna 1: Dados do remetente e Nota Fiscal */}
             <div className="flex flex-col space-y-3">
@@ -76,16 +89,17 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
               <div className="flex space-x-2 items-center">
                 <div className="flex-1">
                   <div className="text-xs text-gray-600">CIDADE</div>
-                  <div className="font-bold text-base">{volumeData.cidade}</div>
+                  <div className="font-bold text-base">{displayCidade}</div>
                 </div>
                 <div className="w-16 p-1 border border-black flex items-center justify-center">
                   <div className="font-bold text-xl">{volumeData.uf}</div>
                 </div>
               </div>
               
-              {/* Código do volume */}
-              <div className="pt-2 text-center">
-                <div className="font-mono font-bold">{volumeData.id}</div>
+              {/* QR Code */}
+              <div className="flex flex-col items-center justify-center pt-2">
+                <QRCodeGenerator text={volumeData.id} size={80} />
+                <div className="text-xs mt-1 font-mono">{volumeData.id}</div>
               </div>
             </div>
             
