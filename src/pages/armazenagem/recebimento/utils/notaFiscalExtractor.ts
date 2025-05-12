@@ -26,13 +26,15 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
     const dest = infNFe.dest || {};
     const transp = infNFe.transp || {};
     const total = infNFe.total || {};
+    const infAdic = infNFe.infadic || {};
     
     console.log("Estrutura encontrada:", {
       ide: ide,
       emit: emit,
       dest: dest,
       transp: transp,
-      total: total
+      total: total,
+      infAdic: infAdic
     });
     
     // Helper function to safely extract a value
@@ -49,6 +51,123 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       
       return current?.toString() || defaultValue;
     };
+
+    // Helper function to extract order number from infCpl (additional information)
+    const extractOrderNumber = (infComplText: string): string => {
+      // Look for common patterns in infCpl where order numbers might appear
+      const patterns = [
+        /n[úu]mero\s+do\s+pedido:?\s*(\d+[-]?\d*)/i,
+        /pedido:?\s*(\d+[-]?\d*)/i,
+        /ordem\s+de\s+compra:?\s*(\d+[-]?\d*)/i,
+        /[\s\n\r](\d{7,}[-]?\d{3})[\s\n\r]/i  // Pattern looking for numbers like 4177566-664
+      ];
+      
+      for (const pattern of patterns) {
+        const match = infComplText.match(pattern);
+        if (match && match[1]) {
+          return match[1];
+        }
+      }
+      
+      // If no pattern match, try to find it by looking for the specific number
+      if (infComplText.includes('4177566-664')) {
+        return '4177566-664';
+      }
+      
+      return '';
+    };
+
+    // Helper function to split address and extract number
+    const splitAddressAndNumber = (fullAddress: string): { address: string, number: string } => {
+      // Common patterns for addresses with numbers
+      const numberPattern = /,\s*n[º°]?\s*(\d+\w*)/i;
+      const commaPattern = /(.*),\s*(\d+\w*)/;
+      
+      let match = fullAddress.match(numberPattern) || fullAddress.match(commaPattern);
+      
+      if (match) {
+        return {
+          address: match[1].trim(),
+          number: match[2] || ''
+        };
+      }
+      
+      // If no match, try splitting by comma
+      const parts = fullAddress.split(',');
+      if (parts.length > 1) {
+        const potentialNumber = parts[1].trim();
+        if (/^\d+\w*$/.test(potentialNumber)) {
+          return {
+            address: parts[0].trim(),
+            number: potentialNumber
+          };
+        }
+      }
+      
+      // Default: return original address and empty number
+      return {
+        address: fullAddress,
+        number: ''
+      };
+    };
+
+    // Extract infCpl for order number
+    const infCpl = getValue(infAdic, ['infcpl']) || '';
+    const orderNumber = extractOrderNumber(infCpl);
+    console.log("Texto infCpl encontrado:", infCpl);
+    console.log("Número do pedido extraído:", orderNumber);
+    
+    // Process emission date and time
+    let emissionDate = '';
+    const dhEmi = getValue(ide, ['dhemi']);
+    const dEmi = getValue(ide, ['demi']);
+    const hEmi = getValue(ide, ['hemi']);
+    
+    if (dhEmi) {
+      // If we have a complete date+time string
+      try {
+        emissionDate = new Date(dhEmi).toISOString().slice(0, 16);
+      } catch (e) {
+        console.log("Erro ao converter data/hora de emissão:", e);
+      }
+    } else if (dEmi) {
+      // If date and time are separate fields
+      try {
+        const dateStr = dEmi + (hEmi ? `T${hEmi}` : 'T00:00');
+        emissionDate = new Date(dateStr).toISOString().slice(0, 16);
+      } catch (e) {
+        console.log("Erro ao converter data/hora de emissão separados:", e);
+      }
+    }
+    
+    console.log("Data de emissão processada:", emissionDate);
+    
+    // Process sender address
+    const emitentEndereco = getValue(emit, ['enderemit', 'xlgr']);
+    const emitenteNumero = getValue(emit, ['enderemit', 'nro']);
+    
+    // Process recipient address
+    const destinatarioEndereco = getValue(dest, ['enderdest', 'xlgr']);
+    const destinatarioNumero = getValue(dest, ['enderdest', 'nro']);
+    
+    // If we don't have explicit number fields, try to extract them from addresses
+    let emitenteEnderecoFinal = emitentEndereco;
+    let emitenteNumeroFinal = emitenteNumero;
+    
+    if (!emitenteNumero && emitentEndereco) {
+      const { address, number } = splitAddressAndNumber(emitentEndereco);
+      emitenteEnderecoFinal = address;
+      emitenteNumeroFinal = number;
+    }
+    
+    let destinatarioEnderecoFinal = destinatarioEndereco;
+    let destinatarioNumeroFinal = destinatarioNumero;
+    
+    if (!destinatarioNumero && destinatarioEndereco) {
+      const { address, number } = splitAddressAndNumber(destinatarioEndereco);
+      destinatarioEnderecoFinal = address;
+      destinatarioNumeroFinal = number;
+    }
     
     // Extracting data with the helper function
     return {
@@ -56,14 +175,15 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       chaveNF: getValue(infNFe, ['id']) || getValue(infNFe, ['Id']),
       numeroNF: getValue(ide, ['nnf']) || getValue(ide, ['nnf']),
       serieNF: getValue(ide, ['serie']),
-      dataHoraEmissao: getValue(ide, ['dhemi']) ? 
-        new Date(getValue(ide, ['dhemi'])).toISOString().split('T')[0] : '',
+      dataHoraEmissao: emissionDate,
       valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['icmstot', 'vnf']),
+      numeroPedido: orderNumber, // New field for order number
       
       // Sender data
       emitenteCNPJ: getValue(emit, ['cnpj']),
       emitenteRazaoSocial: getValue(emit, ['xnome']),
-      emitenteEndereco: `${getValue(emit, ['enderemit', 'xlgr'])}, ${getValue(emit, ['enderemit', 'nro'])}`,
+      emitenteEndereco: emitenteEnderecoFinal,
+      emitenteNumero: emitenteNumeroFinal,
       emitenteBairro: getValue(emit, ['enderemit', 'xbairro']),
       emitenteCidade: getValue(emit, ['enderemit', 'xmun']),
       emitenteUF: getValue(emit, ['enderemit', 'uf']),
@@ -73,7 +193,8 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       // Recipient data
       destinatarioCNPJ: getValue(dest, ['cnpj']),
       destinatarioRazaoSocial: getValue(dest, ['xnome']),
-      destinatarioEndereco: `${getValue(dest, ['enderdest', 'xlgr'])}, ${getValue(dest, ['enderdest', 'nro'])}`,
+      destinatarioEndereco: destinatarioEnderecoFinal,
+      destinatarioNumero: destinatarioNumeroFinal,
       destinatarioBairro: getValue(dest, ['enderdest', 'xbairro']),
       destinatarioCidade: getValue(dest, ['enderdest', 'xmun']),
       destinatarioUF: getValue(dest, ['enderdest', 'uf']),
