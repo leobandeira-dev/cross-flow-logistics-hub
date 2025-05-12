@@ -4,6 +4,7 @@ import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/Vol
 import EtiquetaTemplate from '@/components/common/print/EtiquetaTemplate';
 import { createRoot } from 'react-dom/client';
 import { EtiquetaFormat, EtiquetaGenerationResult, LayoutStyle } from './types';
+import React from 'react';
 
 /**
  * Hook for PDF generation functionality
@@ -59,14 +60,14 @@ export const usePDFGeneration = () => {
     
     // Render the component
     root.render(
-      <EtiquetaTemplate
-        volumeData={volumeData as any}
-        volumeNumber={volumeNumber}
-        totalVolumes={totalVolumes}
-        format={etiquetaFormat}
-        tipo={tipo}
-        layoutStyle={layoutStyle}
-      />
+      React.createElement(EtiquetaTemplate, {
+        volumeData: volumeData as any,
+        volumeNumber: volumeNumber,
+        totalVolumes: totalVolumes,
+        format: etiquetaFormat,
+        tipo: tipo,
+        layoutStyle: layoutStyle
+      })
     );
     
     // Wait for rendering
