@@ -46,12 +46,13 @@ const GeracaoEtiquetas: React.FC = () => {
   useEffect(() => {
     // If nota fiscal data is provided, pre-fill the form
     if (notaFiscalData?.notaFiscal) {
+      // Log all received data for debugging
+      console.log("Nota fiscal data received:", notaFiscalData);
+      
       // Set all the available data from the nota fiscal
       form.setValue('notaFiscal', notaFiscalData.notaFiscal);
       form.setValue('volumesTotal', notaFiscalData.volumesTotal || '');
       form.setValue('pesoTotalBruto', notaFiscalData.pesoTotal || '');
-      
-      console.log("Nota fiscal data received:", notaFiscalData);
       
       // If volumes total is provided, automatically generate volumes
       if (notaFiscalData.volumesTotal && parseInt(notaFiscalData.volumesTotal) > 0) {
@@ -83,6 +84,8 @@ const GeracaoEtiquetas: React.FC = () => {
       });
       return;
     }
+    
+    console.log("Gerando volumes com os dados da nota fiscal:", notaFiscalData);
     
     // Generate new volumes based on the quantity, using data from nota fiscal if available
     const newVolumes: Volume[] = [];
@@ -141,6 +144,8 @@ const GeracaoEtiquetas: React.FC = () => {
       pesoTotal: volume.pesoTotal || notaFiscalData?.pesoTotal || '',
       chaveNF: volume.chaveNF || notaFiscalData?.chaveNF || ''
     };
+    
+    console.log("Dados da nota para etiquetas:", notaData);
     
     // Get formato de impressão and layout style from form
     const formatoImpressao = form.getValues('formatoImpressao');
@@ -345,7 +350,7 @@ const GeracaoEtiquetas: React.FC = () => {
               <EtiquetaFormPanel 
                 form={form}
                 tipoEtiqueta="volume"
-                isQuimico={isQuimico}
+                isQuimico={form.watch('tipoVolume') === 'quimico'}
                 handleGenerateVolumes={handleGenerateVolumes} 
                 showEtiquetaMaeOption={false}
               />
@@ -371,7 +376,7 @@ const GeracaoEtiquetas: React.FC = () => {
             <div>
               <EtiquetaPreview 
                 tipoEtiqueta="volume"
-                isQuimico={isQuimico}
+                isQuimico={form.watch('tipoVolume') === 'quimico'}
               />
             </div>
           </div>

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { parseXmlFile } from '../utils/xmlParser';
 import { notasFiscais, NotaFiscal } from '../data/mockData';
+import { extractDataFromXml } from '../utils/notaFiscalExtractor';
 
 export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void) => {
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -30,29 +31,45 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
         // Add the imported note to the notasFiscais array
         if (xmlData) {
           try {
+            // Use the extractDataFromXml function to get all fields
+            const extractedData = extractDataFromXml(xmlData);
+
             // Extract information from XML
-            const nfeInfo = xmlData.nfeproc?.nfe?.infnfe;
-            const notaId = nfeInfo?.ide?.nnf || `NF-${Math.floor(Math.random() * 100000)}`;
-            const numeroNota = nfeInfo?.ide?.nnf || "";
-            const fornecedor = nfeInfo?.emit?.xnome || "Fornecedor do XML";
-            const dataEmissao = nfeInfo?.ide?.dhemi 
-              ? new Date(nfeInfo.ide.dhemi).toLocaleDateString('pt-BR') 
+            const notaId = extractedData.numeroNF || `NF-${Math.floor(Math.random() * 100000)}`;
+            const numeroNota = extractedData.numeroNF || "";
+            const fornecedor = extractedData.emitenteRazaoSocial || "Fornecedor do XML";
+            const dataEmissao = extractedData.dataHoraEmissao 
+              ? new Date(extractedData.dataHoraEmissao).toLocaleDateString('pt-BR') 
               : new Date().toLocaleDateString('pt-BR');
-            const valorTotal = nfeInfo?.total?.icmstot?.vnf || "0,00";
+            const valorTotal = extractedData.valorTotal || "0,00";
             
-            // Create a new nota fiscal object
+            // Create a new nota fiscal object with all the extracted data
             const novaNota: NotaFiscal = {
               id: notaId,
               numero: numeroNota,
               fornecedor: fornecedor,
+              destinatarioRazaoSocial: extractedData.destinatarioRazaoSocial || "",
+              destinatarioEndereco: extractedData.destinatarioEndereco || "",
+              destinatarioCidade: extractedData.destinatarioCidade || "",
+              destinatarioUF: extractedData.destinatarioUF || "",
+              destinatarioBairro: extractedData.destinatarioBairro || "",
+              destinatarioCEP: extractedData.destinatarioCEP || "",
+              emitenteRazaoSocial: extractedData.emitenteRazaoSocial || "",
               data: dataEmissao,
+              dataHoraEmissao: extractedData.dataHoraEmissao || "",
               valor: valorTotal,
-              status: 'pending',
+              volumesTotal: extractedData.volumesTotal || "",
+              pesoTotalBruto: extractedData.pesoTotalBruto || "",
+              pesoTotal: extractedData.pesoTotalBruto || "",
+              chaveNF: extractedData.chaveNF || "",
+              status: 'aguardando',
               xmlContent: content // Store XML content for DANFE generation
             };
             
             // Add to the existing array of notas fiscais
             notasFiscais.unshift(novaNota);
+            
+            console.log("Nota fiscal criada do XML com dados completos:", novaNota);
             
             toast({
               title: "Nota fiscal importada com sucesso",

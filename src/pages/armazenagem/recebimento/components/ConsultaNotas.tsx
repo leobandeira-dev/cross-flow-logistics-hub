@@ -78,6 +78,8 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   };
 
   const handleGerarEtiquetasClick = (nota: any) => {
+    console.log("Nota sendo passada para geração de etiquetas:", nota);
+    
     // Navigate to GeracaoEtiquetas with complete nota data
     navigate('/armazenagem/recebimento/etiquetas', { 
       state: {
