@@ -30,6 +30,32 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// Mock data for etiquetas mae, since we need to pass this to the EtiquetasMaeTab
+const mockEtiquetasMae = [
+  {
+    id: "EM001",
+    notaFiscal: "NF123456",
+    quantidadeVolumes: 5,
+    remetente: "Empresa A",
+    destinatario: "Cliente B",
+    cidade: "São Paulo",
+    uf: "SP",
+    dataCriacao: "2023-05-10",
+    status: "ativo"
+  },
+  {
+    id: "EM002",
+    notaFiscal: "NF654321",
+    quantidadeVolumes: 3,
+    remetente: "Empresa C",
+    destinatario: "Cliente D",
+    cidade: "Rio de Janeiro",
+    uf: "RJ",
+    dataCriacao: "2023-05-11",
+    status: "ativo"
+  }
+];
+
 const GeracaoEtiquetas = () => {
   // Get location state passed from previous screen
   const location = useLocation();
@@ -67,8 +93,8 @@ const GeracaoEtiquetas = () => {
       // Set all the available data from the nota fiscal
       form.setValue('notaFiscal', notaFiscalData.notaFiscal);
       
-      // FIX: Properly check for volumesTotal in notaFiscalData and set it
       // Check for various possible field names for volumes
+      // This ensures we capture the volume quantity regardless of the field name
       const volumeCount = notaFiscalData.volumesTotal || 
                           notaFiscalData.volumesTotais || 
                           notaFiscalData.qVol || 
@@ -77,6 +103,9 @@ const GeracaoEtiquetas = () => {
                           
       if (volumeCount) {
         form.setValue('volumesTotal', volumeCount.toString());
+        console.log("Volume count set to:", volumeCount.toString());
+      } else {
+        console.log("Volume count not found in nota fiscal data:", notaFiscalData);
       }
       
       form.setValue('pesoTotalBruto', notaFiscalData.pesoTotal || notaFiscalData.pesoTotalBruto || '');
@@ -274,6 +303,18 @@ const GeracaoEtiquetas = () => {
       description: `Volume ${volume.id} classificado como ${formData.tipoVolume === 'quimico' ? 'Produto Químico' : 'Carga Geral'}`,
     });
   };
+  
+  // Mock handlers for EtiquetasMaeTab
+  const handlePrintEtiquetaMae = (etiquetaMae: any) => {
+    console.log("Print etiqueta mãe:", etiquetaMae);
+    // Implementation would go here
+  };
+  
+  // Mock handler for ConsultaEtiquetasTab
+  const handleReimprimirEtiquetas = (etiqueta: any) => {
+    console.log("Reimprimir etiqueta:", etiqueta);
+    // Implementation would go here
+  };
 
   return (
     <MainLayout title="Geração de Etiquetas">
@@ -300,17 +341,17 @@ const GeracaoEtiquetas = () => {
                 <form className="space-y-6">
                   <EtiquetaFormPanel
                     form={form}
-                    onGenerateVolumes={handleGenerateVolumes}
+                    tipoEtiqueta="volume"
+                    isQuimico={false}
+                    handleGenerateVolumes={handleGenerateVolumes}
+                    showEtiquetaMaeOption={false}
                   />
                   
                   <VolumesTable
                     volumes={generatedVolumes}
-                    selectedVolumes={selectedVolumes}
-                    onSelectionChange={handleVolumeSelectionChange}
-                    onClassifyVolume={handleClassifyVolume}
-                    onPrintSelected={handlePrintSelected}
-                    onGenerateMasterTag={handleGenerateMasterTag}
-                    isGenerating={isGenerating}
+                    notaFiscalFilter=""
+                    handlePrintEtiquetas={handlePrintSelected}
+                    handleClassifyVolume={handleClassifyVolume}
                   />
                 </form>
               </Form>
@@ -321,11 +362,16 @@ const GeracaoEtiquetas = () => {
         <TabsContent value="etiquetas-mae">
           <EtiquetasMaeTab
             volumes={volumes}
+            etiquetasMae={mockEtiquetasMae}
+            handlePrintEtiquetaMae={handlePrintEtiquetaMae}
           />
         </TabsContent>
         
         <TabsContent value="consultar">
-          <ConsultaEtiquetasTab />
+          <ConsultaEtiquetasTab
+            volumes={volumes}
+            handleReimprimirEtiquetas={handleReimprimirEtiquetas}
+          />
         </TabsContent>
       </Tabs>
       
@@ -340,7 +386,8 @@ const GeracaoEtiquetas = () => {
         open={vinculoDialogOpen}
         onClose={() => setVinculoDialogOpen(false)}
         onSave={handleCreateMasterTag}
-        notaFiscal={form.getValues().notaFiscal}
+        etiquetaMae={null}
+        volumes={volumes.filter(vol => !vol.etiquetaMae)}
       />
     </MainLayout>
   );

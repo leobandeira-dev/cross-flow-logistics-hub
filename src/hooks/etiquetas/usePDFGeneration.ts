@@ -58,7 +58,7 @@ export const usePDFGeneration = () => {
   ) => {
     const root = createRoot(tempEtiqueta);
     
-    // Render the component
+    // Render the component using React.createElement instead of JSX
     root.render(
       React.createElement(EtiquetaTemplate, {
         volumeData: volumeData as any,
