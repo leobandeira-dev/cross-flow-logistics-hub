@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Printer, Biohazard, LinkIcon } from 'lucide-react';
@@ -15,6 +15,7 @@ interface Volume {
   etiquetado: boolean;
   tipoVolume?: 'geral' | 'quimico';
   etiquetaMae?: string;
+  chaveNF?: string;  // Add chaveNF field
   [key: string]: any;
 }
 
@@ -27,6 +28,69 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
   volumes,
   handleReimprimirEtiquetas
 }) => {
+  const [filteredVolumes, setFilteredVolumes] = useState<Volume[]>(volumes);
+  
+  const handleSearch = (searchTerm: string, activeFilters?: Record<string, string[]>) => {
+    if (!searchTerm && (!activeFilters || Object.keys(activeFilters).length === 0)) {
+      setFilteredVolumes(volumes);
+      return;
+    }
+    
+    let filtered = volumes.filter(volume => {
+      // Apply text search
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = 
+          volume.id.toLowerCase().includes(searchLower) ||
+          volume.notaFiscal.toLowerCase().includes(searchLower) ||
+          volume.descricao.toLowerCase().includes(searchLower) ||
+          (volume.etiquetaMae?.toLowerCase().includes(searchLower) || false) ||
+          (volume.chaveNF?.toLowerCase().includes(searchLower) || false);
+        
+        if (!matchesSearch) return false;
+      }
+      
+      // Apply filters if any
+      if (activeFilters && Object.keys(activeFilters).length > 0) {
+        // Status filter
+        if (activeFilters.Status && activeFilters.Status.length > 0) {
+          const statusMatch = activeFilters.Status.some(status => {
+            if (status === 'true') return volume.etiquetado === true;
+            if (status === 'false') return volume.etiquetado === false;
+            return false;
+          });
+          if (!statusMatch) return false;
+        }
+        
+        // Type filter
+        if (activeFilters.Tipo && activeFilters.Tipo.length > 0) {
+          const typeMatch = activeFilters.Tipo.some(tipo => volume.tipoVolume === tipo);
+          if (!typeMatch) return false;
+        }
+        
+        // Etiqueta Mãe filter
+        if (activeFilters['Etiqueta Mãe'] && activeFilters['Etiqueta Mãe'].length > 0) {
+          const etiquetaMaeMatch = activeFilters['Etiqueta Mãe'].some(option => {
+            if (option === 'comEtiquetaMae') return !!volume.etiquetaMae;
+            if (option === 'semEtiquetaMae') return !volume.etiquetaMae;
+            return false;
+          });
+          if (!etiquetaMaeMatch) return false;
+        }
+        
+        // Period filter
+        if (activeFilters.Período && activeFilters.Período.length > 0) {
+          // Implementation for period filtering would go here
+          // This is a placeholder for future implementation
+        }
+      }
+      
+      return true;
+    });
+    
+    setFilteredVolumes(filtered);
+  };
+  
   return (
     <Card>
       <CardHeader>
@@ -34,7 +98,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
       </CardHeader>
       <CardContent>
         <SearchFilter 
-          placeholder="Buscar por ID, nota fiscal, descrição ou etiqueta mãe..." 
+          placeholder="Buscar por ID, nota fiscal, descrição, etiqueta mãe ou chave NF..." 
           filters={[
             {
               name: "Status",
@@ -66,6 +130,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               ]
             }
           ]}
+          onSearch={handleSearch}
         />
         
         <DataTable
@@ -129,7 +194,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               )
             }
           ]}
-          data={volumes}
+          data={filteredVolumes}
         />
       </CardContent>
     </Card>

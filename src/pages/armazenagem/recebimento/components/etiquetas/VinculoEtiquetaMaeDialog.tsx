@@ -7,6 +7,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Search, LinkIcon, UnlinkIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import DataTable from '@/components/common/DataTable';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface Volume {
   id: string;
@@ -18,6 +20,7 @@ interface Volume {
   codigoONU?: string;
   codigoRisco?: string;
   etiquetaMae?: string;
+  chaveNF?: string; // Added chaveNF field
 }
 
 interface EtiquetaMae {
@@ -50,6 +53,7 @@ const VinculoEtiquetaMaeDialog: React.FC<VinculoEtiquetaMaeDialogProps> = ({
   const [search, setSearch] = useState('');
   const [volumesFiltrados, setVolumesFiltrados] = useState<Volume[]>([]);
   const [volumesSelecionados, setVolumesSelecionados] = useState<string[]>([]);
+  const [searchType, setSearchType] = useState<'id' | 'descricao' | 'chaveNF'>('id');
   
   // Reset selections when dialog opens with a different etiqueta mãe
   useEffect(() => {
@@ -70,10 +74,23 @@ const VinculoEtiquetaMaeDialog: React.FC<VinculoEtiquetaMaeDialogProps> = ({
     if (!etiquetaMae) return;
     
     const filtered = volumes.filter(vol => {
-      const matchesSearch = search 
-        ? vol.id.toLowerCase().includes(search.toLowerCase()) ||
-          vol.descricao.toLowerCase().includes(search.toLowerCase())
-        : true;
+      let matchesSearch = true;
+      
+      if (search) {
+        switch (searchType) {
+          case 'id':
+            matchesSearch = vol.id.toLowerCase().includes(search.toLowerCase());
+            break;
+          case 'descricao':
+            matchesSearch = vol.descricao.toLowerCase().includes(search.toLowerCase());
+            break;
+          case 'chaveNF':
+            matchesSearch = vol.chaveNF?.toLowerCase().includes(search.toLowerCase()) || false;
+            break;
+          default:
+            matchesSearch = true;
+        }
+      }
       
       const matchesNotaFiscal = vol.notaFiscal === etiquetaMae.notaFiscal;
       
@@ -81,7 +98,7 @@ const VinculoEtiquetaMaeDialog: React.FC<VinculoEtiquetaMaeDialogProps> = ({
     });
     
     setVolumesFiltrados(filtered);
-  }, [search, etiquetaMae, volumes]);
+  }, [search, searchType, etiquetaMae, volumes]);
   
   const handleSelectVolume = (id: string) => {
     setVolumesSelecionados(prev => 
@@ -138,66 +155,97 @@ const VinculoEtiquetaMaeDialog: React.FC<VinculoEtiquetaMaeDialogProps> = ({
         </div>
         
         <div className="my-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex-1 mr-2">
-              <div className="relative">
-                <Input
-                  placeholder="Buscar volumes por ID ou descrição..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              </div>
+          <div className="flex flex-col space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-2">Buscar por:</h4>
+              <RadioGroup 
+                defaultValue="id" 
+                className="flex space-x-4"
+                value={searchType}
+                onValueChange={(value) => setSearchType(value as 'id' | 'descricao' | 'chaveNF')}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="id" id="searchId" />
+                  <Label htmlFor="searchId">ID Volume</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="descricao" id="searchDesc" />
+                  <Label htmlFor="searchDesc">Descrição</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="chaveNF" id="searchChave" />
+                  <Label htmlFor="searchChave">Chave NF</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="selectAll"
-                checked={volumesSelecionados.length === volumesFiltrados.length && volumesFiltrados.length > 0}
-                onCheckedChange={handleSelectAll}
-              />
-              <label htmlFor="selectAll" className="text-sm cursor-pointer">
-                Selecionar todos
-              </label>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex-1 mr-2">
+                <div className="relative">
+                  <Input
+                    placeholder={`Buscar volumes por ${
+                      searchType === 'id' ? 'ID' : 
+                      searchType === 'descricao' ? 'descrição' : 
+                      'chave da nota fiscal'
+                    }...`}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="selectAll"
+                  checked={volumesSelecionados.length === volumesFiltrados.length && volumesFiltrados.length > 0}
+                  onCheckedChange={handleSelectAll}
+                />
+                <label htmlFor="selectAll" className="text-sm cursor-pointer">
+                  Selecionar todos
+                </label>
+              </div>
             </div>
           </div>
           
-          <DataTable
-            columns={[
-              {
-                header: 'Selecionar',
-                accessor: 'selecionar',
-                cell: (row) => (
-                  <Checkbox
-                    checked={volumesSelecionados.includes(row.id)}
-                    onCheckedChange={() => handleSelectVolume(row.id)}
-                  />
-                )
-              },
-              { header: 'ID', accessor: 'id' },
-              { header: 'Descrição', accessor: 'descricao' },
-              { 
-                header: 'Tipo', 
-                accessor: 'tipoVolume',
-                cell: (row) => {
-                  return row.tipoVolume === 'quimico' ? 'Químico' : 'Carga Geral';
+          <div className="mt-4">
+            <DataTable
+              columns={[
+                {
+                  header: 'Selecionar',
+                  accessor: 'selecionar',
+                  cell: (row) => (
+                    <Checkbox
+                      checked={volumesSelecionados.includes(row.id)}
+                      onCheckedChange={() => handleSelectVolume(row.id)}
+                    />
+                  )
+                },
+                { header: 'ID', accessor: 'id' },
+                { header: 'Descrição', accessor: 'descricao' },
+                { 
+                  header: 'Tipo', 
+                  accessor: 'tipoVolume',
+                  cell: (row) => {
+                    return row.tipoVolume === 'quimico' ? 'Químico' : 'Carga Geral';
+                  }
+                },
+                { 
+                  header: 'Etiqueta Mãe Atual', 
+                  accessor: 'etiquetaMae',
+                  cell: (row) => {
+                    if (!row.etiquetaMae) return <span className="text-gray-400">-</span>;
+                    return (
+                      <div className="flex items-center">
+                        <LinkIcon size={14} className="mr-1 text-blue-500" />
+                        <span>{row.etiquetaMae}</span>
+                      </div>
+                    );
+                  }
                 }
-              },
-              { 
-                header: 'Etiqueta Mãe Atual', 
-                accessor: 'etiquetaMae',
-                cell: (row) => {
-                  if (!row.etiquetaMae) return <span className="text-gray-400">-</span>;
-                  return (
-                    <div className="flex items-center">
-                      <LinkIcon size={14} className="mr-1 text-blue-500" />
-                      <span>{row.etiquetaMae}</span>
-                    </div>
-                  );
-                }
-              }
-            ]}
-            data={volumesFiltrados}
-          />
+              ]}
+              data={volumesFiltrados}
+            />
+          </div>
           
           <div className="mt-3 text-sm text-gray-500">
             {volumesFiltrados.length} volumes encontrados.
