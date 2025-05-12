@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UseFormReturn } from 'react-hook-form';
-import { Package } from 'lucide-react';
+import { Package, Pallet } from 'lucide-react';
 
 interface EtiquetaMaeFormPanelProps {
   form: UseFormReturn<any>;
@@ -18,7 +18,7 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
   handleCreateEtiquetaMae
 }) => {
   // Get values and register methods from the form
-  const { register, watch } = form;
+  const { register, watch, setValue } = form;
   
   return (
     <Card className="mb-6">
@@ -43,6 +43,23 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
               {...register('descricaoEtiquetaMae')}
               placeholder="Descrição da etiqueta mãe"
             />
+          </div>
+          
+          <div>
+            <Label htmlFor="tipoEtiquetaMae">Tipo de Etiqueta</Label>
+            <Select 
+              defaultValue="geral"
+              onValueChange={(value) => form.setValue('tipoEtiquetaMae', value)}
+              value={watch('tipoEtiquetaMae', 'geral')}
+            >
+              <SelectTrigger id="tipoEtiquetaMae">
+                <SelectValue placeholder="Selecione um tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="geral">Geral (Volumes)</SelectItem>
+                <SelectItem value="palete">Palete (Unitização)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div>
@@ -87,7 +104,11 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
           className="w-full"
           onClick={handleCreateEtiquetaMae}
         >
-          <Package className="mr-2 h-4 w-4" />
+          {watch('tipoEtiquetaMae') === 'palete' ? (
+            <Pallet className="mr-2 h-4 w-4" />
+          ) : (
+            <Package className="mr-2 h-4 w-4" />
+          )}
           Gerar Etiqueta Mãe
         </Button>
       </CardContent>

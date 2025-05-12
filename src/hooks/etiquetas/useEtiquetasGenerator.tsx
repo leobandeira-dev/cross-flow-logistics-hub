@@ -58,11 +58,13 @@ export const useEtiquetasGenerator = () => {
       if (tipo === 'mae') {
         // Generate one master label for all volumes
         // Create a "master" volume that contains all the info
+        const tipoEtiquetaMae = volumes[0].tipoEtiquetaMae || 'geral';
         const masterVolume: Volume = {
           ...volumes[0],
           id: etiquetaMaeId || `MASTER-${notaFiscal}-${Date.now()}`,
           etiquetaMae: etiquetaMaeId || `MASTER-${notaFiscal}-${Date.now()}`,
-          quantidade: totalVolumes
+          quantidade: totalVolumes,
+          tipoEtiquetaMae: tipoEtiquetaMae
         };
         
         const preparedMasterVolume = prepareVolumeData(masterVolume, notaData);
@@ -125,7 +127,9 @@ export const useEtiquetasGenerator = () => {
       }
       
       // Generate file name based on nota fiscal and type
-      const typePrefix = tipo === 'mae' ? 'etiqueta_mae' : 'etiquetas_volume';
+      const typePrefix = tipo === 'mae' ? 
+        (volumes[0].tipoEtiquetaMae === 'palete' ? 'etiqueta_palete' : 'etiqueta_mae') : 
+        'etiquetas_volume';
       const fileName = `${typePrefix}_${tipo === 'mae' ? etiquetaMaeId : 'nf_' + notaFiscal}_${new Date().toISOString().slice(0,10)}.pdf`;
       
       // Save the PDF
@@ -134,12 +138,19 @@ export const useEtiquetasGenerator = () => {
       // Clean up the hidden div
       document.body.removeChild(hiddenDiv);
       
-      toast({
-        title: "Sucesso",
-        description: tipo === 'mae' 
-          ? `Etiqueta mãe gerada com sucesso.`
-          : `${totalVolumes} etiquetas de volume geradas com sucesso.`,
-      });
+      // Show appropriate toast message based on the etiqueta type
+      if (tipo === 'mae') {
+        const tipoLabel = volumes[0].tipoEtiquetaMae === 'palete' ? 'palete' : 'etiqueta mãe';
+        toast({
+          title: "Sucesso",
+          description: `${tipoLabel.charAt(0).toUpperCase() + tipoLabel.slice(1)} gerado(a) com sucesso.`,
+        });
+      } else {
+        toast({
+          title: "Sucesso",
+          description: `${totalVolumes} etiquetas de volume geradas com sucesso.`,
+        });
+      }
       
       // Mark volumes as used (etiquetado = true) since each label can only be printed once
       return {

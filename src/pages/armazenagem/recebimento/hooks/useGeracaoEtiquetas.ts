@@ -26,6 +26,7 @@ export const useGeracaoEtiquetas = () => {
       codigoONU: '',
       codigoRisco: '',
       etiquetaMaeId: '',
+      tipoEtiquetaMae: 'geral', // Added new field for etiqueta mãe type
       descricaoEtiquetaMae: '',
       pesoTotalBruto: ''
     }
@@ -253,6 +254,7 @@ export const useGeracaoEtiquetas = () => {
   const handleCreateEtiquetaMae = () => {
     const etiquetaMaeId = form.getValues('etiquetaMaeId') || `MASTER-${Date.now()}`;
     const descricao = form.getValues('descricaoEtiquetaMae') || 'Etiqueta Mãe';
+    const tipoEtiquetaMae = form.getValues('tipoEtiquetaMae') || 'geral';
     
     // Create a standalone master etiqueta not attached to any nota fiscal
     const dummyMasterVolume: Volume[] = [{
@@ -269,7 +271,8 @@ export const useGeracaoEtiquetas = () => {
       uf: '',
       pesoTotal: '0 Kg',
       chaveNF: '',
-      etiquetaMae: etiquetaMaeId
+      etiquetaMae: etiquetaMaeId,
+      tipoEtiquetaMae: tipoEtiquetaMae // Add the type to the volume data
     }];
     
     // Get formato de impressão and layout style from form
@@ -285,15 +288,18 @@ export const useGeracaoEtiquetas = () => {
       cidadeCompleta: '',
       uf: '',
       pesoTotal: '0 Kg',
-      chaveNF: ''
+      chaveNF: '',
+      tipoEtiquetaMae: tipoEtiquetaMae
     };
     
     // Generate master etiqueta
     generateEtiquetaMaePDF(dummyMasterVolume, emptyNotaData, formatoImpressao, etiquetaMaeId, layoutStyle as any);
     
+    const tipoLabel = tipoEtiquetaMae === 'palete' ? 'Palete' : 'Etiqueta Mãe';
+    
     toast({
-      title: "Etiqueta Mãe Criada",
-      description: `Nova etiqueta mãe ${etiquetaMaeId} criada com sucesso.`,
+      title: `${tipoLabel} Criado(a)`,
+      description: `Novo(a) ${tipoLabel.toLowerCase()} ${etiquetaMaeId} criado(a) com sucesso.`,
     });
   };
 

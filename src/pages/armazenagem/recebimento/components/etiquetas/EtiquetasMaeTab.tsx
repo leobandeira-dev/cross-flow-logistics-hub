@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Printer, Link as LinkIcon } from 'lucide-react';
+import { FileText, Printer, Link as LinkIcon, Package, Pallet } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import SearchFilter from '@/components/common/SearchFilter';
 import VinculoEtiquetaMaeDialog from './VinculoEtiquetaMaeDialog';
@@ -20,6 +20,8 @@ interface EtiquetaMae {
   uf: string;
   dataCriacao: string;
   status: string;
+  tipo?: 'geral' | 'palete';
+  descricao?: string;
 }
 
 interface Volume {
@@ -100,6 +102,13 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
                 ]
               },
               {
+                name: "Tipo",
+                options: [
+                  { label: "Geral", value: "geral" },
+                  { label: "Palete", value: "palete" }
+                ]
+              },
+              {
                 name: "Período",
                 options: [
                   { label: "Hoje", value: "today" },
@@ -116,6 +125,25 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
               { header: 'Descrição', accessor: 'descricao', 
                 cell: (row) => (
                   <div>{row.descricao || 'Etiqueta Mãe'}</div>
+                )
+              },
+              { 
+                header: 'Tipo', 
+                accessor: 'tipo',
+                cell: (row) => (
+                  <div className="flex items-center">
+                    {row.tipo === 'palete' ? (
+                      <>
+                        <Pallet size={16} className="mr-1 text-orange-500" />
+                        Palete
+                      </>
+                    ) : (
+                      <>
+                        <Package size={16} className="mr-1 text-blue-500" />
+                        Geral
+                      </>
+                    )}
+                  </div>
                 )
               },
               { header: 'Volumes', accessor: 'quantidadeVolumes',
