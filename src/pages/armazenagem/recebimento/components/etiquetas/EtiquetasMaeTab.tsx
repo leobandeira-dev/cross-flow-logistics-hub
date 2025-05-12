@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Printer, Link as LinkIcon, Package, Pallet } from 'lucide-react';
+import { FileText, Printer, Link as LinkIcon, Package, Truck } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import SearchFilter from '@/components/common/SearchFilter';
 import VinculoEtiquetaMaeDialog from './VinculoEtiquetaMaeDialog';
@@ -134,7 +134,7 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
                   <div className="flex items-center">
                     {row.tipo === 'palete' ? (
                       <>
-                        <Pallet size={16} className="mr-1 text-orange-500" />
+                        <Truck size={16} className="mr-1 text-orange-500" />
                         Palete
                       </>
                     ) : (

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UseFormReturn } from 'react-hook-form';
-import { Package, Pallet } from 'lucide-react';
+import { Package, Truck } from 'lucide-react';
 
 interface EtiquetaMaeFormPanelProps {
   form: UseFormReturn<any>;
@@ -105,7 +105,7 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
           onClick={handleCreateEtiquetaMae}
         >
           {watch('tipoEtiquetaMae') === 'palete' ? (
-            <Pallet className="mr-2 h-4 w-4" />
+            <Truck className="mr-2 h-4 w-4" />
           ) : (
             <Package className="mr-2 h-4 w-4" />
           )}
