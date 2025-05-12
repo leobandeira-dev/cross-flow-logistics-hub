@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,12 +11,16 @@ import DataTable from '@/components/common/DataTable';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import StatusBadge from '@/components/common/StatusBadge';
 import PrintLayoutModal from '@/components/carregamento/enderecamento/PrintLayoutModal';
+import { toast } from "@/hooks/use-toast";
+import SearchFilter from '@/components/common/SearchFilter';
+import ConfirmationDialog from '@/components/carregamento/enderecamento/ConfirmationDialog';
 
 // Mock data
-const volumesParaEnderecar = [
-  { id: 'VOL-2023-001', tipo: 'Volume', descricao: 'Caixa 30x20x15', notaFiscal: '12345', endereco: null },
-  { id: 'VOL-2023-002', tipo: 'Volume', descricao: 'Caixa 40x30x25', notaFiscal: '12345', endereco: null },
-  { id: 'PAL-2023-001', tipo: 'Palete', descricao: 'Palete Standard', notaFiscal: 'Múltiplas', endereco: 'A-01-02-03' },
+const initialVolumesParaEnderecar = [
+  { id: 'VOL-2023-001', tipo: 'Volume', descricao: 'Caixa 30x20x15', notaFiscal: '12345', endereco: null, etiquetaMae: 'ETM-001' },
+  { id: 'VOL-2023-002', tipo: 'Volume', descricao: 'Caixa 40x30x25', notaFiscal: '12345', endereco: null, etiquetaMae: 'ETM-001' },
+  { id: 'VOL-2023-003', tipo: 'Volume', descricao: 'Caixa 10x10x10', notaFiscal: '54321', endereco: null, etiquetaMae: 'ETM-002' },
+  { id: 'PAL-2023-001', tipo: 'Palete', descricao: 'Palete Standard', notaFiscal: 'Múltiplas', endereco: 'A-01-02-03', etiquetaMae: null },
 ];
 
 const enderecosDisponiveis = [
@@ -30,19 +34,109 @@ const enderecosDisponiveis = [
 
 const Enderecamento: React.FC = () => {
   const form = useForm();
-  const [selectedVolume, setSelectedVolume] = useState<any>(null);
+  const [volumesParaEnderecar, setVolumesParaEnderecar] = useState(initialVolumesParaEnderecar);
+  const [volumesEndereçados, setVolumesEndereçados] = useState<any[]>(initialVolumesParaEnderecar.filter(v => v.endereco !== null));
+  const [filteredVolumes, setFilteredVolumes] = useState<any[]>(initialVolumesParaEnderecar.filter(v => v.endereco === null));
+  const [selectedVolumes, setSelectedVolumes] = useState<any[]>([]);
   const [selectedEndereco, setSelectedEndereco] = useState<string | null>(null);
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedVolumeForPrint, setSelectedVolumeForPrint] = useState<string | null>(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchType, setSearchType] = useState<'id' | 'notaFiscal' | 'etiquetaMae'>('id');
   const volumeRef = useRef<HTMLDivElement>(null);
   
-  const handleSubmit = (data: any) => {
-    console.log('Form data submitted:', data);
-  };
-
   const handlePrintClick = (volumeId: string) => {
     setSelectedVolumeForPrint(volumeId);
     setPrintModalOpen(true);
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (!term) {
+      setFilteredVolumes(volumesParaEnderecar.filter(v => v.endereco === null));
+      return;
+    }
+
+    const lowerTerm = term.toLowerCase();
+    let filtered;
+    
+    switch (searchType) {
+      case 'id':
+        filtered = volumesParaEnderecar.filter(v => 
+          v.endereco === null && v.id.toLowerCase().includes(lowerTerm)
+        );
+        break;
+      case 'notaFiscal':
+        filtered = volumesParaEnderecar.filter(v => 
+          v.endereco === null && v.notaFiscal.toLowerCase().includes(lowerTerm)
+        );
+        break;
+      case 'etiquetaMae':
+        filtered = volumesParaEnderecar.filter(v => 
+          v.endereco === null && v.etiquetaMae && v.etiquetaMae.toLowerCase().includes(lowerTerm)
+        );
+        break;
+      default:
+        filtered = volumesParaEnderecar.filter(v => v.endereco === null);
+    }
+    
+    setFilteredVolumes(filtered);
+    // Auto-select volumes for batch processing if searching by nota fiscal or etiqueta mãe
+    if (searchType !== 'id' && filtered.length > 0) {
+      setSelectedVolumes(filtered);
+    }
+  };
+
+  const handleVolumeSelect = (volume: any) => {
+    // Select or deselect a volume
+    if (selectedVolumes.find(v => v.id === volume.id)) {
+      setSelectedVolumes(selectedVolumes.filter(v => v.id !== volume.id));
+    } else {
+      setSelectedVolumes([...selectedVolumes, volume]);
+    }
+  };
+
+  const handleConfirmEndereçamento = () => {
+    if (!selectedEndereco || selectedVolumes.length === 0) return;
+
+    // Update volumes with new endereco
+    const updatedVolumes = volumesParaEnderecar.map(volume => {
+      if (selectedVolumes.some(sv => sv.id === volume.id)) {
+        return { ...volume, endereco: selectedEndereco };
+      }
+      return volume;
+    });
+
+    setVolumesParaEnderecar(updatedVolumes);
+    
+    // Update endereçados list
+    const newlyEndereçados = selectedVolumes.map(sv => ({
+      ...sv, endereco: selectedEndereco
+    }));
+    
+    setVolumesEndereçados([...volumesEndereçados, ...newlyEndereçados]);
+    
+    // Update filtered list
+    setFilteredVolumes(updatedVolumes.filter(v => v.endereco === null));
+    
+    // Clear selection
+    setSelectedVolumes([]);
+    setSelectedEndereco(null);
+    form.reset();
+    
+    // Show success message
+    toast({
+      title: "Endereçamento salvo",
+      description: `${selectedVolumes.length} volume(s) endereçado(s) com sucesso em ${selectedEndereco}`,
+    });
+  };
+
+  const handleSearchTypeChange = (type: 'id' | 'notaFiscal' | 'etiquetaMae') => {
+    setSearchType(type);
+    if (searchTerm) {
+      handleSearch(searchTerm); // Re-run search with new type
+    }
   };
 
   return (
@@ -61,7 +155,7 @@ const Enderecamento: React.FC = () => {
         <TabsContent value="enderecar">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div>
-              <Card>
+              <Card className="mb-6">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center">
                     <Package className="mr-2 text-cross-blue" size={20} />
@@ -70,17 +164,57 @@ const Enderecamento: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                    <form className="space-y-4">
                       <div>
+                        <div className="mb-4">
+                          <FormLabel>Critério de busca</FormLabel>
+                          <div className="flex gap-2 mb-4">
+                            <Button 
+                              variant={searchType === 'id' ? 'default' : 'outline'} 
+                              size="sm"
+                              onClick={() => handleSearchTypeChange('id')}
+                              className={searchType === 'id' ? 'bg-cross-blue hover:bg-cross-blue/90' : ''}
+                            >
+                              ID Volume
+                            </Button>
+                            <Button 
+                              variant={searchType === 'notaFiscal' ? 'default' : 'outline'} 
+                              size="sm"
+                              onClick={() => handleSearchTypeChange('notaFiscal')}
+                              className={searchType === 'notaFiscal' ? 'bg-cross-blue hover:bg-cross-blue/90' : ''}
+                            >
+                              Nota Fiscal
+                            </Button>
+                            <Button 
+                              variant={searchType === 'etiquetaMae' ? 'default' : 'outline'} 
+                              size="sm"
+                              onClick={() => handleSearchTypeChange('etiquetaMae')}
+                              className={searchType === 'etiquetaMae' ? 'bg-cross-blue hover:bg-cross-blue/90' : ''}
+                            >
+                              Etiqueta Mãe
+                            </Button>
+                          </div>
+                        </div>
                         <FormField
                           control={form.control}
                           name="idVolume"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>ID do Volume ou Etiqueta</FormLabel>
+                              <FormLabel>
+                                {searchType === 'id' ? 'ID do Volume' : 
+                                 searchType === 'notaFiscal' ? 'Número da Nota Fiscal' : 
+                                 'Código da Etiqueta Mãe'}
+                              </FormLabel>
                               <div className="relative">
                                 <FormControl>
-                                  <Input placeholder="Digite o código do volume" {...field} />
+                                  <Input 
+                                    placeholder={`Digite o ${searchType === 'id' ? 'código do volume' : 
+                                                        searchType === 'notaFiscal' ? 'número da nota fiscal' : 
+                                                        'código da etiqueta mãe'}`} 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchTerm)}
+                                  />
                                 </FormControl>
                                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                               </div>
@@ -90,45 +224,32 @@ const Enderecamento: React.FC = () => {
                       </div>
                       
                       <Button 
-                        type="submit" 
+                        type="button" 
                         className="w-full bg-cross-blue hover:bg-cross-blue/90"
-                        onClick={() => setSelectedVolume(volumesParaEnderecar[0])}
+                        onClick={() => handleSearch(searchTerm)}
                       >
                         Buscar
                       </Button>
                     </form>
                   </Form>
                   
-                  {selectedVolume && (
+                  {selectedVolumes.length > 0 && (
                     <div className="mt-4 border rounded-md p-4">
-                      <h3 className="font-medium mb-2">Detalhes do Volume</h3>
-                      <dl className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <dt className="text-gray-500">ID:</dt>
-                          <dd>{selectedVolume.id}</dd>
-                        </div>
-                        <div className="flex justify-between">
-                          <dt className="text-gray-500">Tipo:</dt>
-                          <dd>{selectedVolume.tipo}</dd>
-                        </div>
-                        <div className="flex justify-between">
-                          <dt className="text-gray-500">Descrição:</dt>
-                          <dd>{selectedVolume.descricao}</dd>
-                        </div>
-                        <div className="flex justify-between">
-                          <dt className="text-gray-500">Nota Fiscal:</dt>
-                          <dd>{selectedVolume.notaFiscal}</dd>
-                        </div>
-                        <div className="flex justify-between">
-                          <dt className="text-gray-500">Endereço Atual:</dt>
-                          <dd>
-                            {selectedVolume.endereco ? 
-                              selectedVolume.endereco : 
-                              <span className="text-amber-600">Não endereçado</span>
-                            }
-                          </dd>
-                        </div>
-                      </dl>
+                      <h3 className="font-medium mb-2">Volumes selecionados ({selectedVolumes.length})</h3>
+                      <div className="max-h-32 overflow-y-auto">
+                        {selectedVolumes.map(volume => (
+                          <div key={volume.id} className="flex justify-between items-center py-1 border-b last:border-0">
+                            <span className="text-sm">{volume.id}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleVolumeSelect(volume)}
+                            >
+                              Remover
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                   
@@ -155,11 +276,54 @@ const Enderecamento: React.FC = () => {
                     
                     <Button 
                       className="w-full mt-4 bg-cross-blue hover:bg-cross-blue/90"
-                      disabled={!selectedVolume || !selectedEndereco}
+                      disabled={selectedVolumes.length === 0 || !selectedEndereco}
+                      onClick={() => setConfirmDialogOpen(true)}
                     >
                       <Save size={16} className="mr-2" />
                       Salvar Endereçamento
                     </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Volumes Encontrados</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                    {filteredVolumes.length === 0 ? (
+                      <p className="text-sm text-gray-500 text-center py-4">Nenhum volume encontrado</p>
+                    ) : (
+                      filteredVolumes.map(volume => (
+                        <div 
+                          key={volume.id}
+                          className={`p-3 border rounded-md cursor-pointer ${
+                            selectedVolumes.some(v => v.id === volume.id) ? 'bg-blue-50 border-cross-blue' : 'hover:bg-gray-50'
+                          }`}
+                          onClick={() => handleVolumeSelect(volume)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="flex items-center">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedVolumes.some(v => v.id === volume.id)} 
+                                  onChange={() => handleVolumeSelect(volume)}
+                                  className="mr-2" 
+                                />
+                                <span className="font-medium">{volume.id}</span>
+                              </div>
+                              <p className="text-sm text-gray-600">{volume.descricao}</p>
+                              <p className="text-xs text-gray-500">NF: {volume.notaFiscal}</p>
+                              {volume.etiquetaMae && (
+                                <p className="text-xs text-gray-500">Etiqueta Mãe: {volume.etiquetaMae}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -226,19 +390,38 @@ const Enderecamento: React.FC = () => {
                       },
                       {
                         header: 'Ações',
-                        accessor: 'actions', // Add this line
+                        accessor: 'actions',
                         cell: (row) => (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setSelectedVolume(row)}
-                          >
-                            Selecionar
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                if (row.endereco === null) {
+                                  const volume = volumesParaEnderecar.find(v => v.id === row.id);
+                                  if (volume) {
+                                    setSelectedVolumes([volume]);
+                                  }
+                                }
+                              }}
+                              disabled={row.endereco !== null}
+                            >
+                              Selecionar
+                            </Button>
+                            {row.endereco && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handlePrintClick(row.id)}
+                              >
+                                <Printer className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
                         )
                       }
                     ]}
-                    data={volumesParaEnderecar}
+                    data={volumesEndereçados}
                   />
                 </CardContent>
               </Card>
@@ -285,7 +468,7 @@ const Enderecamento: React.FC = () => {
                       )
                     }
                   ]}
-                  data={volumesParaEnderecar.filter(v => v.endereco !== null)}
+                  data={volumesEndereçados}
                 />
               </div>
             </CardContent>
@@ -341,6 +524,14 @@ const Enderecamento: React.FC = () => {
         onOpenChange={setPrintModalOpen}
         orderNumber={selectedVolumeForPrint || ''}
         layoutRef={volumeRef}
+      />
+
+      <ConfirmationDialog 
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        onConfirm={handleConfirmEndereçamento}
+        title="Confirmar endereçamento"
+        description={`Deseja endereçar ${selectedVolumes.length} volume(s) para o endereço ${selectedEndereco}?`}
       />
     </MainLayout>
   );
