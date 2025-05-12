@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
@@ -13,6 +12,7 @@ export const useGeracaoEtiquetas = () => {
   const location = useLocation();
   const notaFiscalData = location.state || {};
   const [tipoEtiqueta, setTipoEtiqueta] = useState<'volume' | 'mae'>('volume');
+  const [etiquetasMae, setEtiquetasMae] = useState<any[]>([]);
   
   const { 
     volumes, 
@@ -29,6 +29,7 @@ export const useGeracaoEtiquetas = () => {
     printEtiquetas,
     reimprimirEtiquetas,
     printEtiquetaMae,
+    createEtiquetaMae,
     createAndPrintEtiquetaMae
   } = useEtiquetasPrinting();
   
@@ -129,15 +130,19 @@ export const useGeracaoEtiquetas = () => {
     reimprimirEtiquetas(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
   };
   
-  // Function to handle creating and printing master etiqueta
+  // Function to handle creating master etiqueta (without printing)
   const handleCreateEtiquetaMae = () => {
-    const etiquetaMaeId = form.getValues('etiquetaMaeId') || `MASTER-${Date.now()}`;
     const descricao = form.getValues('descricaoEtiquetaMae') || 'Etiqueta Mãe';
     const tipoEtiquetaMae = form.getValues('tipoEtiquetaMae') as 'geral' | 'palete';
-    const formatoImpressao = form.getValues('formatoImpressao');
-    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle || 'standard';
     
-    createAndPrintEtiquetaMae(etiquetaMaeId, descricao, tipoEtiquetaMae, formatoImpressao, layoutStyle);
+    // Create the etiqueta mãe and add it to the list
+    const newEtiquetaMae = createEtiquetaMae(descricao, tipoEtiquetaMae);
+    
+    // Add to the etiquetas mãe list
+    setEtiquetasMae(prev => [...prev, newEtiquetaMae]);
+    
+    // Reset the form fields
+    form.setValue('descricaoEtiquetaMae', '');
   };
 
   // Function to handle printing master etiqueta
@@ -174,6 +179,13 @@ export const useGeracaoEtiquetas = () => {
       title: "Volumes Vinculados",
       description: `${volumeIds.length} volumes foram vinculados à etiqueta mãe ${etiquetaMaeId}.`,
     });
+    
+    // Update the etiquetas mãe list to reflect the number of volumes
+    setEtiquetasMae(prev => prev.map(em => 
+      em.id === etiquetaMaeId 
+        ? { ...em, quantidadeVolumes: volumeIds.length }
+        : em
+    ));
   };
 
   return {
@@ -182,12 +194,14 @@ export const useGeracaoEtiquetas = () => {
     tipoEtiqueta,
     generatedVolumes,
     volumes,
+    etiquetasMae,
     classifyDialogOpen,
     selectedVolume,
     isGenerating,
     setTipoEtiqueta,
     setVolumes,
     setGeneratedVolumes,
+    setEtiquetasMae,
     setClassifyDialogOpen,
     handleGenerateVolumes,
     handlePrintEtiquetas,

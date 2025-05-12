@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { volumesParaEtiquetar, etiquetasMae } from './components/etiquetas/mockData';
+import { volumesParaEtiquetar, etiquetasMae as mockEtiquetasMae } from './components/etiquetas/mockData';
 
 // Import refactored components
 import GerarEtiquetasTab from './components/etiquetas/GerarEtiquetasTab';
@@ -21,6 +21,7 @@ const GeracaoEtiquetas: React.FC = () => {
     tipoEtiqueta,
     generatedVolumes,
     volumes,
+    etiquetasMae,
     classifyDialogOpen,
     selectedVolume,
     setClassifyDialogOpen,

@@ -28,15 +28,6 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <Label htmlFor="etiquetaMaeId">ID da Etiqueta Mãe</Label>
-            <Input
-              id="etiquetaMaeId"
-              {...register('etiquetaMaeId')}
-              placeholder="ID da etiqueta mãe (opcional)"
-            />
-          </div>
-          
-          <div>
             <Label htmlFor="descricaoEtiquetaMae">Descrição</Label>
             <Input
               id="descricaoEtiquetaMae"

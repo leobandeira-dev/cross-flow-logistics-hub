@@ -82,6 +82,40 @@ export const useEtiquetasPrinting = () => {
     };
   };
   
+  // Function to create a master etiqueta without printing
+  const createEtiquetaMae = (
+    descricao: string,
+    tipoEtiquetaMae: 'geral' | 'palete'
+  ) => {
+    // Generate a sequential ID for the etiqueta mãe
+    const timestamp = Date.now();
+    const etiquetaMaeId = `MASTER-${timestamp}`;
+    
+    // Create a master etiqueta data object
+    const etiquetaMae = {
+      id: etiquetaMaeId,
+      notaFiscal: '',
+      descricao: descricao || 'Etiqueta Mãe',
+      quantidadeVolumes: 0, 
+      remetente: '',
+      destinatario: '',
+      cidade: '',
+      uf: '',
+      dataCriacao: new Date().toISOString().split('T')[0],
+      status: 'ativo',
+      tipo: tipoEtiquetaMae
+    };
+    
+    const tipoLabel = tipoEtiquetaMae === 'palete' ? 'Palete' : 'Etiqueta Mãe';
+    
+    toast({
+      title: `${tipoLabel} Criado(a)`,
+      description: `Novo(a) ${tipoLabel.toLowerCase()} ${etiquetaMaeId} criado(a) com sucesso.`,
+    });
+    
+    return etiquetaMae;
+  };
+  
   // Function to create and print a master etiqueta
   const createAndPrintEtiquetaMae = (
     etiquetaMaeId: string,
@@ -187,8 +221,8 @@ export const useEtiquetasPrinting = () => {
     generateEtiquetaMaePDF(dummyMasterVolume, notaData, formatoImpressao, etiquetaMae.id, layoutStyle);
     
     toast({
-      title: "Etiqueta Mãe Gerada",
-      description: `Etiqueta mãe ${etiquetaMae.id} gerada com sucesso.`,
+      title: "Etiqueta Mãe Impressa",
+      description: `Etiqueta mãe ${etiquetaMae.id} impressa com sucesso.`,
     });
   };
 
@@ -197,6 +231,7 @@ export const useEtiquetasPrinting = () => {
     printEtiquetas,
     reimprimirEtiquetas,
     printEtiquetaMae,
+    createEtiquetaMae,
     createAndPrintEtiquetaMae,
     calculateTotalPeso
   };

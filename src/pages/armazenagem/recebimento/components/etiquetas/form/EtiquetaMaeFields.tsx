@@ -17,7 +17,9 @@ const EtiquetaMaeFields: React.FC<EtiquetaMaeFieldsProps> = ({ form }) => {
       <Input
         id="etiquetaMaeId"
         {...register('etiquetaMaeId')}
-        placeholder="ID da etiqueta mãe (opcional)"
+        placeholder="ID será gerado automaticamente"
+        disabled
+        className="bg-gray-100"
       />
     </div>
   );

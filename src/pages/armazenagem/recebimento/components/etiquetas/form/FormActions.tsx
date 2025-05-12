@@ -32,7 +32,7 @@ const FormActions: React.FC<FormActionsProps> = ({
           onClick={handleCreateEtiquetaMae}
         >
           <Package className="mr-2 h-4 w-4" />
-          Gerar Etiqueta Mãe
+          Adicionar Etiqueta Mãe
         </Button>
       )}
     </>
