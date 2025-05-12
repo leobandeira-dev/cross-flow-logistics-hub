@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 
-interface VolumeData {
+export interface VolumeData {
   id: string;
   tipo: string;
   descricao: string;
@@ -10,6 +10,7 @@ interface VolumeData {
   dimensoes?: string;
   notaFiscal: string;
   etiquetaMae?: string | null;
+  endereco?: string | null;
 }
 
 export const useVolumePreparation = () => {
@@ -48,8 +49,19 @@ export const useVolumePreparation = () => {
     }
   };
 
+  // Function to prepare volume data without toast notifications or UI updates
+  const prepareVolumeData = (volumeData: VolumeData): VolumeData => {
+    // Set default endereco to "Area de Conferencia" for all volumes except etiqueta mae
+    const isEtiquetaMae = volumeData.tipo === 'Etiqueta Mãe' || volumeData.tipo === 'Palete';
+    return {
+      ...volumeData,
+      endereco: isEtiquetaMae ? null : 'Area de Conferência'
+    };
+  };
+
   return {
     prepareVolume,
+    prepareVolumeData,
     preparingVolume
   };
 };
