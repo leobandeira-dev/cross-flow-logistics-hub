@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -171,7 +170,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               cell: (row) => {
                 return row.etiquetado ? 
                   <StatusBadge status="success" text="Etiquetado" /> : 
-                  <StatusBadge status="default" text="Pendente" />;
+                  <StatusBadge status="pending" text="Pendente" />;
               }
             },
             {
