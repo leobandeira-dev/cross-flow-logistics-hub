@@ -1,5 +1,6 @@
 
 import React, { useRef, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import DocumentPrintModal from '@/components/common/DocumentPrintModal';
@@ -15,9 +16,21 @@ const EntradaNotas: React.FC = () => {
   const notaFiscalRef = useRef<HTMLDivElement>(null);
   const danfeRef = useRef<HTMLDivElement>(null);
   const simplifiedDanfeRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
   
   // Make sure refs are properly updated when content changes
   const [notaData, setNotaData] = useState<any>(null);
+  
+  useEffect(() => {
+    // Check if we have been redirected back from etiquetas page
+    const params = new URLSearchParams(location.search);
+    const returnFromEtiquetas = params.get('returnFrom');
+    
+    if (returnFromEtiquetas === 'etiquetas') {
+      // Reset URL params without reloading the page
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location]);
   
   // Find the selected nota fiscal data for DANFE
   useEffect(() => {
