@@ -1,10 +1,9 @@
-
 import { useState, useRef } from 'react';
-import { toast } from "@/hooks/use-toast";
-import { useVolumePreparation } from "@/hooks/etiquetas/useVolumePreparation";
+import { useToast } from "@/hooks/use-toast";
+import { useVolumePreparation, VolumeData } from "@/hooks/etiquetas/useVolumePreparation";
 
-// Interface for volume data
-export interface Volume {
+// Interface for volume data - Let's make this compatible with VolumeData
+export interface Volume extends VolumeData {
   id: string;
   tipo: string;
   descricao: string;
@@ -24,14 +23,15 @@ export interface Endereco {
 }
 
 export const useEnderecamentoVolumes = () => {
+  const { toast } = useToast();
   const { prepareVolume } = useVolumePreparation();
   
   // Mock data
   const initialVolumesParaEnderecar = [
-    { id: 'VOL-2023-001', tipo: 'Volume', descricao: 'Caixa 30x20x15', notaFiscal: '12345', endereco: null, etiquetaMae: 'ETM-001' },
-    { id: 'VOL-2023-002', tipo: 'Volume', descricao: 'Caixa 40x30x25', notaFiscal: '12345', endereco: null, etiquetaMae: 'ETM-001' },
-    { id: 'VOL-2023-003', tipo: 'Volume', descricao: 'Caixa 10x10x10', notaFiscal: '54321', endereco: null, etiquetaMae: 'ETM-002' },
-    { id: 'PAL-2023-001', tipo: 'Palete', descricao: 'Palete Standard', notaFiscal: 'Múltiplas', endereco: 'A-01-02-03', etiquetaMae: null },
+    { id: 'VOL-2023-001', tipo: 'Volume', descricao: 'Caixa 30x20x15', notaFiscal: '12345', endereco: null, etiquetaMae: 'ETM-001', quantidade: 1, etiquetado: true },
+    { id: 'VOL-2023-002', tipo: 'Volume', descricao: 'Caixa 40x30x25', notaFiscal: '12345', endereco: null, etiquetaMae: 'ETM-001', quantidade: 1, etiquetado: true },
+    { id: 'VOL-2023-003', tipo: 'Volume', descricao: 'Caixa 10x10x10', notaFiscal: '54321', endereco: null, etiquetaMae: 'ETM-002', quantidade: 1, etiquetado: true },
+    { id: 'PAL-2023-001', tipo: 'Palete', descricao: 'Palete Standard', notaFiscal: 'Múltiplas', endereco: 'A-01-02-03', etiquetaMae: null, quantidade: 1, etiquetado: true },
   ];
   
   const enderecosDisponiveis = [
@@ -119,6 +119,7 @@ export const useEnderecamentoVolumes = () => {
     try {
       // Process each volume through useVolumePreparation
       for (const volume of selectedVolumes) {
+        // Convert Volume to VolumeData - no conversion needed now that Volume extends VolumeData
         await prepareVolume(volume);
       }
       

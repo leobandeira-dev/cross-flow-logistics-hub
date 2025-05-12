@@ -12,6 +12,8 @@ export interface Volume {
   etiquetaMae: string;
   notaFiscal: string;
   fornecedor: string;
+  quantidade: number;
+  etiquetado: boolean;
 }
 
 // Tipo para célula do caminhão
