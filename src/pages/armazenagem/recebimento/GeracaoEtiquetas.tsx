@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
@@ -54,10 +55,12 @@ const GeracaoEtiquetas: React.FC = () => {
       // Check for volumesTotal in different possible field names and set it
       if (notaFiscalData.volumesTotal) {
         console.log("Setting volumesTotal from notaFiscalData.volumesTotal:", notaFiscalData.volumesTotal);
-        form.setValue('volumesTotal', notaFiscalData.volumesTotal);
+        // Ensure volumesTotal is a string and assign it to the form
+        form.setValue('volumesTotal', String(notaFiscalData.volumesTotal).trim());
       } else if (notaFiscalData.volumesTotais) {
         console.log("Setting volumesTotal from notaFiscalData.volumesTotais:", notaFiscalData.volumesTotais);
-        form.setValue('volumesTotal', notaFiscalData.volumesTotais);
+        // Ensure volumesTotais is a string and assign it to the form
+        form.setValue('volumesTotal', String(notaFiscalData.volumesTotais).trim());
       }
       
       // Set peso total

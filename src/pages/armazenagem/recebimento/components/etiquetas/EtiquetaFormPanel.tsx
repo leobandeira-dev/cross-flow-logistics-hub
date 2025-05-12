@@ -53,7 +53,9 @@ const EtiquetaFormPanel: React.FC<EtiquetaFormPanelProps> = ({
               <Input
                 id="volumesTotal"
                 {...register('volumesTotal')}
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min="1"
                 placeholder="Quantidade de volumes"
               />

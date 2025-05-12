@@ -85,15 +85,17 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
     
     // Check for volumesTotal in different properties
     if (nota.volumesTotal) {
-      volumesTotal = nota.volumesTotal;
+      volumesTotal = String(nota.volumesTotal).trim();
     } else if (nota.volumes) {
       // If nota has a volumes array, use its length
-      volumesTotal = nota.volumes.length.toString();
+      volumesTotal = String(nota.volumes.length);
     } else if (nota.itens && nota.itens.length > 0) {
       // If nota has items, we could estimate volumes based on items
       // This is a fallback and may not be accurate in all cases
-      volumesTotal = nota.itens.length.toString();
+      volumesTotal = String(nota.itens.length);
     }
+    
+    console.log("Volume total extracted for etiquetas:", volumesTotal);
     
     // Navigate to GeracaoEtiquetas with complete nota data
     navigate('/armazenagem/recebimento/etiquetas', { 
