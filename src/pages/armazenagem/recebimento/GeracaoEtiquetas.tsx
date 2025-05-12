@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
 import { useForm } from 'react-hook-form';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { useEtiquetasGenerator } from '@/hooks/useEtiquetasGenerator';
+import { useEtiquetasGenerator } from '@/hooks/etiquetas';
 
 // Import refactored components
 import EtiquetaFormPanel from './components/etiquetas/EtiquetaFormPanel';

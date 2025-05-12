@@ -1,34 +1,19 @@
-import React, { useRef, useState } from 'react';
+
+import React, { useState } from 'react';
 import { toast } from "@/hooks/use-toast";
-import EtiquetaTemplate from '@/components/common/print/EtiquetaTemplate';
 import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/VolumesTable';
+import { useEtiquetaPreview } from './useEtiquetaPreview';
+import { useVolumePreparation } from './useVolumePreparation';
+import { usePDFGeneration } from './usePDFGeneration';
+import { EtiquetaGenerationOptions, EtiquetaGenerationResult, LayoutStyle } from './types';
 
+/**
+ * Hook for generating etiquetas (labels) for volumes
+ */
 export const useEtiquetasGenerator = () => {
-  const etiquetaRef = useRef<HTMLDivElement>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [currentEtiqueta, setCurrentEtiqueta] = useState<{
-    volumeData: Volume;
-    volumeNumber: number;
-    totalVolumes: number;
-  } | null>(null);
-
-  // Function to prepare volume data with default values for missing fields
-  const prepareVolumeData = (volume: Volume, notaData: any = {}): Volume => {
-    return {
-      ...volume,
-      remetente: notaData.fornecedor || volume.remetente || "REMETENTE NÃO INFORMADO",
-      destinatario: notaData.destinatario || volume.destinatario || "DESTINATÁRIO NÃO INFORMADO",
-      endereco: notaData.endereco || volume.endereco || "ENDEREÇO NÃO INFORMADO",
-      cidade: notaData.cidade || volume.cidade || "CIDADE NÃO INFORMADA",
-      cidadeCompleta: notaData.cidadeCompleta || volume.cidadeCompleta || notaData.cidade || volume.cidade || "CIDADE NÃO INFORMADA",
-      uf: notaData.uf || volume.uf || "UF",
-      pesoTotal: notaData.pesoTotal || volume.pesoTotal || "0,00 Kg",
-      tipoVolume: volume.tipoVolume || 'geral',
-      codigoONU: volume.codigoONU || '',
-      codigoRisco: volume.codigoRisco || '',
-      chaveNF: volume.chaveNF || notaData.chaveNF || ''
-    };
-  };
+  const { etiquetaRef, currentEtiqueta, setCurrentEtiqueta, isGenerating, setIsGenerating } = useEtiquetaPreview();
+  const { prepareVolumeData } = useVolumePreparation();
+  const { createTempElement, configurePDFFormat, renderEtiquetaToCanvas } = usePDFGeneration();
 
   // Generate and download the PDF with all labels
   const generateEtiquetasPDF = async (
@@ -37,15 +22,15 @@ export const useEtiquetasGenerator = () => {
     formatoImpressao: string = '50x100',
     tipo: 'volume' | 'mae' = 'volume',
     etiquetaMaeId?: string,
-    layoutStyle: 'standard' | 'compact' | 'modern' = 'standard'
-  ) => {
+    layoutStyle: LayoutStyle = 'standard'
+  ): Promise<EtiquetaGenerationResult> => {
     if (!volumes || volumes.length === 0) {
       toast({
         title: "Erro",
         description: "Nenhum volume disponível para gerar etiquetas.",
         variant: "destructive"
       });
-      return;
+      return { status: 'error', error: 'No volumes available' };
     }
 
     setIsGenerating(true);
@@ -60,23 +45,7 @@ export const useEtiquetasGenerator = () => {
       document.body.appendChild(hiddenDiv);
       
       // Configure PDF format based on user selection
-      let pdfFormat: any; // Changed from string to any to accommodate both string and number[] types
-      let pdfOrientation: 'portrait' | 'landscape';
-      let etiquetaFormat: 'small' | 'a4';
-      
-      switch (formatoImpressao) {
-        case 'a4':
-          pdfFormat = 'a4';
-          pdfOrientation = 'landscape';
-          etiquetaFormat = 'a4';
-          break;
-        case '50x100':
-        default:
-          pdfFormat = [100, 50]; // width x height in mm (array of numbers)
-          pdfOrientation = 'landscape';
-          etiquetaFormat = 'small';
-          break;
-      }
+      const { pdfFormat, pdfOrientation, etiquetaFormat } = configurePDFFormat(formatoImpressao);
       
       // Create a PDF document
       const { jsPDF } = await import('jspdf');
@@ -99,36 +68,18 @@ export const useEtiquetasGenerator = () => {
         const preparedMasterVolume = prepareVolumeData(masterVolume, notaData);
         
         // Create temporary element
-        const tempEtiqueta = document.createElement('div');
-        hiddenDiv.appendChild(tempEtiqueta);
+        const tempEtiqueta = createTempElement(hiddenDiv);
         
-        // Render etiqueta to the temporary element
-        const { createRoot } = await import('react-dom/client');
-        const root = createRoot(tempEtiqueta);
-        
-        // Render the component
-        root.render(
-          <EtiquetaTemplate
-            volumeData={preparedMasterVolume as any}
-            volumeNumber={1}
-            totalVolumes={1}
-            format={etiquetaFormat}
-            tipo="mae"
-            layoutStyle={layoutStyle}
-          />
+        // Render and capture as image
+        const { canvas, root } = await renderEtiquetaToCanvas(
+          tempEtiqueta,
+          preparedMasterVolume,
+          1,
+          1,
+          etiquetaFormat,
+          'mae',
+          layoutStyle
         );
-        
-        // Wait for rendering
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Capture as image
-        const { default: html2canvas } = await import('html2canvas');
-        const canvas = await html2canvas(tempEtiqueta, {
-          scale: 2,
-          logging: false,
-          useCORS: true,
-          allowTaint: true
-        });
         
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
         const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -144,36 +95,18 @@ export const useEtiquetasGenerator = () => {
           const volumeData = prepareVolumeData(volumes[i], notaData);
           
           // Create temporary element
-          const tempEtiqueta = document.createElement('div');
-          hiddenDiv.appendChild(tempEtiqueta);
+          const tempEtiqueta = createTempElement(hiddenDiv);
           
-          // Render etiqueta to the temporary element
-          const { createRoot } = await import('react-dom/client');
-          const root = createRoot(tempEtiqueta);
-          
-          // Render the component
-          root.render(
-            <EtiquetaTemplate
-              volumeData={volumeData as any}
-              volumeNumber={i + 1}
-              totalVolumes={totalVolumes}
-              format={etiquetaFormat}
-              tipo="volume"
-              layoutStyle={layoutStyle}
-            />
+          // Render and capture as image
+          const { canvas, root } = await renderEtiquetaToCanvas(
+            tempEtiqueta,
+            volumeData,
+            i + 1,
+            totalVolumes,
+            etiquetaFormat,
+            'volume',
+            layoutStyle
           );
-          
-          // Wait for rendering
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
-          // Capture as image
-          const { default: html2canvas } = await import('html2canvas');
-          const canvas = await html2canvas(tempEtiqueta, {
-            scale: 2,
-            logging: false,
-            useCORS: true,
-            allowTaint: true
-          });
           
           // Add to PDF
           if (i > 0) {
@@ -233,7 +166,7 @@ export const useEtiquetasGenerator = () => {
     notaData: any = {},
     formatoImpressao: string = '50x100',
     etiquetaMaeId?: string,
-    layoutStyle: 'standard' | 'compact' | 'modern' = 'standard'
+    layoutStyle: LayoutStyle = 'standard'
   ) => {
     return generateEtiquetasPDF(volumes, notaData, formatoImpressao, 'mae', etiquetaMaeId, layoutStyle);
   };
