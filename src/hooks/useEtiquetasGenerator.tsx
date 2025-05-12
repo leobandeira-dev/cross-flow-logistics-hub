@@ -73,7 +73,7 @@ export const useEtiquetasGenerator = () => {
       document.body.appendChild(hiddenDiv);
       
       // Configure PDF format based on user selection
-      let pdfFormat: string;
+      let pdfFormat: any; // Changed from string to any to accommodate both string and number[] types
       let pdfOrientation: 'portrait' | 'landscape';
       let etiquetaFormat: 'small' | 'a4';
       
@@ -85,7 +85,7 @@ export const useEtiquetasGenerator = () => {
           break;
         case '50x100':
         default:
-          pdfFormat = [100, 50]; // width x height in mm
+          pdfFormat = [100, 50]; // width x height in mm (array of numbers)
           pdfOrientation = 'landscape';
           etiquetaFormat = 'small';
           break;
