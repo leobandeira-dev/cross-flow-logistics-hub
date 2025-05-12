@@ -3,19 +3,23 @@ import { useState } from 'react';
 import { Volume } from '../../components/etiquetas/VolumesTable';
 
 /**
- * Hook for managing dialog states in the etiquetas interface
+ * Hook for managing dialog state
  */
 export const useDialogState = () => {
   const [classifyDialogOpen, setClassifyDialogOpen] = useState(false);
   const [selectedVolume, setSelectedVolume] = useState<Volume | null>(null);
 
-  // Function to handle opening classify dialog
+  /**
+   * Opens the classify dialog for a specific volume
+   */
   const openClassifyDialog = (volume: Volume) => {
     setSelectedVolume(volume);
     setClassifyDialogOpen(true);
   };
 
-  // Function to handle closing classify dialog
+  /**
+   * Closes the classify dialog
+   */
   const closeClassifyDialog = () => {
     setClassifyDialogOpen(false);
     setSelectedVolume(null);
@@ -25,7 +29,6 @@ export const useDialogState = () => {
     classifyDialogOpen,
     selectedVolume,
     setClassifyDialogOpen,
-    setSelectedVolume,
     openClassifyDialog,
     closeClassifyDialog
   };

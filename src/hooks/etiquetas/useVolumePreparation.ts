@@ -5,15 +5,15 @@ import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/Vol
 
 export interface VolumeData {
   id: string;
-  tipo: string;
+  tipo?: string;  // Making this optional since Volume might not have it
   descricao: string;
   peso?: string;
   dimensoes?: string;
   notaFiscal: string;
   etiquetaMae?: string | null;
   endereco?: string | null;
-  quantidade?: number;
-  etiquetado?: boolean;
+  quantidade: number; // Required to match Volume
+  etiquetado: boolean; // Required to match Volume
   [key: string]: any; // Allow additional properties to make it compatible with Volume
 }
 
@@ -54,7 +54,7 @@ export const useVolumePreparation = () => {
   };
 
   // Function to prepare volume data without toast notifications or UI updates
-  const prepareVolumeData = (volumeData: VolumeData): VolumeData => {
+  const prepareVolumeData = (volumeData: Volume): Volume => {
     // Set default endereco to "Area de Conferencia" for all volumes except etiqueta mae
     const isEtiquetaMae = volumeData.tipo === 'Etiqueta Mãe' || volumeData.tipo === 'Palete';
     return {

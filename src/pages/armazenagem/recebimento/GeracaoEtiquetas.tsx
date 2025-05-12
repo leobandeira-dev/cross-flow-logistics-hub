@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { volumesParaEtiquetar, etiquetasMae as mockEtiquetasMae } from './components/etiquetas/mockData';
 
 // Import refactored components
 import GerarEtiquetasTab from './components/etiquetas/GerarEtiquetasTab';
