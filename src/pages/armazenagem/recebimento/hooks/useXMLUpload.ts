@@ -60,7 +60,7 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
               valor: valorTotal,
               pesoTotalBruto: extractedData.pesoTotalBruto || "",
               pesoTotal: extractedData.pesoTotalBruto || "",
-              volumesTotal: extractedData.volumesTotal || "", // Adicionando o campo volumesTotal
+              volumesTotal: extractedData.volumesTotal || "", // Now properly typed in the interface
               chaveNF: extractedData.chaveNF || "",
               status: 'pending', 
               xmlContent: content // Store XML content for DANFE generation

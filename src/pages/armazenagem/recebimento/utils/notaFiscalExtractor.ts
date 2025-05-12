@@ -1,4 +1,5 @@
 
+
 /**
  * Utility functions for extracting data from XML for Nota Fiscal
  */
@@ -100,9 +101,9 @@ export const extractDataFromXml = (xmlData: any): Record<string, any> => {
       destinatarioUF: enderDest.uf || "",
       destinatarioCEP: enderDest.cep || "",
       
-      // Volume data - adicionando suporte para quantidade de volumes
+      // Volume data - Make sure to extract volumesTotal correctly
       pesoTotalBruto: vol.pesob || vol.pesobruto || "",
-      volumesTotal: vol.qvol || ""
+      volumesTotal: vol.qvol || ""  // Ensuring we extract the volumesTotal consistently
     };
     
     console.log("Extracted data:", extractedData);
