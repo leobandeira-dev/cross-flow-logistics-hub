@@ -59,6 +59,7 @@ const useFormField = () => {
       invalid: false,
       isDirty: false,
       isTouched: false,
+      error: undefined, // Add the error property to fix TypeScript errors
     }
   }
   
@@ -72,7 +73,7 @@ const useFormField = () => {
     name: fieldName,
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
-    formMessageId: `${id}-form-item-message`,
+    formMessageId: `${id}-form-message`,
     ...fieldState,
   }
 }
