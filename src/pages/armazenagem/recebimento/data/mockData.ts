@@ -26,7 +26,6 @@ export const notasFiscais: NotaFiscal[] = [
     destinatarioUF: 'RJ',
     destinatarioCEP: '12345678',
     pesoTotalBruto: '15.750',
-    volumesTotal: '10',
     itens: [
       { descricao: 'PRODUTO A-1', quantidade: 10, valor: 50.00, ncm: '12345678' },
       { descricao: 'PRODUTO A-2', quantidade: 5, valor: 150.00, ncm: '87654321' },
@@ -57,7 +56,6 @@ export const notasFiscais: NotaFiscal[] = [
     destinatarioUF: 'RJ',
     destinatarioCEP: '12345678',
     pesoTotalBruto: '22.500',
-    volumesTotal: '5',
     itens: [
       { descricao: 'PRODUTO B-1', quantidade: 20, valor: 75.50, ncm: '23456789' },
       { descricao: 'PRODUTO B-2', quantidade: 8, valor: 95.00, ncm: '98765432' },
@@ -89,7 +87,6 @@ export const notasFiscais: NotaFiscal[] = [
     destinatarioUF: 'RJ',
     destinatarioCEP: '12345678',
     pesoTotalBruto: '38.200',
-    volumesTotal: '8',
     itens: [
       { descricao: 'PRODUTO C-1', quantidade: 15, valor: 120.00, ncm: '34567890' },
       { descricao: 'PRODUTO C-2', quantidade: 10, valor: 180.00, ncm: '45678901' },
@@ -133,7 +130,6 @@ export interface NotaFiscal {
   // Weight and volume information
   pesoTotalBruto?: string;
   pesoTotal?: string;
-  volumesTotal?: string;  // Adding this property to the interface
   
   // Items in the nota fiscal
   itens?: NotaFiscalItem[];

@@ -16,30 +16,6 @@ export const generateDANFEFromXML = async (xmlContent: string): Promise<string |
   try {
     console.log('Sending XML to DANFE API...');
     
-    // Verifica se o XML possui o atributo Id no formato correto
-    // O Id deve ter exatamente 44 dígitos após o prefixo 'NFe'
-    const idMatch = xmlContent.match(/Id="(NFe\d{44})"/);
-    
-    // Se não encontrar um Id válido, tenta corrigir o XML
-    if (!idMatch) {
-      console.log('XML não possui Id válido, tentando corrigir...');
-      
-      // Verifica se há um Id no formato incorreto
-      const invalidIdMatch = xmlContent.match(/Id="(NFe\d{1,43})"/);
-      if (invalidIdMatch) {
-        // Extrai o número da NF
-        const nfNumberMatch = xmlContent.match(/<nNF>(\d+)<\/nNF>/);
-        const nfNumber = nfNumberMatch ? nfNumberMatch[1] : '000000000';
-        
-        // Gera um novo Id com 44 dígitos
-        const newId = `NFe${'0'.repeat(44 - nfNumber.length)}${nfNumber}`;
-        
-        // Substitui o Id inválido pelo novo Id
-        xmlContent = xmlContent.replace(/Id="NFe[^"]*"/, `Id="${newId}"`);
-        console.log('XML corrigido com novo Id:', newId);
-      }
-    }
-    
     const response = await fetch(DANFE_API_URL, {
       method: 'POST',
       headers: {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,13 +33,9 @@ const notasFilterConfig = [
 
 interface ConsultaNotasProps {
   onPrintClick: (notaId: string) => void;
-  isGeneratingDANFE?: boolean;
 }
 
-const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ 
-  onPrintClick,
-  isGeneratingDANFE = false
-}) => {
+const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
@@ -88,7 +85,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({
       state: {
         notaFiscal: nota.id,
         numeroPedido: nota.numeroPedido || '',
-        volumesTotal: nota.volumesTotal || nota.vol?.qVol || '',
+        volumesTotal: nota.volumesTotal || '',
         // Sender data
         remetente: nota.fornecedor || '',
         emitente: nota.emitenteRazaoSocial || '',
@@ -100,7 +97,6 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({
         uf: nota.destinatarioUF || '',
         // Weight information
         pesoTotal: nota.pesoTotalBruto || nota.pesoTotal || '',
-        pesoTotalBruto: nota.pesoTotalBruto || nota.pesoTotal || '',
         chaveNF: nota.chaveNF || '',
         // Additional recipient address details
         enderecoDestinatario: nota.destinatarioEndereco || '',
@@ -159,10 +155,9 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={() => onPrintClick(row.id)}
-                      disabled={isGeneratingDANFE}
                     >
                       <Printer className="h-4 w-4 mr-1" />
-                      {isGeneratingDANFE ? 'Gerando...' : 'DANFE'}
+                      DANFE
                     </Button>
                     <Button
                       size="sm"

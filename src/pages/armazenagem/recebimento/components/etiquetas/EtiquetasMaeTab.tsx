@@ -59,13 +59,9 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
     setVinculoDialogOpen(true);
   };
 
-  // Modified this function to match the VinculoEtiquetaMaeDialog onSave prop that only receives etiquetaMaeId
-  const handleVincularVolumesSave = (etiquetaMaeId: string) => {
+  const handleVincularVolumesSave = (etiquetaMaeId: string, volumeIds: string[]) => {
     if (handleVincularVolumes) {
-      // Since we don't have volumeIds in the callback from VinculoEtiquetaMaeDialog,
-      // we'll need to implement a different approach if the functionality is needed
-      // For now, just call with an empty array to match the expected signature
-      handleVincularVolumes(etiquetaMaeId, []);
+      handleVincularVolumes(etiquetaMaeId, volumeIds);
     }
   };
   

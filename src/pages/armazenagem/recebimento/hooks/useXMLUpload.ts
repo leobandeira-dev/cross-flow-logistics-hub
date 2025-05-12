@@ -33,7 +33,6 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
           try {
             // Use the extractDataFromXml function to get all fields
             const extractedData = extractDataFromXml(xmlData);
-            console.log("Extracted data from XML:", extractedData);
 
             // Extract information from XML
             const notaId = extractedData.numeroNF || `NF-${Math.floor(Math.random() * 100000)}`;
@@ -43,7 +42,6 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
               ? new Date(extractedData.dataHoraEmissao).toLocaleDateString('pt-BR') 
               : new Date().toLocaleDateString('pt-BR');
             const valorTotal = extractedData.valorTotal || "0,00";
-            const volumesTotal = extractedData.volumesTotal || "";
             
             // Create a new nota fiscal object with all the extracted data
             const novaNota: NotaFiscal = {
@@ -62,7 +60,6 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
               valor: valorTotal,
               pesoTotalBruto: extractedData.pesoTotalBruto || "",
               pesoTotal: extractedData.pesoTotalBruto || "",
-              volumesTotal: volumesTotal, // Ensure this is properly extracted and passed
               chaveNF: extractedData.chaveNF || "",
               status: 'pending', 
               xmlContent: content // Store XML content for DANFE generation
