@@ -56,14 +56,15 @@ export const calculateFreightPerInvoice = (
 ): NotaFiscal[] => {
   if (notasToCalculate.length === 0) return [];
   
-  // Calculate total real weight
+  // Calculate total real weight - ensure we have valid numbers
   const pesoTotalReal = notasToCalculate.reduce((sum, nota) => {
-    const pesoNota = isNaN(nota.pesoNota) ? 0 : nota.pesoNota;
+    const pesoNota = isNaN(Number(nota.pesoNota)) ? 0 : Number(nota.pesoNota);
     return sum + pesoNota;
   }, 0);
   
   // Determine considered weight as the greater between total weight and minimum weight
-  const pesoConsiderado = Math.max(pesoTotalReal, cabecalhoValores.pesoMinimo || 0);
+  const pesoMinimo = isNaN(Number(cabecalhoValores.pesoMinimo)) ? 0 : Number(cabecalhoValores.pesoMinimo);
+  const pesoConsiderado = Math.max(pesoTotalReal, pesoMinimo);
   
   // Calculate totals
   const totaisViagem = calcularTotaisViagem(cabecalhoValores, pesoTotalReal);
@@ -77,7 +78,7 @@ export const calculateFreightPerInvoice = (
   // Calculate freight for each note
   return notasToCalculate.map(nota => {
     // Ensure peso nota is a valid number
-    const pesoNota = isNaN(nota.pesoNota) ? 0 : nota.pesoNota;
+    const pesoNota = isNaN(Number(nota.pesoNota)) ? 0 : Number(nota.pesoNota);
     
     // Calculate weight proportion for current note (prevent division by zero)
     const proporcaoPeso = pesoTotalReal > 0 ? pesoNota / pesoTotalReal : 0;
@@ -107,19 +108,19 @@ export const calculateFreightPerInvoice = (
     
     return {
       ...nota,
-      fretePorTonelada: cabecalhoValores.fretePorTonelada || 0,
-      pesoMinimo: cabecalhoValores.pesoMinimo || 0,
-      aliquotaICMS: cabecalhoValores.aliquotaICMS || 0,
-      aliquotaExpresso: cabecalhoValores.aliquotaExpresso || 0,
-      valorFreteTransferencia: valorFreteTransferencia || 0,
-      valorColeta: valorColeta || 0, 
-      paletizacao: paletizacao || 0,
-      pedagio: pedagogioRateio || 0,
-      fretePeso: fretePeso || 0,
-      valorExpresso: valorExpresso || 0,
-      freteRatear: freteRatear || 0,
-      icms: icms || 0,
-      totalPrestacao: totalPrestacao || 0
+      fretePorTonelada: Number(cabecalhoValores.fretePorTonelada) || 0,
+      pesoMinimo: Number(cabecalhoValores.pesoMinimo) || 0,
+      aliquotaICMS: Number(cabecalhoValores.aliquotaICMS) || 0,
+      aliquotaExpresso: Number(cabecalhoValores.aliquotaExpresso) || 0,
+      valorFreteTransferencia: Number(valorFreteTransferencia) || 0,
+      valorColeta: Number(valorColeta) || 0, 
+      paletizacao: Number(paletizacao) || 0,
+      pedagio: Number(pedagogioRateio) || 0,
+      fretePeso: Number(fretePeso) || 0,
+      valorExpresso: Number(valorExpresso) || 0,
+      freteRatear: Number(freteRatear) || 0,
+      icms: Number(icms) || 0,
+      totalPrestacao: Number(totalPrestacao) || 0
     };
   });
 };

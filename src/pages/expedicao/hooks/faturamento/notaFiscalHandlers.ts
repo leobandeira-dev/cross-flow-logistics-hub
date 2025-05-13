@@ -2,7 +2,6 @@
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { NotaFiscal } from '../../Faturamento';
-import { NotaFiscal as OCNotaFiscal } from '@/components/carregamento/OrderDetailsForm';
 import { CabecalhoValores, ImportacaoOCParams } from './types';
 import { calculateFreightPerInvoice } from './calculationUtils';
 
@@ -19,7 +18,7 @@ export const createNotaFiscalHandlers = (
   const handleAddNotaFiscal = (nota: Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'>) => {
     try {
       // Ensure pesoNota is a valid number
-      const pesoNota = isNaN(nota.pesoNota) ? 0 : nota.pesoNota;
+      const pesoNota = isNaN(Number(nota.pesoNota)) ? 0 : Number(nota.pesoNota);
       
       const newNota: NotaFiscal = {
         ...nota,
@@ -69,7 +68,13 @@ export const createNotaFiscalHandlers = (
   const handleRecalculate = () => {
     if (notas.length > 0) {
       try {
-        const notasCalculated = calculateFreightPerInvoice([...notas], cabecalhoValores);
+        // Ensure all notes have valid numeric values
+        const sanitizedNotas = notas.map(nota => ({
+          ...nota,
+          pesoNota: isNaN(Number(nota.pesoNota)) ? 0 : Number(nota.pesoNota)
+        }));
+        
+        const notasCalculated = calculateFreightPerInvoice(sanitizedNotas, cabecalhoValores);
         setNotas(notasCalculated);
         
         toast({
@@ -101,7 +106,7 @@ export const createNotaFiscalHandlers = (
       const notasComId = notasLote.map(nota => ({
         ...nota,
         id: `NF-${Math.random().toString(36).substr(2, 9)}`,
-        pesoNota: isNaN(nota.pesoNota) ? 0 : nota.pesoNota
+        pesoNota: isNaN(Number(nota.pesoNota)) ? 0 : Number(nota.pesoNota)
       }));
       
       // Combine with existing notes
@@ -135,8 +140,8 @@ export const createNotaFiscalHandlers = (
       // Map OC invoices to our invoice format
       const notasParaImportar = notasOC.map(notaOC => {
         const dataEmissao = new Date(notaOC.dataEmissao);
-        const pesoBruto = isNaN(notaOC.pesoBruto) ? 0 : notaOC.pesoBruto;
-        const valor = isNaN(notaOC.valor) ? 0 : notaOC.valor;
+        const pesoBruto = isNaN(Number(notaOC.pesoBruto)) ? 0 : Number(notaOC.pesoBruto);
+        const valor = isNaN(Number(notaOC.valor)) ? 0 : Number(notaOC.valor);
         
         return {
           id: `NF-${Math.random().toString(36).substr(2, 9)}`,
@@ -148,16 +153,16 @@ export const createNotaFiscalHandlers = (
           dataEmissao: dataEmissao,
           pesoNota: pesoBruto,
           valorNF: valor,
-          fretePorTonelada: cabecalhoValores.fretePorTonelada || 0,
-          pesoMinimo: cabecalhoValores.pesoMinimo || 0,
+          fretePorTonelada: Number(cabecalhoValores.fretePorTonelada) || 0,
+          pesoMinimo: Number(cabecalhoValores.pesoMinimo) || 0,
           valorFreteTransferencia: 0,
           cteColeta: '',
           valorColeta: 0,
           cteTransferencia: '',
           paletizacao: 0,
           pedagio: 0,
-          aliquotaICMS: cabecalhoValores.aliquotaICMS || 0,
-          aliquotaExpresso: cabecalhoValores.aliquotaExpresso || 0,
+          aliquotaICMS: Number(cabecalhoValores.aliquotaICMS) || 0,
+          aliquotaExpresso: Number(cabecalhoValores.aliquotaExpresso) || 0,
           fretePeso: 0,
           valorExpresso: 0,
           freteRatear: 0,

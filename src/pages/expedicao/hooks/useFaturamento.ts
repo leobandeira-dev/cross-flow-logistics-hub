@@ -40,7 +40,7 @@ export const useFaturamento = () => {
   const calcularTotais = () => {
     // Calculate total real weight, ensuring we have valid numbers
     const pesoTotalReal = notas.reduce((sum, nota) => {
-      const peso = isNaN(nota.pesoNota) ? 0 : nota.pesoNota;
+      const peso = isNaN(Number(nota.pesoNota)) ? 0 : Number(nota.pesoNota);
       return sum + peso;
     }, 0);
     
@@ -55,8 +55,16 @@ export const useFaturamento = () => {
   const handleRatear = () => {
     if (notas.length > 0) {
       try {
-        const notasCalculated = calculateFreightPerInvoice([...notas], cabecalhoValores);
+        const sanitizedNotas = notas.map(nota => ({
+          ...nota,
+          pesoNota: isNaN(Number(nota.pesoNota)) ? 0 : Number(nota.pesoNota)
+        }));
+        
+        const notasCalculated = calculateFreightPerInvoice(sanitizedNotas, cabecalhoValores);
         setNotas(notasCalculated);
+        
+        // Force recalculation of totals
+        calcularTotais();
         
         toast({
           title: "Valores rateados com sucesso",
@@ -92,14 +100,14 @@ export const useFaturamento = () => {
   const handleUpdateCabecalho = (values: CabecalhoValores) => {
     // Ensure all numeric values are valid numbers
     const sanitizedValues: CabecalhoValores = {
-      fretePorTonelada: isNaN(values.fretePorTonelada) ? 0 : values.fretePorTonelada,
-      pesoMinimo: isNaN(values.pesoMinimo) ? 0 : values.pesoMinimo,
-      aliquotaICMS: isNaN(values.aliquotaICMS) ? 0 : values.aliquotaICMS,
-      aliquotaExpresso: isNaN(values.aliquotaExpresso) ? 0 : values.aliquotaExpresso,
-      valorFreteTransferencia: isNaN(values.valorFreteTransferencia) ? 0 : values.valorFreteTransferencia,
-      valorColeta: isNaN(values.valorColeta) ? 0 : values.valorColeta,
-      paletizacao: isNaN(values.paletizacao) ? 0 : values.paletizacao,
-      pedagio: isNaN(values.pedagio) ? 0 : values.pedagio,
+      fretePorTonelada: isNaN(Number(values.fretePorTonelada)) ? 0 : Number(values.fretePorTonelada),
+      pesoMinimo: isNaN(Number(values.pesoMinimo)) ? 0 : Number(values.pesoMinimo),
+      aliquotaICMS: isNaN(Number(values.aliquotaICMS)) ? 0 : Number(values.aliquotaICMS),
+      aliquotaExpresso: isNaN(Number(values.aliquotaExpresso)) ? 0 : Number(values.aliquotaExpresso),
+      valorFreteTransferencia: isNaN(Number(values.valorFreteTransferencia)) ? 0 : Number(values.valorFreteTransferencia),
+      valorColeta: isNaN(Number(values.valorColeta)) ? 0 : Number(values.valorColeta),
+      paletizacao: isNaN(Number(values.paletizacao)) ? 0 : Number(values.paletizacao),
+      pedagio: isNaN(Number(values.pedagio)) ? 0 : Number(values.pedagio),
     };
     
     setCabecalhoValores(sanitizedValues);
