@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -70,7 +69,6 @@ const ImportarNotasExistentes: React.FC<ImportarNotasExistentesProps> = ({ onImp
     
     // Converter para o formato esperado pelo componente de faturamento
     const notasParaImportar: Partial<NotaFiscal>[] = notasSelecionadas.map(nota => {
-      // Adaptar o formato das notas do recebimento para o formato do faturamento
       return {
         data: new Date(),
         cliente: nota.destinatarioRazaoSocial || nota.fornecedor,
@@ -79,11 +77,7 @@ const ImportarNotasExistentes: React.FC<ImportarNotasExistentesProps> = ({ onImp
         pedido: nota.numeroPedido || "",
         dataEmissao: nota.dataEmissao ? new Date(nota.dataEmissao) : new Date(),
         pesoNota: nota.pesoTotalBruto || nota.pesoTotal || 0,
-        valorNF: parseFloat(nota.valor?.replace(/[^0-9,.]/g, '').replace(',', '.')) || 0,
-        fretePorTonelada: 0, // Valores padrão, usuário deve preencher
-        pesoMinimo: 0,
-        aliquotaICMS: 0,
-        aliquotaExpresso: 0
+        valorNF: parseFloat(nota.valor?.replace(/[^0-9,.]/g, '').replace(',', '.')) || 0
       };
     });
     

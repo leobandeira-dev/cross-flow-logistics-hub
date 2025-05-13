@@ -27,10 +27,6 @@ const NotasTable: React.FC<NotasTableProps> = ({ notasLote, onUpdateNota, onRemo
             <TableHead className="whitespace-nowrap">Pedido</TableHead>
             <TableHead className="whitespace-nowrap">Peso (kg)</TableHead>
             <TableHead className="whitespace-nowrap">Valor NF (R$)</TableHead>
-            <TableHead className="whitespace-nowrap">Frete/Ton (R$)</TableHead>
-            <TableHead className="whitespace-nowrap">Peso Mín. (kg)</TableHead>
-            <TableHead className="whitespace-nowrap">Alíq. ICMS (%)</TableHead>
-            <TableHead className="whitespace-nowrap">Alíq. Expresso (%)</TableHead>
             <TableHead className="whitespace-nowrap">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -82,38 +78,6 @@ const NotasTable: React.FC<NotasTableProps> = ({ notasLote, onUpdateNota, onRemo
                   step="0.01"
                   value={nota.valorNF || 0}
                   onChange={(e) => onUpdateNota(index, 'valorNF', parseFloat(e.target.value))}
-                />
-              </TableCell>
-              <TableCell>
-                <Input 
-                  type="number" 
-                  step="0.01"
-                  value={nota.fretePorTonelada || 0}
-                  onChange={(e) => onUpdateNota(index, 'fretePorTonelada', parseFloat(e.target.value))}
-                />
-              </TableCell>
-              <TableCell>
-                <Input 
-                  type="number" 
-                  step="0.01"
-                  value={nota.pesoMinimo || 0}
-                  onChange={(e) => onUpdateNota(index, 'pesoMinimo', parseFloat(e.target.value))}
-                />
-              </TableCell>
-              <TableCell>
-                <Input 
-                  type="number" 
-                  step="0.01"
-                  value={nota.aliquotaICMS || 0}
-                  onChange={(e) => onUpdateNota(index, 'aliquotaICMS', parseFloat(e.target.value))}
-                />
-              </TableCell>
-              <TableCell>
-                <Input 
-                  type="number" 
-                  step="0.01"
-                  value={nota.aliquotaExpresso || 0}
-                  onChange={(e) => onUpdateNota(index, 'aliquotaExpresso', parseFloat(e.target.value))}
                 />
               </TableCell>
               <TableCell>
