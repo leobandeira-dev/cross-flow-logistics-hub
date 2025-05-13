@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -67,8 +66,19 @@ const CalculoFreteForm: React.FC<CalculoFreteFormProps> = ({ onAddNotaFiscal, on
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    onAddNotaFiscal(data);
+  const onSubmit = (formValues: FormValues) => {
+    // Since the form is validated by zod, all values should be present and of the correct type
+    const nota: Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'> = {
+      data: formValues.data,
+      cliente: formValues.cliente,
+      pesoNota: formValues.pesoNota,
+      fretePorTonelada: formValues.fretePorTonelada,
+      pesoMinimo: formValues.pesoMinimo,
+      aliquotaICMS: formValues.aliquotaICMS,
+      aliquotaExpresso: formValues.aliquotaExpresso,
+    };
+    
+    onAddNotaFiscal(nota);
     form.reset({
       data: new Date(),
       cliente: '',
