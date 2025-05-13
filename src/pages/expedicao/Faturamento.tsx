@@ -17,6 +17,7 @@ import { useFaturamento } from './hooks/useFaturamento';
 import CabecalhoTotais from './components/faturamento/CabecalhoTotais';
 import DocumentGenerationDialog from './components/faturamento/print/DocumentGenerationDialog';
 import HistoricoFaturasTab from './components/faturamento/HistoricoFaturasTab';
+import DocumentosTab from './components/faturamento/documentos/DocumentosTab';
 
 // Define NotaFiscal interface based on the requirements
 export interface NotaFiscal {
@@ -127,6 +128,7 @@ const Faturamento: React.FC = () => {
                 <TabsTrigger value="notas">Notas Fiscais</TabsTrigger>
                 <TabsTrigger value="importacao">Importação de Notas</TabsTrigger>
                 <TabsTrigger value="calculo">Adicionar Nota Manual</TabsTrigger>
+                <TabsTrigger value="documentos">Documentos</TabsTrigger>
                 <TabsTrigger value="historico">Histórico de Faturas</TabsTrigger>
               </TabsList>
 
@@ -150,6 +152,10 @@ const Faturamento: React.FC = () => {
                   onAddNotaFiscal={handleAddNotaFiscal}
                   onComplete={() => setActiveTab("notas")} 
                 />
+              </TabsContent>
+              
+              <TabsContent value="documentos">
+                <DocumentosTab />
               </TabsContent>
               
               <TabsContent value="historico">

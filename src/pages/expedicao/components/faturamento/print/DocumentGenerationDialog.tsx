@@ -11,6 +11,9 @@ import { DocumentInfo } from './schema/documentSchema';
 import FaturaDocumentLayout from './FaturaDocumentLayout';
 import { NotaFiscal } from '../../../Faturamento';
 import { CabecalhoValores, TotaisCalculados } from '../../../hooks/faturamento/types';
+import { Button } from '@/components/ui/button';
+import { useFaturamentoDocumentos } from '../../../hooks/faturamento/useFaturamentoDocumentos';
+import FaturaDocumentPDFViewer from './FaturaDocumentPDFViewer';
 
 interface DocumentGenerationDialogProps {
   open: boolean;
@@ -30,6 +33,7 @@ const DocumentGenerationDialog: React.FC<DocumentGenerationDialogProps> = ({
   const [documentInfo, setDocumentInfo] = useState<DocumentInfo | null>(null);
   const [step, setStep] = useState<'form' | 'preview'>('form');
   const documentRef = useRef<HTMLDivElement>(null);
+  const { adicionarNovoDocumento } = useFaturamentoDocumentos();
 
   // Reset state when dialog is closed
   useEffect(() => {
@@ -46,6 +50,16 @@ const DocumentGenerationDialog: React.FC<DocumentGenerationDialogProps> = ({
 
   const handleBackToForm = () => {
     setStep('form');
+  };
+
+  const handleFinalizarDocumento = () => {
+    if (documentInfo) {
+      // Adiciona o documento ao sistema
+      adicionarNovoDocumento(documentInfo, totaisCalculados.totalViagem);
+      
+      // Fecha o diálogo
+      onOpenChange(false);
+    }
   };
 
   return (
@@ -85,12 +99,17 @@ const DocumentGenerationDialog: React.FC<DocumentGenerationDialogProps> = ({
                     Voltar e editar
                   </button>
                   <div className="flex space-x-2">
-                    {/* Usando o DocumentPDFGenerator para a impressão */}
-                    {documentRef.current && (
-                      <div className="hidden">
-                        {/* O DocumentPDFGenerator fará a renderização e impressão */}
-                      </div>
+                    {documentInfo && (
+                      <FaturaDocumentPDFViewer
+                        documentInfo={documentInfo}
+                        notas={notas}
+                        cabecalhoValores={cabecalhoValores}
+                        totaisCalculados={totaisCalculados}
+                      />
                     )}
+                    <Button onClick={handleFinalizarDocumento}>
+                      Finalizar e emitir documento
+                    </Button>
                   </div>
                 </div>
               )}
