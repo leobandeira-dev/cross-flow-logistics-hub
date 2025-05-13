@@ -60,7 +60,13 @@ export const createNotaFiscalHandlers = (
       
       toast({
         title: "Frete recalculado",
-        description: "Valores de frete foram recalculados com sucesso."
+        description: "Valores de frete foram recalculados e rateados com sucesso."
+      });
+    } else {
+      toast({
+        title: "Nenhuma nota fiscal disponível",
+        description: "Adicione notas fiscais antes de recalcular o frete.",
+        variant: "destructive"
       });
     }
   };
@@ -139,21 +145,6 @@ export const createNotaFiscalHandlers = (
     setActiveTab("notas");
   };
 
-  const handleUpdateCabecalho = (values: CabecalhoValores) => {
-    // This function is implemented in the main hook as it needs to update the state
-    
-    // Recalculate all notes with new header values
-    if (notas.length > 0) {
-      const notasCalculated = calculateFreightPerInvoice([...notas], values);
-      setNotas(notasCalculated);
-      
-      toast({
-        title: "Valores do cabeçalho atualizados",
-        description: "Todos os cálculos foram atualizados com os novos valores."
-      });
-    }
-  };
-
   const handleExportToPDF = () => {
     toast({
       title: "Exportando para PDF",
@@ -167,7 +158,6 @@ export const createNotaFiscalHandlers = (
     handleRecalculate,
     handleImportarLote,
     handleImportarNotasOrdemCarregamento,
-    handleUpdateCabecalho,
     handleExportToPDF,
   };
 };

@@ -4,6 +4,7 @@ import { NotaFiscal } from '../Faturamento';
 import { calcularTotaisViagem, calculateFreightPerInvoice } from './faturamento/calculationUtils';
 import { createNotaFiscalHandlers } from './faturamento/notaFiscalHandlers';
 import { CabecalhoValores, TotaisCalculados } from './faturamento/types';
+import { toast } from '@/hooks/use-toast';
 
 export const useFaturamento = () => {
   const [notas, setNotas] = useState<NotaFiscal[]>([]);
@@ -52,6 +53,17 @@ export const useFaturamento = () => {
     if (notas.length > 0) {
       const notasCalculated = calculateFreightPerInvoice([...notas], cabecalhoValores);
       setNotas(notasCalculated);
+      
+      toast({
+        title: "Valores rateados com sucesso",
+        description: "Os valores foram rateados entre todas as notas fiscais."
+      });
+    } else {
+      toast({
+        title: "Nenhuma nota fiscal disponível",
+        description: "Adicione notas fiscais antes de ratear valores.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -68,11 +80,12 @@ export const useFaturamento = () => {
   const handleUpdateCabecalho = (values: CabecalhoValores) => {
     setCabecalhoValores(values);
     
-    // Recalculate all notes with new header values if there are notes
-    if (notas.length > 0) {
-      const notasCalculated = calculateFreightPerInvoice([...notas], values);
-      setNotas(notasCalculated);
-    }
+    // Don't automatically recalculate all notes with new header values
+    // This will be done when user clicks "Ratear Valores" or "Recalcular Rateio"
+    toast({
+      title: "Parâmetros atualizados",
+      description: "Clique em 'Ratear Valores' para aplicar às notas fiscais."
+    });
   };
 
   return {
