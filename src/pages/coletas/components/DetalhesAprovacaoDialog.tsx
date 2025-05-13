@@ -30,6 +30,18 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
     onOpenChange(false);
   };
 
+  // Wrapper para o onApprove que também fecha o diálogo
+  const handleApprove = (solicitacaoId: string, observacoes?: string) => {
+    onApprove(solicitacaoId, observacoes);
+    handleCloseDialog();
+  };
+
+  // Wrapper para o onReject que também fecha o diálogo
+  const handleReject = (solicitacaoId: string, motivoRecusa: string) => {
+    onReject(solicitacaoId, motivoRecusa);
+    handleCloseDialog();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
       <DialogContent className="max-w-3xl">
@@ -119,8 +131,8 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
                   isRejecting={isRejecting}
                   setIsRejecting={setIsRejecting}
                   onClose={handleCloseDialog}
-                  onApprove={onApprove}
-                  onReject={onReject}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
                 />
               ) : (
                 <Card>
