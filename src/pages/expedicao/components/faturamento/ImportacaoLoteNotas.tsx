@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { NotaFiscal } from '../../../Faturamento';
+import { NotaFiscal } from '../../Faturamento';
 import { useNotasImportacao } from './importacao/useNotasImportacao';
 import CSVImportSection from './importacao/CSVImportSection';
 import NotasTable from './importacao/NotasTable';
@@ -52,6 +52,17 @@ const ImportacaoLoteNotas: React.FC<ImportacaoLoteNotasProps> = ({ onImportarLot
     setNotasLote([...notasLote, ...notas]);
   };
 
+  // Função para importar notas da ordem de carregamento com conversão de datas
+  const handleImportarNotasOrdemCarregamento = (notas: any[], ocId: string) => {
+    // Converter dataEmissao de string para Date quando existir
+    const notasConvertidas: Partial<NotaFiscal>[] = notas.map(nota => ({
+      ...nota,
+      dataEmissao: nota.dataEmissao ? new Date(nota.dataEmissao) : undefined
+    }));
+    
+    handleImportarNotasExistentes(notasConvertidas);
+  };
+
   // Função para atualizar valores de cabeçalho (usado pela ordem de carregamento)
   const handleUpdateCabecalho = (cabecalhoValores: any) => {
     // Atualiza todas as notas no lote com os novos valores do cabeçalho
@@ -95,7 +106,7 @@ const ImportacaoLoteNotas: React.FC<ImportacaoLoteNotasProps> = ({ onImportarLot
           
           <TabsContent value="ordemcarregamento">
             <ImportarOrdemCarregamento 
-              onImportarNotasOrdemCarregamento={(notas, ocId) => handleImportarNotasExistentes(notas)}
+              onImportarNotasOrdemCarregamento={handleImportarNotasOrdemCarregamento}
               onUpdateCabecalho={handleUpdateCabecalho}
               cabecalhoValores={{
                 fretePorTonelada: 0,
