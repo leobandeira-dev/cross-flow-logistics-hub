@@ -8,6 +8,7 @@ interface TotaisViagemProps {
   notasCount: number;
   pesoTotal: number;
   pesoConsiderado: number;
+  pesoMinimo: number; // Added pesoMinimo param
 }
 
 const TotaisViagem: React.FC<TotaisViagemProps> = ({
@@ -15,6 +16,7 @@ const TotaisViagem: React.FC<TotaisViagemProps> = ({
   notasCount,
   pesoTotal,
   pesoConsiderado,
+  pesoMinimo, // Added pesoMinimo param
 }) => {
   return (
     <div className="space-y-4">
@@ -29,6 +31,11 @@ const TotaisViagem: React.FC<TotaisViagemProps> = ({
         <div className="flex justify-between items-center border-b pb-2">
           <span className="font-medium">Peso Total (kg):</span>
           <span className="font-bold">{formatNumber(pesoTotal)}</span>
+        </div>
+        
+        <div className="flex justify-between items-center border-b pb-2">
+          <span className="font-medium">Peso Mínimo (kg):</span>
+          <span className="font-bold">{formatNumber(pesoMinimo)}</span>
         </div>
         
         <div className="flex justify-between items-center border-b pb-2">

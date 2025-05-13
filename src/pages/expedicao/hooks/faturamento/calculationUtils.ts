@@ -9,9 +9,8 @@ export const calcularTotaisViagem = (
   cabecalhoValores: CabecalhoValores, 
   pesoTotalReal: number
 ): TotaisCalculados => {
-  // Determine if we need to use minimum weight
-  const usarPesoMinimo = pesoTotalReal < cabecalhoValores.pesoMinimo;
-  const pesoConsiderado = usarPesoMinimo ? cabecalhoValores.pesoMinimo : pesoTotalReal;
+  // Determine if we need to use minimum weight - using Math.max to ensure we use the greater value
+  const pesoConsiderado = Math.max(pesoTotalReal, cabecalhoValores.pesoMinimo);
   
   // Calcular frete peso viagem
   const fretePesoViagem = (cabecalhoValores.fretePorTonelada / 1000) * pesoConsiderado;
@@ -52,9 +51,8 @@ export const calculateFreightPerInvoice = (
   // Calculate total real weight
   const pesoTotalReal = notasToCalculate.reduce((sum, nota) => sum + nota.pesoNota, 0);
   
-  // Determine if we need to use minimum weight
-  const usarPesoMinimo = pesoTotalReal < cabecalhoValores.pesoMinimo;
-  const pesoConsiderado = usarPesoMinimo ? cabecalhoValores.pesoMinimo : pesoTotalReal;
+  // Determine considered weight as the greater between total weight and minimum weight
+  const pesoConsiderado = Math.max(pesoTotalReal, cabecalhoValores.pesoMinimo);
   
   // Calculate totals
   const totaisViagem = calcularTotaisViagem(cabecalhoValores, pesoTotalReal);

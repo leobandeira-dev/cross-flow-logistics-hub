@@ -39,8 +39,8 @@ const CabecalhoTotais: React.FC<CabecalhoTotaisProps> = ({
     onUpdateCabecalho(valores);
   };
 
-  // Calcular peso considerado
-  const pesoConsiderado = pesoTotal < valores.pesoMinimo ? valores.pesoMinimo : pesoTotal;
+  // Calculate considered weight as the greater between total weight and minimum weight
+  const pesoConsiderado = Math.max(pesoTotal, valores.pesoMinimo);
   
   return (
     <Card className="border border-muted">
@@ -63,6 +63,7 @@ const CabecalhoTotais: React.FC<CabecalhoTotaisProps> = ({
               totaisCalculados={totaisCalculados}
               notasCount={notasCount}
               pesoTotal={pesoTotal}
+              pesoMinimo={valores.pesoMinimo}
               pesoConsiderado={pesoConsiderado}
             />
             
