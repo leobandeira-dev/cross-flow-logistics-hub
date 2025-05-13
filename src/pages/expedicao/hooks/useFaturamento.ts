@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { NotaFiscal } from '../Faturamento';
 import { calcularTotaisViagem, calculateFreightPerInvoice } from './faturamento/calculationUtils';
-import { createNotaFiscalHandlers } from './faturamento/notaFiscalHandlers';
+import { createNotaFiscalHandlers } from './faturamento/handlers';
 import { CabecalhoValores, TotaisCalculados } from './faturamento/types';
 import { toast } from '@/hooks/use-toast';
 
@@ -87,7 +87,7 @@ export const useFaturamento = () => {
     }
   };
 
-  // Create all nota fiscal handlers using the handlers utility
+  // Create all nota fiscal handlers using the refactored handlers utility
   const handlers = createNotaFiscalHandlers(
     notas,
     setNotas,
