@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { NotaFiscal } from '../Faturamento';
 import { calcularTotaisViagem, calculateFreightPerInvoice } from './faturamento/calculationUtils';
@@ -93,7 +92,8 @@ export const useFaturamento = () => {
     setNotas,
     setActiveTab,
     cabecalhoValores,
-    setOrdemCarregamentoId
+    setOrdemCarregamentoId,
+    totaisCalculados
   );
 
   // Implement the handleUpdateCabecalho handler here since it needs to update state

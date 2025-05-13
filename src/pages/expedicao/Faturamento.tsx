@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { 
   Card, 
@@ -15,6 +15,8 @@ import ImportacaoLoteNotas from './components/faturamento/ImportacaoLoteNotas';
 import { FileText } from 'lucide-react';
 import { useFaturamento } from './hooks/useFaturamento';
 import CabecalhoTotais from './components/faturamento/CabecalhoTotais';
+import DocumentGenerationDialog from './components/faturamento/print/DocumentGenerationDialog';
+import HistoricoFaturasTab from './components/faturamento/HistoricoFaturasTab';
 
 // Define NotaFiscal interface based on the requirements
 export interface NotaFiscal {
@@ -43,6 +45,9 @@ export interface NotaFiscal {
   pedagio?: number;
   totalPrestacao?: number;
   icms?: number; // Valor de ICMS rateado por nota
+  // Campos para documento
+  documentoId?: string;
+  documentoNumero?: string;
 }
 
 const Faturamento: React.FC = () => {
@@ -60,6 +65,30 @@ const Faturamento: React.FC = () => {
     handleExportToPDF,
     handleRatear
   } = useFaturamento();
+  
+  const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
+  
+  // Handler para eventos personalizados
+  useEffect(() => {
+    const handleDocumentDialogEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{
+        notas: NotaFiscal[], 
+        cabecalhoValores: any,
+        totaisCalculados: any
+      }>;
+      
+      // Abrir diálogo
+      setDocumentDialogOpen(true);
+    };
+    
+    // Adiciona listener para o evento de abrir o diálogo de documento
+    document.addEventListener('openDocumentDialog', handleDocumentDialogEvent);
+    
+    return () => {
+      // Remove listener quando componente desmontar
+      document.removeEventListener('openDocumentDialog', handleDocumentDialogEvent);
+    };
+  }, []);
 
   return (
     <MainLayout title="Faturamento">
@@ -98,6 +127,7 @@ const Faturamento: React.FC = () => {
                 <TabsTrigger value="notas">Notas Fiscais</TabsTrigger>
                 <TabsTrigger value="importacao">Importação de Notas</TabsTrigger>
                 <TabsTrigger value="calculo">Adicionar Nota Manual</TabsTrigger>
+                <TabsTrigger value="historico">Histórico de Faturas</TabsTrigger>
               </TabsList>
 
               <TabsContent value="notas">
@@ -121,10 +151,23 @@ const Faturamento: React.FC = () => {
                   onComplete={() => setActiveTab("notas")} 
                 />
               </TabsContent>
+              
+              <TabsContent value="historico">
+                <HistoricoFaturasTab />
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
       </div>
+      
+      {/* Dialog para geração de documentos */}
+      <DocumentGenerationDialog
+        open={documentDialogOpen}
+        onOpenChange={setDocumentDialogOpen}
+        notas={notas}
+        cabecalhoValores={cabecalhoValores}
+        totaisCalculados={totaisCalculados}
+      />
     </MainLayout>
   );
 };

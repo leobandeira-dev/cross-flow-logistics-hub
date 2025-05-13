@@ -6,7 +6,7 @@ import { createImportLoteHandler } from './importLoteHandler';
 import { createImportOCHandler } from './importOCHandler';
 import { createExportToPDFHandler } from './exportToPDFHandler';
 import { NotaFiscal } from '../../../Faturamento';
-import { CabecalhoValores } from '../types';
+import { CabecalhoValores, TotaisCalculados } from '../types';
 
 /**
  * Creates handlers for nota fiscal operations
@@ -16,7 +16,8 @@ export const createNotaFiscalHandlers = (
   setNotas: React.Dispatch<React.SetStateAction<NotaFiscal[]>>,
   setActiveTab: React.Dispatch<React.SetStateAction<string>>,
   cabecalhoValores: CabecalhoValores,
-  setOrdemCarregamentoId: React.Dispatch<React.SetStateAction<string | null>>
+  setOrdemCarregamentoId: React.Dispatch<React.SetStateAction<string | null>>,
+  totaisCalculados: TotaisCalculados
 ) => {
   // Create individual handlers
   const handleAddNotaFiscal = createAddNotaFiscalHandler(notas, setNotas, cabecalhoValores);
@@ -30,7 +31,7 @@ export const createNotaFiscalHandlers = (
     cabecalhoValores, 
     setOrdemCarregamentoId
   );
-  const handleExportToPDF = createExportToPDFHandler();
+  const handleExportToPDF = createExportToPDFHandler(notas, cabecalhoValores, totaisCalculados);
 
   // Return all handlers
   return {
