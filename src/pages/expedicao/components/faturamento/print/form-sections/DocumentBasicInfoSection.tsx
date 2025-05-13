@@ -4,7 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
 import { DocumentInfo } from '../schema/documentSchema';
-import DocumentTypeField from '../../../form/DocumentTypeField';
+import DocumentTypeField from './DocumentTypeField';
 import DateTimePickerField from './DateTimePickerField';
 
 interface DocumentBasicInfoSectionProps {

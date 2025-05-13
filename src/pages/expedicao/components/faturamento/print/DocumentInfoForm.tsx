@@ -7,6 +7,7 @@ import { documentSchema, DocumentInfo } from './schema/documentSchema';
 import DocumentBasicInfoSection from './form-sections/DocumentBasicInfoSection';
 import DriverInfoSection from './form-sections/DriverInfoSection';
 import OperationInfoSection from './form-sections/OperationInfoSection';
+import { generateDocumentNumber } from '../../utils/documentUtils';
 
 interface DocumentInfoFormProps {
   onSubmit: (data: DocumentInfo) => void;
@@ -58,14 +59,6 @@ const DocumentInfoForm: React.FC<DocumentInfoFormProps> = ({
       </div>
     </form>
   );
-};
-
-// Helper function to generate document number
-const generateDocumentNumber = (date: Date, sequence: number): string => {
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString().substring(2);
-  return `${day}${month}${year}-${sequence}`;
 };
 
 export default DocumentInfoForm;

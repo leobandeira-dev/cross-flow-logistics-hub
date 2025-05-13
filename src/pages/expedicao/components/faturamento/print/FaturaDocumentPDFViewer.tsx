@@ -3,7 +3,7 @@ import React from 'react';
 import DocumentPDFGenerator from '@/components/common/DocumentPDFGenerator';
 import { NotaFiscal } from '../../../Faturamento';
 import { CabecalhoValores, TotaisCalculados } from '../../../hooks/faturamento/types';
-import { DocumentInfo } from './DocumentInfoForm';
+import { DocumentInfo } from './schema/documentSchema';
 import FaturaDocumentLayout from './FaturaDocumentLayout';
 
 interface FaturaDocumentPDFViewerProps {

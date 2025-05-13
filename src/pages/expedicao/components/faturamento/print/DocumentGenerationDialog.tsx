@@ -6,7 +6,8 @@ import {
   DialogHeader, 
   DialogTitle 
 } from '@/components/ui/dialog';
-import DocumentInfoForm, { DocumentInfo } from './DocumentInfoForm';
+import DocumentInfoForm from './DocumentInfoForm';
+import { DocumentInfo } from './schema/documentSchema';
 import FaturaDocumentLayout from './FaturaDocumentLayout';
 import { NotaFiscal } from '../../../Faturamento';
 import { CabecalhoValores, TotaisCalculados } from '../../../hooks/faturamento/types';

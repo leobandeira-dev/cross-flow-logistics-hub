@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { format } from 'date-fns';
-import { DocumentInfo } from './DocumentInfoForm';
+import { DocumentInfo } from './schema/documentSchema';
 import { NotaFiscal } from '../../../Faturamento';
 import { CabecalhoValores, TotaisCalculados } from '../../../hooks/faturamento/types';
 import { formatCurrency } from '@/pages/armazenagem/utils/formatters';
