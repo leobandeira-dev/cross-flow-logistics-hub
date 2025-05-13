@@ -1,147 +1,165 @@
 
-import React, { useState } from 'react';
-import { NotaFiscal } from '../../Faturamento';
+import React from 'react';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
-import { Trash, FileText, RefreshCcw } from 'lucide-react';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { useHistoricoFaturas } from '../../hooks/faturamento/useHistoricoFaturas';
-import DocumentGenerationDialog from './print/DocumentGenerationDialog';
-import { CabecalhoValores, TotaisCalculados } from '../../hooks/faturamento/types';
+import { NotaFiscal } from '../../Faturamento';
+import { formatCurrency, formatNumber } from '@/pages/armazenagem/utils/formatters';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Trash2, Calculator, FileText, Download } from 'lucide-react';
 
 interface NotasFiscaisTableProps {
   notas: NotaFiscal[];
   onDelete: (id: string) => void;
   onRecalculate: () => void;
-  onExportToPDF: () => { isDialogOpen: boolean, setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>> };
-  cabecalhoValores?: CabecalhoValores;
-  totaisCalculados?: TotaisCalculados;
+  onExportToPDF?: () => void;
 }
 
 const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({ 
   notas, 
-  onDelete, 
-  onRecalculate, 
-  onExportToPDF,
-  cabecalhoValores,
-  totaisCalculados
+  onDelete,
+  onRecalculate,
+  onExportToPDF
 }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
-  // Set default values for cabecalho and totais if not provided
-  const defaultCabecalho: CabecalhoValores = cabecalhoValores || {
-    fretePorTonelada: 0,
-    pesoMinimo: 0,
-    aliquotaICMS: 0,
-    aliquotaExpresso: 0,
-    valorFreteTransferencia: 0,
-    valorColeta: 0,
-    paletizacao: 0,
-    pedagio: 0
-  };
-  
-  const defaultTotais: TotaisCalculados = totaisCalculados || {
-    fretePesoViagem: 0,
-    pedagioViagem: 0,
-    expressoViagem: 0,
-    icmsViagem: 0,
-    totalViagem: 0
-  };
-  
-  const handleExportToPDF = () => {
-    if (notas.length === 0) {
-      return;
-    }
-    setIsDialogOpen(true);
-  };
+  // Calculate totals
+  const totalPeso = notas.reduce((acc, nota) => acc + nota.pesoNota, 0);
+  const totalFretePeso = notas.reduce((acc, nota) => acc + (nota.fretePeso || 0), 0);
+  const totalValorExpresso = notas.reduce((acc, nota) => acc + (nota.valorExpresso || 0), 0);
+  const totalPaletizacao = notas.reduce((acc, nota) => acc + (nota.paletizacao || 0), 0);
+  const totalPedagio = notas.reduce((acc, nota) => acc + (nota.pedagio || 0), 0);
+  const totalValorNF = notas.reduce((acc, nota) => acc + (nota.valorNF || 0), 0);
+  const totalValorColeta = notas.reduce((acc, nota) => acc + (nota.valorColeta || 0), 0);
+  const totalValorFreteTransferencia = notas.reduce((acc, nota) => acc + (nota.valorFreteTransferencia || 0), 0);
+  const totalICMS = notas.reduce((acc, nota) => acc + (nota.icms || 0), 0);
+  const totalPrestacao = notas.reduce((acc, nota) => acc + (nota.totalPrestacao || 0), 0);
 
-  const formatCurrency = (value: number | undefined): string => {
-    if (value === undefined || isNaN(value)) return 'R$ 0,00';
-    return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  const formatWeight = (weight: number | undefined): string => {
-    if (weight === undefined || isNaN(weight)) return '0,00 kg';
-    return `${weight.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg`;
-  };
+  if (notas.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <p className="text-muted-foreground mb-4">Nenhuma nota fiscal encontrada.</p>
+        <p className="text-sm text-muted-foreground">
+          Adicione notas fiscais para visualizar o cálculo de rateio.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="space-y-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-medium">
-            Notas Fiscais ({notas.length})
-          </h2>
-          <div className="space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onRecalculate}
-              disabled={notas.length === 0}
-            >
-              <RefreshCcw className="h-4 w-4 mr-2" />
-              Recalcular Rateio
-            </Button>
-            <Button 
-              size="sm"
-              onClick={handleExportToPDF}
-              disabled={notas.length === 0}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Exportar para PDF
-            </Button>
-          </div>
-        </div>
-
-        {notas.length > 0 ? (
+    <Card>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Peso (kg)</TableHead>
-                <TableHead>Valor Frete</TableHead>
-                <TableHead>Valor Exp.</TableHead>
-                <TableHead>ICMS</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+              <TableRow className="bg-muted">
+                <TableHead className="whitespace-nowrap font-bold">Data</TableHead>
+                <TableHead className="whitespace-nowrap font-bold">Remetente</TableHead>
+                <TableHead className="whitespace-nowrap font-bold">Destinatário</TableHead>
+                <TableHead className="whitespace-nowrap font-bold">Nota Fiscal</TableHead>
+                <TableHead className="whitespace-nowrap font-bold">Pedido</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">Valor NF (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">Peso (kg)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">R. Frete (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">R. Expresso (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">R. Pedágio (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">R. ICMS (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">Paletização (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">Total Prestação (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold w-[80px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {notas.map(nota => (
+              {notas.map((nota) => (
                 <TableRow key={nota.id}>
+                  <TableCell>{format(nota.data, 'dd/MM/yyyy')}</TableCell>
+                  <TableCell>{nota.remetente || '-'}</TableCell>
                   <TableCell>{nota.cliente}</TableCell>
-                  <TableCell>{format(new Date(nota.data), 'dd/MM/yyyy', { locale: ptBR })}</TableCell>
-                  <TableCell>{formatWeight(nota.pesoNota)}</TableCell>
-                  <TableCell>{formatCurrency(nota.fretePeso)}</TableCell>
-                  <TableCell>{formatCurrency(nota.valorExpresso)}</TableCell>
-                  <TableCell>{formatCurrency(nota.icms)}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => onDelete(nota.id)}>
-                      <Trash className="h-4 w-4 text-red-500" />
+                  <TableCell>{nota.notaFiscal || '-'}</TableCell>
+                  <TableCell>{nota.pedido || '-'}</TableCell>
+                  <TableCell className="text-right">{nota.valorNF ? formatCurrency(nota.valorNF) : '-'}</TableCell>
+                  <TableCell className="text-right">{formatNumber(nota.pesoNota)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(nota.fretePeso || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.valorExpresso || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.pedagio || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.icms || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.paletizacao || 0)}</TableCell>
+                  <TableCell className="text-right font-bold">{formatCurrency(nota.totalPrestacao || 0)}</TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => onDelete(nota.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
+              <TableRow className="bg-muted/30 font-semibold">
+                <TableCell colSpan={6} className="text-right">Totais:</TableCell>
+                <TableCell className="text-right">{formatNumber(totalPeso)} kg</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalFretePeso)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalValorExpresso)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalPedagio)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalICMS)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalPaletizacao)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalPrestacao)}</TableCell>
+                <TableCell>-</TableCell>
+              </TableRow>
             </TableBody>
           </Table>
-        ) : (
-          <div className="text-center py-10 border rounded-md">
-            <p className="text-muted-foreground">
-              Nenhuma nota fiscal adicionada. Adicione notas para calcular o rateio de frete.
-            </p>
+        </div>
+      </CardContent>
+      <CardFooter className="border-t p-4">
+        <div className="flex flex-col md:flex-row w-full justify-between items-center gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">Peso Total:</p>
+              <p className="font-medium">{formatNumber(totalPeso)} kg</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total Rateio Frete:</p>
+              <p className="font-medium">{formatCurrency(totalFretePeso)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total Rateio Expresso:</p>
+              <p className="font-medium">{formatCurrency(totalValorExpresso)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total Rateio Pedágio:</p>
+              <p className="font-medium">{formatCurrency(totalPedagio)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total Rateio ICMS:</p>
+              <p className="font-medium">{formatCurrency(totalICMS)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total da Prestação:</p>
+              <p className="font-semibold">{formatCurrency(totalPrestacao)}</p>
+            </div>
           </div>
-        )}
-      </div>
-      
-      <DocumentGenerationDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        notas={notas}
-        cabecalhoValores={defaultCabecalho}
-        totaisCalculados={defaultTotais}
-      />
-    </>
+          
+          <div className="flex gap-2 ml-auto">
+            {onExportToPDF && (
+              <Button variant="outline" onClick={onExportToPDF} className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Exportar PDF
+              </Button>
+            )}
+            <Button onClick={onRecalculate} className="flex items-center gap-2">
+              <Calculator className="h-4 w-4" />
+              Recalcular Rateio
+            </Button>
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
   );
 };
 

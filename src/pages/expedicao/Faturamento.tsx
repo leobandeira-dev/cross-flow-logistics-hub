@@ -15,7 +15,6 @@ import ImportacaoLoteNotas from './components/faturamento/ImportacaoLoteNotas';
 import { FileText } from 'lucide-react';
 import { useFaturamento } from './hooks/useFaturamento';
 import CabecalhoTotais from './components/faturamento/CabecalhoTotais';
-import HistoricoFaturasTab from './components/faturamento/HistoricoFaturasTab';
 
 // Define NotaFiscal interface based on the requirements
 export interface NotaFiscal {
@@ -44,25 +43,6 @@ export interface NotaFiscal {
   pedagio?: number;
   totalPrestacao?: number;
   icms?: number; // Valor de ICMS rateado por nota
-  
-  // New document fields
-  numeroDocumento?: string; // Format: DDMMYY-X
-  tipoDocumento?: 'Inbound' | 'Outbound';
-  previsaoSaida?: Date;
-  previsaoChegada?: Date;
-  
-  // Driver info
-  motoristaNome?: string;
-  veiculoCavalo?: string;
-  veiculoCarreta1?: string;
-  veiculoCarreta2?: string;
-  tipoCarroceria?: 'Aberta' | 'Sider' | 'Baú' | 'Refrigerada' | 'Outros';
-  
-  // Additional info
-  usuarioEmissor?: string;
-  usuarioConferente?: string;
-  transportadora?: string;
-  transportadoraLogo?: string;
 }
 
 const Faturamento: React.FC = () => {
@@ -108,7 +88,7 @@ const Faturamento: React.FC = () => {
                   onUpdateCabecalho={handleUpdateCabecalho}
                   onRatear={handleRatear}
                   notasCount={notas.length}
-                  pesoTotal={notas.reduce((sum, nota) => sum + Number(nota.pesoNota) || 0, 0)}
+                  pesoTotal={notas.reduce((sum, nota) => sum + nota.pesoNota, 0)}
                 />
               </TabsContent>
             </Tabs>
@@ -118,7 +98,6 @@ const Faturamento: React.FC = () => {
                 <TabsTrigger value="notas">Notas Fiscais</TabsTrigger>
                 <TabsTrigger value="importacao">Importação de Notas</TabsTrigger>
                 <TabsTrigger value="calculo">Adicionar Nota Manual</TabsTrigger>
-                <TabsTrigger value="historico">Histórico</TabsTrigger>
               </TabsList>
 
               <TabsContent value="notas">
@@ -141,10 +120,6 @@ const Faturamento: React.FC = () => {
                   onAddNotaFiscal={handleAddNotaFiscal}
                   onComplete={() => setActiveTab("notas")} 
                 />
-              </TabsContent>
-              
-              <TabsContent value="historico">
-                <HistoricoFaturasTab />
               </TabsContent>
             </Tabs>
           </CardContent>
