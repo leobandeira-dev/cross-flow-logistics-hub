@@ -38,10 +38,7 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
   const totalValorNF = notas.reduce((acc, nota) => acc + (nota.valorNF || 0), 0);
   const totalValorColeta = notas.reduce((acc, nota) => acc + (nota.valorColeta || 0), 0);
   const totalValorFreteTransferencia = notas.reduce((acc, nota) => acc + (nota.valorFreteTransferencia || 0), 0);
-  const totalICMS = notas.reduce((acc, nota) => {
-    const valorBase = (nota.fretePeso || 0) + (nota.paletizacao || 0) + (nota.pedagio || 0);
-    return acc + (valorBase * (nota.aliquotaICMS / 100));
-  }, 0);
+  const totalICMS = notas.reduce((acc, nota) => acc + (nota.icms || 0), 0);
   const totalPrestacao = notas.reduce((acc, nota) => acc + (nota.totalPrestacao || 0), 0);
 
   if (notas.length === 0) {
@@ -70,16 +67,11 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
                 <TableHead className="whitespace-nowrap font-bold">Data Emissão</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Valor NF (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Peso (kg)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">Frete/Ton (R$)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">Frete Transf. (R$)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold">CTE Coleta</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">Valor Coleta (R$)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold">CTE Transf.</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">Frete Peso (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">Expresso (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Paletização (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Pedágio (R$)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">ICMS (%)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">Frete Peso (R$)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">Valor Expresso (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">ICMS (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Total Prestação (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold w-[80px]">Ações</TableHead>
               </TableRow>
@@ -95,16 +87,11 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
                   <TableCell>{nota.dataEmissao ? format(nota.dataEmissao, 'dd/MM/yyyy') : '-'}</TableCell>
                   <TableCell className="text-right">{nota.valorNF ? formatCurrency(nota.valorNF) : '-'}</TableCell>
                   <TableCell className="text-right">{formatNumber(nota.pesoNota)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(nota.fretePorTonelada)}</TableCell>
-                  <TableCell className="text-right">{nota.valorFreteTransferencia ? formatCurrency(nota.valorFreteTransferencia) : '-'}</TableCell>
-                  <TableCell>{nota.cteColeta || '-'}</TableCell>
-                  <TableCell className="text-right">{nota.valorColeta ? formatCurrency(nota.valorColeta) : '-'}</TableCell>
-                  <TableCell>{nota.cteTransferencia || '-'}</TableCell>
-                  <TableCell className="text-right">{nota.paletizacao ? formatCurrency(nota.paletizacao) : '-'}</TableCell>
-                  <TableCell className="text-right">{nota.pedagio ? formatCurrency(nota.pedagio) : '-'}</TableCell>
-                  <TableCell className="text-right">{nota.aliquotaICMS.toFixed(2)}%</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(nota.fretePeso || 0)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.valorExpresso || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.paletizacao || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.pedagio || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.icms || 0)}</TableCell>
                   <TableCell className="text-right font-bold">{formatCurrency(nota.totalPrestacao || 0)}</TableCell>
                   <TableCell>
                     <Button 
@@ -121,16 +108,11 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
                 <TableCell colSpan={6} className="text-right">Totais:</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalValorNF)}</TableCell>
                 <TableCell className="text-right">{formatNumber(totalPeso)} kg</TableCell>
-                <TableCell className="text-right">-</TableCell>
-                <TableCell className="text-right">{formatCurrency(totalValorFreteTransferencia)}</TableCell>
-                <TableCell>-</TableCell>
-                <TableCell className="text-right">{formatCurrency(totalValorColeta)}</TableCell>
-                <TableCell>-</TableCell>
-                <TableCell className="text-right">{formatCurrency(totalPaletizacao)}</TableCell>
-                <TableCell className="text-right">{formatCurrency(totalPedagio)}</TableCell>
-                <TableCell className="text-right">-</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalFretePeso)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalValorExpresso)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalPaletizacao)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalPedagio)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalICMS)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalPrestacao)}</TableCell>
                 <TableCell>-</TableCell>
               </TableRow>
@@ -148,6 +130,10 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
             <div>
               <p className="text-muted-foreground">Total Frete Peso:</p>
               <p className="font-medium">{formatCurrency(totalFretePeso)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total Expresso:</p>
+              <p className="font-medium">{formatCurrency(totalValorExpresso)}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Total Paletização:</p>

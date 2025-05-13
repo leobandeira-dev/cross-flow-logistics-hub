@@ -1,9 +1,18 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { NotaFiscal } from '../Faturamento';
 import { NotaFiscal as OCNotaFiscal } from '@/components/carregamento/OrderDetailsForm';
+
+// Interface para os totais calculados
+interface TotaisCalculados {
+  fretePesoViagem: number;
+  pedagioViagem: number;
+  expressoViagem: number;
+  icmsViagem: number;
+  totalViagem: number;
+}
 
 export const useFaturamento = () => {
   const [notas, setNotas] = useState<NotaFiscal[]>([]);
@@ -19,6 +28,55 @@ export const useFaturamento = () => {
     paletizacao: 0,
     pedagio: 0,
   });
+  const [totaisCalculados, setTotaisCalculados] = useState<TotaisCalculados>({
+    fretePesoViagem: 0,
+    pedagioViagem: 0,
+    expressoViagem: 0,
+    icmsViagem: 0,
+    totalViagem: 0
+  });
+
+  // Calcular totais sempre que o cabeçalho ou as notas mudam
+  useEffect(() => {
+    if (notas.length > 0) {
+      calcularTotais();
+    }
+  }, [cabecalhoValores, notas]);
+
+  const calcularTotais = () => {
+    // Calculate total real weight
+    const pesoTotalReal = notas.reduce((sum, nota) => sum + nota.pesoNota, 0);
+    
+    // Determine if we need to use minimum weight
+    const usarPesoMinimo = pesoTotalReal < cabecalhoValores.pesoMinimo;
+    const pesoConsiderado = usarPesoMinimo ? cabecalhoValores.pesoMinimo : pesoTotalReal;
+    
+    // Calcular frete peso viagem
+    const fretePesoViagem = (cabecalhoValores.fretePorTonelada / 1000) * pesoConsiderado;
+    
+    // Calcular pedagio viagem
+    const pedagioViagem = cabecalhoValores.pedagio;
+    
+    // Calcular expresso viagem
+    const expressoViagem = fretePesoViagem * (cabecalhoValores.aliquotaExpresso / 100);
+    
+    // Calcular ICMS viagem
+    const baseCalculo = fretePesoViagem + pedagioViagem + expressoViagem;
+    const icmsViagem = cabecalhoValores.aliquotaICMS > 0 
+      ? (baseCalculo / (100 - cabecalhoValores.aliquotaICMS) * 100) - baseCalculo 
+      : 0;
+    
+    // Calcular total viagem
+    const totalViagem = fretePesoViagem + pedagioViagem + expressoViagem + icmsViagem;
+    
+    setTotaisCalculados({
+      fretePesoViagem,
+      pedagioViagem,
+      expressoViagem,
+      icmsViagem,
+      totalViagem
+    });
+  };
 
   const calculateFreight = (notasToCalculate: NotaFiscal[]): NotaFiscal[] => {
     if (notasToCalculate.length === 0) return [];
@@ -30,32 +88,48 @@ export const useFaturamento = () => {
     const usarPesoMinimo = pesoTotalReal < cabecalhoValores.pesoMinimo;
     const pesoConsiderado = usarPesoMinimo ? cabecalhoValores.pesoMinimo : pesoTotalReal;
     
+    // Calcular frete peso viagem
+    const fretePesoViagem = (cabecalhoValores.fretePorTonelada / 1000) * pesoConsiderado;
+    
+    // Calcular pedagio viagem
+    const pedagioViagem = cabecalhoValores.pedagio;
+    
+    // Calcular expresso viagem
+    const expressoViagem = fretePesoViagem * (cabecalhoValores.aliquotaExpresso / 100);
+    
+    // Calcular ICMS viagem
+    const baseCalculo = fretePesoViagem + pedagioViagem + expressoViagem;
+    const icmsViagem = cabecalhoValores.aliquotaICMS > 0 
+      ? (baseCalculo / (100 - cabecalhoValores.aliquotaICMS) * 100) - baseCalculo 
+      : 0;
+    
     // Calculate freight for each note
     return notasToCalculate.map(nota => {
       // Calculate weight proportion for current note
       const proporcaoPeso = nota.pesoNota / pesoTotalReal;
       
-      // Calculate weight-based freight - use cabecalho values for all notes
-      const fretePeso = (cabecalhoValores.fretePorTonelada / 1000) * nota.pesoNota;
+      // Calculate weight-based freight - rateio por peso
+      const fretePeso = fretePesoViagem * proporcaoPeso;
       
-      // Calculate express value
-      const valorExpresso = fretePeso * (cabecalhoValores.aliquotaExpresso / 100);
+      // Calculate express value - rateio por peso
+      const valorExpresso = expressoViagem * proporcaoPeso;
+      
+      // Calculate pedagio - rateio por peso
+      const pedagioRateio = pedagioViagem * proporcaoPeso;
       
       // Get additional values from header
       const paletizacao = cabecalhoValores.paletizacao * proporcaoPeso;
-      const pedagio = cabecalhoValores.pedagio * proporcaoPeso;
       const valorFreteTransferencia = cabecalhoValores.valorFreteTransferencia * proporcaoPeso;
       const valorColeta = cabecalhoValores.valorColeta * proporcaoPeso;
       
-      // Calculate ICMS value
-      const valorBaseIcms = fretePeso + valorExpresso + paletizacao + pedagio;
-      const icms = valorBaseIcms * (cabecalhoValores.aliquotaICMS / 100);
+      // Calculate ICMS value - rateio por peso
+      const icms = icmsViagem * proporcaoPeso;
       
       // Calculate total freight to be allocated
       const freteRatear = fretePeso + valorExpresso;
       
       // Calcular o total da prestação
-      const totalPrestacao = fretePeso + paletizacao + pedagio + icms;
+      const totalPrestacao = fretePeso + valorExpresso + paletizacao + pedagioRateio + icms;
       
       return {
         ...nota,
@@ -66,10 +140,11 @@ export const useFaturamento = () => {
         valorFreteTransferencia,
         valorColeta, 
         paletizacao,
-        pedagio,
+        pedagio: pedagioRateio,
         fretePeso,
         valorExpresso,
         freteRatear,
+        icms,
         totalPrestacao
       };
     });
@@ -224,6 +299,7 @@ export const useFaturamento = () => {
     notas,
     activeTab,
     cabecalhoValores,
+    totaisCalculados,
     ordemCarregamentoId,
     setActiveTab,
     handleAddNotaFiscal,

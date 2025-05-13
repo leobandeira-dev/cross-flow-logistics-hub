@@ -14,6 +14,7 @@ import NotasFiscaisTable from './components/faturamento/NotasFiscaisTable';
 import ImportacaoLoteNotas from './components/faturamento/ImportacaoLoteNotas';
 import { FileText } from 'lucide-react';
 import { useFaturamento } from './hooks/useFaturamento';
+import CabecalhoTotais from './components/faturamento/CabecalhoTotais';
 
 // Define NotaFiscal interface based on the requirements
 export interface NotaFiscal {
@@ -41,6 +42,7 @@ export interface NotaFiscal {
   paletizacao?: number;
   pedagio?: number;
   totalPrestacao?: number;
+  icms?: number; // Valor de ICMS rateado por nota
 }
 
 const Faturamento: React.FC = () => {
@@ -48,10 +50,13 @@ const Faturamento: React.FC = () => {
     notas,
     activeTab,
     setActiveTab,
+    cabecalhoValores,
+    totaisCalculados,
     handleAddNotaFiscal,
     handleDeleteNotaFiscal,
     handleRecalculate,
     handleImportarLote,
+    handleUpdateCabecalho,
     handleExportToPDF
   } = useFaturamento();
 
@@ -71,6 +76,21 @@ const Faturamento: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
+            <Tabs value="totais" className="w-full mb-6">
+              <TabsList className="mb-4">
+                <TabsTrigger value="totais">Totais</TabsTrigger>
+              </TabsList>
+              <TabsContent value="totais">
+                <CabecalhoTotais 
+                  cabecalhoValores={cabecalhoValores} 
+                  totaisCalculados={totaisCalculados}
+                  onUpdateCabecalho={handleUpdateCabecalho}
+                  notasCount={notas.length}
+                  pesoTotal={notas.reduce((sum, nota) => sum + nota.pesoNota, 0)}
+                />
+              </TabsContent>
+            </Tabs>
+
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="mb-4">
                 <TabsTrigger value="notas">Notas Fiscais</TabsTrigger>
