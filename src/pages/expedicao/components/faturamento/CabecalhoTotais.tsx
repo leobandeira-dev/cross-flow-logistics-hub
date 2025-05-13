@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { formatNumber } from '@/pages/armazenagem/utils/formatters';
 import { CabecalhoValores, TotaisCalculados } from '../../hooks/faturamento/types';
 import ParametrosCalculo from './cabecalho/ParametrosCalculo';
 import TotaisViagem from './cabecalho/TotaisViagem';

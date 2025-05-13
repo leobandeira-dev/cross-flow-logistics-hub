@@ -68,7 +68,7 @@ export const useFaturamento = () => {
   const handleUpdateCabecalho = (values: CabecalhoValores) => {
     setCabecalhoValores(values);
     
-    // Recalculate all notes with new header values
+    // Recalculate all notes with new header values if there are notes
     if (notas.length > 0) {
       const notasCalculated = calculateFreightPerInvoice([...notas], values);
       setNotas(notasCalculated);

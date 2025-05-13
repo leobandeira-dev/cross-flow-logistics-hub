@@ -32,7 +32,6 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
   const totalPeso = notas.reduce((acc, nota) => acc + nota.pesoNota, 0);
   const totalFretePeso = notas.reduce((acc, nota) => acc + (nota.fretePeso || 0), 0);
   const totalValorExpresso = notas.reduce((acc, nota) => acc + (nota.valorExpresso || 0), 0);
-  const totalFreteRatear = notas.reduce((acc, nota) => acc + (nota.freteRatear || 0), 0);
   const totalPaletizacao = notas.reduce((acc, nota) => acc + (nota.paletizacao || 0), 0);
   const totalPedagio = notas.reduce((acc, nota) => acc + (nota.pedagio || 0), 0);
   const totalValorNF = notas.reduce((acc, nota) => acc + (nota.valorNF || 0), 0);
@@ -64,14 +63,13 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
                 <TableHead className="whitespace-nowrap font-bold">Destinatário</TableHead>
                 <TableHead className="whitespace-nowrap font-bold">Nota Fiscal</TableHead>
                 <TableHead className="whitespace-nowrap font-bold">Pedido</TableHead>
-                <TableHead className="whitespace-nowrap font-bold">Data Emissão</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Valor NF (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Peso (kg)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">Frete Peso (R$)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">Expresso (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">R. Frete (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">R. Expresso (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">R. Pedágio (R$)</TableHead>
+                <TableHead className="whitespace-nowrap font-bold text-right">R. ICMS (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Paletização (R$)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">Pedágio (R$)</TableHead>
-                <TableHead className="whitespace-nowrap font-bold text-right">ICMS (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold text-right">Total Prestação (R$)</TableHead>
                 <TableHead className="whitespace-nowrap font-bold w-[80px]">Ações</TableHead>
               </TableRow>
@@ -84,14 +82,13 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
                   <TableCell>{nota.cliente}</TableCell>
                   <TableCell>{nota.notaFiscal || '-'}</TableCell>
                   <TableCell>{nota.pedido || '-'}</TableCell>
-                  <TableCell>{nota.dataEmissao ? format(nota.dataEmissao, 'dd/MM/yyyy') : '-'}</TableCell>
                   <TableCell className="text-right">{nota.valorNF ? formatCurrency(nota.valorNF) : '-'}</TableCell>
                   <TableCell className="text-right">{formatNumber(nota.pesoNota)}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(nota.fretePeso || 0)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.valorExpresso || 0)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(nota.paletizacao || 0)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.pedagio || 0)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.icms || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.paletizacao || 0)}</TableCell>
                   <TableCell className="text-right font-bold">{formatCurrency(nota.totalPrestacao || 0)}</TableCell>
                   <TableCell>
                     <Button 
@@ -106,13 +103,12 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
               ))}
               <TableRow className="bg-muted/30 font-semibold">
                 <TableCell colSpan={6} className="text-right">Totais:</TableCell>
-                <TableCell className="text-right">{formatCurrency(totalValorNF)}</TableCell>
                 <TableCell className="text-right">{formatNumber(totalPeso)} kg</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalFretePeso)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalValorExpresso)}</TableCell>
-                <TableCell className="text-right">{formatCurrency(totalPaletizacao)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalPedagio)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalICMS)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalPaletizacao)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalPrestacao)}</TableCell>
                 <TableCell>-</TableCell>
               </TableRow>
@@ -128,23 +124,19 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
               <p className="font-medium">{formatNumber(totalPeso)} kg</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Total Frete Peso:</p>
+              <p className="text-muted-foreground">Total Rateio Frete:</p>
               <p className="font-medium">{formatCurrency(totalFretePeso)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Total Expresso:</p>
+              <p className="text-muted-foreground">Total Rateio Expresso:</p>
               <p className="font-medium">{formatCurrency(totalValorExpresso)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Total Paletização:</p>
-              <p className="font-medium">{formatCurrency(totalPaletizacao)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Total Pedágio:</p>
+              <p className="text-muted-foreground">Total Rateio Pedágio:</p>
               <p className="font-medium">{formatCurrency(totalPedagio)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Total ICMS:</p>
+              <p className="text-muted-foreground">Total Rateio ICMS:</p>
               <p className="font-medium">{formatCurrency(totalICMS)}</p>
             </div>
             <div>

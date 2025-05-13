@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Calculator } from 'lucide-react';
+import { Calculator, Repeat } from 'lucide-react';
 
 interface ActionButtonsProps {
   onSave: () => void;
@@ -17,7 +17,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ onSave, onRatear }) => {
       </Button>
       
       <Button onClick={onRatear} className="flex-1 flex items-center gap-2" size="lg" variant="secondary">
-        <Calculator className="h-4 w-4" />
+        <Repeat className="h-4 w-4" />
         Ratear Valores
       </Button>
     </div>
