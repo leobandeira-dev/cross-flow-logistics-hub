@@ -9,6 +9,7 @@ import NotasTable from './importacao/NotasTable';
 import TableActions from './importacao/TableActions';
 import ImportarNotasExistentes from './importacao/ImportarNotasExistentes';
 import ImportarOrdemCarregamento from './ImportarOrdemCarregamento';
+import ImportarViaXML from '@/pages/armazenagem/recebimento/components/forms/ImportarViaXML';
 
 interface ImportacaoLoteNotasProps {
   onImportarLote: (notas: Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'>[]) => void;
@@ -81,22 +82,26 @@ const ImportacaoLoteNotas: React.FC<ImportacaoLoteNotasProps> = ({ onImportarLot
     setNotasLote(notasAtualizadas);
   };
   
+  // Função para processar notas importadas via XML
+  const handleXMLUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Em uma implementação real, isso processaria o XML
+    // Por enquanto, vamos apenas adicionar uma linha em branco
+    adicionarLinha();
+    
+    // Idealmente, você processaria os dados do XML aqui
+    console.log("XML importado:", e.target.files);
+  };
+  
   return (
     <Card>
       <CardContent className="pt-6">
-        <Tabs defaultValue="manual" className="w-full">
+        <Tabs defaultValue="existentes" className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="manual">Entrada Manual / CSV</TabsTrigger>
             <TabsTrigger value="existentes">Importar Notas Existentes</TabsTrigger>
             <TabsTrigger value="ordemcarregamento">Importar de OC</TabsTrigger>
+            <TabsTrigger value="xml">Importar por XML</TabsTrigger>
+            <TabsTrigger value="manual">Entrada Manual / CSV</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="manual">
-            <CSVImportSection 
-              onImportCSV={importarDeCSV}
-              onAddLine={adicionarLinha}
-            />
-          </TabsContent>
           
           <TabsContent value="existentes">
             <ImportarNotasExistentes 
@@ -118,6 +123,19 @@ const ImportacaoLoteNotas: React.FC<ImportacaoLoteNotasProps> = ({ onImportarLot
                 paletizacao: 0,
                 pedagio: 0
               }}
+            />
+          </TabsContent>
+          
+          <TabsContent value="xml">
+            <div className="mb-6">
+              <ImportarViaXML onFileUpload={handleXMLUpload} />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="manual">
+            <CSVImportSection 
+              onImportCSV={importarDeCSV}
+              onAddLine={adicionarLinha}
             />
           </TabsContent>
         </Tabs>

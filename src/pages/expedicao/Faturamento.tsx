@@ -74,8 +74,8 @@ const Faturamento: React.FC = () => {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="mb-4">
                 <TabsTrigger value="notas">Notas Fiscais</TabsTrigger>
-                <TabsTrigger value="calculo">Adicionar Nota</TabsTrigger>
-                <TabsTrigger value="importacao">Importação em Lote</TabsTrigger>
+                <TabsTrigger value="importacao">Importação de Notas</TabsTrigger>
+                <TabsTrigger value="calculo">Adicionar Nota Manual</TabsTrigger>
               </TabsList>
 
               <TabsContent value="notas">
@@ -87,16 +87,16 @@ const Faturamento: React.FC = () => {
                 />
               </TabsContent>
 
+              <TabsContent value="importacao">
+                <ImportacaoLoteNotas
+                  onImportarLote={handleImportarLote}
+                />
+              </TabsContent>
+              
               <TabsContent value="calculo">
                 <CalculoFreteForm 
                   onAddNotaFiscal={handleAddNotaFiscal}
                   onComplete={() => setActiveTab("notas")} 
-                />
-              </TabsContent>
-              
-              <TabsContent value="importacao">
-                <ImportacaoLoteNotas
-                  onImportarLote={handleImportarLote}
                 />
               </TabsContent>
             </Tabs>
