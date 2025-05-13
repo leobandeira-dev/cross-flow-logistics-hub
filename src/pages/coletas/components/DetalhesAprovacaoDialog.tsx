@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,12 +31,14 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
 
   // Wrapper para o onApprove que também fecha o diálogo
   const handleApprove = (solicitacaoId: string, observacoes?: string) => {
+    console.log("DetalhesAprovacaoDialog: Chamando onApprove para:", solicitacaoId);
     onApprove(solicitacaoId, observacoes);
     handleCloseDialog();
   };
 
   // Wrapper para o onReject que também fecha o diálogo
   const handleReject = (solicitacaoId: string, motivoRecusa: string) => {
+    console.log("DetalhesAprovacaoDialog: Chamando onReject para:", solicitacaoId);
     onReject(solicitacaoId, motivoRecusa);
     handleCloseDialog();
   };

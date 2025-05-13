@@ -65,56 +65,59 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
   // Definição global para que o refine do schema funcione
   (window as any).isRejecting = isRejecting;
   
-  const handleApprove = (data: FormData) => {
+  const handleSubmit = async (data: FormData) => {
     if (!selectedRequest) return;
     
-    console.log("AprovacaoForm: Aprovando solicitação:", selectedRequest.id);
-    const currentDate = new Date();
-    const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
-    const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
+    console.log("AprovacaoForm: Processando formulário. isRejecting:", isRejecting);
     
-    // Chama a função onApprove do componente pai com o ID da solicitação e observações
-    onApprove(selectedRequest.id, data.observacoes);
-    
-    toast({
-      title: "Coleta aprovada com sucesso!",
-      description: `A coleta ${selectedRequest.id} foi aprovada em ${formattedDate} por ${approverName}.`,
-    });
-    
-    form.reset();
-  };
-  
-  const handleReject = (data: FormData) => {
-    if (!selectedRequest) return;
-    
-    if (!data.motivoRecusa || data.motivoRecusa.length < 10) {
-      form.setError('motivoRecusa', {
-        type: 'manual',
-        message: 'O motivo da recusa é obrigatório e deve ter pelo menos 10 caracteres',
+    if (isRejecting) {
+      // Verificando se temos um motivo de recusa válido
+      if (!data.motivoRecusa || data.motivoRecusa.length < 10) {
+        form.setError('motivoRecusa', {
+          type: 'manual',
+          message: 'O motivo da recusa é obrigatório e deve ter pelo menos 10 caracteres',
+        });
+        return;
+      }
+      
+      // Log para depuração
+      console.log("AprovacaoForm: Recusando solicitação:", selectedRequest.id, data.motivoRecusa);
+      
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
+      const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
+      
+      // Chama a função onReject do componente pai com o ID da solicitação e motivo
+      onReject(selectedRequest.id, data.motivoRecusa);
+      
+      toast({
+        title: "Coleta recusada",
+        description: `A coleta ${selectedRequest.id} foi recusada em ${formattedDate} por ${approverName}.`,
+        variant: "destructive",
       });
-      return;
+    } else {
+      // Log para depuração
+      console.log("AprovacaoForm: Aprovando solicitação:", selectedRequest.id, data.observacoes);
+      
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
+      const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
+      
+      // Chama a função onApprove do componente pai com o ID da solicitação e observações
+      onApprove(selectedRequest.id, data.observacoes);
+      
+      toast({
+        title: "Coleta aprovada com sucesso!",
+        description: `A coleta ${selectedRequest.id} foi aprovada em ${formattedDate} por ${approverName}.`,
+      });
     }
-    
-    console.log("AprovacaoForm: Recusando solicitação:", selectedRequest.id);
-    const currentDate = new Date();
-    const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
-    const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
-    
-    // Chama a função onReject do componente pai com o ID da solicitação e motivo
-    onReject(selectedRequest.id, data.motivoRecusa);
-    
-    toast({
-      title: "Coleta recusada",
-      description: `A coleta ${selectedRequest.id} foi recusada em ${formattedDate} por ${approverName}.`,
-      variant: "destructive",
-    });
     
     form.reset();
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(isRejecting ? handleReject : handleApprove)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="observacoes"

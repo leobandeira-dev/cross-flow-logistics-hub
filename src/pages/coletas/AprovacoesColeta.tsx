@@ -22,8 +22,8 @@ const AprovacoesColeta = () => {
   
   // Depuração: Imprimir estado sempre que as solicitações mudarem
   useEffect(() => {
-    console.log("Pendentes:", solicitacoesPendentes.length);
-    console.log("Histórico:", historicoAprovacoes.length);
+    console.log("Estado atual - Pendentes:", solicitacoesPendentes.length);
+    console.log("Estado atual - Histórico:", historicoAprovacoes.length);
   }, [solicitacoesPendentes, historicoAprovacoes]);
   
   // Combinando os dados para facilitar a busca
@@ -77,10 +77,11 @@ const AprovacoesColeta = () => {
       
       // Mudar para a aba de histórico após a aprovação
       setActiveTab('historico');
+      
+      console.log("Solicitação aprovada e movida para o histórico!");
+    } else {
+      console.error("Solicitação não encontrada:", solicitacaoId);
     }
-    
-    // Fechar o diálogo
-    setIsDialogOpen(false);
   };
   
   // Função para lidar com a rejeição de uma solicitação
@@ -115,10 +116,11 @@ const AprovacoesColeta = () => {
       
       // Mudar para a aba de histórico após a rejeição
       setActiveTab('historico');
+      
+      console.log("Solicitação recusada e movida para o histórico!");
+    } else {
+      console.error("Solicitação não encontrada:", solicitacaoId);
     }
-    
-    // Fechar o diálogo
-    setIsDialogOpen(false);
   };
 
   // Renderiza o conteúdo do documento para impressão
