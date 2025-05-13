@@ -52,6 +52,10 @@ export const calculateFreightPerInvoice = (
   // Calculate total real weight
   const pesoTotalReal = notasToCalculate.reduce((sum, nota) => sum + nota.pesoNota, 0);
   
+  // Determine if we need to use minimum weight
+  const usarPesoMinimo = pesoTotalReal < cabecalhoValores.pesoMinimo;
+  const pesoConsiderado = usarPesoMinimo ? cabecalhoValores.pesoMinimo : pesoTotalReal;
+  
   // Calculate totals
   const totaisViagem = calcularTotaisViagem(cabecalhoValores, pesoTotalReal);
   const {

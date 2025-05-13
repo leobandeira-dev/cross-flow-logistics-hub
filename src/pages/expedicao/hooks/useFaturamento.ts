@@ -47,6 +47,14 @@ export const useFaturamento = () => {
     setTotaisCalculados(totais);
   };
 
+  // Handle the rateio of values to each nota fiscal
+  const handleRatear = () => {
+    if (notas.length > 0) {
+      const notasCalculated = calculateFreightPerInvoice([...notas], cabecalhoValores);
+      setNotas(notasCalculated);
+    }
+  };
+
   // Create all nota fiscal handlers using the handlers utility
   const handlers = createNotaFiscalHandlers(
     notas,
@@ -81,5 +89,6 @@ export const useFaturamento = () => {
     handleImportarNotasOrdemCarregamento: handlers.handleImportarNotasOrdemCarregamento,
     handleUpdateCabecalho,
     handleExportToPDF: handlers.handleExportToPDF,
+    handleRatear,
   };
 };

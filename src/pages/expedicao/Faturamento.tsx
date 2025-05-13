@@ -57,7 +57,8 @@ const Faturamento: React.FC = () => {
     handleRecalculate,
     handleImportarLote,
     handleUpdateCabecalho,
-    handleExportToPDF
+    handleExportToPDF,
+    handleRatear
   } = useFaturamento();
 
   return (
@@ -85,6 +86,7 @@ const Faturamento: React.FC = () => {
                   cabecalhoValores={cabecalhoValores} 
                   totaisCalculados={totaisCalculados}
                   onUpdateCabecalho={handleUpdateCabecalho}
+                  onRatear={handleRatear}
                   notasCount={notas.length}
                   pesoTotal={notas.reduce((sum, nota) => sum + nota.pesoNota, 0)}
                 />

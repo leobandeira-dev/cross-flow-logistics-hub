@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -29,6 +28,7 @@ interface CabecalhoTotaisProps {
   cabecalhoValores: CabecalhoValores;
   totaisCalculados: TotaisCalculados;
   onUpdateCabecalho: (valores: CabecalhoValores) => void;
+  onRatear: () => void;
   notasCount: number;
   pesoTotal: number;
 }
@@ -37,6 +37,7 @@ const CabecalhoTotais: React.FC<CabecalhoTotaisProps> = ({
   cabecalhoValores,
   totaisCalculados,
   onUpdateCabecalho,
+  onRatear,
   notasCount,
   pesoTotal
 }) => {
@@ -171,10 +172,17 @@ const CabecalhoTotais: React.FC<CabecalhoTotaisProps> = ({
               </div>
             </div>
             
-            <Button onClick={handleSave} className="mt-4 w-full flex items-center gap-2" size="lg">
-              <Calculator className="h-4 w-4" />
-              Atualizar Cálculos
-            </Button>
+            <div className="flex gap-2 mt-4">
+              <Button onClick={handleSave} className="flex-1 flex items-center gap-2" size="lg">
+                <Calculator className="h-4 w-4" />
+                Atualizar Cálculos
+              </Button>
+              
+              <Button onClick={onRatear} className="flex-1 flex items-center gap-2" size="lg" variant="secondary">
+                <Calculator className="h-4 w-4" />
+                Ratear Valores
+              </Button>
+            </div>
           </div>
           
           <div className="space-y-4">
