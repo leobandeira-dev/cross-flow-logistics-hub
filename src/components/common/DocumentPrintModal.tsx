@@ -70,7 +70,7 @@ const DocumentPrintModal: React.FC<DocumentPrintModalProps> = ({
     }
   };
 
-  const showDanfeOptions = documentType === "Nota Fiscal" && (danfeRef || simplifiedDanfeRef);
+  const showDanfeOptions = documentType === "Nota Fiscal" && (danfeRef !== undefined || simplifiedDanfeRef !== undefined);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
