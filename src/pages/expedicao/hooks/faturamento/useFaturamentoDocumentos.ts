@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid'; 
+import { v4 as uuidv4 } from 'uuid';
 import { toast } from '@/hooks/use-toast';
 import { DocumentInfo } from '../../components/faturamento/print/schema/documentSchema';
 
@@ -111,7 +111,19 @@ export const useFaturamentoDocumentos = () => {
   const adicionarNovoDocumento = (documentInfo: DocumentInfo, totalViagem: number) => {
     const novoDoc: Documento = {
       id: uuidv4(),
-      ...documentInfo,
+      documentNumber: documentInfo.documentNumber,
+      documentType: documentInfo.documentType,
+      departureDateTime: documentInfo.departureDateTime,
+      arrivalDateTime: documentInfo.arrivalDateTime,
+      driverName: documentInfo.driverName,
+      truckId: documentInfo.truckId,
+      trailer1: documentInfo.trailer1,
+      trailer2: documentInfo.trailer2,
+      trailerType: documentInfo.trailerType,
+      issuerUser: documentInfo.issuerUser,
+      checkerUser: documentInfo.checkerUser,
+      transporterName: documentInfo.transporterName,
+      transporterLogo: documentInfo.transporterLogo,
       dataEmissao: new Date(),
       status: 'aConferir',
       totalViagem
