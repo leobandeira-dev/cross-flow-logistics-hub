@@ -31,6 +31,13 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
   const totalFretePeso = notas.reduce((acc, nota) => acc + (nota.fretePeso || 0), 0);
   const totalValorExpresso = notas.reduce((acc, nota) => acc + (nota.valorExpresso || 0), 0);
   const totalFreteRatear = notas.reduce((acc, nota) => acc + (nota.freteRatear || 0), 0);
+  const totalPaletizacao = notas.reduce((acc, nota) => acc + (nota.paletizacao || 0), 0);
+  const totalPedagio = notas.reduce((acc, nota) => acc + (nota.pedagio || 0), 0);
+  const totalICMS = notas.reduce((acc, nota) => {
+    const valorBase = (nota.fretePeso || 0) + (nota.paletizacao || 0) + (nota.pedagio || 0);
+    return acc + (valorBase * (nota.aliquotaICMS / 100));
+  }, 0);
+  const totalPrestacao = notas.reduce((acc, nota) => acc + (nota.totalPrestacao || 0), 0);
 
   if (notas.length === 0) {
     return (
@@ -51,15 +58,24 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Data</TableHead>
+                <TableHead>Remetente</TableHead>
                 <TableHead>Cliente</TableHead>
+                <TableHead>Nota Fiscal</TableHead>
+                <TableHead>Pedido</TableHead>
+                <TableHead>Data Emissão</TableHead>
+                <TableHead className="text-right">Valor NF (R$)</TableHead>
                 <TableHead className="text-right">Peso (kg)</TableHead>
                 <TableHead className="text-right">Frete/Ton (R$)</TableHead>
-                <TableHead className="text-right">Peso Mín. (kg)</TableHead>
+                <TableHead className="text-right">Valor Frete Transferência (R$)</TableHead>
+                <TableHead>CTE Coleta</TableHead>
+                <TableHead className="text-right">Valor Coleta (R$)</TableHead>
+                <TableHead>CTE Transferência</TableHead>
+                <TableHead className="text-right">Paletização (R$)</TableHead>
+                <TableHead className="text-right">Pedágio (R$)</TableHead>
                 <TableHead className="text-right">ICMS (%)</TableHead>
-                <TableHead className="text-right">Expresso (%)</TableHead>
                 <TableHead className="text-right">Frete Peso (R$)</TableHead>
                 <TableHead className="text-right">Valor Expresso (R$)</TableHead>
-                <TableHead className="text-right">Frete a Ratear (R$)</TableHead>
+                <TableHead className="text-right">Total da Prestação (R$)</TableHead>
                 <TableHead className="w-[80px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -67,15 +83,24 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
               {notas.map((nota) => (
                 <TableRow key={nota.id}>
                   <TableCell>{format(nota.data, 'dd/MM/yyyy')}</TableCell>
+                  <TableCell>{nota.remetente || '-'}</TableCell>
                   <TableCell>{nota.cliente}</TableCell>
+                  <TableCell>{nota.notaFiscal || '-'}</TableCell>
+                  <TableCell>{nota.pedido || '-'}</TableCell>
+                  <TableCell>{nota.dataEmissao ? format(nota.dataEmissao, 'dd/MM/yyyy') : '-'}</TableCell>
+                  <TableCell className="text-right">{nota.valorNF ? formatCurrency(nota.valorNF) : '-'}</TableCell>
                   <TableCell className="text-right">{formatNumber(nota.pesoNota)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.fretePorTonelada)}</TableCell>
-                  <TableCell className="text-right">{formatNumber(nota.pesoMinimo)}</TableCell>
+                  <TableCell className="text-right">{nota.valorFreteTransferencia ? formatCurrency(nota.valorFreteTransferencia) : '-'}</TableCell>
+                  <TableCell>{nota.cteColeta || '-'}</TableCell>
+                  <TableCell className="text-right">{nota.valorColeta ? formatCurrency(nota.valorColeta) : '-'}</TableCell>
+                  <TableCell>{nota.cteTransferencia || '-'}</TableCell>
+                  <TableCell className="text-right">{nota.paletizacao ? formatCurrency(nota.paletizacao) : '-'}</TableCell>
+                  <TableCell className="text-right">{nota.pedagio ? formatCurrency(nota.pedagio) : '-'}</TableCell>
                   <TableCell className="text-right">{nota.aliquotaICMS.toFixed(2)}%</TableCell>
-                  <TableCell className="text-right">{nota.aliquotaExpresso.toFixed(2)}%</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.fretePeso || 0)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.valorExpresso || 0)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(nota.freteRatear || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(nota.totalPrestacao || 0)}</TableCell>
                   <TableCell>
                     <Button 
                       variant="ghost" 
@@ -103,12 +128,20 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
               <p className="font-medium">{formatCurrency(totalFretePeso)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Total Valor Expresso:</p>
-              <p className="font-medium">{formatCurrency(totalValorExpresso)}</p>
+              <p className="text-muted-foreground">Total Paletização:</p>
+              <p className="font-medium">{formatCurrency(totalPaletizacao)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Total Frete a Ratear:</p>
-              <p className="font-semibold">{formatCurrency(totalFreteRatear)}</p>
+              <p className="text-muted-foreground">Total Pedágio:</p>
+              <p className="font-medium">{formatCurrency(totalPedagio)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total ICMS:</p>
+              <p className="font-medium">{formatCurrency(totalICMS)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total da Prestação:</p>
+              <p className="font-semibold">{formatCurrency(totalPrestacao)}</p>
             </div>
           </div>
           

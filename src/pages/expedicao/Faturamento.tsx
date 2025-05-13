@@ -11,6 +11,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CalculoFreteForm from './components/faturamento/CalculoFreteForm';
 import NotasFiscaisTable from './components/faturamento/NotasFiscaisTable';
+import ImportacaoLoteNotas from './components/faturamento/ImportacaoLoteNotas';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 
@@ -27,6 +28,19 @@ export interface NotaFiscal {
   fretePeso?: number;
   valorExpresso?: number;
   freteRatear?: number;
+  // Novos campos
+  remetente?: string;
+  notaFiscal?: string;
+  pedido?: string;
+  dataEmissao?: Date;
+  valorNF?: number;
+  valorFreteTransferencia?: number;
+  cteColeta?: string;
+  valorColeta?: number;
+  cteTransferencia?: string;
+  paletizacao?: number;
+  pedagio?: number;
+  totalPrestacao?: number;
 }
 
 const Faturamento: React.FC = () => {
@@ -45,7 +59,7 @@ const Faturamento: React.FC = () => {
     return notasToCalculate.map(nota => {
       // Calculate weight-based freight
       const proporcaoPeso = usarPesoMinimo 
-        ? nota.pesoMinimo / pesoTotalReal 
+        ? nota.pesoNota / pesoTotalReal 
         : 1;
       
       const fretePeso = (nota.fretePorTonelada / 1000) * nota.pesoNota * proporcaoPeso;
@@ -53,14 +67,23 @@ const Faturamento: React.FC = () => {
       // Calculate express value
       const valorExpresso = fretePeso * (nota.aliquotaExpresso / 100);
       
+      // Calcular valores adicionais (se existirem)
+      const paletizacao = nota.paletizacao || 0;
+      const pedagio = nota.pedagio || 0;
+      const icms = nota.aliquotaICMS ? (fretePeso + valorExpresso + paletizacao + pedagio) * (nota.aliquotaICMS / 100) : 0;
+      
       // Calculate total freight to be allocated
       const freteRatear = fretePeso + valorExpresso;
+      
+      // Calcular o total da prestação
+      const totalPrestacao = fretePeso + paletizacao + pedagio + icms;
       
       return {
         ...nota,
         fretePeso,
         valorExpresso,
-        freteRatear
+        freteRatear,
+        totalPrestacao
       };
     });
   };
@@ -114,6 +137,31 @@ const Faturamento: React.FC = () => {
     }
   };
 
+  const handleImportarLote = (notasLote: Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'>[]) => {
+    if (notasLote.length === 0) return;
+    
+    // Generate IDs for new notes
+    const notasComId = notasLote.map(nota => ({
+      ...nota,
+      id: `NF-${Math.random().toString(36).substr(2, 9)}`
+    }));
+    
+    // Combine with existing notes
+    const updatedNotas = [...notas, ...notasComId];
+    
+    // Calculate freight
+    const notasCalculated = calculateFreight(updatedNotas);
+    setNotas(notasCalculated);
+    
+    toast({
+      title: "Notas fiscais importadas com sucesso",
+      description: `${notasLote.length} notas fiscais foram adicionadas ao sistema.`
+    });
+    
+    // Switch to notes tab to show the imported items
+    setActiveTab("notas");
+  };
+
   return (
     <MainLayout title="Faturamento">
       <div className="space-y-6">
@@ -129,6 +177,7 @@ const Faturamento: React.FC = () => {
               <TabsList className="mb-4">
                 <TabsTrigger value="notas">Notas Fiscais</TabsTrigger>
                 <TabsTrigger value="calculo">Adicionar Nota</TabsTrigger>
+                <TabsTrigger value="importacao">Importação em Lote</TabsTrigger>
               </TabsList>
 
               <TabsContent value="notas">
@@ -143,6 +192,12 @@ const Faturamento: React.FC = () => {
                 <CalculoFreteForm 
                   onAddNotaFiscal={handleAddNotaFiscal}
                   onComplete={() => setActiveTab("notas")} 
+                />
+              </TabsContent>
+              
+              <TabsContent value="importacao">
+                <ImportacaoLoteNotas
+                  onImportarLote={handleImportarLote}
                 />
               </TabsContent>
             </Tabs>
