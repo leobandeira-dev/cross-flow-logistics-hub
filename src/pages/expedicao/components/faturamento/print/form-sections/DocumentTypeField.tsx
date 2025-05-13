@@ -19,7 +19,7 @@ import { DocumentInfo } from '../schema/documentSchema';
 
 interface DocumentTypeFieldProps {
   form: UseFormReturn<DocumentInfo>;
-  name: string;
+  name: "documentType"; // Restrict to only valid field names that accept string values
   label: string;
 }
 

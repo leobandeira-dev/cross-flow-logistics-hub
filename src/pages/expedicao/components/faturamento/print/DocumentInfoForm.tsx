@@ -7,7 +7,7 @@ import { documentSchema, DocumentInfo } from './schema/documentSchema';
 import DocumentBasicInfoSection from './form-sections/DocumentBasicInfoSection';
 import DriverInfoSection from './form-sections/DriverInfoSection';
 import OperationInfoSection from './form-sections/OperationInfoSection';
-import { generateDocumentNumber } from '../../utils/documentUtils';
+import { generateDocumentNumber } from '../../../utils/documentUtils';
 
 interface DocumentInfoFormProps {
   onSubmit: (data: DocumentInfo) => void;
