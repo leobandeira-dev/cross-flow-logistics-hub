@@ -3,23 +3,17 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Calendar } from '@/components/ui/calendar';
-import { PopoverContent, PopoverTrigger, Popover } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { NotaFiscal } from '../../Faturamento';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { Card, CardContent } from '@/components/ui/card';
+import BasicInfoSection from './form/BasicInfoSection';
+import DocumentInfoSection from './form/DocumentInfoSection';
+import ValuesSection from './form/ValuesSection';
+import FreightSection from './form/FreightSection';
+import AdditionalInfoSection from './form/AdditionalInfoSection';
+import TaxesSection from './form/TaxesSection';
+import FormActions from './form/FormActions';
+import FormSection from './form/FormSection';
 
 // Schema for form validation
 const formSchema = z.object({
@@ -136,343 +130,40 @@ const CalculoFreteForm: React.FC<CalculoFreteFormProps> = ({ onAddNotaFiscal, on
     onComplete();
   };
 
+  const handleReset = () => {
+    form.reset();
+  };
+
   return (
     <Card>
       <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Data field */}
-              <FormField
-                control={form.control}
-                name="data"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Data</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
-                            ) : (
-                              <span>Selecione uma data</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormSection title="Informações Básicas">
+              <BasicInfoSection form={form} />
+            </FormSection>
+            
+            <FormSection title="Dados do Documento">
+              <DocumentInfoSection form={form} />
+            </FormSection>
+            
+            <FormSection title="Valores">
+              <ValuesSection form={form} />
+            </FormSection>
+            
+            <FormSection title="Informações de Frete">
+              <FreightSection form={form} />
+            </FormSection>
+            
+            <FormSection title="Informações Adicionais">
+              <AdditionalInfoSection form={form} />
+            </FormSection>
+            
+            <FormSection title="Impostos e Taxas">
+              <TaxesSection form={form} />
+            </FormSection>
 
-              {/* Remetente field */}
-              <FormField
-                control={form.control}
-                name="remetente"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Remetente</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome do remetente" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Cliente field */}
-              <FormField
-                control={form.control}
-                name="cliente"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cliente</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome do cliente" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Nota Fiscal field */}
-              <FormField
-                control={form.control}
-                name="notaFiscal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nota Fiscal</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Número da nota fiscal" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Pedido field */}
-              <FormField
-                control={form.control}
-                name="pedido"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pedido</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Número do pedido" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Data Emissão field */}
-              <FormField
-                control={form.control}
-                name="dataEmissao"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Data Emissão NF</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
-                            ) : (
-                              <span>Selecione uma data</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value || undefined}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Valor NF field */}
-              <FormField
-                control={form.control}
-                name="valorNF"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor NF (R$)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Peso Nota field */}
-              <FormField
-                control={form.control}
-                name="pesoNota"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Peso Nota (kg)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Frete por Tonelada field */}
-              <FormField
-                control={form.control}
-                name="fretePorTonelada"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Frete por Tonelada (R$)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Peso Minimo field */}
-              <FormField
-                control={form.control}
-                name="pesoMinimo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Peso Mínimo (kg)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Valor Frete Transferência field */}
-              <FormField
-                control={form.control}
-                name="valorFreteTransferencia"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor Frete Transferência (R$)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* CTE Coleta field */}
-              <FormField
-                control={form.control}
-                name="cteColeta"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CTE Nº Coleta</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Número do CTE" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Valor Coleta field */}
-              <FormField
-                control={form.control}
-                name="valorColeta"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor por Coleta (R$)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* CTE Transferência field */}
-              <FormField
-                control={form.control}
-                name="cteTransferencia"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CTE Nº Transferência</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Número do CTE" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Paletização field */}
-              <FormField
-                control={form.control}
-                name="paletizacao"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Paletização (R$)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {/* Pedágio field */}
-              <FormField
-                control={form.control}
-                name="pedagio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pedágio (R$)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Aliquota ICMS field */}
-              <FormField
-                control={form.control}
-                name="aliquotaICMS"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alíquota ICMS (%)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Aliquota Expresso field */}
-              <FormField
-                control={form.control}
-                name="aliquotaExpresso"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alíquota Expresso (%)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => form.reset()}>Limpar</Button>
-              <Button type="submit">Adicionar Nota Fiscal</Button>
-            </div>
+            <FormActions onReset={handleReset} />
           </form>
         </Form>
       </CardContent>
