@@ -17,21 +17,34 @@ export const createNotaFiscalHandlers = (
   setOrdemCarregamentoId: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   const handleAddNotaFiscal = (nota: Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'>) => {
-    const newNota: NotaFiscal = {
-      ...nota,
-      id: `NF-${Math.random().toString(36).substr(2, 9)}`
-    };
-    
-    const updatedNotas = [...notas, newNota];
-    
-    // If there are notes, calculate freight
-    if (updatedNotas.length > 0) {
-      const notasCalculated = calculateFreightPerInvoice(updatedNotas, cabecalhoValores);
-      setNotas(notasCalculated);
+    try {
+      // Ensure pesoNota is a valid number
+      const pesoNota = isNaN(nota.pesoNota) ? 0 : nota.pesoNota;
       
+      const newNota: NotaFiscal = {
+        ...nota,
+        id: `NF-${Math.random().toString(36).substr(2, 9)}`,
+        pesoNota: pesoNota
+      };
+      
+      const updatedNotas = [...notas, newNota];
+      
+      // If there are notes, calculate freight
+      if (updatedNotas.length > 0) {
+        const notasCalculated = calculateFreightPerInvoice(updatedNotas, cabecalhoValores);
+        setNotas(notasCalculated);
+        
+        toast({
+          title: "Nota fiscal adicionada com sucesso",
+          description: `Nota para ${nota.cliente} em ${format(nota.data, 'dd/MM/yyyy')} adicionada.`
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar nota fiscal:", error);
       toast({
-        title: "Nota fiscal adicionada com sucesso",
-        description: `Nota para ${nota.cliente} em ${format(nota.data, 'dd/MM/yyyy')} adicionada.`
+        title: "Erro ao adicionar nota fiscal",
+        description: "Verifique se todos os campos estão preenchidos corretamente.",
+        variant: "destructive"
       });
     }
   };
@@ -55,13 +68,22 @@ export const createNotaFiscalHandlers = (
 
   const handleRecalculate = () => {
     if (notas.length > 0) {
-      const notasCalculated = calculateFreightPerInvoice([...notas], cabecalhoValores);
-      setNotas(notasCalculated);
-      
-      toast({
-        title: "Frete recalculado",
-        description: "Valores de frete foram recalculados e rateados com sucesso."
-      });
+      try {
+        const notasCalculated = calculateFreightPerInvoice([...notas], cabecalhoValores);
+        setNotas(notasCalculated);
+        
+        toast({
+          title: "Frete recalculado",
+          description: "Valores de frete foram recalculados e rateados com sucesso."
+        });
+      } catch (error) {
+        console.error("Erro ao recalcular frete:", error);
+        toast({
+          title: "Erro ao recalcular frete",
+          description: "Verifique se todos os parâmetros foram preenchidos corretamente.",
+          variant: "destructive"
+        });
+      }
     } else {
       toast({
         title: "Nenhuma nota fiscal disponível",
@@ -74,75 +96,101 @@ export const createNotaFiscalHandlers = (
   const handleImportarLote = (notasLote: Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'>[]) => {
     if (notasLote.length === 0) return;
     
-    // Generate IDs for new notes
-    const notasComId = notasLote.map(nota => ({
-      ...nota,
-      id: `NF-${Math.random().toString(36).substr(2, 9)}`
-    }));
-    
-    // Combine with existing notes
-    const updatedNotas = [...notas, ...notasComId];
-    
-    // Calculate freight
-    const notasCalculated = calculateFreightPerInvoice(updatedNotas, cabecalhoValores);
-    setNotas(notasCalculated);
-    
-    toast({
-      title: "Notas fiscais importadas com sucesso",
-      description: `${notasLote.length} notas fiscais foram adicionadas ao sistema.`
-    });
-    
-    // Switch to notes tab to show the imported items
-    setActiveTab("notas");
+    try {
+      // Generate IDs for new notes and ensure numeric values are valid
+      const notasComId = notasLote.map(nota => ({
+        ...nota,
+        id: `NF-${Math.random().toString(36).substr(2, 9)}`,
+        pesoNota: isNaN(nota.pesoNota) ? 0 : nota.pesoNota
+      }));
+      
+      // Combine with existing notes
+      const updatedNotas = [...notas, ...notasComId];
+      
+      // Calculate freight
+      const notasCalculated = calculateFreightPerInvoice(updatedNotas, cabecalhoValores);
+      setNotas(notasCalculated);
+      
+      toast({
+        title: "Notas fiscais importadas com sucesso",
+        description: `${notasLote.length} notas fiscais foram adicionadas ao sistema.`
+      });
+      
+      // Switch to notes tab to show the imported items
+      setActiveTab("notas");
+    } catch (error) {
+      console.error("Erro ao importar lote:", error);
+      toast({
+        title: "Erro ao importar lote",
+        description: "Verifique os dados das notas fiscais e tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleImportarNotasOrdemCarregamento = ({ notasOC, ocId }: ImportacaoOCParams) => {
     if (notasOC.length === 0) return;
     
-    // Map OC invoices to our invoice format
-    const notasParaImportar = notasOC.map(notaOC => {
-      const dataEmissao = new Date(notaOC.dataEmissao);
+    try {
+      // Map OC invoices to our invoice format
+      const notasParaImportar = notasOC.map(notaOC => {
+        const dataEmissao = new Date(notaOC.dataEmissao);
+        const pesoBruto = isNaN(notaOC.pesoBruto) ? 0 : notaOC.pesoBruto;
+        const valor = isNaN(notaOC.valor) ? 0 : notaOC.valor;
+        
+        return {
+          id: `NF-${Math.random().toString(36).substr(2, 9)}`,
+          data: new Date(),
+          cliente: notaOC.cliente || '',
+          remetente: notaOC.remetente || '',
+          notaFiscal: notaOC.numero || '',
+          pedido: notaOC.pedido || '',
+          dataEmissao: dataEmissao,
+          pesoNota: pesoBruto,
+          valorNF: valor,
+          fretePorTonelada: cabecalhoValores.fretePorTonelada || 0,
+          pesoMinimo: cabecalhoValores.pesoMinimo || 0,
+          valorFreteTransferencia: 0,
+          cteColeta: '',
+          valorColeta: 0,
+          cteTransferencia: '',
+          paletizacao: 0,
+          pedagio: 0,
+          aliquotaICMS: cabecalhoValores.aliquotaICMS || 0,
+          aliquotaExpresso: cabecalhoValores.aliquotaExpresso || 0,
+          fretePeso: 0,
+          valorExpresso: 0,
+          freteRatear: 0,
+          icms: 0,
+          totalPrestacao: 0
+        } as NotaFiscal;
+      });
       
-      return {
-        id: `NF-${Math.random().toString(36).substr(2, 9)}`,
-        data: new Date(),
-        cliente: notaOC.cliente,
-        remetente: notaOC.remetente,
-        notaFiscal: notaOC.numero,
-        pedido: notaOC.pedido || '',
-        dataEmissao: dataEmissao,
-        pesoNota: notaOC.pesoBruto,
-        valorNF: notaOC.valor,
-        fretePorTonelada: cabecalhoValores.fretePorTonelada,
-        pesoMinimo: cabecalhoValores.pesoMinimo,
-        valorFreteTransferencia: 0,
-        cteColeta: '',
-        valorColeta: 0,
-        cteTransferencia: '',
-        paletizacao: 0,
-        pedagio: 0,
-        aliquotaICMS: cabecalhoValores.aliquotaICMS,
-        aliquotaExpresso: cabecalhoValores.aliquotaExpresso,
-      } as NotaFiscal;
-    });
-    
-    // Combine with existing notes
-    const updatedNotas = [...notas, ...notasParaImportar];
-    
-    // Calculate freight with header values
-    const notasCalculated = calculateFreightPerInvoice(updatedNotas, cabecalhoValores);
-    setNotas(notasCalculated);
-    
-    // Set the load order ID
-    setOrdemCarregamentoId(ocId);
-    
-    toast({
-      title: "Notas fiscais importadas da OC",
-      description: `${notasParaImportar.length} notas fiscais foram importadas da OC ${ocId}.`
-    });
-    
-    // Switch to notes tab to show the imported items
-    setActiveTab("notas");
+      // Combine with existing notes
+      const updatedNotas = [...notas, ...notasParaImportar];
+      
+      // Calculate freight with header values
+      const notasCalculated = calculateFreightPerInvoice(updatedNotas, cabecalhoValores);
+      setNotas(notasCalculated);
+      
+      // Set the load order ID
+      setOrdemCarregamentoId(ocId);
+      
+      toast({
+        title: "Notas fiscais importadas da OC",
+        description: `${notasParaImportar.length} notas fiscais foram importadas da OC ${ocId}.`
+      });
+      
+      // Switch to notes tab to show the imported items
+      setActiveTab("notas");
+    } catch (error) {
+      console.error("Erro ao importar notas da OC:", error);
+      toast({
+        title: "Erro ao importar notas da OC",
+        description: "Verifique os dados das notas fiscais da OC e tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleExportToPDF = () => {

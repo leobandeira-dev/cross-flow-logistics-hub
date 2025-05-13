@@ -38,8 +38,11 @@ export const useFaturamento = () => {
   }, [cabecalhoValores, notas]);
 
   const calcularTotais = () => {
-    // Calculate total real weight
-    const pesoTotalReal = notas.reduce((sum, nota) => sum + nota.pesoNota, 0);
+    // Calculate total real weight, ensuring we have valid numbers
+    const pesoTotalReal = notas.reduce((sum, nota) => {
+      const peso = isNaN(nota.pesoNota) ? 0 : nota.pesoNota;
+      return sum + peso;
+    }, 0);
     
     // Calculate totals using the utility function
     const totais = calcularTotaisViagem(cabecalhoValores, pesoTotalReal);
@@ -51,13 +54,22 @@ export const useFaturamento = () => {
   // Handle the rateio of values to each nota fiscal
   const handleRatear = () => {
     if (notas.length > 0) {
-      const notasCalculated = calculateFreightPerInvoice([...notas], cabecalhoValores);
-      setNotas(notasCalculated);
-      
-      toast({
-        title: "Valores rateados com sucesso",
-        description: "Os valores foram rateados entre todas as notas fiscais."
-      });
+      try {
+        const notasCalculated = calculateFreightPerInvoice([...notas], cabecalhoValores);
+        setNotas(notasCalculated);
+        
+        toast({
+          title: "Valores rateados com sucesso",
+          description: "Os valores foram rateados entre todas as notas fiscais."
+        });
+      } catch (error) {
+        console.error("Erro ao ratear valores:", error);
+        toast({
+          title: "Erro ao ratear valores",
+          description: "Ocorreu um erro ao calcular o rateio. Verifique os valores informados.",
+          variant: "destructive"
+        });
+      }
     } else {
       toast({
         title: "Nenhuma nota fiscal disponível",
@@ -78,10 +90,20 @@ export const useFaturamento = () => {
 
   // Implement the handleUpdateCabecalho handler here since it needs to update state
   const handleUpdateCabecalho = (values: CabecalhoValores) => {
-    setCabecalhoValores(values);
+    // Ensure all numeric values are valid numbers
+    const sanitizedValues: CabecalhoValores = {
+      fretePorTonelada: isNaN(values.fretePorTonelada) ? 0 : values.fretePorTonelada,
+      pesoMinimo: isNaN(values.pesoMinimo) ? 0 : values.pesoMinimo,
+      aliquotaICMS: isNaN(values.aliquotaICMS) ? 0 : values.aliquotaICMS,
+      aliquotaExpresso: isNaN(values.aliquotaExpresso) ? 0 : values.aliquotaExpresso,
+      valorFreteTransferencia: isNaN(values.valorFreteTransferencia) ? 0 : values.valorFreteTransferencia,
+      valorColeta: isNaN(values.valorColeta) ? 0 : values.valorColeta,
+      paletizacao: isNaN(values.paletizacao) ? 0 : values.paletizacao,
+      pedagio: isNaN(values.pedagio) ? 0 : values.pedagio,
+    };
     
-    // Don't automatically recalculate all notes with new header values
-    // This will be done when user clicks "Ratear Valores" or "Recalcular Rateio"
+    setCabecalhoValores(sanitizedValues);
+    
     toast({
       title: "Parâmetros atualizados",
       description: "Clique em 'Ratear Valores' para aplicar às notas fiscais."

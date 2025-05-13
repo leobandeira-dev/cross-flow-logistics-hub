@@ -9,22 +9,30 @@ export const calcularTotaisViagem = (
   cabecalhoValores: CabecalhoValores, 
   pesoTotalReal: number
 ): TotaisCalculados => {
+  // Ensure we have valid numbers to work with (default to 0 if NaN)
+  const pesoTotal = isNaN(pesoTotalReal) ? 0 : pesoTotalReal;
+  const fretePorTonelada = isNaN(cabecalhoValores.fretePorTonelada) ? 0 : cabecalhoValores.fretePorTonelada;
+  const pesoMinimo = isNaN(cabecalhoValores.pesoMinimo) ? 0 : cabecalhoValores.pesoMinimo;
+  const aliquotaExpresso = isNaN(cabecalhoValores.aliquotaExpresso) ? 0 : cabecalhoValores.aliquotaExpresso;
+  const aliquotaICMS = isNaN(cabecalhoValores.aliquotaICMS) ? 0 : cabecalhoValores.aliquotaICMS;
+  const pedagio = isNaN(cabecalhoValores.pedagio) ? 0 : cabecalhoValores.pedagio;
+  
   // Determine if we need to use minimum weight - using Math.max to ensure we use the greater value
-  const pesoConsiderado = Math.max(pesoTotalReal, cabecalhoValores.pesoMinimo);
+  const pesoConsiderado = Math.max(pesoTotal, pesoMinimo);
   
   // Calcular frete peso viagem
-  const fretePesoViagem = (cabecalhoValores.fretePorTonelada / 1000) * pesoConsiderado;
+  const fretePesoViagem = (fretePorTonelada / 1000) * pesoConsiderado;
   
   // Calcular pedagio viagem
-  const pedagioViagem = cabecalhoValores.pedagio;
+  const pedagioViagem = pedagio;
   
   // Calcular expresso viagem
-  const expressoViagem = fretePesoViagem * (cabecalhoValores.aliquotaExpresso / 100);
+  const expressoViagem = fretePesoViagem * (aliquotaExpresso / 100);
   
   // Calcular ICMS viagem
   const baseCalculo = fretePesoViagem + pedagioViagem + expressoViagem;
-  const icmsViagem = cabecalhoValores.aliquotaICMS > 0 
-    ? (baseCalculo / (100 - cabecalhoValores.aliquotaICMS) * cabecalhoValores.aliquotaICMS)
+  const icmsViagem = aliquotaICMS > 0 
+    ? (baseCalculo / (100 - aliquotaICMS) * aliquotaICMS)
     : 0;
   
   // Calcular total viagem
@@ -49,10 +57,13 @@ export const calculateFreightPerInvoice = (
   if (notasToCalculate.length === 0) return [];
   
   // Calculate total real weight
-  const pesoTotalReal = notasToCalculate.reduce((sum, nota) => sum + nota.pesoNota, 0);
+  const pesoTotalReal = notasToCalculate.reduce((sum, nota) => {
+    const pesoNota = isNaN(nota.pesoNota) ? 0 : nota.pesoNota;
+    return sum + pesoNota;
+  }, 0);
   
   // Determine considered weight as the greater between total weight and minimum weight
-  const pesoConsiderado = Math.max(pesoTotalReal, cabecalhoValores.pesoMinimo);
+  const pesoConsiderado = Math.max(pesoTotalReal, cabecalhoValores.pesoMinimo || 0);
   
   // Calculate totals
   const totaisViagem = calcularTotaisViagem(cabecalhoValores, pesoTotalReal);
@@ -65,8 +76,11 @@ export const calculateFreightPerInvoice = (
   
   // Calculate freight for each note
   return notasToCalculate.map(nota => {
-    // Calculate weight proportion for current note
-    const proporcaoPeso = nota.pesoNota / pesoTotalReal;
+    // Ensure peso nota is a valid number
+    const pesoNota = isNaN(nota.pesoNota) ? 0 : nota.pesoNota;
+    
+    // Calculate weight proportion for current note (prevent division by zero)
+    const proporcaoPeso = pesoTotalReal > 0 ? pesoNota / pesoTotalReal : 0;
     
     // Calculate weight-based freight - rateio por peso
     const fretePeso = fretePesoViagem * proporcaoPeso;
@@ -78,9 +92,9 @@ export const calculateFreightPerInvoice = (
     const pedagogioRateio = pedagioViagem * proporcaoPeso;
     
     // Get additional values from header
-    const paletizacao = cabecalhoValores.paletizacao * proporcaoPeso;
-    const valorFreteTransferencia = cabecalhoValores.valorFreteTransferencia * proporcaoPeso;
-    const valorColeta = cabecalhoValores.valorColeta * proporcaoPeso;
+    const paletizacao = (cabecalhoValores.paletizacao || 0) * proporcaoPeso;
+    const valorFreteTransferencia = (cabecalhoValores.valorFreteTransferencia || 0) * proporcaoPeso;
+    const valorColeta = (cabecalhoValores.valorColeta || 0) * proporcaoPeso;
     
     // Calculate ICMS value - rateio por peso
     const icms = icmsViagem * proporcaoPeso;
@@ -93,19 +107,19 @@ export const calculateFreightPerInvoice = (
     
     return {
       ...nota,
-      fretePorTonelada: cabecalhoValores.fretePorTonelada,
-      pesoMinimo: cabecalhoValores.pesoMinimo,
-      aliquotaICMS: cabecalhoValores.aliquotaICMS,
-      aliquotaExpresso: cabecalhoValores.aliquotaExpresso,
-      valorFreteTransferencia,
-      valorColeta, 
-      paletizacao,
-      pedagio: pedagogioRateio,
-      fretePeso,
-      valorExpresso,
-      freteRatear,
-      icms,
-      totalPrestacao
+      fretePorTonelada: cabecalhoValores.fretePorTonelada || 0,
+      pesoMinimo: cabecalhoValores.pesoMinimo || 0,
+      aliquotaICMS: cabecalhoValores.aliquotaICMS || 0,
+      aliquotaExpresso: cabecalhoValores.aliquotaExpresso || 0,
+      valorFreteTransferencia: valorFreteTransferencia || 0,
+      valorColeta: valorColeta || 0, 
+      paletizacao: paletizacao || 0,
+      pedagio: pedagogioRateio || 0,
+      fretePeso: fretePeso || 0,
+      valorExpresso: valorExpresso || 0,
+      freteRatear: freteRatear || 0,
+      icms: icms || 0,
+      totalPrestacao: totalPrestacao || 0
     };
   });
 };
