@@ -3,7 +3,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
-  Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin
+  Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
+  Calculator
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -136,7 +137,12 @@ const Sidebar: React.FC = () => {
         </SubMenu>
         
         <SidebarItem icon={MessageSquare} label="SAC" href="/sac" />
-        <SidebarItem icon={FileText} label="Expedição" href="/expedicao" />
+        
+        {/* Expedição submenu */}
+        <SubMenu icon={FileText} label="Expedição" defaultOpen={false}>
+          <SidebarItem icon={FileText} label="Documentos" href="/expedicao" />
+          <SidebarItem icon={Calculator} label="Faturamento" href="/expedicao/faturamento" />
+        </SubMenu>
       </nav>
       
       <div className="border-t border-sidebar-border p-4">

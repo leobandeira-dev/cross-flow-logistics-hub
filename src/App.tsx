@@ -26,6 +26,7 @@ import Ocorrencias from "./pages/sac/Ocorrencias";
 
 // Módulo de Expedição
 import EmissaoDocumentos from "./pages/expedicao/EmissaoDocumentos";
+import Faturamento from "./pages/expedicao/Faturamento"; // New import
 
 // Módulo de Armazenagem
 import RecebimentoOverview from "./pages/armazenagem/RecebimentoOverview";
@@ -76,6 +77,7 @@ const App = () => (
             <Route path="/motoristas/cargas" element={<CargasMotoristas />} />
             <Route path="/sac" element={<Ocorrencias />} />
             <Route path="/expedicao" element={<EmissaoDocumentos />} />
+            <Route path="/expedicao/faturamento" element={<Faturamento />} />
             
             {/* Armazenagem Module Routes */}
             <Route path="/armazenagem" element={<RecebimentoOverview />} />
