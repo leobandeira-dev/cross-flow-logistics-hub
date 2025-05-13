@@ -25,7 +25,7 @@ export const calcularTotaisViagem = (
   // Calcular ICMS viagem
   const baseCalculo = fretePesoViagem + pedagioViagem + expressoViagem;
   const icmsViagem = cabecalhoValores.aliquotaICMS > 0 
-    ? (baseCalculo / (100 - cabecalhoValores.aliquotaICMS) * 100) - baseCalculo 
+    ? (baseCalculo / (100 - cabecalhoValores.aliquotaICMS) * cabecalhoValores.aliquotaICMS)
     : 0;
   
   // Calcular total viagem
@@ -73,7 +73,7 @@ export const calculateFreightPerInvoice = (
     const valorExpresso = expressoViagem * proporcaoPeso;
     
     // Calculate pedagio - rateio por peso
-    const pedagioRateio = pedagioViagem * proporcaoPeso;
+    const pedagogioRateio = pedagioViagem * proporcaoPeso;
     
     // Get additional values from header
     const paletizacao = cabecalhoValores.paletizacao * proporcaoPeso;
@@ -87,7 +87,7 @@ export const calculateFreightPerInvoice = (
     const freteRatear = fretePeso + valorExpresso;
     
     // Calcular o total da prestação
-    const totalPrestacao = fretePeso + valorExpresso + paletizacao + pedagioRateio + icms;
+    const totalPrestacao = fretePeso + valorExpresso + paletizacao + pedagogioRateio + icms;
     
     return {
       ...nota,
@@ -98,7 +98,7 @@ export const calculateFreightPerInvoice = (
       valorFreteTransferencia,
       valorColeta, 
       paletizacao,
-      pedagio: pedagioRateio,
+      pedagio: pedagogioRateio,
       fretePeso,
       valorExpresso,
       freteRatear,

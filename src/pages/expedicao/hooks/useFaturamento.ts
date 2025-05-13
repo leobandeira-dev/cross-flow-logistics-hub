@@ -33,9 +33,7 @@ export const useFaturamento = () => {
 
   // Calcular totais sempre que o cabeçalho ou as notas mudam
   useEffect(() => {
-    if (notas.length > 0) {
-      calcularTotais();
-    }
+    calcularTotais();
   }, [cabecalhoValores, notas]);
 
   const calcularTotais = () => {
