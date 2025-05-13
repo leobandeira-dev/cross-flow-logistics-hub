@@ -35,6 +35,7 @@ const FaturaDocumentLayout: React.FC<FaturaDocumentLayoutProps> = ({
               Logo não disponível
             </div>
           )}
+          <h2 className="text-lg font-semibold mt-2">{documentInfo.transporterName}</h2>
         </div>
         <div className="text-right">
           <h1 className="text-2xl font-bold">{documentInfo.documentType === 'inbound' ? 'FATURA ENTRADA' : 'FATURA SAÍDA'}</h1>
@@ -68,9 +69,9 @@ const FaturaDocumentLayout: React.FC<FaturaDocumentLayoutProps> = ({
         </div>
       </div>
       
-      {/* Totais */}
+      {/* Parâmetros de cálculo */}
       <div className="mb-6 border p-4 rounded-md bg-gray-50">
-        <h2 className="font-semibold text-lg mb-2">Valores da viagem</h2>
+        <h2 className="font-semibold text-lg mb-2">Parâmetros de cálculo</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <p><strong>Frete por tonelada:</strong> {formatCurrency(cabecalhoValores.fretePorTonelada)}</p>
@@ -107,7 +108,7 @@ const FaturaDocumentLayout: React.FC<FaturaDocumentLayoutProps> = ({
         </div>
       </div>
       
-      {/* Notas fiscais */}
+      {/* Notas fiscais - Tabela completa e detalhada */}
       <div className="mb-6">
         <h2 className="font-semibold text-lg mb-2">Notas fiscais ({notas.length})</h2>
         <div className="border rounded-md overflow-hidden">
@@ -115,11 +116,13 @@ const FaturaDocumentLayout: React.FC<FaturaDocumentLayoutProps> = ({
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 text-left">Nota fiscal</th>
-                <th className="p-2 text-left">Cliente</th>
+                <th className="p-2 text-left">Pedido</th>
+                <th className="p-2 text-left">Cliente/Remetente</th>
                 <th className="p-2 text-right">Peso (kg)</th>
+                <th className="p-2 text-right">Frete/ton</th>
                 <th className="p-2 text-right">Frete peso</th>
-                <th className="p-2 text-right">Valor expresso</th>
-                <th className="p-2 text-right">Frete ratear</th>
+                <th className="p-2 text-right">Expresso</th>
+                <th className="p-2 text-right">Ratear</th>
                 <th className="p-2 text-right">ICMS</th>
                 <th className="p-2 text-right">Total</th>
               </tr>
@@ -128,19 +131,50 @@ const FaturaDocumentLayout: React.FC<FaturaDocumentLayoutProps> = ({
               {notas.map((nota, index) => (
                 <tr key={nota.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                   <td className="p-2">{nota.notaFiscal || '-'}</td>
-                  <td className="p-2">{nota.cliente}</td>
+                  <td className="p-2">{nota.pedido || '-'}</td>
+                  <td className="p-2">
+                    {nota.cliente}
+                    {nota.remetente && nota.remetente !== nota.cliente && (
+                      <span className="block text-xs text-gray-500">Rem: {nota.remetente}</span>
+                    )}
+                  </td>
                   <td className="p-2 text-right">{nota.pesoNota.toFixed(2)}</td>
+                  <td className="p-2 text-right">{formatCurrency(nota.fretePorTonelada)}</td>
                   <td className="p-2 text-right">{formatCurrency(nota.fretePeso || 0)}</td>
                   <td className="p-2 text-right">{formatCurrency(nota.valorExpresso || 0)}</td>
                   <td className="p-2 text-right">{formatCurrency(nota.freteRatear || 0)}</td>
                   <td className="p-2 text-right">{formatCurrency(nota.icms || 0)}</td>
-                  <td className="p-2 text-right">
+                  <td className="p-2 text-right font-medium">
                     {formatCurrency((nota.fretePeso || 0) + (nota.valorExpresso || 0) + (nota.freteRatear || 0))}
                   </td>
                 </tr>
               ))}
+              <tr className="bg-gray-200 font-medium">
+                <td colSpan={5} className="p-2 text-right">Totais:</td>
+                <td className="p-2 text-right">{formatCurrency(notas.reduce((sum, nota) => sum + (nota.fretePeso || 0), 0))}</td>
+                <td className="p-2 text-right">{formatCurrency(notas.reduce((sum, nota) => sum + (nota.valorExpresso || 0), 0))}</td>
+                <td className="p-2 text-right">{formatCurrency(notas.reduce((sum, nota) => sum + (nota.freteRatear || 0), 0))}</td>
+                <td className="p-2 text-right">{formatCurrency(notas.reduce((sum, nota) => sum + (nota.icms || 0), 0))}</td>
+                <td className="p-2 text-right">{formatCurrency(notas.reduce((sum, nota) => 
+                  sum + (nota.fretePeso || 0) + (nota.valorExpresso || 0) + (nota.freteRatear || 0), 0))}</td>
+              </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+      
+      {/* Informações adicionais */}
+      <div className="mb-6 border p-4 rounded-md">
+        <h2 className="font-semibold text-lg mb-2">Resumo da operação</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p><strong>Quantidade de notas:</strong> {notas.length}</p>
+            <p><strong>Peso total:</strong> {notas.reduce((sum, nota) => sum + nota.pesoNota, 0).toFixed(2)} kg</p>
+          </div>
+          <div>
+            <p><strong>ICMS total:</strong> {formatCurrency(totaisCalculados.icmsViagem)}</p>
+            <p><strong>Valor total:</strong> {formatCurrency(totaisCalculados.totalViagem)}</p>
+          </div>
         </div>
       </div>
       

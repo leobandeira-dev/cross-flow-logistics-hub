@@ -8,6 +8,7 @@ import DocumentBasicInfoSection from './form-sections/DocumentBasicInfoSection';
 import DriverInfoSection from './form-sections/DriverInfoSection';
 import OperationInfoSection from './form-sections/OperationInfoSection';
 import { generateDocumentNumber } from '../../../utils/documentUtils';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface DocumentInfoFormProps {
   onSubmit: (data: DocumentInfo) => void;
@@ -45,15 +46,29 @@ const DocumentInfoForm: React.FC<DocumentInfoFormProps> = ({
 
   return (
     <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-      <DocumentBasicInfoSection form={form} />
-      <DriverInfoSection form={form} />
-      <OperationInfoSection form={form} />
+      <Card className="bg-gray-50 border border-gray-200">
+        <CardContent className="pt-6">
+          <DocumentBasicInfoSection form={form} />
+        </CardContent>
+      </Card>
+      
+      <Card className="bg-gray-50 border border-gray-200">
+        <CardContent className="pt-6">
+          <DriverInfoSection form={form} />
+        </CardContent>
+      </Card>
+      
+      <Card className="bg-gray-50 border border-gray-200">
+        <CardContent className="pt-6">
+          <OperationInfoSection form={form} />
+        </CardContent>
+      </Card>
 
-      <div className="flex justify-end space-x-2 pt-4">
+      <div className="flex justify-end space-x-2 pt-4 border-t">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
         </Button>
-        <Button type="submit">
+        <Button type="submit" className="bg-green-600 hover:bg-green-700">
           Gerar documento
         </Button>
       </div>

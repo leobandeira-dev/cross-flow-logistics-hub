@@ -72,12 +72,6 @@ const Faturamento: React.FC = () => {
   // Handler para eventos personalizados
   useEffect(() => {
     const handleDocumentDialogEvent = (e: Event) => {
-      const customEvent = e as CustomEvent<{
-        notas: NotaFiscal[], 
-        cabecalhoValores: any,
-        totaisCalculados: any
-      }>;
-      
       // Abrir diálogo
       setDocumentDialogOpen(true);
     };

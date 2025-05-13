@@ -1,176 +1,183 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid'; 
 import { toast } from '@/hooks/use-toast';
 import { DocumentInfo } from '../../components/faturamento/print/schema/documentSchema';
 
-// Tipo estendido para incluir ID e campos adicionais necessários para documentos
-interface DocumentoFaturamento extends DocumentInfo {
+// Interface para os documentos
+interface Documento {
   id: string;
-  status: 'pendente' | 'transito' | 'entregue';
+  documentNumber: string;
+  documentType: string;
   dataEmissao: Date;
+  dataConferencia?: Date;
   dataEntrega?: Date;
+  departureDateTime: Date;
+  arrivalDateTime: Date;
+  driverName: string;
+  truckId: string;
+  trailer1?: string;
+  trailer2?: string;
+  trailerType: string;
+  issuerUser: string;
+  checkerUser: string;
+  transporterName: string;
+  transporterLogo?: string;
+  status: 'aConferir' | 'emTransito' | 'entregue';
   totalViagem: number;
 }
 
-// Dados simulados para demonstração
-const mockDocumentos: DocumentoFaturamento[] = [
-  {
-    id: '1',
-    documentNumber: 'DOC-2025-0001',
-    documentType: 'outbound',
-    departureDateTime: new Date('2025-05-10T08:00:00'),
-    arrivalDateTime: new Date('2025-05-11T14:00:00'),
-    driverName: 'José da Silva',
-    truckId: 'ABC-1234',
-    trailer1: 'XYZ-9876',
-    trailer2: '',
-    trailerType: 'Sider',
-    issuerUser: 'Maria Santos',
-    checkerUser: '',
-    transporterName: 'Transportes Rápidos Ltda',
-    transporterLogo: '',
-    status: 'pendente',
-    dataEmissao: new Date('2025-05-09T15:30:00'),
-    totalViagem: 5432.89
-  },
-  {
-    id: '2',
-    documentNumber: 'DOC-2025-0002',
-    documentType: 'inbound',
-    departureDateTime: new Date('2025-05-08T10:00:00'),
-    arrivalDateTime: new Date('2025-05-09T16:00:00'),
-    driverName: 'Carlos Oliveira',
-    truckId: 'DEF-5678',
-    trailer1: 'GHI-4321',
-    trailer2: '',
-    trailerType: 'Baú',
-    issuerUser: 'João Pereira',
-    checkerUser: 'Ana Sousa',
-    transporterName: 'Logística Nacional S.A.',
-    transporterLogo: '',
-    status: 'transito',
-    dataEmissao: new Date('2025-05-07T16:45:00'),
-    totalViagem: 3871.50
-  },
-  {
-    id: '3',
-    documentNumber: 'DOC-2025-0003',
-    documentType: 'outbound',
-    departureDateTime: new Date('2025-04-30T09:00:00'),
-    arrivalDateTime: new Date('2025-05-01T15:00:00'),
-    driverName: 'Paulo Ferreira',
-    truckId: 'JKL-9012',
-    trailer1: 'MNO-6543',
-    trailer2: '',
-    trailerType: 'Sider',
-    issuerUser: 'Carla Lima',
-    checkerUser: 'Roberto Santos',
-    transporterName: 'Expressa Transportes',
-    transporterLogo: '',
-    status: 'entregue',
-    dataEmissao: new Date('2025-04-29T14:20:00'),
-    dataEntrega: new Date('2025-05-01T16:15:00'),
-    totalViagem: 7198.25
-  },
-  {
-    id: '4',
-    documentNumber: 'DOC-2025-0004',
-    documentType: 'inbound',
-    departureDateTime: new Date('2025-05-06T11:00:00'),
-    arrivalDateTime: new Date('2025-05-07T17:00:00'),
-    driverName: 'Márcio Souza',
-    truckId: 'PQR-3456',
-    trailer1: 'STU-8901',
-    trailer2: '',
-    trailerType: 'Grade Baixa',
-    issuerUser: 'Sandra Costa',
-    checkerUser: '',
-    transporterName: 'Transportes do Vale',
-    transporterLogo: '',
-    status: 'pendente',
-    dataEmissao: new Date('2025-05-05T09:15:00'),
-    totalViagem: 4250.30
-  },
-  {
-    id: '5',
-    documentNumber: 'DOC-2025-0005',
-    documentType: 'outbound',
-    departureDateTime: new Date('2025-05-05T07:30:00'),
-    arrivalDateTime: new Date('2025-05-06T12:30:00'),
-    driverName: 'Antônio Ribeiro',
-    truckId: 'VWX-7890',
-    trailer1: 'YZA-2345',
-    trailer2: 'BCD-6789',
-    trailerType: 'Carreta',
-    issuerUser: 'Fernanda Silva',
-    checkerUser: 'Lucas Martins',
-    transporterName: 'Rodoviária Central',
-    transporterLogo: '',
-    status: 'entregue',
-    dataEmissao: new Date('2025-05-04T16:30:00'),
-    dataEntrega: new Date('2025-05-06T13:40:00'),
-    totalViagem: 9345.78
-  }
-];
-
 export const useFaturamentoDocumentos = () => {
-  const [documentos, setDocumentos] = useState<DocumentoFaturamento[]>(mockDocumentos);
+  // Estados para os diferentes tipos de documentos
+  const [documentosAConferir, setDocumentosAConferir] = useState<Documento[]>([
+    {
+      id: '1',
+      documentNumber: 'DOC-2025-05-10-001',
+      documentType: 'outbound',
+      dataEmissao: new Date(2025, 4, 10, 10, 30),
+      departureDateTime: new Date(2025, 4, 10, 14, 0),
+      arrivalDateTime: new Date(2025, 4, 11, 10, 0),
+      driverName: 'João Silva',
+      truckId: 'ABC-1234',
+      trailerType: 'Baú',
+      issuerUser: 'Maria Operadora',
+      checkerUser: '',
+      transporterName: 'Transportes Rápidos LTDA',
+      status: 'aConferir',
+      totalViagem: 5860.50
+    },
+    {
+      id: '2',
+      documentNumber: 'DOC-2025-05-10-002',
+      documentType: 'inbound',
+      dataEmissao: new Date(2025, 4, 10, 11, 45),
+      departureDateTime: new Date(2025, 4, 10, 15, 30),
+      arrivalDateTime: new Date(2025, 4, 11, 12, 0),
+      driverName: 'Pedro Camargo',
+      truckId: 'DEF-5678',
+      trailer1: 'XYZ-9876',
+      trailerType: 'Sider',
+      issuerUser: 'Carlos Expedidor',
+      checkerUser: '',
+      transporterName: 'Logística Expressa S/A',
+      status: 'aConferir',
+      totalViagem: 7230.00
+    }
+  ]);
   
-  // Filtragem de documentos por status
-  const documentosAConferir = documentos.filter(doc => doc.status === 'pendente');
-  const documentosEmTransito = documentos.filter(doc => doc.status === 'transito');
-  const documentosEntregues = documentos.filter(doc => doc.status === 'entregue');
-
-  const marcarComoConferido = (id: string) => {
-    setDocumentos(docs => docs.map(doc => 
-      doc.id === id 
-        ? { ...doc, status: 'transito' as const, checkerUser: 'Usuário Atual' }
-        : doc
-    ));
-    
-    toast({
-      title: "Documento conferido com sucesso",
-      description: `Documento ${id} marcado como em trânsito.`
-    });
-  };
-
-  const marcarComoEntregue = (id: string) => {
-    setDocumentos(docs => docs.map(doc => 
-      doc.id === id 
-        ? { 
-            ...doc, 
-            status: 'entregue' as const, 
-            dataEntrega: new Date()
-          }
-        : doc
-    ));
-    
-    toast({
-      title: "Documento finalizado com sucesso",
-      description: `Documento ${id} marcado como entregue.`
-    });
-  };
-
-  const adicionarNovoDocumento = (documento: DocumentInfo, totalViagem: number) => {
-    const novoDocumento: DocumentoFaturamento = {
-      ...documento,
-      id: `${documentos.length + 1}`,
-      status: 'pendente',
+  const [documentosEmTransito, setDocumentosEmTransito] = useState<Documento[]>([
+    {
+      id: '3',
+      documentNumber: 'DOC-2025-05-09-003',
+      documentType: 'outbound',
+      dataEmissao: new Date(2025, 4, 9, 9, 15),
+      dataConferencia: new Date(2025, 4, 9, 11, 30),
+      departureDateTime: new Date(2025, 4, 9, 14, 0),
+      arrivalDateTime: new Date(2025, 4, 10, 16, 0),
+      driverName: 'Antonio Ferreira',
+      truckId: 'GHI-9012',
+      trailer1: 'JKL-3456',
+      trailerType: 'Grade baixa',
+      issuerUser: 'Maria Operadora',
+      checkerUser: 'José Conferente',
+      transporterName: 'Transportadora Nacional',
+      status: 'emTransito',
+      totalViagem: 4580.75
+    }
+  ]);
+  
+  const [documentosEntregues, setDocumentosEntregues] = useState<Documento[]>([
+    {
+      id: '4',
+      documentNumber: 'DOC-2025-05-08-001',
+      documentType: 'inbound',
+      dataEmissao: new Date(2025, 4, 8, 8, 0),
+      dataConferencia: new Date(2025, 4, 8, 10, 15),
+      dataEntrega: new Date(2025, 4, 9, 16, 45),
+      departureDateTime: new Date(2025, 4, 8, 11, 0),
+      arrivalDateTime: new Date(2025, 4, 9, 9, 0),
+      driverName: 'Roberto Almeida',
+      truckId: 'MNO-7890',
+      trailerType: 'Refrigerado',
+      issuerUser: 'Paulo Operador',
+      checkerUser: 'Amanda Conferente',
+      transporterName: 'Frios Express',
+      status: 'entregue',
+      totalViagem: 9850.25
+    }
+  ]);
+  
+  // Funções para gerenciar os documentos
+  const adicionarNovoDocumento = (documentInfo: DocumentInfo, totalViagem: number) => {
+    const novoDoc: Documento = {
+      id: uuidv4(),
+      ...documentInfo,
       dataEmissao: new Date(),
+      status: 'aConferir',
       totalViagem
     };
     
-    setDocumentos(prev => [...prev, novoDocumento]);
-    return novoDocumento.id;
+    setDocumentosAConferir([...documentosAConferir, novoDoc]);
+    
+    toast({
+      title: "Documento gerado com sucesso",
+      description: `Documento ${novoDoc.documentNumber} foi criado e está aguardando conferência.`
+    });
+    
+    return novoDoc;
+  };
+  
+  const marcarComoConferido = (documentoId: string) => {
+    const documento = documentosAConferir.find(doc => doc.id === documentoId);
+    if (!documento) return;
+    
+    // Remove dos documentos a conferir
+    setDocumentosAConferir(documentosAConferir.filter(doc => doc.id !== documentoId));
+    
+    // Adiciona aos documentos em trânsito
+    const docAtualizado: Documento = {
+      ...documento,
+      dataConferencia: new Date(),
+      status: 'emTransito',
+      checkerUser: documento.checkerUser || 'Conferente do Sistema'
+    };
+    
+    setDocumentosEmTransito([...documentosEmTransito, docAtualizado]);
+    
+    toast({
+      title: "Documento conferido",
+      description: `O documento ${docAtualizado.documentNumber} foi conferido e marcado como em trânsito.`
+    });
+  };
+  
+  const marcarComoEntregue = (documentoId: string) => {
+    const documento = documentosEmTransito.find(doc => doc.id === documentoId);
+    if (!documento) return;
+    
+    // Remove dos documentos em trânsito
+    setDocumentosEmTransito(documentosEmTransito.filter(doc => doc.id !== documentoId));
+    
+    // Adiciona aos documentos entregues
+    const docAtualizado: Documento = {
+      ...documento,
+      dataEntrega: new Date(),
+      status: 'entregue'
+    };
+    
+    setDocumentosEntregues([...documentosEntregues, docAtualizado]);
+    
+    toast({
+      title: "Entrega confirmada",
+      description: `O documento ${docAtualizado.documentNumber} foi marcado como entregue.`
+    });
   };
 
   return {
-    documentos,
     documentosAConferir,
     documentosEmTransito,
     documentosEntregues,
+    adicionarNovoDocumento,
     marcarComoConferido,
-    marcarComoEntregue,
-    adicionarNovoDocumento
+    marcarComoEntregue
   };
 };

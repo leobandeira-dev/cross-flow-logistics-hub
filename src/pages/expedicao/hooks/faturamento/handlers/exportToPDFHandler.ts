@@ -20,14 +20,24 @@ export const createExportToPDFHandler = (
       return;
     }
     
-    // Este handler agora apenas mostra o dialog de geração do documento
-    // A impressão real será feita pelo componente DocumentPDFGenerator
-    document.dispatchEvent(new CustomEvent('openDocumentDialog', {
-      detail: {
-        notas,
-        cabecalhoValores,
-        totaisCalculados
-      }
-    }));
+    // Mudança para navegar para a aba documentos
+    const tabElement = document.querySelector('button[value="documentos"]');
+    if (tabElement) {
+      (tabElement as HTMLElement).click();
+      
+      toast({
+        title: "Preencha as informações do documento",
+        description: "Complete o formulário de informações do documento para gerar o PDF."
+      });
+    } else {
+      // Fallback para o método antigo se o botão não for encontrado
+      document.dispatchEvent(new CustomEvent('openDocumentDialog', {
+        detail: {
+          notas,
+          cabecalhoValores,
+          totaisCalculados
+        }
+      }));
+    }
   };
 };

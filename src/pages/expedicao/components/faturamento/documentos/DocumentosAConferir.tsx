@@ -6,9 +6,12 @@ import { FileText, Printer, CheckSquare } from 'lucide-react';
 import { formatCurrency } from '@/pages/armazenagem/utils/formatters';
 import { format } from 'date-fns';
 import { useFaturamentoDocumentos } from '../../../hooks/faturamento/useFaturamentoDocumentos';
+import FaturaDocumentPDFViewer from '../print/FaturaDocumentPDFViewer';
+import { useFaturamento } from '../../../hooks/useFaturamento';
 
 const DocumentosAConferir: React.FC = () => {
   const { documentosAConferir, marcarComoConferido } = useFaturamentoDocumentos();
+  const { cabecalhoValores, totaisCalculados, notas } = useFaturamento();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   
@@ -52,10 +55,12 @@ const DocumentosAConferir: React.FC = () => {
                         <FileText className="h-4 w-4 mr-1" />
                         Ver
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <Printer className="h-4 w-4 mr-1" />
-                        Imprimir
-                      </Button>
+                      <FaturaDocumentPDFViewer
+                        documentInfo={doc}
+                        notas={notas}
+                        cabecalhoValores={cabecalhoValores}
+                        totaisCalculados={totaisCalculados}
+                      />
                       <Button 
                         variant="outline" 
                         size="sm"
