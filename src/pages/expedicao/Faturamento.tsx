@@ -14,6 +14,7 @@ import NotasFiscaisTable from './components/faturamento/NotasFiscaisTable';
 import ImportacaoLoteNotas from './components/faturamento/ImportacaoLoteNotas';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
+import { FileText } from 'lucide-react';
 
 // Define NotaFiscal interface based on the requirements
 export interface NotaFiscal {
@@ -70,7 +71,10 @@ const Faturamento: React.FC = () => {
       // Calcular valores adicionais (se existirem)
       const paletizacao = nota.paletizacao || 0;
       const pedagio = nota.pedagio || 0;
-      const icms = nota.aliquotaICMS ? (fretePeso + valorExpresso + paletizacao + pedagio) * (nota.aliquotaICMS / 100) : 0;
+      
+      // Calculate ICMS value
+      const valorBaseIcms = fretePeso + valorExpresso + paletizacao + pedagio;
+      const icms = nota.aliquotaICMS ? valorBaseIcms * (nota.aliquotaICMS / 100) : 0;
       
       // Calculate total freight to be allocated
       const freteRatear = fretePeso + valorExpresso;
@@ -162,15 +166,27 @@ const Faturamento: React.FC = () => {
     setActiveTab("notas");
   };
 
+  const handleExportToPDF = () => {
+    toast({
+      title: "Exportando para PDF",
+      description: "Esta funcionalidade será implementada em breve."
+    });
+  };
+
   return (
     <MainLayout title="Faturamento">
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Cálculo de Frete e Rateio</CardTitle>
-            <CardDescription>
-              Calcule o rateio de frete para notas fiscais com base no peso e outras variáveis.
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl">Cálculo de Frete e Rateio</CardTitle>
+                <CardDescription>
+                  Calcule o rateio de frete para notas fiscais com base no peso e outras variáveis.
+                </CardDescription>
+              </div>
+              <FileText className="h-8 w-8 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -184,7 +200,8 @@ const Faturamento: React.FC = () => {
                 <NotasFiscaisTable 
                   notas={notas} 
                   onDelete={handleDeleteNotaFiscal} 
-                  onRecalculate={handleRecalculate} 
+                  onRecalculate={handleRecalculate}
+                  onExportToPDF={handleExportToPDF}
                 />
               </TabsContent>
 
