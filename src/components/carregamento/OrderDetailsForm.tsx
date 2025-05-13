@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { FileText, Search } from 'lucide-react';
+import { FileText, Search, Truck } from 'lucide-react';
 import StatusBadge from '@/components/common/StatusBadge';
+import { toast } from '@/hooks/use-toast';
 
 export interface OrdemCarregamento {
   id: string;
@@ -16,15 +17,77 @@ export interface OrdemCarregamento {
   volumesTotal: number;
   volumesVerificados: number;
   status: 'pending' | 'processing' | 'completed';
+  notasFiscais?: NotaFiscal[];
+}
+
+export interface NotaFiscal {
+  id: string;
+  numero: string;
+  remetente: string;
+  cliente: string;
+  pedido?: string;
+  dataEmissao: string;
+  valor: number;
+  pesoBruto: number;
 }
 
 interface OrderDetailsFormProps {
   onSubmit: (data: any) => void;
   ordemSelecionada: OrdemCarregamento | null;
+  onImportInvoices?: (notas: NotaFiscal[]) => void;
+  showImportButton?: boolean;
 }
 
-const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ onSubmit, ordemSelecionada }) => {
+const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ 
+  onSubmit, 
+  ordemSelecionada,
+  onImportInvoices,
+  showImportButton = false 
+}) => {
   const form = useForm();
+  const [loading, setLoading] = useState(false);
+
+  const handleImportInvoices = () => {
+    if (!ordemSelecionada || !onImportInvoices) return;
+    
+    setLoading(true);
+    
+    // Simulate API call to get invoices data
+    setTimeout(() => {
+      // Mock invoices data based on the selected order
+      const mockInvoices: NotaFiscal[] = [
+        {
+          id: `NF-${Math.random().toString(36).substr(2, 9)}`,
+          numero: `NF-${Math.floor(Math.random() * 10000)}`,
+          remetente: "Empresa XYZ",
+          cliente: ordemSelecionada.cliente,
+          pedido: `PED-${Math.floor(Math.random() * 5000)}`,
+          dataEmissao: new Date().toISOString().split('T')[0],
+          valor: Math.floor(Math.random() * 10000) / 100,
+          pesoBruto: Math.floor(Math.random() * 1000) / 10
+        },
+        {
+          id: `NF-${Math.random().toString(36).substr(2, 9)}`,
+          numero: `NF-${Math.floor(Math.random() * 10000)}`,
+          remetente: "Empresa ABC",
+          cliente: ordemSelecionada.cliente,
+          pedido: `PED-${Math.floor(Math.random() * 5000)}`,
+          dataEmissao: new Date().toISOString().split('T')[0],
+          valor: Math.floor(Math.random() * 20000) / 100,
+          pesoBruto: Math.floor(Math.random() * 1500) / 10
+        }
+      ];
+      
+      onImportInvoices(mockInvoices);
+      
+      toast({
+        title: "Notas fiscais importadas",
+        description: `${mockInvoices.length} notas fiscais foram importadas da OC ${ordemSelecionada.id}.`
+      });
+      
+      setLoading(false);
+    }, 1500);
+  };
 
   return (
     <Card>
@@ -50,6 +113,29 @@ const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ onSubmit, ordemSele
                       </FormControl>
                       <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                     </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <div>
+              <FormField
+                control={form.control}
+                name="tipoVeiculo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Veículo</FormLabel>
+                    <FormControl>
+                      <select 
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+                        {...field}
+                      >
+                        <option value="">Todos</option>
+                        <option value="truck">Caminhão</option>
+                        <option value="van">Van</option>
+                        <option value="car">Carro</option>
+                      </select>
+                    </FormControl>
                   </FormItem>
                 )}
               />
@@ -101,6 +187,19 @@ const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ onSubmit, ordemSele
                 </dd>
               </div>
             </dl>
+            
+            {showImportButton && onImportInvoices && (
+              <div className="mt-4">
+                <Button 
+                  onClick={handleImportInvoices} 
+                  className="w-full"
+                  disabled={loading}
+                >
+                  <Truck size={16} className="mr-2" />
+                  {loading ? "Importando..." : "Importar Notas Fiscais para Faturamento"}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
