@@ -24,35 +24,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Setting up auth state listener');
     
     // Set up auth state listener first
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session ? 'session exists' : 'no session');
       
-      if (event === 'SIGNED_IN' && session) {
-        try {
-          console.log('Fetching user data after sign in event');
-          const userData = await authService.getCurrentUser();
-          console.log('User data fetched:', userData);
-          setUser(userData);
-        } catch (error) {
-          console.error('Error fetching user data after state change:', error);
-          setUser(null);
-        } finally {
-          setLoading(false);
-        }
-      } else if (event === 'SIGNED_OUT') {
-        console.log('User signed out, clearing user state');
+      if (session) {
+        // Don't use async directly in the callback to prevent deadlocks
+        // Use setTimeout to defer the async operation
+        setTimeout(async () => {
+          try {
+            console.log('Fetching user data after auth state change');
+            const userData = await authService.getCurrentUser();
+            console.log('User data fetched:', userData);
+            setUser(userData);
+            setLoading(false);
+          } catch (error) {
+            console.error('Error fetching user data after state change:', error);
+            setUser(null);
+            setLoading(false);
+          }
+        }, 0);
+      } else {
+        console.log('No session in auth state change, clearing user state');
         setUser(null);
         setLoading(false);
-      } else if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed');
-        try {
-          const userData = await authService.getCurrentUser();
-          setUser(userData);
-        } catch (error) {
-          console.error('Error refreshing user data:', error);
-        } finally {
-          setLoading(false);
-        }
       }
     });
 
@@ -114,6 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, nome: string, telefone?: string): Promise<void> => {
     setLoading(true);
     try {
+      console.log('Attempting to sign up with:', email);
       await authService.signUp({ email, password, nome, telefone });
       toast({
         title: "Cadastro realizado com sucesso",
@@ -134,6 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
+      console.log('Attempting to sign out');
       await authService.signOut();
       setUser(null);
       toast({

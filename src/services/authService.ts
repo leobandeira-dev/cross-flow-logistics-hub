@@ -64,6 +64,7 @@ const authService = {
    * Cadastra um novo usuário
    */
   async signUp(credentials: SignUpCredentials) {
+    console.log('AuthService: Attempting sign up with:', credentials.email);
     const { data, error } = await supabase.auth.signUp({
       email: credentials.email,
       password: credentials.password,
@@ -76,9 +77,11 @@ const authService = {
     });
 
     if (error) {
+      console.error('AuthService: Sign up error:', error);
       throw new Error(error.message);
     }
 
+    console.log('AuthService: Sign up successful');
     return data;
   },
 
@@ -112,20 +115,25 @@ const authService = {
     
     console.log('AuthService: User found, fetching additional data');
     
-    // Buscar dados completos do usuário
-    const { data: userData, error } = await supabase
-      .from('usuarios')
-      .select('*, empresa:empresa_id(*), perfil:perfil_id(*)')
-      .eq('id', user.id)
-      .maybeSingle();
-    
-    if (error) {
-      console.error('AuthService: Error fetching user data:', error);
+    try {
+      // Buscar dados completos do usuário
+      const { data: userData, error } = await supabase
+        .from('usuarios')
+        .select('*, empresa:empresa_id(*), perfil:perfil_id(*)')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('AuthService: Error fetching user data:', error);
+        return null;
+      }
+      
+      console.log('AuthService: User data retrieved successfully:', userData);
+      return userData as Usuario;
+    } catch (error) {
+      console.error('AuthService: Exception fetching user data:', error);
       return null;
     }
-    
-    console.log('AuthService: User data retrieved successfully:', userData);
-    return userData as Usuario;
   },
 
   /**
@@ -133,6 +141,7 @@ const authService = {
    */
   async isAuthenticated() {
     const { data: { session } } = await supabase.auth.getSession();
+    console.log('AuthService: isAuthenticated check returned', !!session);
     return !!session;
   },
 
