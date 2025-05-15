@@ -34,7 +34,7 @@ const OrdemCarregamento: React.FC = () => {
       </div>
       
       <Tabs 
-        defaultValue="criar" 
+        defaultValue={activeTab} 
         value={activeTab} 
         onValueChange={handleTabChange} 
         className="w-full space-y-6"
