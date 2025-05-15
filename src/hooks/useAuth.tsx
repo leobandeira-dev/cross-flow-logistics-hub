@@ -21,36 +21,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    console.log('Setting up auth state listener');
+    
     // Set up auth state listener first
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       
       if (event === 'SIGNED_IN' && session) {
         try {
+          console.log('Fetching user data after sign in event');
           const userData = await authService.getCurrentUser();
+          console.log('User data fetched:', userData);
           setUser(userData);
-          console.log('User data fetched after sign in:', userData);
         } catch (error) {
-          console.error('Error fetching user data:', error);
+          console.error('Error fetching user data after state change:', error);
           setUser(null);
         }
       } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out, clearing user state');
         setUser(null);
-        console.log('User signed out');
       }
     });
 
     // Then check for existing session
     const checkUser = async () => {
       try {
+        console.log('Checking for existing session');
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
-          console.log('Existing session found');
+          console.log('Existing session found, fetching user data');
           const userData = await authService.getCurrentUser();
+          console.log('User data fetched for existing session:', userData);
           setUser(userData);
         } else {
-          console.log('No session found');
+          console.log('No existing session found');
           setUser(null);
         }
       } catch (error) {
@@ -64,6 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkUser();
 
     return () => {
+      console.log('Cleaning up auth listener');
       authListener.subscription.unsubscribe();
     };
   }, []);
@@ -71,9 +77,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
+      console.log('Attempting to sign in with:', email);
       // Call the signIn method but don't return its result directly
       await authService.signIn({ email, password });
-      console.log('Sign in successful');
+      console.log('Sign in successful in useAuth');
       
       // We don't need to set user here as it will be handled by the onAuthStateChange listener
       toast({

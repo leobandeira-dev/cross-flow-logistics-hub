@@ -30,23 +30,23 @@ const authService = {
    * Faz login do usuário
    */
   async signIn(credentials: SignInCredentials): Promise<AuthSession> {
-    console.log('Attempting sign in with:', credentials.email);
+    console.log('AuthService: Attempting sign in with:', credentials.email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email: credentials.email,
       password: credentials.password,
     });
 
     if (error) {
-      console.error('Sign in error:', error);
+      console.error('AuthService: Sign in error:', error);
       throw new Error(error.message);
     }
 
     if (!data.user || !data.session) {
-      console.error('No user or session returned');
+      console.error('AuthService: No user or session returned');
       throw new Error('Falha no login: Resposta inválida do servidor');
     }
 
-    console.log('Sign in successful, session:', data.session);
+    console.log('AuthService: Sign in successful, session:', data.session);
 
     return {
       user: {
@@ -102,15 +102,15 @@ const authService = {
    * Retorna o usuário atual
    */
   async getCurrentUser() {
-    console.log('Checking current user');
+    console.log('AuthService: Checking current user');
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      console.log('No authenticated user found');
+      console.log('AuthService: No authenticated user found');
       return null;
     }
     
-    console.log('User found, fetching additional data');
+    console.log('AuthService: User found, fetching additional data');
     
     // Buscar dados completos do usuário
     const { data: userData, error } = await supabase
@@ -120,11 +120,11 @@ const authService = {
       .single();
     
     if (error) {
-      console.error('Error fetching user data:', error);
+      console.error('AuthService: Error fetching user data:', error);
       return null;
     }
     
-    console.log('User data retrieved successfully');
+    console.log('AuthService: User data retrieved successfully:', userData);
     return userData as Usuario;
   },
 

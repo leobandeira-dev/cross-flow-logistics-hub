@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -38,6 +37,7 @@ const AuthPage = () => {
 
   // Redirect authenticated users
   useEffect(() => {
+    console.log('AuthPage useEffect - user:', user, 'loading:', loading);
     if (user && !loading) {
       console.log('User is authenticated, redirecting to:', from);
       navigate(from, { replace: true });
@@ -49,10 +49,12 @@ const AuthPage = () => {
     setError(null);
     
     try {
+      console.log('Submitting login form with email:', data.email);
       await signIn(data.email, data.password);
+      console.log('Sign in completed in handleLogin');
       // The redirection will happen automatically via the useEffect above
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Login error in AuthPage:', error);
       setError(error?.message || 'Ocorreu um erro ao fazer login.');
     } finally {
       setIsLoading(false);

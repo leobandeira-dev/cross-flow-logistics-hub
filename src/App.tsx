@@ -43,6 +43,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   
+  useEffect(() => {
+    console.log('ProtectedRoute check - user:', user, 'loading:', loading);
+  }, [user, loading]);
+  
   if (loading) {
     return <div className="flex h-screen items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -50,16 +54,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   if (!user) {
+    console.log('No user found, redirecting to auth');
     // Save the location they were trying to access for redirect after login
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
   
+  console.log('User authenticated, rendering protected content');
   return <>{children}</>;
 };
 
 // Redireciona usuários logados para o dashboard
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  
+  useEffect(() => {
+    console.log('PublicRoute check - user:', user, 'loading:', loading);
+  }, [user, loading]);
   
   if (loading) {
     return <div className="flex h-screen items-center justify-center">
@@ -68,9 +78,11 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   if (user) {
+    console.log('User already authenticated, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
   
+  console.log('No authenticated user, rendering public content');
   return <>{children}</>;
 };
 
