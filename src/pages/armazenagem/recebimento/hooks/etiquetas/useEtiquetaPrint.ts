@@ -108,6 +108,8 @@ export const useEtiquetaPrint = () => {
       title: `${tipoLabel} Criado(a)`,
       description: `Novo(a) ${tipoLabel.toLowerCase()} ${etiquetaMaeId} criado(a) com sucesso.`,
     });
+    
+    return etiquetaMaeId;
   };
 
   /**
@@ -169,6 +171,8 @@ export const useEtiquetaPrint = () => {
       title: "Etiqueta Mãe Impressa",
       description: `Etiqueta mãe ${etiquetaMae.id} impressa com sucesso.`,
     });
+    
+    return etiquetaMae.id;
   };
 
   return {
