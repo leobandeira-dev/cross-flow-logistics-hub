@@ -6,7 +6,7 @@ import { NotaFiscal } from "./types";
 
 export const useNotasRecebimento = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [notasRecebimento, setNotasRecebimento] = useState<any[]>([]);
+  const [notasRecebimento, setNotasRecebimento] = useState<NotaFiscal[]>([]);
 
   // Function to fetch all registered notes from the receipt system
   const fetchNotasRecebimento = async () => {

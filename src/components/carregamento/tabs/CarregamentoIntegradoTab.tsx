@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +6,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
 import { useOrdemCarregamento } from '@/hooks/carregamento';
 import { useNotasRecebimento } from '@/hooks/carregamento';
@@ -48,7 +46,7 @@ const CarregamentoIntegradoTab: React.FC = () => {
     if (step === 'notas') {
       fetchNotasRecebimento();
     }
-  }, [step]);
+  }, [step, fetchNotasRecebimento]);
 
   // Handle form submission to create a new order
   const onSubmit = async (data: any) => {
@@ -99,9 +97,6 @@ const CarregamentoIntegradoTab: React.FC = () => {
       const notasSelecionadas = notasRecebimento.filter(nota => 
         selectedNotas.includes(nota.id)
       );
-      
-      // Import the notes to the order
-      await ocCriada.notasFiscais?.push(...notasSelecionadas);
       
       toast({
         title: "Notas importadas com sucesso",
