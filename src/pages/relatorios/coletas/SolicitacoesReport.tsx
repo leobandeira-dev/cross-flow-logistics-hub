@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import ExportActions from '@/components/relatorios/ExportActions';
 import ReportSettings from '@/components/relatorios/ReportSettings';
+import { toast } from "@/hooks/use-toast";
 
 const SolicitacoesReport = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
