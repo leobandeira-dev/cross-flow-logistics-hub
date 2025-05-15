@@ -8,23 +8,37 @@ import ConsultarOCTab from '@/components/carregamento/tabs/ConsultarOCTab';
 
 const OrdemCarregamento: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'criar';
+  const [activeTab, setActiveTab] = useState<string>(searchParams.get('tab') || 'criar');
 
   // Handler para mudança de tab
   const handleTabChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('tab', value);
     setSearchParams(newParams);
+    setActiveTab(value);
   };
 
-  // Validar o activeTab
+  // Initialize tab from URL params
   useEffect(() => {
-    if (activeTab !== 'criar' && activeTab !== 'consultar') {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      if (tabParam === 'criar' || tabParam === 'consultar') {
+        setActiveTab(tabParam);
+      } else {
+        // If invalid tab parameter, default to 'criar'
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('tab', 'criar');
+        setSearchParams(newParams);
+        setActiveTab('criar');
+      }
+    } else {
+      // If no tab parameter, default to 'criar'
       const newParams = new URLSearchParams(searchParams);
       newParams.set('tab', 'criar');
       setSearchParams(newParams);
+      setActiveTab('criar');
     }
-  }, [activeTab, searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams]);
 
   return (
     <MainLayout title="Ordem de Carregamento">
@@ -34,7 +48,6 @@ const OrdemCarregamento: React.FC = () => {
       </div>
       
       <Tabs 
-        defaultValue={activeTab} 
         value={activeTab} 
         onValueChange={handleTabChange} 
         className="w-full space-y-6"
