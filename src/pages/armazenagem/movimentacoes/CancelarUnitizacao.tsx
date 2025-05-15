@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -95,6 +96,7 @@ const CancelarUnitizacao: React.FC = () => {
       
       // Update etiquetas status to 'gerada'
       const etiquetas = selected.etiquetas_unitizacao.map((etiqueta: any) => etiqueta.etiqueta_id);
+      // Use atualizarEtiquetas from new refactored etiquetaBasicService
       await etiquetaService.atualizarEtiquetas(etiquetas, { status: 'gerada' });
       
       toast({
@@ -224,7 +226,6 @@ const CancelarUnitizacao: React.FC = () => {
         title="Cancelar Unitização"
         description="Tem certeza de que deseja cancelar esta unitização? Essa ação não pode ser desfeita."
         onConfirm={form.handleSubmit(handleCancelUnitizacao)}
-        isLoading={isLoading}
       />
     </MainLayout>
   );
