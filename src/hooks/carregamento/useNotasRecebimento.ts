@@ -23,8 +23,8 @@ export const useNotasRecebimento = () => {
         remetente: nota.fornecedor || nota.emitenteRazaoSocial || '',
         cliente: nota.destinatarioRazaoSocial || '',
         pedido: nota.numeroPedido || '',
-        dataEmissao: nota.dataEmissao || nota.dataHoraEmissao || '',
-        valor: parseFloat(nota.valor || nota.valorTotal || '0'),
+        dataEmissao: nota.data || nota.dataHoraEmissao || '',
+        valor: parseFloat(nota.valor || '0'),
         pesoBruto: parseFloat(nota.pesoTotalBruto || '0')
       }));
       
