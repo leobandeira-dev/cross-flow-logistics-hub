@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type LoginFormData = {
   email: string;
@@ -38,6 +40,7 @@ const AuthPage = () => {
   // Redirect authenticated users
   useEffect(() => {
     console.log('AuthPage useEffect - user:', user, 'loading:', loading);
+    
     if (user && !loading) {
       console.log('User is authenticated, redirecting to:', from);
       navigate(from, { replace: true });
@@ -55,8 +58,7 @@ const AuthPage = () => {
       // The redirection will happen automatically via the useEffect above
     } catch (error: any) {
       console.error('Login error in AuthPage:', error);
-      setError(error?.message || 'Ocorreu um erro ao fazer login.');
-    } finally {
+      setError(error?.message || 'Ocorreu um erro ao fazer login. Verifique suas credenciais.');
       setIsLoading(false);
     }
   };
@@ -101,9 +103,9 @@ const AuthPage = () => {
             </TabsList>
             
             {error && (
-              <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-4">
-                {error}
-              </div>
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
             
             <TabsContent value="login">

@@ -36,10 +36,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error) {
           console.error('Error fetching user data after state change:', error);
           setUser(null);
+        } finally {
+          setLoading(false);
         }
       } else if (event === 'SIGNED_OUT') {
         console.log('User signed out, clearing user state');
         setUser(null);
+        setLoading(false);
       }
     });
 
@@ -78,16 +81,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       console.log('Attempting to sign in with:', email);
-      // Call the signIn method but don't return its result directly
-      await authService.signIn({ email, password });
-      console.log('Sign in successful in useAuth');
+      const result = await authService.signIn({ email, password });
+      console.log('Sign in successful in useAuth, result:', result);
       
-      // We don't need to set user here as it will be handled by the onAuthStateChange listener
+      // No need to manually set user here as it will be handled by the onAuthStateChange listener
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo de volta!",
       });
-      
     } catch (error: any) {
       console.error('Erro ao fazer login:', error);
       toast({
@@ -95,9 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: error?.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
+      setLoading(false); // Make sure to set loading to false on error
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
