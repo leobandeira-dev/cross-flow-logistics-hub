@@ -54,6 +54,10 @@ import CadastroEmpresas from "./pages/empresas/CadastroEmpresas";
 // Módulo de Cadastros
 import CadastroEnderecamento from "./pages/cadastros/enderecamento/CadastroEnderecamento";
 
+// Módulo de Relatórios
+import ReportsDashboard from "./pages/relatorios/ReportsDashboard";
+import SolicitacoesReport from "./pages/relatorios/coletas/SolicitacoesReport";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -112,6 +116,10 @@ const App = () => (
             
             {/* Cadastros Routes */}
             <Route path="/cadastros/enderecamento" element={<CadastroEnderecamento />} />
+            
+            {/* Relatórios Routes */}
+            <Route path="/relatorios" element={<ReportsDashboard />} />
+            <Route path="/relatorios/coletas/solicitacoes" element={<SolicitacoesReport />} />
             
             {/* Rota de captura 404 */}
             <Route path="*" element={<NotFound />} />
