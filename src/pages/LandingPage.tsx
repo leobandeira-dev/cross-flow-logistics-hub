@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BarChart, Shield, TrendingUp, Truck, Package, Clock } from 'lucide-react';
+import { ArrowRight, BarChart, Shield, TrendingUp, Truck, Package, Clock, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
 const LandingPage = () => {
   return <div className="min-h-screen bg-white">
       {/* Header/Navigation */}
@@ -16,6 +18,7 @@ const LandingPage = () => {
               <li><a href="#solucoes" className="text-cross-gray hover:text-cross-blue transition-colors">Soluções</a></li>
               <li><a href="#beneficios" className="text-cross-gray hover:text-cross-blue transition-colors">Benefícios</a></li>
               <li><a href="#destaques" className="text-cross-gray hover:text-cross-blue transition-colors">Destaques</a></li>
+              <li><a href="#comparativo" className="text-cross-gray hover:text-cross-blue transition-colors">Comparativo</a></li>
               <li><Link to="/auth" className="text-cross-blue hover:text-cross-blueDark transition-colors font-medium">Entrar</Link></li>
             </ul>
           </nav>
@@ -45,7 +48,7 @@ const LandingPage = () => {
               </div>
             </div>
             <div className="md:w-1/2 flex justify-center">
-              <img alt="Dashboard do CROSS" className="rounded-lg shadow-xl w-full max-w-md" src="https://drive.google.com/open?id=1GjYmjuraWspJNGvt7D-V5AiRB111uM7p&usp=drive_fs" />
+              <img alt="Dashboard do CROSS" className="rounded-lg shadow-xl w-full max-w-md" src="/placeholder.svg" />
             </div>
           </div>
         </div>
@@ -226,6 +229,155 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Comparison Table Section */}
+      <section id="comparativo" className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-heading text-center mb-6">
+            Comparativo de <span className="text-cross-blue">Módulos e Funcionalidades</span>
+          </h2>
+          <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
+            Conheça os módulos disponíveis e escolha o plano que melhor atende às necessidades do seu negócio
+          </p>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-cross-blue text-white">
+                  <th className="border border-gray-200 px-4 py-3 text-left min-w-[200px]">Funcionalidades</th>
+                  <th className="border border-gray-200 px-4 py-3 text-center">Básico</th>
+                  <th className="border border-gray-200 px-4 py-3 text-center">Intermediário</th>
+                  <th className="border border-gray-200 px-4 py-3 text-center">Completo</th>
+                  <th className="border border-gray-200 px-4 py-3 text-center">Enterprise</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="bg-gray-100 font-medium">
+                  <td colSpan={5} className="border border-gray-200 px-4 py-2 bg-gray-200">Módulo: Coletas</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Solicitação de Coletas</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Aprovações de Coletas</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Alocação de Cargas</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Importação de Lotes</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                
+                <tr className="bg-gray-100 font-medium">
+                  <td colSpan={5} className="border border-gray-200 px-4 py-2 bg-gray-200">Módulo: Armazenagem</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Recebimento Básico</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Endereçamento</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Unitização Paletes</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Movimentações Internas</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                
+                <tr className="bg-gray-100 font-medium">
+                  <td colSpan={5} className="border border-gray-200 px-4 py-2 bg-gray-200">Módulo: Carregamento</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Ordem de Carregamento</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Endereçamento de Caminhão</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                
+                <tr className="bg-gray-100 font-medium">
+                  <td colSpan={5} className="border border-gray-200 px-4 py-2 bg-gray-200">Módulo: Relatórios</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Relatórios Básicos</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Dashboards</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Exportação (PDF/Excel)</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">BI / Analytics</td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"></td>
+                  <td className="border border-gray-200 px-4 py-2 text-center"><Check className="mx-auto h-5 w-5 text-green-500" /></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <Link to="/auth?register=true">
+              <Button size="lg" className="bg-cross-blue hover:bg-cross-blueDark">
+                Começar gratuitamente
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-cross-blue text-white">
         <div className="container mx-auto px-4 text-center">
@@ -289,4 +441,5 @@ const LandingPage = () => {
       </footer>
     </div>;
 };
+
 export default LandingPage;

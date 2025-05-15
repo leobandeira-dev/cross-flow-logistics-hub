@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,20 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { BarChart, Download, FileText, Printer } from "lucide-react";
 import { format } from "date-fns";
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import ExportActions from '@/components/relatorios/ExportActions';
+import ReportSettings from '@/components/relatorios/ReportSettings';
 
 const SolicitacoesReport = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [reportView, setReportView] = useState<'table' | 'chart'>('table');
+  const [reportSettings, setReportSettings] = useState({
+    chartType: 'bar',
+    showLegend: true,
+    showGrid: true,
+    dateRange: '7d'
+  });
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Dados mock para o relatório
   const mockData = [
@@ -33,6 +42,26 @@ const SolicitacoesReport = () => {
     Aprovadas: item.aprovadas,
     Recusadas: item.recusadas
   }));
+
+  const handleClearFilters = () => {
+    // Reset dates to today
+    setStartDate(new Date());
+    setEndDate(new Date());
+  };
+
+  const handleGenerateReport = () => {
+    // Aqui seria implementada a lógica para filtrar os dados com base nos parâmetros
+    // Por enquanto, apenas exibe um toast informando que o relatório foi gerado
+    toast({
+      title: "Relatório gerado",
+      description: `Dados filtrados de ${startDate ? format(startDate, 'dd/MM/yyyy') : '-'} até ${endDate ? format(endDate, 'dd/MM/yyyy') : '-'}`,
+    });
+  };
+
+  const updateReportSettings = (settings: any) => {
+    setReportSettings(settings);
+    // Aqui poderia implementar lógica para atualizar o relatório com novas configurações
+  };
 
   return (
     <MainLayout title="Relatório - Solicitações por Período">
@@ -74,8 +103,8 @@ const SolicitacoesReport = () => {
             </div>
             
             <div className="flex justify-end mt-4 gap-2">
-              <Button variant="outline">Limpar</Button>
-              <Button>Gerar Relatório</Button>
+              <Button variant="outline" onClick={handleClearFilters}>Limpar</Button>
+              <Button onClick={handleGenerateReport}>Gerar Relatório</Button>
             </div>
           </CardContent>
         </Card>
@@ -85,74 +114,86 @@ const SolicitacoesReport = () => {
             <div className="flex justify-between items-center">
               <CardTitle>Resultados</CardTitle>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setReportView('table')}>
+                <Button 
+                  variant={reportView === 'table' ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={() => setReportView('table')}
+                >
                   <FileText className="h-4 w-4 mr-2" />
                   Tabela
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setReportView('chart')}>
+                <Button 
+                  variant={reportView === 'chart' ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={() => setReportView('chart')}
+                >
                   <BarChart className="h-4 w-4 mr-2" />
                   Gráfico
                 </Button>
-                <Button variant="outline" size="sm">
-                  <Printer className="h-4 w-4 mr-2" />
-                  Imprimir
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportar
-                </Button>
+                <ReportSettings 
+                  updateSettings={updateReportSettings} 
+                  defaultSettings={reportSettings}
+                />
+                <ExportActions
+                  title="Solicitações por Período"
+                  fileName="solicitacoes_periodo"
+                  contentRef={contentRef}
+                  data={mockData}
+                />
               </div>
             </div>
           </CardHeader>
           
           <CardContent>
-            {reportView === 'table' ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Total de Solicitações</TableHead>
-                    <TableHead>Aprovadas</TableHead>
-                    <TableHead>Recusadas</TableHead>
-                    <TableHead>Taxa de Aprovação</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockData.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{format(new Date(row.data), 'dd/MM/yyyy')}</TableCell>
-                      <TableCell>{row.solicitacoesTotal}</TableCell>
-                      <TableCell>{row.aprovadas}</TableCell>
-                      <TableCell>{row.recusadas}</TableCell>
-                      <TableCell>{((row.aprovadas / row.solicitacoesTotal) * 100).toFixed(1)}%</TableCell>
+            <div ref={contentRef}>
+              {reportView === 'table' ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Total de Solicitações</TableHead>
+                      <TableHead>Aprovadas</TableHead>
+                      <TableHead>Recusadas</TableHead>
+                      <TableHead>Taxa de Aprovação</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="h-80 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsBarChart
-                    data={chartData}
-                    margin={{
-                      top: 20,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="Solicitações" fill="#8884d8" />
-                    <Bar dataKey="Aprovadas" fill="#82ca9d" />
-                    <Bar dataKey="Recusadas" fill="#ff8042" />
-                  </RechartsBarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
+                  </TableHeader>
+                  <TableBody>
+                    {mockData.map((row, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{format(new Date(row.data), 'dd/MM/yyyy')}</TableCell>
+                        <TableCell>{row.solicitacoesTotal}</TableCell>
+                        <TableCell>{row.aprovadas}</TableCell>
+                        <TableCell>{row.recusadas}</TableCell>
+                        <TableCell>{((row.aprovadas / row.solicitacoesTotal) * 100).toFixed(1)}%</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="h-80 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsBarChart
+                      data={chartData}
+                      margin={{
+                        top: 20,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      {reportSettings.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      {reportSettings.showLegend && <Legend />}
+                      <Bar dataKey="Solicitações" fill="#8884d8" />
+                      <Bar dataKey="Aprovadas" fill="#82ca9d" />
+                      <Bar dataKey="Recusadas" fill="#ff8042" />
+                    </RechartsBarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

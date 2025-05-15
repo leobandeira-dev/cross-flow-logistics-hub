@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { Bell, Search, User } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { UserNotifications } from './UserNotifications';
+import { UserProfileMenu } from './UserProfileMenu';
 
 interface HeaderProps {
   title: string;
@@ -23,16 +25,8 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
           />
         </div>
         
-        <Button size="icon" variant="outline" className="rounded-full relative">
-          <Bell size={20} />
-          <span className="absolute -top-1 -right-1 bg-cross-error w-5 h-5 rounded-full text-white text-xs flex items-center justify-center">
-            3
-          </span>
-        </Button>
-        
-        <Button size="icon" variant="outline" className="rounded-full">
-          <User size={20} />
-        </Button>
+        <UserNotifications />
+        <UserProfileMenu />
       </div>
     </header>
   );
