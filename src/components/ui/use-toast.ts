@@ -1,11 +1,21 @@
 
-import { toast as sonnerToast, ToasterToast } from "sonner";
+import { toast as sonnerToast } from "sonner";
 
 type ToastProps = {
   title?: string;
   description?: string;
   action?: React.ReactNode;
   variant?: "default" | "destructive";
+};
+
+// Define our own ToasterToast type since it's not exported from sonner
+type ToasterToast = {
+  id: string;
+  title?: string;
+  description?: string;
+  action?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
 };
 
 export const toast = ({ title, description, action, variant }: ToastProps) => {
