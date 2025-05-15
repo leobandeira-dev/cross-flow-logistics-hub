@@ -1,41 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Eye, Plus, Minus } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
-import StatusBadge from '@/components/common/StatusBadge';
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
 import { toast } from "@/hooks/use-toast";
-
-interface ItemConferencia {
-  id: string;
-  produto: string;
-  quantidade: number;
-  verificado: boolean;
-  etiquetaMae: string;
-  notaFiscal: string;
-}
-
-export interface OrdemCarregamento {
-  id: string;
-  cliente: string;
-  destinatario: string;
-  dataCarregamento: string;
-  volumesTotal: number;
-  volumesVerificados: number;
-  status: 'pending' | 'processing' | 'completed';
-  inicioConferencia?: string;
-  fimConferencia?: string;
-  conferenteResponsavel?: string;
-}
+import { OrdemCarregamento } from './types/order.types';
+import { ItemConferencia } from './types/conferencia.types';
+import RemoveItemDialog from './RemoveItemDialog';
+import EmptyStateMessage from './EmptyStateMessage';
+import OrderHeaderInfo from './OrderHeaderInfo';
+import { getVolumeColumns } from './VolumesTableColumns';
 
 interface VolumesTableProps {
   ordemSelecionada: OrdemCarregamento | null;
@@ -52,8 +27,8 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
   handleRemoverItem,
   tipoVisualizacao
 }) => {
-  const [itemParaRemover, setItemParaRemover] = React.useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [itemParaRemover, setItemParaRemover] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const confirmarRemocao = (id: string) => {
     setItemParaRemover(id);
@@ -80,44 +55,6 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
     }
   };
 
-  const renderConferenteInfo = (ordem: OrdemCarregamento) => {
-    if (!ordem.conferenteResponsavel) return null;
-    
-    return (
-      <div className="text-sm text-gray-500 mt-1">
-        Conferente: {ordem.conferenteResponsavel}
-      </div>
-    );
-  };
-
-  const renderTimingInfo = (ordem: OrdemCarregamento) => {
-    if (!ordem.inicioConferencia) return null;
-    
-    return (
-      <div className="text-sm text-gray-500 mt-1">
-        {ordem.inicioConferencia && `Início: ${ordem.inicioConferencia}`}
-        {ordem.fimConferencia && ` • Fim: ${ordem.fimConferencia}`}
-      </div>
-    );
-  };
-
-  const renderEmptyState = () => {
-    let message = "Selecione uma ordem de carregamento para iniciar a conferência";
-    
-    if (tipoVisualizacao === 'emConferencia') {
-      message = "Não há ordens em conferência no momento";
-    } else if (tipoVisualizacao === 'conferidas') {
-      message = "Não há ordens conferidas para exibir";
-    }
-    
-    return (
-      <div className="text-center py-8 text-gray-500">
-        <CheckCircle size={40} className="mx-auto mb-4 opacity-30" />
-        <p>{message}</p>
-      </div>
-    );
-  };
-
   return (
     <Card className="h-full">
       <CardHeader>
@@ -126,71 +63,17 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
           {getTitleByTipo()}
         </CardTitle>
         {ordemSelecionada && (
-          <>
-            {renderConferenteInfo(ordemSelecionada)}
-            {renderTimingInfo(ordemSelecionada)}
-          </>
+          <OrderHeaderInfo ordem={ordemSelecionada} />
         )}
       </CardHeader>
       <CardContent>
         {ordemSelecionada ? (
           <DataTable
-            columns={[
-              { header: 'ID', accessor: 'id', className: 'w-[80px]' },
-              { header: 'Produto', accessor: 'produto' },
-              { header: 'Qtd', accessor: 'quantidade', className: 'w-[60px] text-center' },
-              { header: 'Etiqueta Mãe', accessor: 'etiquetaMae' },
-              { header: 'Nota Fiscal', accessor: 'notaFiscal' },
-              { 
-                header: 'Status', 
-                accessor: 'verificado',
-                className: 'w-[120px]',
-                cell: (row) => {
-                  return row.verificado ? 
-                    <StatusBadge status="success" text="Verificado" /> : 
-                    <StatusBadge status="warning" text="Pendente" />;
-                }
-              },
-              {
-                header: 'Ações',
-                accessor: 'actions',
-                className: 'w-[180px]',
-                cell: (row) => (
-                  <div className="flex gap-2 justify-end">
-                    <Button variant="outline" size="sm">
-                      <Eye size={16} className="mr-1" />
-                      Detalhes
-                    </Button>
-                    {!row.verificado && tipoVisualizacao === 'conferir' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="bg-cross-blue text-white hover:bg-cross-blue/90"
-                        onClick={() => handleVerificarItem(row.id)}
-                      >
-                        <CheckCircle size={16} className="mr-1" />
-                        Verificar
-                      </Button>
-                    )}
-                    {handleRemoverItem && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-red-500 text-red-500 hover:bg-red-50"
-                        onClick={() => confirmarRemocao(row.id)}
-                      >
-                        <Minus size={16} className="mr-1" />
-                        Remover
-                      </Button>
-                    )}
-                  </div>
-                )
-              }
-            ]}
+            columns={getVolumeColumns(handleVerificarItem, handleRemoverItem ? confirmarRemocao : undefined, tipoVisualizacao)}
             data={itens}
           />
         ) : (
-          renderEmptyState()
+          <EmptyStateMessage tipoVisualizacao={tipoVisualizacao} />
         )}
         
         {ordemSelecionada && tipoVisualizacao === 'conferir' && (
@@ -205,28 +88,11 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
         )}
       </CardContent>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar remoção</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja remover este item da ordem de carregamento?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={removerItem}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              Remover
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <RemoveItemDialog 
+        open={dialogOpen} 
+        onOpenChange={setDialogOpen} 
+        onConfirm={removerItem} 
+      />
     </Card>
   );
 };
