@@ -7,10 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Package, Search, AlertCircle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DataTable from '@/components/common/DataTable';
 import { useCancelarUnitizacao } from '@/hooks/useCancelarUnitizacao';
 import PaleteDetailsDialog from '@/components/armazenagem/unitizacao/PaleteDetailsDialog';
 import CancelarUnitizacaoDialog from '@/components/armazenagem/unitizacao/CancelarUnitizacaoDialog';
+import AuditTrail from '@/components/common/AuditTrail';
+import { useAuditTrail } from '@/hooks/useAuditTrail';
 
 const CancelarUnitizacao: React.FC = () => {
   const form = useForm({
@@ -34,8 +37,30 @@ const CancelarUnitizacao: React.FC = () => {
     handleSearchById
   } = useCancelarUnitizacao();
 
+  const { auditEntries, addAuditEntry } = useAuditTrail('cancelar-unitizacao');
+
   const handleSubmit = (data: { idPalete: string }) => {
     handleSearchById(data.idPalete);
+    // Record audit entry for search action
+    addAuditEntry('Busca de Palete', `Buscou palete por ID: ${data.idPalete}`);
+  };
+
+  // Wrapped functions to include audit logging
+  const handleShowDetailsWithAudit = (id: string) => {
+    handleShowDetails(id);
+    addAuditEntry('Visualização de Detalhes', `Consultou detalhes do palete ${id}`);
+  };
+
+  const handleCancelUnitizacaoWithAudit = (id: string) => {
+    handleCancelUnitizacao(id);
+    addAuditEntry('Iniciou Cancelamento', `Iniciou processo de cancelamento do palete ${id}`);
+  };
+
+  const confirmCancelUnitizacaoWithAudit = () => {
+    if (selectedPalete) {
+      confirmCancelUnitizacao();
+      addAuditEntry('Cancelamento de Unitização', `Cancelou unitização do palete ${selectedPalete.id}`);
+    }
   };
 
   return (
@@ -45,127 +70,140 @@ const CancelarUnitizacao: React.FC = () => {
         <p className="text-gray-600">Desfaça unitizações e reorganize volumes</p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Package className="mr-2 text-cross-blue" size={20} />
-                Buscar Palete
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="idPalete"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>ID do Palete</FormLabel>
-                          <div className="relative">
-                            <FormControl>
-                              <Input placeholder="Digite o código do palete" {...field} />
-                            </FormControl>
-                            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <Button type="submit" className="w-full bg-cross-blue hover:bg-cross-blue/90">
-                    Buscar
-                  </Button>
-                </form>
-              </Form>
-              
-              <div className="mt-6">
-                <Card className="border-amber-200 bg-amber-50">
-                  <CardContent className="p-4">
-                    <div className="flex items-start">
-                      <AlertCircle className="text-amber-500 mr-3 mt-0.5" size={18} />
-                      <div>
-                        <h4 className="font-medium text-amber-800 mb-1">Atenção</h4>
-                        <p className="text-sm text-amber-700">
-                          O cancelamento de unitização irá desvincular todos os volumes associados ao palete.
-                          Esta ação não pode ser desfeita.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <Tabs defaultValue="principal">
+        <TabsList className="mb-6">
+          <TabsTrigger value="principal">Principal</TabsTrigger>
+          <TabsTrigger value="auditoria">Auditoria</TabsTrigger>
+        </TabsList>
         
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Paletes Unitizados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="relative mb-4">
-                <Input 
-                  placeholder="Filtrar por ID ou responsável..." 
-                  value={filterValue}
-                  onChange={(e) => handleFilterChange(e.target.value)}
-                />
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              </div>
-            
-              <DataTable
-                columns={[
-                  { header: 'ID Palete', accessor: 'id' },
-                  { header: 'Volumes', accessor: 'volumes' },
-                  { header: 'Produtos', accessor: 'produtos' },
-                  { header: 'Data Unitização', accessor: 'dataUnitizacao' },
-                  { header: 'Responsável', accessor: 'responsavel' },
-                  {
-                    header: 'Ações',
-                    accessor: 'actions',
-                    cell: (row) => (
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleShowDetails(row.id)}
-                        >
-                          Detalhes
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-red-500 border-red-200 hover:bg-red-50"
-                          onClick={() => handleCancelUnitizacao(row.id)}
-                        >
-                          Cancelar
-                        </Button>
+        <TabsContent value="principal" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center">
+                    <Package className="mr-2 text-cross-blue" size={20} />
+                    Buscar Palete
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                      <div>
+                        <FormField
+                          control={form.control}
+                          name="idPalete"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>ID do Palete</FormLabel>
+                              <div className="relative">
+                                <FormControl>
+                                  <Input placeholder="Digite o código do palete" {...field} />
+                                </FormControl>
+                                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                              </div>
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                    )
-                  }
-                ]}
-                data={filteredPaletes}
-              />
-              
-              <div className="mt-4 p-4 border rounded-md bg-gray-50">
-                <h3 className="font-medium mb-2">Informações do Cancelamento</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Ao cancelar uma unitização, os seguintes processos serão executados:
-                </p>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>1. Todos os volumes serão desvinculados do palete</li>
-                  <li>2. Os volumes voltarão a estar disponíveis para nova unitização</li>
-                  <li>3. O endereçamento do palete será liberado</li>
-                  <li>4. Um registro de cancelamento será gerado no histórico</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                      
+                      <Button type="submit" className="w-full bg-cross-blue hover:bg-cross-blue/90">
+                        Buscar
+                      </Button>
+                    </form>
+                  </Form>
+                  
+                  <div className="mt-6">
+                    <Card className="border-amber-200 bg-amber-50">
+                      <CardContent className="p-4">
+                        <div className="flex items-start">
+                          <AlertCircle className="text-amber-500 mr-3 mt-0.5" size={18} />
+                          <div>
+                            <h4 className="font-medium text-amber-800 mb-1">Atenção</h4>
+                            <p className="text-sm text-amber-700">
+                              O cancelamento de unitização irá desvincular todos os volumes associados ao palete.
+                              Esta ação não pode ser desfeita.
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Paletes Unitizados</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative mb-4">
+                    <Input 
+                      placeholder="Filtrar por ID ou responsável..." 
+                      value={filterValue}
+                      onChange={(e) => handleFilterChange(e.target.value)}
+                    />
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  </div>
+                
+                  <DataTable
+                    columns={[
+                      { header: 'ID Palete', accessor: 'id' },
+                      { header: 'Volumes', accessor: 'volumes' },
+                      { header: 'Produtos', accessor: 'produtos' },
+                      { header: 'Data Unitização', accessor: 'dataUnitizacao' },
+                      { header: 'Responsável', accessor: 'responsavel' },
+                      {
+                        header: 'Ações',
+                        accessor: 'actions',
+                        cell: (row) => (
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleShowDetailsWithAudit(row.id)}
+                            >
+                              Detalhes
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-500 border-red-200 hover:bg-red-50"
+                              onClick={() => handleCancelUnitizacaoWithAudit(row.id)}
+                            >
+                              Cancelar
+                            </Button>
+                          </div>
+                        )
+                      }
+                    ]}
+                    data={filteredPaletes}
+                  />
+                  
+                  <div className="mt-4 p-4 border rounded-md bg-gray-50">
+                    <h3 className="font-medium mb-2">Informações do Cancelamento</h3>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Ao cancelar uma unitização, os seguintes processos serão executados:
+                    </p>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>1. Todos os volumes serão desvinculados do palete</li>
+                      <li>2. Os volumes voltarão a estar disponíveis para nova unitização</li>
+                      <li>3. O endereçamento do palete será liberado</li>
+                      <li>4. Um registro de cancelamento será gerado no histórico</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="auditoria">
+          <AuditTrail entries={auditEntries} moduleName="Cancelar Unitização" />
+        </TabsContent>
+      </Tabs>
 
       {/* Dialogs */}
       <PaleteDetailsDialog
@@ -178,7 +216,7 @@ const CancelarUnitizacao: React.FC = () => {
         open={cancelDialogOpen}
         onOpenChange={setCancelDialogOpen}
         palete={selectedPalete}
-        onConfirm={confirmCancelUnitizacao}
+        onConfirm={confirmCancelUnitizacaoWithAudit}
       />
     </MainLayout>
   );

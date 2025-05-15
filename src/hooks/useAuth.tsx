@@ -3,9 +3,14 @@ import { useState, useEffect, createContext, useContext, ReactNode } from 'react
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../integrations/supabase/client';
 
+// Extended user type to include role
+interface ExtendedUser extends User {
+  role?: 'admin' | 'user' | 'moderator';
+}
+
 type AuthContextType = {
   session: Session | null;
-  user: User | null;
+  user: ExtendedUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string) => Promise<{ error: any, data: any }>;
@@ -16,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +29,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        setUser(session?.user ?? null);
+        
+        // Add role information to user object
+        // In a real application, you would fetch this from your user_roles table
+        if (session?.user) {
+          const userWithRole: ExtendedUser = {
+            ...session.user,
+            role: session.user.email?.includes('admin') ? 'admin' : 'user'
+          };
+          setUser(userWithRole);
+        } else {
+          setUser(null);
+        }
+        
         setLoading(false);
       }
     );
@@ -32,7 +49,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // DEPOIS verificar a sessão existente
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(session?.user ?? null);
+      
+      // Add role information to user object
+      if (session?.user) {
+        const userWithRole: ExtendedUser = {
+          ...session.user,
+          role: session.user.email?.includes('admin') ? 'admin' : 'user'
+        };
+        setUser(userWithRole);
+      } else {
+        setUser(null);
+      }
+      
       setLoading(false);
     });
 
