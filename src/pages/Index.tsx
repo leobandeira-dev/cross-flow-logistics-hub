@@ -15,8 +15,8 @@ const Index = () => {
         console.log('User authenticated on Index page, redirecting to dashboard');
         navigate('/dashboard', { replace: true });
       } else {
-        console.log('User not authenticated on Index page, redirecting to auth');
-        navigate('/auth', { replace: true });
+        console.log('User not authenticated on Index page, redirecting to landing page');
+        navigate('/', { replace: true });
       }
     }
   }, [user, loading, navigate]);
@@ -28,7 +28,7 @@ const Index = () => {
   }
 
   // Immediate redirect if state is already determined
-  return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/auth" replace />;
+  return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/" replace />;
 };
 
 export default Index;

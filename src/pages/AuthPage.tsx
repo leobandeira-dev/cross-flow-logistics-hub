@@ -34,6 +34,14 @@ const AuthPage = () => {
   const loginForm = useForm<LoginFormData>();
   const registerForm = useForm<RegisterFormData>();
 
+  // Check URL parameters for registration tab
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('register') === 'true') {
+      setActiveTab('register');
+    }
+  }, [location]);
+
   // Get the intended destination from the location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
 

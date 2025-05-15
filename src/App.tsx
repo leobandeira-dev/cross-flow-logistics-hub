@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, BrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth'; 
@@ -105,11 +104,7 @@ function AppRoutes() {
         </PublicRoute>
       } />
       
-      <Route path="/" element={
-        <PublicRoute>
-          <LandingPage />
-        </PublicRoute>
-      } />
+      <Route path="/" element={<LandingPage />} />
       
       <Route path="/dashboard" element={
         <ProtectedRoute>
@@ -223,12 +218,12 @@ function AppRoutes() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
           <AppRoutes />
-        </BrowserRouter>
-        <Toaster />
-      </AuthProvider>
+          <Toaster />
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }
