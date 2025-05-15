@@ -15,6 +15,14 @@ const OrdemCarregamento: React.FC = () => {
     setSearchParams(searchParams);
   };
 
+  // Garantir que o activeTab seja válido
+  useEffect(() => {
+    if (activeTab !== 'criar' && activeTab !== 'consultar') {
+      searchParams.set('tab', 'criar');
+      setSearchParams(searchParams);
+    }
+  }, [activeTab, searchParams, setSearchParams]);
+
   return (
     <MainLayout title="Ordem de Carregamento">
       <div className="mb-6">
@@ -23,16 +31,16 @@ const OrdemCarregamento: React.FC = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 grid grid-cols-2 w-[400px]">
           <TabsTrigger value="criar">Criar OC</TabsTrigger>
           <TabsTrigger value="consultar">Consultar OC</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="criar">
+        <TabsContent value="criar" className="mt-6">
           <CriarOCTab />
         </TabsContent>
         
-        <TabsContent value="consultar">
+        <TabsContent value="consultar" className="mt-6">
           <ConsultarOCTab />
         </TabsContent>
       </Tabs>
