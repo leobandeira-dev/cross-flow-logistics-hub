@@ -22,7 +22,8 @@ export const useNotasRecebimento = () => {
         numero: nota.id,
         remetente: nota.fornecedor || nota.emitenteRazaoSocial || '',
         cliente: nota.destinatarioRazaoSocial || '',
-        pedido: nota.numeroPedido || '',
+        // The error is here - use the correct property name from the mock data
+        pedido: nota.numero || '',  // Changed from numeroPedido to numero
         dataEmissao: nota.data || nota.dataHoraEmissao || '',
         valor: parseFloat(nota.valor || '0'),
         pesoBruto: parseFloat(nota.pesoTotalBruto || '0')
