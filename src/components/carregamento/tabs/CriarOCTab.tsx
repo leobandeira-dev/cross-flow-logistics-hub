@@ -7,9 +7,13 @@ import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/
 import { useForm } from 'react-hook-form';
 import { FileText, Calendar, Search, Truck } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
+import { useOrdemCarregamento } from '@/hooks/carregamento/useOrdemCarregamento';
+import { useNavigate } from 'react-router-dom';
 
 const CriarOCTab: React.FC = () => {
   const [addingItems, setAddingItems] = useState(false);
+  const { createOrdemCarregamento, isLoading } = useOrdemCarregamento();
+  const navigate = useNavigate();
   
   const form = useForm({
     defaultValues: {
@@ -23,20 +27,20 @@ const CriarOCTab: React.FC = () => {
     }
   });
   
-  const handleSubmit = (data: any) => {
-    console.log('Form data submitted:', data);
-    toast({
-      title: "Ordem de Carregamento criada",
-      description: "OC criada com sucesso. ID: OC-" + Math.floor(Math.random() * 10000),
-    });
-    form.reset();
+  const handleSubmit = async (data: any) => {
+    const result = await createOrdemCarregamento(data);
+    if (result) {
+      form.reset();
+      // Navigate to consultar tab after creating
+      navigate('/armazenagem/carregamento/ordem?tab=consultar');
+    }
   };
 
   const handleAddItems = () => {
     setAddingItems(true);
     toast({
       title: "Adicionar itens",
-      description: "Funcionalidade para adicionar itens em desenvolvimento."
+      description: "Por favor, primeiro crie a ordem de carregamento para adicionar itens."
     });
     setTimeout(() => setAddingItems(false), 2000);
   };
@@ -172,7 +176,7 @@ const CriarOCTab: React.FC = () => {
                   <Button 
                     className="bg-cross-blue hover:bg-cross-blue/90"
                     onClick={handleAddItems}
-                    disabled={addingItems}
+                    disabled={addingItems || isLoading}
                   >
                     {addingItems ? "Adicionando..." : "Adicionar Itens"}
                   </Button>
@@ -182,8 +186,12 @@ const CriarOCTab: React.FC = () => {
             
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => form.reset()}>Cancelar</Button>
-              <Button type="submit" className="bg-cross-blue hover:bg-cross-blue/90">
-                Criar Ordem de Carregamento
+              <Button 
+                type="submit" 
+                className="bg-cross-blue hover:bg-cross-blue/90"
+                disabled={isLoading}
+              >
+                {isLoading ? "Criando..." : "Criar Ordem de Carregamento"}
               </Button>
             </div>
           </form>

@@ -1,48 +1,39 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import { FileText, Truck } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
 import { FilterConfig } from '@/components/common/SearchFilter';
-
-// Mock data for the orders
-const ordensCarregamento = [
-  { 
-    id: 'OC-2023-001', 
-    destino: 'São Paulo, SP', 
-    cliente: 'Distribuidor ABC', 
-    volumes: 25, 
-    dataCarregamento: '15/05/2023',
-    status: 'pending'
-  },
-  { 
-    id: 'OC-2023-002', 
-    destino: 'Rio de Janeiro, RJ', 
-    cliente: 'Distribuidor XYZ', 
-    volumes: 18, 
-    dataCarregamento: '15/05/2023',
-    status: 'processing'
-  },
-  { 
-    id: 'OC-2023-003', 
-    destino: 'Belo Horizonte, MG', 
-    cliente: 'Distribuidor DEF', 
-    volumes: 32, 
-    dataCarregamento: '16/05/2023',
-    status: 'completed'
-  },
-];
+import { useOrdemCarregamento, NotaFiscal } from '@/hooks/carregamento/useOrdemCarregamento';
+import { useSearchParams } from 'react-router-dom';
+import ImportarNotasDialog from '@/components/carregamento/ImportarNotasDialog';
 
 const ConsultarOCTab: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     status: 'all',
     periodo: 'all'
   });
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [selectedOrdemId, setSelectedOrdemId] = useState<string | null>(null);
+
+  const { 
+    isLoading,
+    ordensCarregamento, 
+    notasFiscaisDisponiveis, 
+    fetchOrdensCarregamento,
+    fetchNotasFiscaisDisponiveis,
+    importarNotasFiscais,
+    iniciarCarregamento
+  } = useOrdemCarregamento();
+
+  useEffect(() => {
+    fetchOrdensCarregamento();
+  }, []);
 
   const handleSearch = (term: string, filters?: Record<string, string[]>) => {
     setSearchTerm(term);
@@ -53,6 +44,18 @@ const ConsultarOCTab: React.FC = () => {
         newFilters[key] = filters[key][0] || 'all';
       });
       setActiveFilters(newFilters);
+    }
+  };
+
+  const handleImportClick = async (ordemId: string) => {
+    setSelectedOrdemId(ordemId);
+    await fetchNotasFiscaisDisponiveis();
+    setImportModalOpen(true);
+  };
+
+  const handleImportNotas = (notasIds: string[]) => {
+    if (selectedOrdemId) {
+      importarNotasFiscais(selectedOrdemId, notasIds);
     }
   };
 
@@ -96,9 +99,18 @@ const ConsultarOCTab: React.FC = () => {
           columns={[
             { header: 'ID', accessor: 'id' },
             { header: 'Cliente', accessor: 'cliente' },
-            { header: 'Destino', accessor: 'destino' },
+            { header: 'Tipo', accessor: 'tipoCarregamento', 
+              cell: (row) => {
+                const tipoMap: Record<string, string> = {
+                  'entrega': 'Entrega',
+                  'transferencia': 'Transferência',
+                  'devolucao': 'Devolução'
+                };
+                return tipoMap[row.tipoCarregamento] || row.tipoCarregamento;
+              }
+            },
             { header: 'Data', accessor: 'dataCarregamento' },
-            { header: 'Volumes', accessor: 'volumes' },
+            { header: 'Motorista', accessor: 'motorista' },
             { 
               header: 'Status', 
               accessor: 'status',
@@ -121,10 +133,7 @@ const ConsultarOCTab: React.FC = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => {
-                      toast({
-                        title: "Detalhes da OC",
-                        description: `Visualizando detalhes da OC ${row.id}`,
-                      });
+                      console.log("Visualizando detalhes da OC", row.id);
                     }}
                   >
                     <FileText size={16} className="mr-1" />
@@ -135,12 +144,7 @@ const ConsultarOCTab: React.FC = () => {
                       variant="outline" 
                       size="sm" 
                       className="bg-cross-blue text-white hover:bg-cross-blue/90"
-                      onClick={() => {
-                        toast({
-                          title: "Iniciar Carregamento",
-                          description: `Iniciando carregamento para OC ${row.id}`,
-                        });
-                      }}
+                      onClick={() => iniciarCarregamento(row.id)}
                     >
                       <Truck size={16} className="mr-1" />
                       Iniciar
@@ -151,12 +155,7 @@ const ConsultarOCTab: React.FC = () => {
                       variant="outline" 
                       size="sm" 
                       className="border-green-600 text-green-600 hover:bg-green-50"
-                      onClick={() => {
-                        toast({
-                          title: "Importar para Faturamento",
-                          description: `Importando notas fiscais da OC ${row.id} para o faturamento`,
-                        });
-                      }}
+                      onClick={() => handleImportClick(row.id)}
                     >
                       <FileText size={16} className="mr-1" />
                       Importar NFs
@@ -169,6 +168,14 @@ const ConsultarOCTab: React.FC = () => {
           data={ordensCarregamento}
         />
       </CardContent>
+
+      <ImportarNotasDialog 
+        open={importModalOpen}
+        onOpenChange={setImportModalOpen}
+        onImport={handleImportNotas}
+        notasFiscaisDisponiveis={notasFiscaisDisponiveis}
+        isLoading={isLoading}
+      />
     </Card>
   );
 };
