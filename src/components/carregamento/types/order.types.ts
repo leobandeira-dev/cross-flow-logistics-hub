@@ -2,12 +2,17 @@
 export interface OrdemCarregamento {
   id: string;
   cliente: string;
-  destinatario: string;
+  tipoCarregamento: string;
   dataCarregamento: string;
-  volumesTotal: number;
-  volumesVerificados: number;
+  transportadora: string;
+  placaVeiculo: string;
+  motorista: string;
   status: 'pending' | 'processing' | 'completed';
   notasFiscais?: NotaFiscal[];
+  observacoes?: string;
+  destinatario?: string;
+  volumesTotal?: number;
+  volumesVerificados?: number;
   conferenteResponsavel?: string;
   inicioConferencia?: string;
   fimConferencia?: string;

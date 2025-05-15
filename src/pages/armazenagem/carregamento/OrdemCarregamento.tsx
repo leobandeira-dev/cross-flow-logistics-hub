@@ -1,25 +1,28 @@
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import CriarOCTab from '@/components/carregamento/tabs/CriarOCTab';
 import ConsultarOCTab from '@/components/carregamento/tabs/ConsultarOCTab';
-import { useSearchParams } from 'react-router-dom';
 
 const OrdemCarregamento: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'criar';
 
+  // Handler para mudança de tab
   const handleTabChange = (value: string) => {
-    searchParams.set('tab', value);
-    setSearchParams(searchParams);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', value);
+    setSearchParams(newParams);
   };
 
-  // Garantir que o activeTab seja válido
+  // Validar o activeTab
   useEffect(() => {
     if (activeTab !== 'criar' && activeTab !== 'consultar') {
-      searchParams.set('tab', 'criar');
-      setSearchParams(searchParams);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('tab', 'criar');
+      setSearchParams(newParams);
     }
   }, [activeTab, searchParams, setSearchParams]);
 
@@ -30,17 +33,22 @@ const OrdemCarregamento: React.FC = () => {
         <p className="text-gray-600">Crie e gerencie ordens de carregamento para expedição</p>
       </div>
       
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-        <TabsList className="mb-4 grid grid-cols-2 w-[400px]">
+      <Tabs 
+        defaultValue="criar" 
+        value={activeTab} 
+        onValueChange={handleTabChange} 
+        className="w-full space-y-6"
+      >
+        <TabsList className="grid grid-cols-2 w-[400px]">
           <TabsTrigger value="criar">Criar OC</TabsTrigger>
           <TabsTrigger value="consultar">Consultar OC</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="criar" className="mt-6">
+        <TabsContent value="criar" className="w-full mt-6">
           <CriarOCTab />
         </TabsContent>
         
-        <TabsContent value="consultar" className="mt-6">
+        <TabsContent value="consultar" className="w-full mt-6">
           <ConsultarOCTab />
         </TabsContent>
       </Tabs>
