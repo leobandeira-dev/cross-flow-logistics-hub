@@ -28,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(userData);
       } catch (error) {
         console.error('Erro ao verificar autenticação:', error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -37,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Observar mudanças na autenticação
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session);
       if (event === 'SIGNED_IN' && session) {
         const userData = await authService.getCurrentUser();
         setUser(userData);

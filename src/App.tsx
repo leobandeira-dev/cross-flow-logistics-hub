@@ -1,8 +1,9 @@
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth'; 
 import { Toaster } from './components/ui/toaster';
+import { useAuth } from './hooks/useAuth';
+import { useEffect } from 'react';
 
 import AuthPage from './pages/AuthPage';
 import LandingPage from './pages/LandingPage';
@@ -38,6 +39,36 @@ import CadastroMotoristas from './pages/motoristas/CadastroMotoristas';
 import CargasMotoristas from './pages/motoristas/CargasMotoristas';
 import CadastroEnderecamento from './pages/cadastros/enderecamento/CadastroEnderecamento';
 
+// Proteção de rotas: redireciona para login se não autenticado
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center">Carregando...</div>;
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Redireciona usuários logados para o dashboard
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center">Carregando...</div>;
+  }
+  
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
 // Criando o cliente do React Query
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,48 +79,136 @@ const queryClient = new QueryClient({
   },
 });
 
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/auth" element={
+        <PublicRoute>
+          <AuthPage />
+        </PublicRoute>
+      } />
+      
+      <Route path="/" element={
+        <PublicRoute>
+          <LandingPage />
+        </PublicRoute>
+      } />
+      
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } />
+
+      {/* Armazenagem */}
+      <Route path="/armazenagem/recebimento" element={
+        <ProtectedRoute>
+          <RecebimentoOverview />
+        </ProtectedRoute>
+      } />
+      <Route path="/armazenagem/movimentacoes" element={
+        <ProtectedRoute>
+          <MovimentacoesInternas />
+        </ProtectedRoute>
+      } />
+      <Route path="/armazenagem/carregamento" element={
+        <ProtectedRoute>
+          <Carregamento />
+        </ProtectedRoute>
+      } />
+      <Route path="/armazenagem/ordem-carregamento" element={
+        <ProtectedRoute>
+          <OrdemCarregamento />
+        </ProtectedRoute>
+      } />
+
+      {/* Expedição */}
+      <Route path="/expedicao" element={
+        <ProtectedRoute>
+          <Faturamento />
+        </ProtectedRoute>
+      } />
+      <Route path="/expedicao/documentos" element={
+        <ProtectedRoute>
+          <EmissaoDocumentos />
+        </ProtectedRoute>
+      } />
+
+      {/* SAC */}
+      <Route path="/sac/ocorrencias" element={
+        <ProtectedRoute>
+          <Ocorrencias />
+        </ProtectedRoute>
+      } />
+
+      {/* Coletas */}
+      <Route path="/coletas/solicitacoes" element={
+        <ProtectedRoute>
+          <SolicitacoesColeta />
+        </ProtectedRoute>
+      } />
+      <Route path="/coletas/aprovacoes" element={
+        <ProtectedRoute>
+          <AprovacoesColeta />
+        </ProtectedRoute>
+      } />
+      <Route path="/coletas/cargas" element={
+        <ProtectedRoute>
+          <CargasAlocacao />
+        </ProtectedRoute>
+      } />
+
+      {/* Relatórios */}
+      <Route path="/relatorios" element={
+        <ProtectedRoute>
+          <ReportsDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/relatorios/coletas/solicitacoes" element={
+        <ProtectedRoute>
+          <SolicitacoesReport />
+        </ProtectedRoute>
+      } />
+
+      {/* Cadastros */}
+      <Route path="/cadastros/usuarios" element={
+        <ProtectedRoute>
+          <CadastroUsuarios />
+        </ProtectedRoute>
+      } />
+      <Route path="/cadastros/empresas" element={
+        <ProtectedRoute>
+          <CadastroEmpresas />
+        </ProtectedRoute>
+      } />
+      <Route path="/cadastros/motoristas" element={
+        <ProtectedRoute>
+          <CadastroMotoristas />
+        </ProtectedRoute>
+      } />
+      <Route path="/cadastros/motoristas/cargas" element={
+        <ProtectedRoute>
+          <CargasMotoristas />
+        </ProtectedRoute>
+      } />
+      <Route path="/cadastros/enderecamento" element={
+        <ProtectedRoute>
+          <CadastroEnderecamento />
+        </ProtectedRoute>
+      } />
+
+      {/* NotFound */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-
-            {/* Armazenagem */}
-            <Route path="/armazenagem/recebimento" element={<RecebimentoOverview />} />
-            <Route path="/armazenagem/movimentacoes" element={<MovimentacoesInternas />} />
-            <Route path="/armazenagem/carregamento" element={<Carregamento />} />
-            <Route path="/armazenagem/ordem-carregamento" element={<OrdemCarregamento />} />
-
-            {/* Expedição */}
-            <Route path="/expedicao" element={<Faturamento />} />
-            <Route path="/expedicao/documentos" element={<EmissaoDocumentos />} />
-
-            {/* SAC */}
-            <Route path="/sac/ocorrencias" element={<Ocorrencias />} />
-
-            {/* Coletas */}
-            <Route path="/coletas/solicitacoes" element={<SolicitacoesColeta />} />
-            <Route path="/coletas/aprovacoes" element={<AprovacoesColeta />} />
-            <Route path="/coletas/cargas" element={<CargasAlocacao />} />
-
-            {/* Relatórios */}
-            <Route path="/relatorios" element={<ReportsDashboard />} />
-            <Route path="/relatorios/coletas/solicitacoes" element={<SolicitacoesReport />} />
-
-            {/* Cadastros */}
-            <Route path="/cadastros/usuarios" element={<CadastroUsuarios />} />
-            <Route path="/cadastros/empresas" element={<CadastroEmpresas />} />
-            <Route path="/cadastros/motoristas" element={<CadastroMotoristas />} />
-            <Route path="/cadastros/motoristas/cargas" element={<CargasMotoristas />} />
-            <Route path="/cadastros/enderecamento" element={<CadastroEnderecamento />} />
-
-            {/* NotFound */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
         <Toaster />
       </AuthProvider>

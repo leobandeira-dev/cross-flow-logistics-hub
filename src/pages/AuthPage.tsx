@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +23,7 @@ type RegisterFormData = {
 };
 
 const AuthPage = () => {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('login');
@@ -32,13 +32,20 @@ const AuthPage = () => {
   const loginForm = useForm<LoginFormData>();
   const registerForm = useForm<RegisterFormData>();
 
+  // Verificar se o usuário já está autenticado e redirecionar para o dashboard
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
     
     try {
       await signIn(data.email, data.password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       setError(error?.message || 'Ocorreu um erro ao fazer login.');
     } finally {
