@@ -16,25 +16,20 @@ const OrdemCarregamento: React.FC = () => {
     const tabParam = searchParams.get('tab');
     if (tabParam && (tabParam === 'criar' || tabParam === 'consultar' || tabParam === 'integrado')) {
       setActiveTab(tabParam);
-    } else if (tabParam && !(tabParam === 'criar' || tabParam === 'consultar' || tabParam === 'integrado')) {
-      // If invalid tab parameter, default to 'criar'
+    } else {
+      // If no valid tab parameter, default to 'criar'
       const newParams = new URLSearchParams(searchParams);
       newParams.set('tab', 'criar');
-      setSearchParams(newParams);
-    } else if (!tabParam) {
-      // If no tab parameter, add default
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set('tab', 'criar');
-      setSearchParams(newParams);
+      setSearchParams(newParams, { replace: true });
     }
-  }, []);
+  }, [searchParams]);
 
   // Handler for tab change
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     const newParams = new URLSearchParams(searchParams);
     newParams.set('tab', value);
-    setSearchParams(newParams);
+    setSearchParams(newParams, { replace: true });
   };
 
   return (

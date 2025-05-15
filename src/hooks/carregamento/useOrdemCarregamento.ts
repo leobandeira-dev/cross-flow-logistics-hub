@@ -14,19 +14,24 @@ export const useOrdemCarregamento = () => {
     ordensCarregamento,
     setOrdensCarregamento,
     fetchOrdensCarregamento,
-    iniciarCarregamento
+    iniciarCarregamento,
+    isLoading: isLoadingOrdens
   } = useOrdensCarregamentoQuery();
   
-  const { createOrdemCarregamento } = useOrdemCarregamentoCreate();
+  const { 
+    createOrdemCarregamento,
+    isLoading: isLoadingCreate 
+  } = useOrdemCarregamentoCreate();
   
   const {
     notasFiscaisDisponiveis,
     fetchNotasFiscaisDisponiveis,
-    importarNotasFiscais
+    importarNotasFiscais,
+    isLoading: isLoadingNotas
   } = useNotasFiscais(setOrdensCarregamento);
 
   // Combine loading states from all hooks
-  const combinedIsLoading = isLoading;
+  const combinedIsLoading = isLoading || isLoadingOrdens || isLoadingCreate || isLoadingNotas;
 
   return {
     isLoading: combinedIsLoading,
