@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, BrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth'; 
@@ -44,7 +45,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   
   useEffect(() => {
-    console.log('ProtectedRoute check - user:', user, 'loading:', loading);
+    console.log('ProtectedRoute check - user:', !!user, 'loading:', loading);
   }, [user, loading]);
   
   if (loading) {
@@ -55,7 +56,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (!user) {
     console.log('No user found, redirecting to auth');
-    // Save the location they were trying to access for redirect after login
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
   
@@ -68,7 +68,7 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
   useEffect(() => {
-    console.log('PublicRoute check - user:', user, 'loading:', loading);
+    console.log('PublicRoute check - user:', !!user, 'loading:', loading);
   }, [user, loading]);
   
   if (loading) {

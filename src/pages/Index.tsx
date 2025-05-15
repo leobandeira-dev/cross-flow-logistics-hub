@@ -27,6 +27,7 @@ const Index = () => {
     </div>;
   }
 
+  // Immediate redirect if state is already determined
   return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/auth" replace />;
 };
 

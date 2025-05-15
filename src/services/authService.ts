@@ -117,7 +117,7 @@ const authService = {
       .from('usuarios')
       .select('*, empresa:empresa_id(*), perfil:perfil_id(*)')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
     
     if (error) {
       console.error('AuthService: Error fetching user data:', error);
