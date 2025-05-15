@@ -5,6 +5,7 @@ import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import CriarOCTab from '@/components/carregamento/tabs/CriarOCTab';
 import ConsultarOCTab from '@/components/carregamento/tabs/ConsultarOCTab';
+import CarregamentoIntegradoTab from '@/components/carregamento/tabs/CarregamentoIntegradoTab';
 
 const OrdemCarregamento: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -13,9 +14,9 @@ const OrdemCarregamento: React.FC = () => {
   useEffect(() => {
     // Get tab from URL or default to 'criar'
     const tabParam = searchParams.get('tab');
-    if (tabParam && (tabParam === 'criar' || tabParam === 'consultar')) {
+    if (tabParam && (tabParam === 'criar' || tabParam === 'consultar' || tabParam === 'integrado')) {
       setActiveTab(tabParam);
-    } else if (tabParam && !(tabParam === 'criar' || tabParam === 'consultar')) {
+    } else if (tabParam && !(tabParam === 'criar' || tabParam === 'consultar' || tabParam === 'integrado')) {
       // If invalid tab parameter, default to 'criar'
       const newParams = new URLSearchParams(searchParams);
       newParams.set('tab', 'criar');
@@ -48,9 +49,10 @@ const OrdemCarregamento: React.FC = () => {
         onValueChange={handleTabChange} 
         className="w-full space-y-6"
       >
-        <TabsList className="grid grid-cols-2 w-[400px]">
+        <TabsList className="grid grid-cols-3 w-[600px]">
           <TabsTrigger value="criar">Criar OC</TabsTrigger>
           <TabsTrigger value="consultar">Consultar OC</TabsTrigger>
+          <TabsTrigger value="integrado">Carregamento Integrado</TabsTrigger>
         </TabsList>
         
         <TabsContent value="criar" className="w-full mt-6">
@@ -59,6 +61,10 @@ const OrdemCarregamento: React.FC = () => {
         
         <TabsContent value="consultar" className="w-full mt-6">
           <ConsultarOCTab />
+        </TabsContent>
+        
+        <TabsContent value="integrado" className="w-full mt-6">
+          <CarregamentoIntegradoTab />
         </TabsContent>
       </Tabs>
     </MainLayout>
