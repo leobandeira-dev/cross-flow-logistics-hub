@@ -1,12 +1,9 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BarChart, Shield, TrendingUp, Truck, Package, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 const LandingPage = () => {
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       {/* Header/Navigation */}
       <header className="border-b border-gray-100">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -37,29 +34,18 @@ const LandingPage = () => {
                 Acabe com os atrasos, extravios e erros operacionais. Obtenha controle total sobre suas operações de armazenagem e distribuição.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="lg" 
-                  className="bg-cross-blue hover:bg-cross-blueDark"
-                >
+                <Button size="lg" className="bg-cross-blue hover:bg-cross-blueDark">
                   Agendar demonstração <ArrowRight className="ml-2" />
                 </Button>
                 <Link to="/auth?register=true">
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="border-cross-blue text-cross-blue hover:bg-cross-blue hover:text-white"
-                  >
+                  <Button size="lg" variant="outline" className="border-cross-blue text-cross-blue hover:bg-cross-blue hover:text-white">
                     Criar conta gratuita
                   </Button>
                 </Link>
               </div>
             </div>
             <div className="md:w-1/2 flex justify-center">
-              <img 
-                src="/placeholder.svg"
-                alt="Dashboard do CROSS" 
-                className="rounded-lg shadow-xl w-full max-w-md"
-              />
+              <img alt="Dashboard do CROSS" className="rounded-lg shadow-xl w-full max-w-md" src="https://drive.google.com/open?id=1GjYmjuraWspJNGvt7D-V5AiRB111uM7p&usp=drive_fs" />
             </div>
           </div>
         </div>
@@ -248,18 +234,11 @@ const LandingPage = () => {
             Junte-se a centenas de empresas que já otimizaram seus processos com nossa plataforma.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button 
-              size="lg" 
-              className="bg-white text-cross-blue hover:bg-gray-100"
-            >
+            <Button size="lg" className="bg-white text-cross-blue hover:bg-gray-100">
               Agendar demonstração
             </Button>
             <Link to="/auth?register=true">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-cross-blue"
-              >
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-cross-blue">
                 Criar conta gratuita
               </Button>
             </Link>
@@ -308,8 +287,6 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default LandingPage;
