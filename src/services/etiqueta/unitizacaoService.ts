@@ -25,7 +25,8 @@ const unitizacaoService = {
         status: 'ativo',
         tipo_unitizacao: dadosUnitizacao.tipo_unitizacao || 'palete',
         usuario_id: dadosUnitizacao.usuario_id,
-        localizacao_id: dadosUnitizacao.localizacao_id
+        localizacao_id: dadosUnitizacao.localizacao_id,
+        observacoes: dadosUnitizacao.observacoes
       })
       .select()
       .single();

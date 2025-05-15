@@ -256,6 +256,7 @@ export interface Unitizacao {
   usuario_id?: string;
   localizacao_id?: string;
   status: string;
+  observacoes?: string;
   created_at: string;
   updated_at: string;
   

@@ -183,7 +183,7 @@ export const criarComentarioOcorrencia = async (comentario: Partial<ComentarioOc
     const { data, error } = await supabase
       .from('comentarios_ocorrencia')
       .insert({
-        texto: comentario.texto,
+        comentario: comentario.comentario,
         ocorrencia_id: comentario.ocorrencia_id,
         usuario_id: comentario.usuario_id
       })

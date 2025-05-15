@@ -1,21 +1,36 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase.types";
 
 // Fix in the criarNotaFiscal function
 export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNotaFiscal?: Partial<ItemNotaFiscal>[]): Promise<NotaFiscal> => {
   try {
-    // Adjust date handling for toISOString
-    if (typeof notaFiscal.data_entrada === 'string') {
-      // If it's already a string, keep it as is
-      // Note: This assumes the string is already in ISO format
-    } else if (notaFiscal.data_entrada instanceof Date) {
-      // If it's a Date object, convert to ISO string
-      notaFiscal.data_entrada = notaFiscal.data_entrada.toISOString();
-    }
+    // Create a properly typed object with required fields
+    const notaFiscalToInsert = {
+      numero: notaFiscal.numero || '',
+      valor: notaFiscal.valor || 0,
+      data_emissao: notaFiscal.data_emissao || new Date().toISOString().split('T')[0],
+      tipo: notaFiscal.tipo || 'entrada',
+      status: notaFiscal.status || 'pendente',
+      // Optional fields
+      chave_acesso: notaFiscal.chave_acesso,
+      serie: notaFiscal.serie,
+      peso_bruto: notaFiscal.peso_bruto,
+      quantidade_volumes: notaFiscal.quantidade_volumes,
+      data_entrada: notaFiscal.data_entrada,
+      data_saida: notaFiscal.data_saida,
+      empresa_emitente_id: notaFiscal.empresa_emitente_id,
+      empresa_destinatario_id: notaFiscal.empresa_destinatario_id,
+      filial_id: notaFiscal.filial_id,
+      ordem_carregamento_id: notaFiscal.ordem_carregamento_id,
+      coleta_id: notaFiscal.coleta_id,
+      observacoes: notaFiscal.observacoes,
+      tempo_armazenamento_horas: notaFiscal.tempo_armazenamento_horas
+    };
     
     const { data, error } = await supabase
       .from('notas_fiscais')
-      .insert(notaFiscal)
+      .insert(notaFiscalToInsert)
       .select()
       .single();
     
@@ -253,12 +268,12 @@ export const obterEstatisticasNotasFiscais = async (): Promise<any> => {
       statusCounts[status] = count || 0;
     }
     
-    // Valor total das notas fiscais
-    const { data: notasFiscais } = await supabase
+    // Valor total das notas fiscais - using a direct sum query
+    const { data: notasFiscaisValores } = await supabase
       .from('notas_fiscais')
-      .select('valor_total');
+      .select('valor');
     
-    const valorTotal = notasFiscais?.reduce((acc, nf) => acc + (nf.valor_total || 0), 0) || 0;
+    const valorTotal = notasFiscaisValores?.reduce((acc, nf) => acc + (nf.valor || 0), 0) || 0;
     
     return {
       totalNotas,
