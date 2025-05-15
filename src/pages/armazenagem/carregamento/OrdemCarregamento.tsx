@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import CriarOCTab from '@/components/carregamento/tabs/CriarOCTab';
@@ -9,6 +9,7 @@ import CarregamentoIntegradoTab from '@/components/carregamento/tabs/Carregament
 
 const OrdemCarregamento: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('criar');
 
   useEffect(() => {
@@ -17,16 +18,21 @@ const OrdemCarregamento: React.FC = () => {
     if (tabParam && (tabParam === 'criar' || tabParam === 'consultar' || tabParam === 'integrado')) {
       setActiveTab(tabParam);
     } else {
-      // If no valid tab parameter, default to 'criar'
+      // Set default tab without causing navigation
+      setActiveTab('criar');
+      
+      // Update URL without causing a page reload
       const newParams = new URLSearchParams(searchParams);
       newParams.set('tab', 'criar');
       setSearchParams(newParams, { replace: true });
     }
-  }, [searchParams]);
+  }, []);
 
   // Handler for tab change
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+    
+    // Update URL without causing a page reload
     const newParams = new URLSearchParams(searchParams);
     newParams.set('tab', value);
     setSearchParams(newParams, { replace: true });
