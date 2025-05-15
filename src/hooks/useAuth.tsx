@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Set up auth state listener first
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session);
+      console.log('Auth state changed:', event, session ? 'session exists' : 'no session');
       
       if (event === 'SIGNED_IN' && session) {
         try {
@@ -43,6 +43,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('User signed out, clearing user state');
         setUser(null);
         setLoading(false);
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed');
+        try {
+          const userData = await authService.getCurrentUser();
+          setUser(userData);
+        } catch (error) {
+          console.error('Error refreshing user data:', error);
+        } finally {
+          setLoading(false);
+        }
       }
     });
 
@@ -77,12 +87,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     try {
       console.log('Attempting to sign in with:', email);
-      const result = await authService.signIn({ email, password });
-      console.log('Sign in successful in useAuth, result:', result);
+      await authService.signIn({ email, password });
+      console.log('Sign in successful in useAuth');
       
       // No need to manually set user here as it will be handled by the onAuthStateChange listener
       toast({
@@ -101,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, nome: string, telefone?: string) => {
+  const signUp = async (email: string, password: string, nome: string, telefone?: string): Promise<void> => {
     setLoading(true);
     try {
       await authService.signUp({ email, password, nome, telefone });

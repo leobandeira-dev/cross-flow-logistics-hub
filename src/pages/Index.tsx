@@ -13,10 +13,10 @@ const Index = () => {
     if (!loading) {
       if (user) {
         console.log('User authenticated on Index page, redirecting to dashboard');
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       } else {
         console.log('User not authenticated on Index page, redirecting to auth');
-        navigate('/auth');
+        navigate('/auth', { replace: true });
       }
     }
   }, [user, loading, navigate]);
