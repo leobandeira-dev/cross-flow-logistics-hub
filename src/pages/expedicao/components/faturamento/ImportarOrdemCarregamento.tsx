@@ -67,7 +67,12 @@ const ImportarOrdemCarregamento: React.FC<ImportarOrdemCarregamentoProps> = ({
         volumesTotal: 25,
         volumesVerificados: 25,
         status: 'completed',
-        notasFiscais: []
+        notasFiscais: [],
+        // Add the missing required properties
+        tipoCarregamento: 'entrega',
+        transportadora: 'Transportadora XYZ',
+        placaVeiculo: 'ABC-1234',
+        motorista: 'João da Silva'
       };
       
       setOrdemSelecionada(mockOrdem);
