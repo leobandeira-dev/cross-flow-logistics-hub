@@ -1,108 +1,155 @@
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../integrations/supabase/client';
-
-// Extended user type to include role
-interface ExtendedUser extends User {
-  role?: 'admin' | 'user' | 'moderator';
-}
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
+import authService from '@/services/authService';
+import { Usuario } from '@/types/supabase.types';
+import { toast } from '@/hooks/use-toast';
 
 type AuthContextType = {
-  session: Session | null;
-  user: ExtendedUser | null;
+  user: Usuario | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any, data: any }>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, nome: string, telefone?: string) => Promise<void>;
   signOut: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<ExtendedUser | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<Usuario | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Configurar o listener de autenticação PRIMEIRO
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        
-        // Add role information to user object
-        // In a real application, you would fetch this from your user_roles table
-        if (session?.user) {
-          const userWithRole: ExtendedUser = {
-            ...session.user,
-            role: session.user.email?.includes('admin') ? 'admin' : 'user'
-          };
-          setUser(userWithRole);
-        } else {
-          setUser(null);
-        }
-        
+    // Verificar se o usuário está autenticado
+    const checkUser = async () => {
+      try {
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+      } finally {
         setLoading(false);
       }
-    );
+    };
 
-    // DEPOIS verificar a sessão existente
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      
-      // Add role information to user object
-      if (session?.user) {
-        const userWithRole: ExtendedUser = {
-          ...session.user,
-          role: session.user.email?.includes('admin') ? 'admin' : 'user'
-        };
-        setUser(userWithRole);
-      } else {
+    checkUser();
+
+    // Observar mudanças na autenticação
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+      } else if (event === 'SIGNED_OUT') {
         setUser(null);
       }
-      
-      setLoading(false);
     });
 
     return () => {
-      subscription.unsubscribe();
+      authListener.subscription.unsubscribe();
     };
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+    setLoading(true);
+    try {
+      await authService.signIn({ email, password });
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
+      toast({
+        title: "Login realizado com sucesso",
+        description: "Bem-vindo de volta!",
+      });
+    } catch (error: any) {
+      console.error('Erro ao fazer login:', error);
+      toast({
+        title: "Erro ao fazer login",
+        description: error?.message || "Verifique suas credenciais e tente novamente.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    return { data, error };
+  const signUp = async (email: string, password: string, nome: string, telefone?: string) => {
+    setLoading(true);
+    try {
+      await authService.signUp({ email, password, nome, telefone });
+      toast({
+        title: "Cadastro realizado com sucesso",
+        description: "Verifique seu e-mail para confirmar o cadastro.",
+      });
+    } catch (error: any) {
+      console.error('Erro ao fazer cadastro:', error);
+      toast({
+        title: "Erro ao fazer cadastro",
+        description: error?.message || "Verifique os dados informados e tente novamente.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await authService.signOut();
+      setUser(null);
+      toast({
+        title: "Logout realizado com sucesso",
+        description: "Você foi desconectado do sistema.",
+      });
+    } catch (error: any) {
+      console.error('Erro ao fazer logout:', error);
+      toast({
+        title: "Erro ao fazer logout",
+        description: error?.message || "Ocorreu um erro ao desconectar.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const value = {
-    session,
-    user,
-    loading,
-    signIn,
-    signUp,
-    signOut,
+  const forgotPassword = async (email: string) => {
+    try {
+      await authService.forgotPassword(email);
+      toast({
+        title: "E-mail enviado",
+        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+      });
+    } catch (error: any) {
+      console.error('Erro ao solicitar redefinição de senha:', error);
+      toast({
+        title: "Erro ao solicitar redefinição",
+        description: error?.message || "Verifique o e-mail informado e tente novamente.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signIn,
+        signUp,
+        signOut,
+        forgotPassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
 };
