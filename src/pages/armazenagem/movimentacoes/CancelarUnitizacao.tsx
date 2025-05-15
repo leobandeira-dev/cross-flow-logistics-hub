@@ -1,3 +1,4 @@
+
 import React from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,19 +8,34 @@ import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/
 import { useForm } from 'react-hook-form';
 import { Package, Search, AlertCircle } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
-
-// Mock data
-const paletesUnitizados = [
-  { id: 'PAL-2023-001', volumes: 12, produtos: 'Diversos', dataUnitizacao: '12/05/2023', responsavel: 'João Silva' },
-  { id: 'PAL-2023-002', volumes: 8, produtos: 'Eletrônicos', dataUnitizacao: '11/05/2023', responsavel: 'Maria Oliveira' },
-  { id: 'PAL-2023-003', volumes: 15, produtos: 'Material de Escritório', dataUnitizacao: '10/05/2023', responsavel: 'Carlos Santos' },
-];
+import { useCancelarUnitizacao } from '@/hooks/useCancelarUnitizacao';
+import PaleteDetailsDialog from '@/components/armazenagem/unitizacao/PaleteDetailsDialog';
+import CancelarUnitizacaoDialog from '@/components/armazenagem/unitizacao/CancelarUnitizacaoDialog';
 
 const CancelarUnitizacao: React.FC = () => {
-  const form = useForm();
+  const form = useForm({
+    defaultValues: {
+      idPalete: ''
+    }
+  });
   
-  const handleSubmit = (data: any) => {
-    console.log('Form data submitted:', data);
+  const {
+    filteredPaletes,
+    selectedPalete,
+    detailsDialogOpen,
+    setDetailsDialogOpen,
+    cancelDialogOpen,
+    setCancelDialogOpen,
+    filterValue,
+    handleFilterChange,
+    handleShowDetails,
+    handleCancelUnitizacao,
+    confirmCancelUnitizacao,
+    handleSearchById
+  } = useCancelarUnitizacao();
+
+  const handleSubmit = (data: { idPalete: string }) => {
+    handleSearchById(data.idPalete);
   };
 
   return (
@@ -92,7 +108,11 @@ const CancelarUnitizacao: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="relative mb-4">
-                <Input placeholder="Filtrar por ID ou responsável..." />
+                <Input 
+                  placeholder="Filtrar por ID ou responsável..." 
+                  value={filterValue}
+                  onChange={(e) => handleFilterChange(e.target.value)}
+                />
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               </div>
             
@@ -105,18 +125,29 @@ const CancelarUnitizacao: React.FC = () => {
                   { header: 'Responsável', accessor: 'responsavel' },
                   {
                     header: 'Ações',
-                    accessor: 'actions', // Add this line
-                    cell: () => (
+                    accessor: 'actions',
+                    cell: (row) => (
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Detalhes</Button>
-                        <Button variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleShowDetails(row.id)}
+                        >
+                          Detalhes
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-red-500 border-red-200 hover:bg-red-50"
+                          onClick={() => handleCancelUnitizacao(row.id)}
+                        >
                           Cancelar
                         </Button>
                       </div>
                     )
                   }
                 ]}
-                data={paletesUnitizados}
+                data={filteredPaletes}
               />
               
               <div className="mt-4 p-4 border rounded-md bg-gray-50">
@@ -135,6 +166,20 @@ const CancelarUnitizacao: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Dialogs */}
+      <PaleteDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        palete={selectedPalete}
+      />
+
+      <CancelarUnitizacaoDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        palete={selectedPalete}
+        onConfirm={confirmCancelUnitizacao}
+      />
     </MainLayout>
   );
 };
