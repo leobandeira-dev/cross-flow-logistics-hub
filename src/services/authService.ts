@@ -30,23 +30,32 @@ const authService = {
    * Faz login do usuário
    */
   async signIn(credentials: SignInCredentials): Promise<AuthSession> {
+    console.log('Attempting sign in with:', credentials.email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email: credentials.email,
       password: credentials.password,
     });
 
     if (error) {
+      console.error('Sign in error:', error);
       throw new Error(error.message);
     }
 
+    if (!data.user || !data.session) {
+      console.error('No user or session returned');
+      throw new Error('Falha no login: Resposta inválida do servidor');
+    }
+
+    console.log('Sign in successful, session:', data.session);
+
     return {
       user: {
-        id: data.user?.id || '',
-        email: data.user?.email || '',
+        id: data.user.id,
+        email: data.user.email || '',
       },
       session: {
-        access_token: data.session?.access_token || '',
-        expires_at: data.session?.expires_at || 0,
+        access_token: data.session.access_token,
+        expires_at: data.session.expires_at,
       },
     };
   },
@@ -77,12 +86,15 @@ const authService = {
    * Faz logout do usuário
    */
   async signOut() {
+    console.log('Attempting to sign out');
     const { error } = await supabase.auth.signOut();
     
     if (error) {
+      console.error('Sign out error:', error);
       throw new Error(error.message);
     }
 
+    console.log('Sign out successful');
     return true;
   },
 
@@ -90,11 +102,15 @@ const authService = {
    * Retorna o usuário atual
    */
   async getCurrentUser() {
+    console.log('Checking current user');
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
+      console.log('No authenticated user found');
       return null;
     }
+    
+    console.log('User found, fetching additional data');
     
     // Buscar dados completos do usuário
     const { data: userData, error } = await supabase
@@ -104,10 +120,11 @@ const authService = {
       .single();
     
     if (error) {
-      console.error('Erro ao buscar dados do usuário:', error);
+      console.error('Error fetching user data:', error);
       return null;
     }
     
+    console.log('User data retrieved successfully');
     return userData as Usuario;
   },
 

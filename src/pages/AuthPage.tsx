@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,8 +23,9 @@ type RegisterFormData = {
 };
 
 const AuthPage = () => {
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('login');
   const [error, setError] = useState<string | null>(null);
@@ -32,12 +33,16 @@ const AuthPage = () => {
   const loginForm = useForm<LoginFormData>();
   const registerForm = useForm<RegisterFormData>();
 
-  // Verificar se o usuário já está autenticado e redirecionar para o dashboard
+  // Get the intended destination from the location state or default to dashboard
+  const from = location.state?.from?.pathname || '/dashboard';
+
+  // Redirect authenticated users
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
+    if (user && !loading) {
+      console.log('User is authenticated, redirecting to:', from);
+      navigate(from, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate, from]);
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -45,8 +50,9 @@ const AuthPage = () => {
     
     try {
       await signIn(data.email, data.password);
-      navigate('/dashboard');
+      // The redirection will happen automatically via the useEffect above
     } catch (error: any) {
+      console.error('Login error:', error);
       setError(error?.message || 'Ocorreu um erro ao fazer login.');
     } finally {
       setIsLoading(false);
@@ -66,6 +72,15 @@ const AuthPage = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">

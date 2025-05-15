@@ -1,8 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
-import { AuthProvider } from './hooks/useAuth'; 
+import { Routes, Route, BrowserRouter, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './hooks/useAuth'; 
 import { Toaster } from './components/ui/toaster';
-import { useAuth } from './hooks/useAuth';
 import { useEffect } from 'react';
 
 import AuthPage from './pages/AuthPage';
@@ -42,13 +41,17 @@ import CadastroEnderecamento from './pages/cadastros/enderecamento/CadastroEnder
 // Proteção de rotas: redireciona para login se não autenticado
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
   
   if (loading) {
-    return <div className="flex h-screen items-center justify-center">Carregando...</div>;
+    return <div className="flex h-screen items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    </div>;
   }
   
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    // Save the location they were trying to access for redirect after login
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
   
   return <>{children}</>;
@@ -59,7 +62,9 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
   if (loading) {
-    return <div className="flex h-screen items-center justify-center">Carregando...</div>;
+    return <div className="flex h-screen items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    </div>;
   }
   
   if (user) {
