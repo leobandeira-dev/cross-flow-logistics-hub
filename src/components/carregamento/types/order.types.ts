@@ -8,6 +8,9 @@ export interface OrdemCarregamento {
   volumesVerificados: number;
   status: 'pending' | 'processing' | 'completed';
   notasFiscais?: NotaFiscal[];
+  conferenteResponsavel?: string;
+  inicioConferencia?: string;
+  fimConferencia?: string;
 }
 
 export interface NotaFiscal {
