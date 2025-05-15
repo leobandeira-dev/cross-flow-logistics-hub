@@ -71,8 +71,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const result = await authService.signIn({ email, password });
-      console.log('Sign in successful:', result);
+      // Call the signIn method but don't return its result directly
+      await authService.signIn({ email, password });
+      console.log('Sign in successful');
       
       // We don't need to set user here as it will be handled by the onAuthStateChange listener
       toast({
@@ -80,7 +81,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Bem-vindo de volta!",
       });
       
-      return result;
     } catch (error: any) {
       console.error('Erro ao fazer login:', error);
       toast({
