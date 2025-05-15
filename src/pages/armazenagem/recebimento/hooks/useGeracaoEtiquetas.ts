@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -9,17 +8,26 @@ import { useEtiquetasPrinting } from './etiquetas/useEtiquetasPrinting';
 import { useDialogState } from './etiquetas/useDialogState';
 import { LayoutStyle } from '@/hooks/etiquetas/types';
 
+// Import refactored hooks
+import { useVolumeState } from './etiquetas/useVolumeState';
+import { useEtiquetaMaeState } from './etiquetas/useEtiquetaMaeState';
+import { usePrintOperations } from './etiquetas/usePrintOperations';
+import { useVolumeClassification } from './etiquetas/useVolumeClassification';
+import { useVolumeGeneration } from './etiquetas/useVolumeGeneration';
+
 export const useGeracaoEtiquetas = () => {
   const location = useLocation();
   const notaFiscalData = location.state || {};
-  const [tipoEtiqueta, setTipoEtiqueta] = useState<'volume' | 'mae'>('volume');
-  const [etiquetasMae, setEtiquetasMae] = useState<any[]>([]);
   
+  // Use refactored hooks
+  const { volumes, generatedVolumes, setVolumes, setGeneratedVolumes } = useVolumeState();
+  const { tipoEtiqueta, etiquetasMae, setTipoEtiqueta, setEtiquetasMae, handleCreateEtiquetaMae, handleVincularVolumes } = useEtiquetaMaeState();
+  const { handlePrintEtiquetas, handleReimprimirEtiquetas, handlePrintEtiquetaMae } = usePrintOperations();
+  const { handleSaveVolumeClassification } = useVolumeClassification();
+  const { handleGenerateVolumes: generateVolumesHandler } = useVolumeGeneration();
+  
+  // Original hooks
   const { 
-    volumes, 
-    generatedVolumes, 
-    setVolumes, 
-    setGeneratedVolumes, 
     generateVolumes, 
     classifyVolume,
     vincularVolumes
@@ -30,8 +38,7 @@ export const useGeracaoEtiquetas = () => {
     printEtiquetas,
     reimprimirEtiquetas,
     printEtiquetaMae,
-    createEtiquetaMae,
-    createAndPrintEtiquetaMae
+    createEtiquetaMae
   } = useEtiquetasPrinting();
   
   const {
@@ -58,52 +65,17 @@ export const useGeracaoEtiquetas = () => {
     }
   });
 
-  // Function to handle volume generation
+  // Connect the refactored hooks to the original functions
   const handleGenerateVolumes = () => {
-    const notaFiscal = form.getValues('notaFiscal');
-    const volumesTotal = parseInt(form.getValues('volumesTotal'), 10);
-    const pesoTotalBruto = form.getValues('pesoTotalBruto') || notaFiscalData?.pesoTotal || '0,00 Kg';
-    const tipoVolume = form.getValues('tipoVolume') as 'geral' | 'quimico';
-    const codigoONU = form.getValues('codigoONU') || '';
-    const codigoRisco = form.getValues('codigoRisco') || '';
-    
-    const newVolumes = generateVolumes(
-      notaFiscal, 
-      volumesTotal, 
-      pesoTotalBruto, 
-      notaFiscalData, 
-      tipoVolume, 
-      codigoONU, 
-      codigoRisco
-    );
-    
-    if (newVolumes.length > 0) {
-      // Add to existing volumes
-      setVolumes(prevVolumes => {
-        // Remove any existing volumes for this nota fiscal
-        const filteredVolumes = prevVolumes.filter(vol => vol.notaFiscal !== notaFiscal);
-        // Add the new volumes
-        return [...filteredVolumes, ...newVolumes];
-      });
-      
-      setGeneratedVolumes(newVolumes);
-      
-      toast({
-        title: "Volumes gerados",
-        description: `${volumesTotal} volumes gerados para a nota fiscal ${notaFiscal}.`,
-      });
-    }
+    return generateVolumesHandler(generateVolumes, setVolumes, setGeneratedVolumes)(form.getValues(), notaFiscalData);
   };
 
-  // Function to handle printing etiquetas
-  const handlePrintEtiquetas = (volume: Volume) => {
+  const handlePrintEtiquetasImpl = (volume: Volume) => {
     const formatoImpressao = form.getValues('formatoImpressao');
     const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
     
-    // Generate etiquetas for the selected volume
-    const result = printEtiquetas(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
+    const result = handlePrintEtiquetas(printEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
     
-    // Update volumes state if labels were successfully generated
     if (result && typeof result.then === 'function') {
       result.then((res) => {
         if (res && res.status === 'success' && res.volumes) {
@@ -123,70 +95,36 @@ export const useGeracaoEtiquetas = () => {
     }
   };
 
-  // Function to handle reprinting etiquetas
-  const handleReimprimirEtiquetas = (volume: Volume) => {
+  const handleReimprimirEtiquetasImpl = (volume: Volume) => {
     const formatoImpressao = form.getValues('formatoImpressao');
     const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
     
-    reimprimirEtiquetas(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
+    handleReimprimirEtiquetas(reimprimirEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
   };
   
-  // Function to handle creating master etiqueta (without printing)
-  const handleCreateEtiquetaMae = () => {
-    const descricao = form.getValues('descricaoEtiquetaMae') || 'Etiqueta Mãe';
-    const tipoEtiquetaMae = form.getValues('tipoEtiquetaMae') as 'geral' | 'palete';
-    
-    // Create the etiqueta mãe and add it to the list
-    const newEtiquetaMae = createEtiquetaMae(descricao, tipoEtiquetaMae);
-    
-    // Add to the etiquetas mãe list
-    setEtiquetasMae(prev => [...prev, newEtiquetaMae]);
-    
-    // Reset the form fields
+  const handleCreateEtiquetaMaeImpl = () => {
+    const etiquetaMae = handleCreateEtiquetaMae(createEtiquetaMae)(form.getValues());
     form.setValue('descricaoEtiquetaMae', '');
+    return etiquetaMae;
   };
 
-  // Function to handle printing master etiqueta
-  const handlePrintEtiquetaMae = (etiquetaMae: any) => {
+  const handlePrintEtiquetaMaeImpl = (etiquetaMae: any) => {
     const formatoImpressao = form.getValues('formatoImpressao');
     const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
     
-    printEtiquetaMae(etiquetaMae, volumes, formatoImpressao, layoutStyle);
+    handlePrintEtiquetaMae(printEtiquetaMae)(etiquetaMae, volumes, formatoImpressao, layoutStyle);
   };
 
-  // Function to handle classifying volume
   const handleClassifyVolume = (volume: Volume) => {
     openClassifyDialog(volume);
   };
 
-  // Function to save volume classification
-  const handleSaveVolumeClassification = (volume: Volume, formData: any) => {
-    // Update both states: volumes and generatedVolumes to ensure UI is consistent
-    setVolumes(prevVolumes => classifyVolume(volume, formData, prevVolumes));
-    setGeneratedVolumes(prevVolumes => classifyVolume(volume, formData, prevVolumes));
-    
-    toast({
-      title: "Volume Classificado",
-      description: `O volume ${volume.id} foi classificado como ${formData.tipoVolume === 'quimico' ? 'Produto Químico' : 'Carga Geral'}.`,
-    });
+  const handleSaveVolumeClassificationImpl = (volume: Volume, formData: any) => {
+    handleSaveVolumeClassification(classifyVolume, setVolumes, setGeneratedVolumes)(volume, formData);
   };
 
-  // Function to handle linking volumes to master label
-  const handleVincularVolumes = (etiquetaMaeId: string, volumeIds: string[]) => {
-    // Update volumes with the etiqueta mae link
-    setVolumes(prevVolumes => vincularVolumes(etiquetaMaeId, volumeIds, prevVolumes));
-    
-    toast({
-      title: "Volumes Vinculados",
-      description: `${volumeIds.length} volumes foram vinculados à etiqueta mãe ${etiquetaMaeId}.`,
-    });
-    
-    // Update the etiquetas mãe list to reflect the number of volumes
-    setEtiquetasMae(prev => prev.map(em => 
-      em.id === etiquetaMaeId 
-        ? { ...em, quantidadeVolumes: volumeIds.length }
-        : em
-    ));
+  const handleVincularVolumesImpl = (etiquetaMaeId: string, volumeIds: string[]) => {
+    setVolumes(handleVincularVolumes(vincularVolumes)(etiquetaMaeId, volumeIds, volumes));
   };
 
   return {
@@ -205,12 +143,12 @@ export const useGeracaoEtiquetas = () => {
     setEtiquetasMae,
     setClassifyDialogOpen,
     handleGenerateVolumes,
-    handlePrintEtiquetas,
-    handleReimprimirEtiquetas,
-    handlePrintEtiquetaMae,
-    handleCreateEtiquetaMae,
+    handlePrintEtiquetas: handlePrintEtiquetasImpl,
+    handleReimprimirEtiquetas: handleReimprimirEtiquetasImpl,
+    handlePrintEtiquetaMae: handlePrintEtiquetaMaeImpl,
+    handleCreateEtiquetaMae: handleCreateEtiquetaMaeImpl,
     handleClassifyVolume,
-    handleSaveVolumeClassification,
-    handleVincularVolumes
+    handleSaveVolumeClassification: handleSaveVolumeClassificationImpl,
+    handleVincularVolumes: handleVincularVolumesImpl
   };
 };

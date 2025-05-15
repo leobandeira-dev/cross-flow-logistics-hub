@@ -8,7 +8,7 @@ import { EtiquetaFormat, LayoutStyle } from './types';
 
 export const usePDFGeneration = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { prepareVolumesForPrinting } = useVolumePreparation();
+  const { prepareVolumeData } = useVolumePreparation();
 
   // Define os formatos de etiquetas disponíveis
   const formatos: Record<string, EtiquetaFormat> = {
@@ -17,6 +17,24 @@ export const usePDFGeneration = () => {
     '100x150': { width: 150, height: 100, unit: 'mm' },
     '62x42': { width: 62, height: 42, unit: 'mm' },
     'a4': { width: 210, height: 297, unit: 'mm' },
+  };
+
+  // Function to prepare volumes for printing
+  const prepareVolumesForPrinting = (volumes: any[], notaData: any) => {
+    return volumes.map(vol => {
+      // Prepare volume data
+      const preparedVolume = prepareVolumeData(vol);
+      
+      // Add additional printing-related data
+      return {
+        ...preparedVolume,
+        remetente: preparedVolume.remetente || notaData?.fornecedor || '',
+        destinatario: preparedVolume.destinatario || notaData?.destinatario || '',
+        cidade: preparedVolume.cidade || notaData?.cidade || '',
+        uf: preparedVolume.uf || notaData?.uf || '',
+        qrCode: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==` // Placeholder QR code
+      };
+    });
   };
 
   // Gera o PDF para etiquetas de volume
@@ -47,9 +65,14 @@ export const usePDFGeneration = () => {
       
       // Define o formato do PDF
       const formato = formatos[formatoImpressao] || formatos['100x100'];
+      
+      // Fix the jsPDF constructor call
+      const orientation = formato.width > formato.height ? 'landscape' : 'portrait';
+      const unit = formato.unit as "pt" | "mm" | "cm" | "in" | "px" | "pc" | "em" | "ex";
+      
       const pdf = new jsPDF({
-        orientation: formato.width > formato.height ? 'landscape' : 'portrait',
-        unit: formato.unit,
+        orientation,
+        unit,
         format: [formato.width, formato.height]
       });
       
