@@ -3,9 +3,9 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
-import { useAuditTrail } from '@/hooks/useAuditTrail';
+import { useAuditTrail, AuditEntry } from '@/hooks/useAuditTrail';
 
-interface AuditTrailProps {
+export interface AuditTrailProps {
   moduleId: string;
   entityId?: string;
   maxItems?: number;
@@ -13,7 +13,7 @@ interface AuditTrailProps {
 
 const AuditTrail: React.FC<AuditTrailProps> = ({ moduleId, entityId, maxItems = 5 }) => {
   const { user } = useAuth();
-  const { auditLogs, isLoading } = useAuditTrail(moduleId, entityId);
+  const { auditEntries, loading } = useAuditTrail(moduleId, entityId);
 
   // Determinar se o usuário pode ver os logs de auditoria
   // Usuários com perfil admin podem ver todos os logs
@@ -29,24 +29,24 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ moduleId, entityId, maxItems = 
         <CardTitle className="text-lg">Histórico de Atividades</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {loading ? (
           <div className="flex justify-center py-4">
             <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4"></div>
           </div>
-        ) : auditLogs.length > 0 ? (
+        ) : auditEntries.length > 0 ? (
           <div className="space-y-4">
-            {auditLogs.slice(0, maxItems).map((log, index) => (
+            {auditEntries.slice(0, maxItems).map((log, index) => (
               <React.Fragment key={log.id || index}>
                 <div className="flex justify-between text-sm">
                   <div>
-                    <span className="font-medium">{log.usuario?.nome || 'Sistema'}</span>
-                    <span className="text-muted-foreground"> {log.acao}</span>
+                    <span className="font-medium">{log.username}</span>
+                    <span className="text-muted-foreground"> {log.action}</span>
                   </div>
                   <span className="text-muted-foreground text-xs">
-                    {new Date(log.data_hora).toLocaleString()}
+                    {log.timestamp.toLocaleString()}
                   </span>
                 </div>
-                {index < auditLogs.length - 1 && <Separator />}
+                {index < auditEntries.length - 1 && <Separator />}
               </React.Fragment>
             ))}
           </div>

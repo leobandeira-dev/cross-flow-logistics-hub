@@ -82,7 +82,7 @@ const etiquetaService = {
         nota_fiscal_id: etiqueta.nota_fiscal_id,
         etiqueta_mae_id: etiqueta.etiqueta_mae_id,
         status: 'gerada'
-      } as any)
+      })
       .select()
       .single();
     
@@ -153,10 +153,12 @@ const etiquetaService = {
     const { data: unitizacao, error: errorUnitizacao } = await supabase
       .from('unitizacoes')
       .insert({
-        ...dadosUnitizacao,
         codigo,
         data_unitizacao: new Date().toISOString(),
-        status: 'ativo'
+        status: 'ativo',
+        tipo_unitizacao: dadosUnitizacao.tipo_unitizacao || 'palete',
+        usuario_id: dadosUnitizacao.usuario_id,
+        localizacao_id: dadosUnitizacao.localizacao_id
       })
       .select()
       .single();
@@ -274,7 +276,7 @@ const etiquetaService = {
       throw new Error(`Erro ao buscar histórico de movimentações: ${error.message}`);
     }
     
-    return data as Movimentacao[];
+    return data as unknown as Movimentacao[];
   },
 
   /**
@@ -299,7 +301,7 @@ const etiquetaService = {
       throw new Error(`Erro ao buscar localização atual: ${error.message}`);
     }
     
-    return data.localizacao_destino as Localizacao;
+    return data.localizacao_destino as unknown as Localizacao;
   }
 };
 

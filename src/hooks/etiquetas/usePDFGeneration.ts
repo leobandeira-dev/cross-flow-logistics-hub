@@ -1,96 +1,160 @@
 
-import { toast } from "@/hooks/use-toast";
-import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/VolumesTable';
-import EtiquetaTemplate from '@/components/common/print/EtiquetaTemplate';
-import { createRoot } from 'react-dom/client';
-import { EtiquetaFormat, EtiquetaGenerationResult, LayoutStyle } from './types';
-import React from 'react';
+// usePDFGeneration.ts
+import { useState } from 'react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { useVolumePreparation } from './useVolumePreparation';
+import { EtiquetaFormat, LayoutStyle } from './types';
 
-/**
- * Hook for PDF generation functionality
- */
 export const usePDFGeneration = () => {
-  /**
-   * Creates a temporary element for rendering an etiqueta
-   */
-  const createTempElement = (hiddenDiv: HTMLDivElement) => {
-    const tempEtiqueta = document.createElement('div');
-    hiddenDiv.appendChild(tempEtiqueta);
-    return tempEtiqueta;
+  const [isLoading, setIsLoading] = useState(false);
+  const { prepareVolumesForPrinting } = useVolumePreparation();
+
+  // Define os formatos de etiquetas disponíveis
+  const formatos: Record<string, EtiquetaFormat> = {
+    '50x100': { width: 100, height: 50, unit: 'mm' },
+    '100x100': { width: 100, height: 100, unit: 'mm' },
+    '100x150': { width: 150, height: 100, unit: 'mm' },
+    '62x42': { width: 62, height: 42, unit: 'mm' },
+    'a4': { width: 210, height: 297, unit: 'mm' },
   };
 
-  /**
-   * Configures PDF format based on user selection
-   */
-  const configurePDFFormat = (formatoImpressao: string) => {
-    let pdfFormat: any;
-    let pdfOrientation: 'portrait' | 'landscape';
-    let etiquetaFormat: EtiquetaFormat;
-    
-    switch (formatoImpressao) {
-      case 'a4':
-        pdfFormat = 'a4';
-        pdfOrientation = 'landscape';
-        etiquetaFormat = 'a4';
-        break;
-      case '50x100':
-      default:
-        pdfFormat = [100, 50]; // width x height in mm
-        pdfOrientation = 'landscape';
-        etiquetaFormat = 'small';
-        break;
-    }
-    
-    return { pdfFormat, pdfOrientation, etiquetaFormat };
-  };
-
-  /**
-   * Renders etiqueta to a temporary element and captures as image
-   */
-  const renderEtiquetaToCanvas = async (
-    tempEtiqueta: HTMLDivElement, 
-    volumeData: Volume, 
-    volumeNumber: number, 
-    totalVolumes: number, 
-    etiquetaFormat: EtiquetaFormat, 
-    tipo: 'volume' | 'mae',
-    layoutStyle: LayoutStyle
+  // Gera o PDF para etiquetas de volume
+  const generateEtiquetaPDF = async (
+    volumes: any[],
+    notaData: any,
+    formatoImpressao: string, 
+    tipoEtiqueta: 'volume' | 'mae' = 'volume',
+    layoutStyle: LayoutStyle = 'standard'
   ) => {
-    const root = createRoot(tempEtiqueta);
+    if (!volumes || volumes.length === 0) return;
+    setIsLoading(true);
+
+    try {
+      // Prepara os dados para impressão
+      const volumesParaImprimir = prepareVolumesForPrinting(volumes, notaData);
+      
+      // Cria elemento temporário para renderizar as etiquetas
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      document.body.appendChild(tempDiv);
+      
+      // Renderiza o HTML da etiqueta
+      tempDiv.innerHTML = volumesParaImprimir.map(vol => 
+        generateEtiquetaHTML(vol, tipoEtiqueta, layoutStyle)
+      ).join('');
+      
+      // Define o formato do PDF
+      const formato = formatos[formatoImpressao] || formatos['100x100'];
+      const pdf = new jsPDF({
+        orientation: formato.width > formato.height ? 'landscape' : 'portrait',
+        unit: formato.unit,
+        format: [formato.width, formato.height]
+      });
+      
+      // Para cada volume, cria uma página do PDF
+      for (let i = 0; i < volumesParaImprimir.length; i++) {
+        const etiquetaElement = tempDiv.children[i] as HTMLElement;
+        
+        if (i > 0) pdf.addPage();
+        
+        const canvas = await html2canvas(etiquetaElement, {
+          scale: 2,
+          logging: false,
+          useCORS: true
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, formato.width, formato.height);
+      }
+      
+      // Salva o PDF
+      const fileName = `etiquetas_${notaData.chaveNF || 'volume'}_${new Date().getTime()}.pdf`;
+      pdf.save(fileName);
+      
+      // Limpa o elemento temporário
+      document.body.removeChild(tempDiv);
+      
+      return fileName;
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Gera o PDF para etiqueta mãe
+  const generateEtiquetaMasterPDF = async (
+    masterVolume: any[],
+    notaData: any,
+    formatoImpressao: string,
+    etiquetaMaeId: string,
+    layoutStyle: LayoutStyle = 'standard'
+  ) => {
+    return generateEtiquetaPDF(masterVolume, notaData, formatoImpressao, 'mae', layoutStyle);
+  };
+
+  // Função auxiliar para gerar o HTML da etiqueta
+  const generateEtiquetaHTML = (volume: any, tipoEtiqueta: string, layoutStyle: LayoutStyle) => {
+    // Template HTML conforme o tipo de layout selecionado
+    const templates = {
+      standard: `
+        <div class="etiqueta standard" style="width: 100%; height: 100%; padding: 10px; font-family: Arial;">
+          <div style="font-size: 14px; font-weight: bold; text-align: center;">${volume.id}</div>
+          <div style="font-size: 12px; margin-top: 5px;">${volume.descricao || ''}</div>
+          <div style="font-size: 12px; margin-top: 10px;">
+            <div>Remetente: ${volume.remetente}</div>
+            <div>Destinatário: ${volume.destinatario}</div>
+            <div>Cidade: ${volume.cidade} - ${volume.uf}</div>
+          </div>
+          <div style="font-size: 11px; margin-top: 10px; text-align: center;">
+            Peso: ${volume.pesoTotal || '0 kg'}
+          </div>
+          ${volume.qrCode ? `<div style="text-align: center; margin-top: 10px;"><img src="${volume.qrCode}" style="width: 80px; height: 80px;"></div>` : ''}
+        </div>
+      `,
+      compact: `
+        <div class="etiqueta compact" style="width: 100%; height: 100%; padding: 5px; font-family: Arial;">
+          <div style="font-size: 12px; font-weight: bold; text-align: center;">${volume.id}</div>
+          <div style="font-size: 10px; margin-top: 3px; text-align: center;">${volume.descricao || ''}</div>
+          <div style="font-size: 10px; margin-top: 5px;">
+            <div>Para: ${volume.destinatario}</div>
+            <div>${volume.cidade}/${volume.uf}</div>
+          </div>
+          ${volume.qrCode ? `<div style="text-align: center; margin-top: 5px;"><img src="${volume.qrCode}" style="width: 60px; height: 60px;"></div>` : ''}
+        </div>
+      `,
+      modern: `
+        <div class="etiqueta modern" style="width: 100%; height: 100%; padding: 10px; font-family: Arial; display: flex; flex-direction: column;">
+          <div style="font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">${volume.id}</div>
+          <div style="display: flex; justify-content: space-between; height: 100%;">
+            <div style="font-size: 12px; flex: 2;">
+              <div style="margin-bottom: 10px;">
+                <strong>De:</strong> ${volume.remetente}
+              </div>
+              <div style="margin-bottom: 10px;">
+                <strong>Para:</strong> ${volume.destinatario}<br>
+                ${volume.cidade}/${volume.uf}
+              </div>
+              <div><strong>Peso:</strong> ${volume.pesoTotal || '0 kg'}</div>
+              <div><strong>Desc:</strong> ${volume.descricao || 'N/A'}</div>
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+              ${volume.qrCode ? `<img src="${volume.qrCode}" style="width: 100px; height: 100px;">` : ''}
+            </div>
+          </div>
+        </div>
+      `,
+    };
     
-    // Log volume data for debugging
-    console.log(`Rendering etiqueta for volume ${volumeNumber} of ${totalVolumes}:`, volumeData);
-    
-    // Render the component
-    root.render(
-      React.createElement(EtiquetaTemplate, {
-        volumeData: volumeData as any,
-        volumeNumber: volumeNumber,
-        totalVolumes: totalVolumes,
-        format: etiquetaFormat,
-        tipo: tipo,
-        layoutStyle: layoutStyle
-      })
-    );
-    
-    // Wait for rendering
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Capture as image
-    const { default: html2canvas } = await import('html2canvas');
-    const canvas = await html2canvas(tempEtiqueta, {
-      scale: 2,
-      logging: false,
-      useCORS: true,
-      allowTaint: true
-    });
-    
-    return { canvas, root };
+    return templates[layoutStyle] || templates.standard;
   };
 
   return {
-    createTempElement,
-    configurePDFFormat,
-    renderEtiquetaToCanvas
+    isLoading,
+    generateEtiquetaPDF,
+    generateEtiquetaMasterPDF
   };
 };

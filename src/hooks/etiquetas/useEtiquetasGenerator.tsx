@@ -1,102 +1,73 @@
 
 import { useState } from 'react';
-import { toast } from '@/hooks/use-toast';
-import { Etiqueta } from '@/types/supabase.types';
+import { usePDFGeneration } from './usePDFGeneration';
+import { CurrentEtiqueta, GenerationOptions, EtiquetaGenerationResult, LayoutStyle } from './types';
+import { supabase } from '@/integrations/supabase/client';
 import etiquetaService from '@/services/etiquetaService';
-import { GenerationOptions, LayoutStyle } from './types';
 
 export const useEtiquetasGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([]);
-  const [etiquetaMae, setEtiquetaMae] = useState<Etiqueta | null>(null);
+  const { generateEtiquetaPDF, generateEtiquetaMasterPDF } = usePDFGeneration();
 
-  const generateEtiquetas = async (
-    quantidade: number,
-    notaFiscalId: string | null,
-    options: GenerationOptions
-  ) => {
+  // Função para gerar etiquetas de volume
+  const generateEtiquetasPDF = async (
+    volumes: any[], 
+    notaData: any, 
+    formatoImpressao: string,
+    tipoEtiqueta: 'volume' | 'mae' = 'volume',
+    masterId?: string,
+    layoutStyle: LayoutStyle = 'standard'
+  ): Promise<EtiquetaGenerationResult> => {
     setIsGenerating(true);
-    const novasEtiquetas: Etiqueta[] = [];
-    
     try {
-      for (let i = 0; i < quantidade; i++) {
-        const etiquetaData: Partial<Etiqueta> = {
-          tipo: options.tipo || 'volume',
-          altura: options.altura,
-          largura: options.largura,
-          comprimento: options.comprimento,
-          peso: options.peso,
-          fragil: options.fragil,
-          nota_fiscal_id: notaFiscalId || undefined
+      // Gerar o PDF
+      await generateEtiquetaPDF(volumes, notaData, formatoImpressao, tipoEtiqueta, layoutStyle);
+      
+      // Marcar etiquetas como geradas no volume se for volume
+      if (tipoEtiqueta === 'volume') {
+        const volumesAtualizados = volumes.map(vol => ({...vol, etiquetado: true}));
+        return {
+          status: 'success',
+          volumes: volumesAtualizados
         };
-        
-        const etiqueta = await etiquetaService.criarEtiqueta(etiquetaData);
-        novasEtiquetas.push(etiqueta);
       }
       
-      setEtiquetas(novasEtiquetas);
-      toast({
-        title: "Etiquetas geradas com sucesso",
-        description: `${quantidade} etiquetas foram geradas.`
-      });
-      
-      return novasEtiquetas;
-    } catch (error: any) {
-      toast({
-        title: "Erro ao gerar etiquetas",
-        description: error.message,
-        variant: "destructive"
-      });
-      return [];
+      return {
+        status: 'success'
+      };
+    } catch (error) {
+      console.error('Erro ao gerar etiquetas:', error);
+      return {
+        status: 'error',
+        message: 'Erro ao gerar etiquetas. Tente novamente.'
+      };
     } finally {
       setIsGenerating(false);
     }
   };
-  
-  const generateEtiquetaMae = async (
-    etiquetasFilhas: Etiqueta[],
-    options: GenerationOptions
-  ) => {
+
+  // Função para gerar etiqueta mãe
+  const generateEtiquetaMaePDF = async (
+    masterVolume: any[],
+    notaData: any,
+    formatoImpressao: string,
+    etiquetaMaeId: string,
+    layoutStyle: LayoutStyle = 'standard'
+  ): Promise<EtiquetaGenerationResult> => {
     setIsGenerating(true);
-    
     try {
-      if (etiquetasFilhas.length === 0) {
-        throw new Error("É necessário selecionar pelo menos uma etiqueta filha");
-      }
+      // Gerar o PDF para etiqueta mãe
+      await generateEtiquetaMasterPDF(masterVolume, notaData, formatoImpressao, etiquetaMaeId, layoutStyle);
       
-      const notaFiscalId = etiquetasFilhas[0]?.nota_fiscal_id;
-      
-      const etiquetaMaeData: Partial<Etiqueta> = {
-        tipo: 'etiqueta_mae',
-        altura: options.altura,
-        largura: options.largura,
-        comprimento: options.comprimento,
-        peso: options.peso,
-        fragil: options.fragil,
-        nota_fiscal_id: notaFiscalId
+      return {
+        status: 'success'
       };
-      
-      const novaMae = await etiquetaService.criarEtiqueta(etiquetaMaeData);
-      
-      // Vincular etiquetas filhas
-      for (const etiqueta of etiquetasFilhas) {
-        await etiquetaService.vincularEtiquetaMae(etiqueta.id, novaMae.id);
-      }
-      
-      setEtiquetaMae(novaMae);
-      toast({
-        title: "Etiqueta mãe gerada com sucesso",
-        description: `Etiqueta mãe ${novaMae.codigo} vinculada a ${etiquetasFilhas.length} volumes.`
-      });
-      
-      return novaMae;
-    } catch (error: any) {
-      toast({
-        title: "Erro ao gerar etiqueta mãe",
-        description: error.message,
-        variant: "destructive"
-      });
-      return null;
+    } catch (error) {
+      console.error('Erro ao gerar etiqueta mãe:', error);
+      return {
+        status: 'error',
+        message: 'Erro ao gerar etiqueta mãe. Tente novamente.'
+      };
     } finally {
       setIsGenerating(false);
     }
@@ -104,11 +75,9 @@ export const useEtiquetasGenerator = () => {
 
   return {
     isGenerating,
-    etiquetas,
-    etiquetaMae,
-    generateEtiquetas,
-    generateEtiquetaMae,
-    setEtiquetas,
-    setEtiquetaMae
+    generateEtiquetasPDF,
+    generateEtiquetaMaePDF
   };
 };
+
+export * from './types';

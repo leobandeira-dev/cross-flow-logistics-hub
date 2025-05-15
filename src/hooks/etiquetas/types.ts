@@ -1,25 +1,42 @@
 
-export type GenerationOptions = {
-  tipo?: string;
-  altura?: number;
-  largura?: number;
-  comprimento?: number;
-  peso?: number;
-  fragil?: boolean;
-  unidade?: string;
-};
+export type LayoutStyle = 'standard' | 'compact' | 'modern';
 
-export type PrintOptions = {
-  layout: LayoutStyle;
-  copies: number;
-  printer?: string;
-};
+export interface GenerationOptions {
+  formatoImpressao?: string;
+  codigoONU?: string;
+  codigoRisco?: string;
+  tipoVolume?: 'geral' | 'quimico';
+  layoutStyle?: LayoutStyle;
+}
 
-export enum LayoutStyle {
-  MINIMAL = 'minimal',
-  STANDARD = 'standard',
-  DETAILED = 'detailed',
-  THERMAL_SMALL = 'thermal_small',
-  THERMAL_MEDIUM = 'thermal_medium',
-  CUSTOM = 'custom'
+export interface CurrentEtiqueta {
+  id: string;
+  tipo: string;
+  descricao?: string;
+  quantidade?: number;
+  status?: string;
+}
+
+export interface EtiquetaFormat {
+  width: number;
+  height: number;
+  unit: string;
+}
+
+export interface EtiquetaGenerationResult {
+  status: 'success' | 'error';
+  message?: string;
+  volumes?: any[];
+}
+
+export interface NotaData {
+  fornecedor: string;
+  destinatario: string;
+  endereco: string;
+  cidade: string;
+  cidadeCompleta: string;
+  uf: string;
+  pesoTotal: string;
+  chaveNF: string;
+  tipoEtiquetaMae?: string;
 }

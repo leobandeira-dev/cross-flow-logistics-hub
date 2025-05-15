@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Biohazard, QrCode, Package } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LayoutStyle } from '@/hooks/etiquetas/types';
 
 interface EtiquetaPreviewProps {
   tipoEtiqueta: 'volume' | 'mae';
@@ -13,7 +13,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
   tipoEtiqueta,
   isQuimico 
 }) => {
-  const [layoutStyle, setLayoutStyle] = useState<'standard' | 'compact' | 'modern'>('standard');
+  const [layoutStyle, setLayoutStyle] = useState<LayoutStyle>('standard');
 
   return (
     <Card>
@@ -23,7 +23,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
       <CardContent>
         <div className="mb-4">
           <label className="text-sm font-medium mb-2 block">Layout da Etiqueta</label>
-          <Select value={layoutStyle} onValueChange={(value: 'standard' | 'compact' | 'modern') => setLayoutStyle(value)}>
+          <Select value={layoutStyle} onValueChange={(value: LayoutStyle) => setLayoutStyle(value)}>
             <SelectTrigger>
               <SelectValue placeholder="Selecione um layout" />
             </SelectTrigger>

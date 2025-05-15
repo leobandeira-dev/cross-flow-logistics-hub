@@ -1,222 +1,230 @@
-
-import React from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Loader2, XCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { Package, Search, AlertCircle } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import DataTable from '@/components/common/DataTable';
-import { useCancelarUnitizacao } from '@/hooks/useCancelarUnitizacao';
-import PaleteDetailsDialog from '@/components/armazenagem/unitizacao/PaleteDetailsDialog';
-import CancelarUnitizacaoDialog from '@/components/armazenagem/unitizacao/CancelarUnitizacaoDialog';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import MainLayout from '@/components/layout/MainLayout';
+import ConfirmationDialog from '@/components/carregamento/enderecamento/ConfirmationDialog';
 import AuditTrail from '@/components/common/AuditTrail';
-import { useAuditTrail } from '@/hooks/useAuditTrail';
+
+// Import schema and types
+import { cancelUnitizacaoSchema, defaultValues, CancelUnitizacaoSchemaType } from './schemas/cancelUnitizacaoSchema';
+
+// Import services
+import unitizacaoService from '@/services/unitizacaoService';
+import etiquetaService from '@/services/etiquetaService';
+import localizacaoService from '@/services/localizacaoService';
+import { useAuth } from '@/hooks/useAuth';
 
 const CancelarUnitizacao: React.FC = () => {
-  const form = useForm({
-    defaultValues: {
-      idPalete: ''
-    }
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [selected, setSelected] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [localizacaoOptions, setLocalizacaoOptions] = useState<any[]>([]);
+  
+  const form = useForm<CancelUnitizacaoSchemaType>({
+    resolver: zodResolver(cancelUnitizacaoSchema),
+    defaultValues,
   });
   
-  const {
-    filteredPaletes,
-    selectedPalete,
-    detailsDialogOpen,
-    setDetailsDialogOpen,
-    cancelDialogOpen,
-    setCancelDialogOpen,
-    filterValue,
-    handleFilterChange,
-    handleShowDetails,
-    handleCancelUnitizacao,
-    confirmCancelUnitizacao,
-    handleSearchById
-  } = useCancelarUnitizacao();
-
-  const { auditEntries, addAuditEntry } = useAuditTrail('cancelar-unitizacao');
-
-  const handleSubmit = (data: { idPalete: string }) => {
-    handleSearchById(data.idPalete);
-    // Record audit entry for search action
-    addAuditEntry('Busca de Palete', `Buscou palete por ID: ${data.idPalete}`);
-  };
-
-  // Wrapped functions to include audit logging
-  const handleShowDetailsWithAudit = (id: string) => {
-    handleShowDetails(id);
-    addAuditEntry('Visualização de Detalhes', `Consultou detalhes do palete ${id}`);
-  };
-
-  const handleCancelUnitizacaoWithAudit = (id: string) => {
-    handleCancelUnitizacao(id);
-    addAuditEntry('Iniciou Cancelamento', `Iniciou processo de cancelamento do palete ${id}`);
-  };
-
-  const confirmCancelUnitizacaoWithAudit = () => {
-    if (selectedPalete) {
-      confirmCancelUnitizacao();
-      addAuditEntry('Cancelamento de Unitização', `Cancelou unitização do palete ${selectedPalete.id}`);
+  // Load unitizacao data on component mount
+  useEffect(() => {
+    const loadUnitizacao = async () => {
+      if (id) {
+        setIsLoading(true);
+        try {
+          const unitizacao = await unitizacaoService.buscarUnitizacaoPorId(id);
+          setSelected(unitizacao);
+          
+          // Set default values for the form
+          form.setValue('codigo', unitizacao.codigo);
+          form.setValue('tipo_unitizacao', unitizacao.tipo_unitizacao);
+          form.setValue('localizacao_id', unitizacao.localizacao_id);
+          form.setValue('observacoes', unitizacao.observacoes);
+        } catch (error: any) {
+          toast({
+            title: "Erro ao carregar unitização",
+            description: error.message,
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    loadUnitizacao();
+  }, [id, form]);
+  
+  // Load localizacao options on component mount
+  useEffect(() => {
+    const loadLocalizacaoOptions = async () => {
+      try {
+        const localizacoes = await localizacaoService.listarLocalizacoes({ ocupado: false });
+        setLocalizacaoOptions(localizacoes);
+      } catch (error: any) {
+        toast({
+          title: "Erro ao carregar localizações",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    };
+    
+    loadLocalizacaoOptions();
+  }, []);
+  
+  // Handler to cancel unitizacao
+  const handleCancelUnitizacao = async (data: CancelUnitizacaoSchemaType) => {
+    setIsLoading(true);
+    try {
+      // Update unitizacao status to 'cancelada'
+      await unitizacaoService.cancelarUnitizacao(id as string);
+      
+      // Update etiquetas status to 'gerada'
+      const etiquetas = selected.etiquetas_unitizacao.map((etiqueta: any) => etiqueta.etiqueta_id);
+      await etiquetaService.atualizarEtiquetas(etiquetas, { status: 'gerada' });
+      
+      toast({
+        title: "Unitização cancelada",
+        description: "A unitização foi cancelada com sucesso.",
+      });
+      
+      // Redirect to list page
+      navigate('/armazenagem/movimentacoes');
+    } catch (error: any) {
+      toast({
+        title: "Erro ao cancelar unitização",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-
+  
+  // Handler to open cancel confirmation dialog
+  const onOpenCancelDialog = () => {
+    setIsCancelDialogOpen(true);
+  };
+  
+  // Handler to close cancel confirmation dialog
+  const onCloseCancelDialog = () => {
+    setIsCancelDialogOpen(false);
+  };
+  
   return (
     <MainLayout title="Cancelar Unitização">
-      <div className="mb-6">
-        <h2 className="text-2xl font-heading mb-2">Cancelar Unitização</h2>
-        <p className="text-gray-600">Desfaça unitizações e reorganize volumes</p>
+      <div className="container mx-auto py-10">
+        <Card>
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-2xl">Cancelar Unitização</CardTitle>
+              <Button variant="outline" onClick={() => navigate('/armazenagem/movimentacoes')}>
+                Voltar
+              </Button>
+            </div>
+            <CardDescription>
+              Preencha o formulário abaixo para cancelar a unitização.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex justify-center">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Carregando...
+              </div>
+            ) : selected ? (
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleCancelUnitizacao)} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="codigo">Código da Unitização</Label>
+                      <Input id="codigo" defaultValue={selected.codigo} disabled />
+                    </div>
+                    <div>
+                      <Label htmlFor="tipo_unitizacao">Tipo de Unitização</Label>
+                      <Input id="tipo_unitizacao" defaultValue={selected.tipo_unitizacao} disabled />
+                    </div>
+                    <div>
+                      <Label htmlFor="localizacao_id">Localização</Label>
+                      <Select disabled>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a localização" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {localizacaoOptions.map((localizacao) => (
+                            <SelectItem key={localizacao.id} value={localizacao.id}>
+                              {localizacao.codigo} - {localizacao.descricao}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="observacoes">Observações</Label>
+                    <Textarea id="observacoes" placeholder="Observações" {...form.register('observacoes')} />
+                  </div>
+                  <Separator />
+                  <div className="flex justify-end gap-2">
+                    <Button type="button" variant="outline" onClick={() => navigate('/armazenagem/movimentacoes')}>
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="button"
+                      className="bg-red-500 hover:bg-red-700 text-white"
+                      onClick={onOpenCancelDialog}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Cancelando...
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="mr-2 h-4 w-4" />
+                          Cancelar Unitização
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            ) : (
+              <div className="text-center">Nenhuma unitização selecionada.</div>
+            )}
+          </CardContent>
+        </Card>
+        
+        {/* Audit trail component */}
+        <AuditTrail 
+          moduleId="unitizacao" 
+          entityId={selected?.id}
+        />
       </div>
       
-      <Tabs defaultValue="principal">
-        <TabsList className="mb-6">
-          <TabsTrigger value="principal">Principal</TabsTrigger>
-          <TabsTrigger value="auditoria">Auditoria</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="principal" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <Package className="mr-2 text-cross-blue" size={20} />
-                    Buscar Palete
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                      <div>
-                        <FormField
-                          control={form.control}
-                          name="idPalete"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>ID do Palete</FormLabel>
-                              <div className="relative">
-                                <FormControl>
-                                  <Input placeholder="Digite o código do palete" {...field} />
-                                </FormControl>
-                                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <Button type="submit" className="w-full bg-cross-blue hover:bg-cross-blue/90">
-                        Buscar
-                      </Button>
-                    </form>
-                  </Form>
-                  
-                  <div className="mt-6">
-                    <Card className="border-amber-200 bg-amber-50">
-                      <CardContent className="p-4">
-                        <div className="flex items-start">
-                          <AlertCircle className="text-amber-500 mr-3 mt-0.5" size={18} />
-                          <div>
-                            <h4 className="font-medium text-amber-800 mb-1">Atenção</h4>
-                            <p className="text-sm text-amber-700">
-                              O cancelamento de unitização irá desvincular todos os volumes associados ao palete.
-                              Esta ação não pode ser desfeita.
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Paletes Unitizados</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="relative mb-4">
-                    <Input 
-                      placeholder="Filtrar por ID ou responsável..." 
-                      value={filterValue}
-                      onChange={(e) => handleFilterChange(e.target.value)}
-                    />
-                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                  </div>
-                
-                  <DataTable
-                    columns={[
-                      { header: 'ID Palete', accessor: 'id' },
-                      { header: 'Volumes', accessor: 'volumes' },
-                      { header: 'Produtos', accessor: 'produtos' },
-                      { header: 'Data Unitização', accessor: 'dataUnitizacao' },
-                      { header: 'Responsável', accessor: 'responsavel' },
-                      {
-                        header: 'Ações',
-                        accessor: 'actions',
-                        cell: (row) => (
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleShowDetailsWithAudit(row.id)}
-                            >
-                              Detalhes
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-red-500 border-red-200 hover:bg-red-50"
-                              onClick={() => handleCancelUnitizacaoWithAudit(row.id)}
-                            >
-                              Cancelar
-                            </Button>
-                          </div>
-                        )
-                      }
-                    ]}
-                    data={filteredPaletes}
-                  />
-                  
-                  <div className="mt-4 p-4 border rounded-md bg-gray-50">
-                    <h3 className="font-medium mb-2">Informações do Cancelamento</h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Ao cancelar uma unitização, os seguintes processos serão executados:
-                    </p>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>1. Todos os volumes serão desvinculados do palete</li>
-                      <li>2. Os volumes voltarão a estar disponíveis para nova unitização</li>
-                      <li>3. O endereçamento do palete será liberado</li>
-                      <li>4. Um registro de cancelamento será gerado no histórico</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="auditoria">
-          <AuditTrail entries={auditEntries} moduleName="Cancelar Unitização" />
-        </TabsContent>
-      </Tabs>
-
-      {/* Dialogs */}
-      <PaleteDetailsDialog
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-        palete={selectedPalete}
-      />
-
-      <CancelarUnitizacaoDialog
-        open={cancelDialogOpen}
-        onOpenChange={setCancelDialogOpen}
-        palete={selectedPalete}
-        onConfirm={confirmCancelUnitizacaoWithAudit}
+      {/* Cancel confirmation dialog */}
+      <ConfirmationDialog
+        open={isCancelDialogOpen}
+        onOpenChange={setIsCancelDialogOpen}
+        title="Cancelar Unitização"
+        description="Tem certeza de que deseja cancelar esta unitização? Essa ação não pode ser desfeita."
+        onConfirm={form.handleSubmit(handleCancelUnitizacao)}
+        isLoading={isLoading}
       />
     </MainLayout>
   );

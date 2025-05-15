@@ -47,7 +47,7 @@ export const useGeracaoEtiquetas = () => {
       tipoEtiqueta: 'volume',
       volumesTotal: '',
       formatoImpressao: '50x100',
-      layoutStyle: 'standard',
+      layoutStyle: 'standard' as LayoutStyle,
       tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
@@ -98,7 +98,7 @@ export const useGeracaoEtiquetas = () => {
   // Function to handle printing etiquetas
   const handlePrintEtiquetas = (volume: Volume) => {
     const formatoImpressao = form.getValues('formatoImpressao');
-    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle || 'standard';
+    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
     
     // Generate etiquetas for the selected volume
     const result = printEtiquetas(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
@@ -126,7 +126,7 @@ export const useGeracaoEtiquetas = () => {
   // Function to handle reprinting etiquetas
   const handleReimprimirEtiquetas = (volume: Volume) => {
     const formatoImpressao = form.getValues('formatoImpressao');
-    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle || 'standard';
+    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
     
     reimprimirEtiquetas(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
   };
@@ -149,7 +149,7 @@ export const useGeracaoEtiquetas = () => {
   // Function to handle printing master etiqueta
   const handlePrintEtiquetaMae = (etiquetaMae: any) => {
     const formatoImpressao = form.getValues('formatoImpressao');
-    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle || 'standard';
+    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
     
     printEtiquetaMae(etiquetaMae, volumes, formatoImpressao, layoutStyle);
   };

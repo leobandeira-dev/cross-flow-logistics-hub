@@ -50,7 +50,7 @@ const notaFiscalService = {
       throw new Error(`Erro ao listar notas fiscais: ${error.message}`);
     }
     
-    return data as NotaFiscal[];
+    return data as unknown as NotaFiscal[];
   },
 
   /**
@@ -72,7 +72,7 @@ const notaFiscalService = {
       throw new Error(`Erro ao buscar nota fiscal: ${error.message}`);
     }
     
-    return data as NotaFiscal;
+    return data as unknown as NotaFiscal;
   },
 
   /**
@@ -83,9 +83,20 @@ const notaFiscalService = {
     const { data, error } = await supabase
       .from('notas_fiscais')
       .insert({
-        ...nota,
+        numero: nota.numero || '',
+        serie: nota.serie,
+        chave_acesso: nota.chave_acesso,
+        valor: nota.valor || 0,
+        peso_bruto: nota.peso_bruto,
+        quantidade_volumes: nota.quantidade_volumes,
+        data_emissao: nota.data_emissao?.toISOString() || new Date().toISOString(),
         data_entrada: new Date().toISOString(),
-        status: 'recebido'
+        tipo: nota.tipo || 'entrada',
+        status: 'recebido',
+        empresa_emitente_id: nota.empresa_emitente_id,
+        empresa_destinatario_id: nota.empresa_destinatario_id,
+        filial_id: nota.filial_id,
+        observacoes: nota.observacoes
       })
       .select()
       .single();
@@ -110,7 +121,7 @@ const notaFiscalService = {
       }
     }
     
-    return data as NotaFiscal;
+    return data as unknown as NotaFiscal;
   },
 
   /**
@@ -131,7 +142,7 @@ const notaFiscalService = {
       throw new Error(`Erro ao registrar saída de nota fiscal: ${error.message}`);
     }
     
-    return data as NotaFiscal;
+    return data as unknown as NotaFiscal;
   },
 
   /**
@@ -140,7 +151,18 @@ const notaFiscalService = {
   async atualizarNota(id: string, dados: Partial<NotaFiscal>): Promise<NotaFiscal> {
     const { data, error } = await supabase
       .from('notas_fiscais')
-      .update(dados)
+      .update({
+        numero: dados.numero,
+        serie: dados.serie,
+        chave_acesso: dados.chave_acesso,
+        valor: dados.valor,
+        peso_bruto: dados.peso_bruto,
+        quantidade_volumes: dados.quantidade_volumes,
+        status: dados.status,
+        observacoes: dados.observacoes,
+        empresa_emitente_id: dados.empresa_emitente_id,
+        empresa_destinatario_id: dados.empresa_destinatario_id
+      })
       .eq('id', id)
       .select()
       .single();
@@ -149,7 +171,7 @@ const notaFiscalService = {
       throw new Error(`Erro ao atualizar nota fiscal: ${error.message}`);
     }
     
-    return data as NotaFiscal;
+    return data as unknown as NotaFiscal;
   },
 
   /**

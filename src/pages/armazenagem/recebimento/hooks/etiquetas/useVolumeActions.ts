@@ -1,102 +1,105 @@
 
 import { useState } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { v4 as uuidv4 } from 'uuid';
 import { Volume } from '../../components/etiquetas/VolumesTable';
 import { EtiquetaGenerationResult } from '@/hooks/etiquetas/types';
 
-/**
- * Hook for handling volume-related actions
- */
 export const useVolumeActions = () => {
-  const [generatedVolumes, setGeneratedVolumes] = useState<Volume[]>([]);
   const [volumes, setVolumes] = useState<Volume[]>([]);
+  const [generatedVolumes, setGeneratedVolumes] = useState<Volume[]>([]);
 
-  // Function to generate volumes based on form data
+  // Função para gerar volumes com base nas informações da NF
   const generateVolumes = (
     notaFiscal: string,
-    volumesTotal: number,
-    pesoTotalBruto: string,
+    quantidadeVolumes: number,
+    pesoTotal: string,
     notaFiscalData: any,
-    tipoVolume: 'geral' | 'quimico',
-    codigoONU: string,
-    codigoRisco: string
+    tipoVolume: 'geral' | 'quimico' = 'geral',
+    codigoONU?: string,
+    codigoRisco?: string
   ): Volume[] => {
-    if (!notaFiscal) {
-      toast({
-        title: "Erro",
-        description: "Informe o número da nota fiscal.",
-        variant: "destructive"
-      });
-      return [];
-    }
+    if (!notaFiscal || quantidadeVolumes <= 0) return [];
     
-    if (!volumesTotal || isNaN(volumesTotal) || volumesTotal <= 0) {
-      toast({
-        title: "Erro",
-        description: "Informe uma quantidade válida de volumes.",
-        variant: "destructive"
-      });
-      return [];
+    // Calcular peso por volume
+    let pesoNumerico = 0;
+    if (pesoTotal) {
+      pesoNumerico = parseFloat(pesoTotal.replace(/[^\d,.-]/g, '').replace(',', '.'));
     }
+    const pesoMedio = pesoNumerico / quantidadeVolumes;
     
-    // Generate new volumes based on the quantity, using data from nota fiscal if available
-    const newVolumes: Volume[] = [];
-    for (let i = 1; i <= volumesTotal; i++) {
-      const newVolume: Volume = {
-        id: `VOL-${notaFiscal}-${i.toString().padStart(3, '0')}`,
+    // Gerar volumes
+    const volumes: Volume[] = [];
+    
+    for (let i = 1; i <= quantidadeVolumes; i++) {
+      const id = `${notaFiscal}-VOL${i.toString().padStart(3, '0')}`;
+      
+      volumes.push({
+        id,
         notaFiscal,
-        descricao: `Volume ${i} de ${volumesTotal}`,
         quantidade: 1,
         etiquetado: false,
+        descricao: `Volume ${i} de ${quantidadeVolumes}`,
+        remetente: notaFiscalData?.fornecedor || '',
+        destinatario: notaFiscalData?.destinatario || '',
+        endereco: notaFiscalData?.endereco || '',
+        cidade: notaFiscalData?.cidade || '',
+        cidadeCompleta: `${notaFiscalData?.cidade || ''} - ${notaFiscalData?.uf || ''}`,
+        uf: notaFiscalData?.uf || '',
+        pesoTotal: `${pesoMedio.toFixed(2)} Kg`,
+        chaveNF: notaFiscalData?.chaveNF || '',
         tipoVolume,
-        codigoONU: codigoONU || '',
-        codigoRisco: codigoRisco || '',
-        // Use data from the nota fiscal if available
-        remetente: notaFiscalData?.remetente || "A definir",
-        destinatario: notaFiscalData?.destinatario || "A definir",
-        endereco: notaFiscalData?.endereco || "A definir",
-        cidade: notaFiscalData?.cidade || "A definir",
-        cidadeCompleta: notaFiscalData?.cidadeCompleta || "A definir",
-        uf: notaFiscalData?.uf || "UF",
-        pesoTotal: pesoTotalBruto,
-        chaveNF: notaFiscalData?.chaveNF || ''
-      };
-      newVolumes.push(newVolume);
+        codigoONU,
+        codigoRisco,
+        etiquetaMae: '',
+      });
     }
     
-    return newVolumes;
+    return volumes;
   };
 
-  // Function to handle classifying a volume
-  const classifyVolume = (volume: Volume, formData: any, volumes: Volume[]): Volume[] => {
-    return volumes.map(vol => 
-      vol.id === volume.id 
-        ? { 
-            ...vol, 
-            tipoVolume: formData.tipoVolume,
-            codigoONU: formData.codigoONU,
-            codigoRisco: formData.codigoRisco
-          } 
-        : vol
-    );
+  // Função para classificar um volume
+  const classifyVolume = (
+    volume: Volume, 
+    formData: any, 
+    volumesArray: Volume[]
+  ): Volume[] => {
+    return volumesArray.map(vol => {
+      if (vol.id === volume.id) {
+        return {
+          ...vol,
+          tipoVolume: formData.tipoVolume,
+          codigoONU: formData.codigoONU,
+          codigoRisco: formData.codigoRisco
+        };
+      }
+      return vol;
+    });
   };
 
-  // Function to handle linking volumes to master label
-  const vincularVolumes = (etiquetaMaeId: string, volumeIds: string[], volumes: Volume[]): Volume[] => {
-    return volumes.map(vol => 
-      volumeIds.includes(vol.id)
-        ? { ...vol, etiquetaMae: etiquetaMaeId }
-        : vol
-    );
+  // Função para vincular volumes a uma etiqueta mãe
+  const vincularVolumes = (
+    etiquetaMaeId: string,
+    volumeIds: string[],
+    volumesArray: Volume[]
+  ): Volume[] => {
+    return volumesArray.map(vol => {
+      if (volumeIds.includes(vol.id)) {
+        return {
+          ...vol,
+          etiquetaMae: etiquetaMaeId
+        };
+      }
+      return vol;
+    });
   };
 
   return {
-    generatedVolumes,
     volumes,
-    setGeneratedVolumes,
+    generatedVolumes,
     setVolumes,
+    setGeneratedVolumes,
     generateVolumes,
     classifyVolume,
-    vincularVolumes,
+    vincularVolumes
   };
 };

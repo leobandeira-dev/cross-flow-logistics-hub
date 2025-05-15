@@ -1,10 +1,17 @@
 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { AuditEntry } from '@/components/common/AuditTrail';
 import { useAuth } from '@/hooks/useAuth';
 
-export const useAuditTrail = (moduleId: string) => {
+export type AuditEntry = {
+  id: string;
+  timestamp: Date;
+  username: string;
+  action: string;
+  details?: string;
+};
+
+export const useAuditTrail = (moduleId: string, entityId?: string) => {
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { user } = useAuth();
@@ -52,7 +59,7 @@ export const useAuditTrail = (moduleId: string) => {
     };
     
     fetchAuditData();
-  }, [moduleId]);
+  }, [moduleId, entityId]);
   
   // Function to add a new audit entry
   const addAuditEntry = (action: string, details?: string) => {
