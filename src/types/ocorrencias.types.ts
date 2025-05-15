@@ -1,4 +1,3 @@
-
 export interface Ocorrencia {
   id: string;
   title: string;
@@ -55,4 +54,14 @@ export interface OcorrenciaComment {
     url: string;
     type: string;
   }[];
+}
+
+export interface DocumentosMock {
+  id: string;
+  tipo: string;
+  numero: string;
+  descricao?: string;
+  data: string;
+  cliente: string;
+  status: string;
 }
