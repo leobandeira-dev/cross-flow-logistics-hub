@@ -11,30 +11,19 @@ import { Package, Truck } from 'lucide-react';
 interface EtiquetaMaeFormPanelProps {
   form: UseFormReturn<any>;
   handleCreateEtiquetaMae: () => void;
-  isUnitizacaoMode?: boolean;
 }
 
 const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
   form,
-  handleCreateEtiquetaMae,
-  isUnitizacaoMode = false
+  handleCreateEtiquetaMae
 }) => {
   // Get values and register methods from the form
   const { register, watch, setValue } = form;
   
-  // In unitização mode, force the type to be palete
-  React.useEffect(() => {
-    if (isUnitizacaoMode) {
-      setValue('tipoEtiquetaMae', 'palete');
-    }
-  }, [isUnitizacaoMode, setValue]);
-  
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="text-lg">
-          {isUnitizacaoMode ? 'Gerar Etiqueta Mãe para Unitização' : 'Gerar Etiqueta Mãe'}
-        </CardTitle>
+        <CardTitle className="text-lg">Gerar Etiqueta Mãe</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -44,17 +33,15 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
               id="descricaoEtiquetaMae"
               {...register('descricaoEtiquetaMae')}
               placeholder="Descrição da etiqueta mãe"
-              defaultValue={isUnitizacaoMode ? 'Novo Palete' : ''}
             />
           </div>
           
           <div>
             <Label htmlFor="tipoEtiquetaMae">Tipo de Etiqueta</Label>
             <Select 
-              defaultValue={isUnitizacaoMode ? 'palete' : 'geral'}
+              defaultValue="geral"
               onValueChange={(value) => form.setValue('tipoEtiquetaMae', value)}
-              value={watch('tipoEtiquetaMae', isUnitizacaoMode ? 'palete' : 'geral')}
-              disabled={isUnitizacaoMode}
+              value={watch('tipoEtiquetaMae', 'geral')}
             >
               <SelectTrigger id="tipoEtiquetaMae">
                 <SelectValue placeholder="Selecione um tipo" />
@@ -105,7 +92,7 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
         
         <Button
           type="button"
-          className={`w-full ${isUnitizacaoMode ? 'bg-cross-blue hover:bg-cross-blue/90' : ''}`}
+          className="w-full"
           onClick={handleCreateEtiquetaMae}
         >
           {watch('tipoEtiquetaMae') === 'palete' ? (
@@ -113,14 +100,8 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
           ) : (
             <Package className="mr-2 h-4 w-4" />
           )}
-          {isUnitizacaoMode ? 'Gerar e Voltar para Unitização' : 'Gerar Etiqueta Mãe'}
+          Gerar Etiqueta Mãe
         </Button>
-        
-        {isUnitizacaoMode && (
-          <p className="text-sm text-gray-500 mt-2 text-center">
-            Após gerar, você retornará automaticamente para a tela de unitização
-          </p>
-        )}
       </CardContent>
     </Card>
   );

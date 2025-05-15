@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { useLocation } from 'react-router-dom';
 
 // Import refactored components
 import GerarEtiquetasTab from './components/etiquetas/GerarEtiquetasTab';
@@ -13,9 +12,7 @@ import ClassifyVolumeDialog from './components/etiquetas/ClassifyVolumeDialog';
 import { useGeracaoEtiquetas } from './hooks/useGeracaoEtiquetas';
 
 const GeracaoEtiquetas: React.FC = () => {
-  const location = useLocation();
-  const initialTab = location.state?.activeTab || 'gerar';
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState('gerar');
   
   const {
     form,
@@ -37,14 +34,6 @@ const GeracaoEtiquetas: React.FC = () => {
     handleVincularVolumes
   } = useGeracaoEtiquetas();
 
-  // Set initial form values if opening specifically for etiquetas mãe creation
-  useEffect(() => {
-    if (initialTab === 'etiquetasMae') {
-      form.setValue('tipoEtiquetaMae', 'palete');
-      form.setValue('descricaoEtiquetaMae', 'Novo Palete');
-    }
-  }, [initialTab, form]);
-
   return (
     <MainLayout title="Geração de Etiquetas">
       <div className="mb-6">
@@ -59,7 +48,7 @@ const GeracaoEtiquetas: React.FC = () => {
         onInitialized={handleGenerateVolumes}
       />
       
-      <Tabs value={activeTab} className="mb-6" onValueChange={(value) => setActiveTab(value)}>
+      <Tabs defaultValue="gerar" className="mb-6" onValueChange={(value) => setActiveTab(value)}>
         <TabsList className="mb-4">
           <TabsTrigger value="gerar">Etiquetas Volumes</TabsTrigger>
           <TabsTrigger value="consultar">Consultar Etiquetas</TabsTrigger>
@@ -91,7 +80,6 @@ const GeracaoEtiquetas: React.FC = () => {
             handleVincularVolumes={handleVincularVolumes}
             handleCreateEtiquetaMae={handleCreateEtiquetaMae}
             form={form}
-            returnUrl={location.state?.returnUrl}
           />
         </TabsContent>
       </Tabs>

@@ -1,6 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,8 +7,6 @@ import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/
 import { useForm } from 'react-hook-form';
 import { Package, Search, Barcode, PackageOpen, Save } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { toast } from '@/hooks/use-toast';
-import { useEtiquetasPrinting } from '@/pages/armazenagem/recebimento/hooks/etiquetas/useEtiquetasPrinting';
 import DataTable from '@/components/common/DataTable';
 
 // Mock data
@@ -47,50 +43,10 @@ const paletiizacoesRecentes = [
 
 const UnitizacaoPaletes: React.FC = () => {
   const form = useForm();
-  const navigate = useNavigate();
   const [selectedVolumes, setSelectedVolumes] = useState<any[]>([]);
-  const { createEtiquetaMae } = useEtiquetasPrinting();
-  const [etiquetasMaePalete, setEtiquetasMaePalete] = useState<any[]>([]);
-  const [loadingEtiquetas, setLoadingEtiquetas] = useState(true);
-  
-  // Simulating fetching etiquetas mãe from API
-  useEffect(() => {
-    // This would be replaced by a real API call in a production app
-    setTimeout(() => {
-      // Mock data - in a real app this would come from an API
-      setEtiquetasMaePalete([
-        { id: 'MASTER-1684195200000', descricao: 'Palete Setor A', tipo: 'palete', quantidadeVolumes: 0 },
-        { id: 'MASTER-1684281600000', descricao: 'Palete Exportação', tipo: 'palete', quantidadeVolumes: 4 },
-      ]);
-      setLoadingEtiquetas(false);
-    }, 1000);
-  }, []);
   
   const handleSubmit = (data: any) => {
     console.log('Form data submitted:', data, 'Selected volumes:', selectedVolumes);
-    
-    if (!data.idPalete) {
-      toast({
-        title: "Erro",
-        description: "É necessário informar um ID de etiqueta mãe.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (selectedVolumes.length === 0) {
-      toast({
-        title: "Erro",
-        description: "Selecione pelo menos um volume para unitizar.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    toast({
-      title: "Unitização realizada",
-      description: `${selectedVolumes.length} volumes foram unitizados no palete ${data.idPalete}.`
-    });
   };
 
   const handleAddVolume = () => {
@@ -101,15 +57,6 @@ const UnitizacaoPaletes: React.FC = () => {
 
   const handleRemoveVolume = (id: string) => {
     setSelectedVolumes(selectedVolumes.filter(vol => vol.id !== id));
-  };
-
-  const handleGenerateEtiquetaMae = () => {
-    // Navigate to the etiquetas mãe page
-    navigate('/armazenagem/recebimento/etiquetas', { state: { activeTab: 'etiquetasMae' } });
-  };
-
-  const handleSelectEtiqueta = (etiquetaId: string) => {
-    form.setValue('idPalete', etiquetaId);
   };
 
   return (
@@ -132,7 +79,7 @@ const UnitizacaoPaletes: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center">
                     <PackageOpen className="mr-2 text-cross-blue" size={20} />
-                    ID etiqueta Mãe
+                    Nova Unitização de Palete
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -145,10 +92,10 @@ const UnitizacaoPaletes: React.FC = () => {
                             name="idPalete"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>ID da Etiqueta Mãe</FormLabel>
+                                <FormLabel>ID do Palete</FormLabel>
                                 <div className="relative">
                                   <FormControl>
-                                    <Input placeholder="Selecione ou gere uma etiqueta mãe" {...field} />
+                                    <Input placeholder="Número de identificação do palete" {...field} />
                                   </FormControl>
                                   <Barcode className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                                 </div>
@@ -178,52 +125,6 @@ const UnitizacaoPaletes: React.FC = () => {
                             )}
                           />
                         </div>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <FormLabel>Etiquetas Mãe Disponíveis:</FormLabel>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={handleGenerateEtiquetaMae}
-                          className="border-dashed"
-                        >
-                          <PackageOpen size={16} className="mr-2" />
-                          Gerar Nova Etiqueta Mãe
-                        </Button>
-                      </div>
-                      
-                      <div className="border rounded-md p-4 max-h-[150px] overflow-y-auto">
-                        {loadingEtiquetas ? (
-                          <p className="text-center text-gray-400 py-4">Carregando etiquetas...</p>
-                        ) : etiquetasMaePalete.length === 0 ? (
-                          <div className="text-center text-gray-400 py-4">
-                            <p>Nenhuma etiqueta mãe tipo palete disponível</p>
-                            <p className="text-sm">Clique em "Gerar Nova Etiqueta Mãe" para criar uma</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {etiquetasMaePalete.map(etiqueta => (
-                              <div 
-                                key={etiqueta.id}
-                                className="flex justify-between items-center p-2 border rounded-md hover:bg-gray-50 cursor-pointer"
-                                onClick={() => handleSelectEtiqueta(etiqueta.id)}
-                              >
-                                <div>
-                                  <p className="font-medium">{etiqueta.id}</p>
-                                  <p className="text-sm text-gray-500">{etiqueta.descricao}</p>
-                                </div>
-                                <Button 
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleSelectEtiqueta(etiqueta.id)}
-                                >
-                                  Selecionar
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                       
                       <div>
@@ -370,7 +271,7 @@ const UnitizacaoPaletes: React.FC = () => {
                   { header: 'Destino', accessor: 'destino' },
                   {
                     header: 'Ações',
-                    accessor: 'actions',
+                    accessor: 'actions', // Add this line
                     cell: () => (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">Detalhes</Button>
