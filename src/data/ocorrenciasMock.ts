@@ -1,73 +1,222 @@
 
-import { Ocorrencia, DocumentosMock } from "../types/ocorrencias.types";
+import { Ocorrencia, OcorrenciaTimeline, OcorrenciaComment } from '@/types/ocorrencias.types';
 
-// Mock data for occurrences
+// Dados fictícios para testar a interface
 export const ocorrencias: Ocorrencia[] = [
-  { 
-    id: 'OC-2023-001', 
-    cliente: 'Indústria ABC Ltda', 
-    tipo: 'extravio', 
-    dataRegistro: '10/05/2023', 
-    dataOcorrencia: '08/05/2023',
-    nf: '12345',
-    descricao: 'Volume não localizado após entrega.',
-    status: 'open',
-    prioridade: 'high',
-    documentoVinculado: 'NF-12345',
-    tipoDocumento: 'nota',
-    valorPrejuizo: '1500,00'
-  },
-  { 
-    id: 'OC-2023-002', 
-    cliente: 'Distribuidora XYZ', 
-    tipo: 'atraso', 
-    dataRegistro: '09/05/2023', 
-    dataOcorrencia: '08/05/2023',
-    nf: '98765',
-    descricao: 'Entrega realizada com 2 dias de atraso.',
+  {
+    id: 'OC-2023-001',
+    title: 'Atraso na entrega',
+    description: 'Cliente relata que a entrega não foi realizada na data prevista.',
+    type: 'atraso',
     status: 'in_progress',
-    prioridade: 'medium',
-    documentoVinculado: 'COL-456',
-    tipoDocumento: 'coleta',
-    valorPrejuizo: '0,00'
+    priority: 'high',
+    client: 'Indústria ABC Ltda',
+    createdAt: '2023-05-12T14:30:00Z',
+    updatedAt: '2023-05-12T16:45:00Z',
+    assignedTo: 'Carlos Oliveira',
+    documents: [
+      {
+        id: 'NF-12345',
+        type: 'Nota Fiscal',
+        number: '12345',
+        description: 'Nota Fiscal de Venda'
+      },
+      {
+        id: 'COL-456',
+        type: 'Coleta',
+        number: '456',
+        description: 'Ordem de Coleta'
+      }
+    ],
+    notaFiscal: {
+      id: 'NF-12345',
+      numero: '12345',
+      chave: '35230612345678901234550010000012341000012345',
+    }
   },
-  { 
-    id: 'OC-2023-003', 
-    cliente: 'Farmacêutica Beta', 
-    tipo: 'avaria', 
-    dataRegistro: '08/05/2023', 
-    dataOcorrencia: '07/05/2023',
-    nf: '54321',
-    descricao: 'Caixa danificada. Produto interno intacto.',
+  {
+    id: 'OC-2023-002',
+    title: 'Produto avariado',
+    description: 'Cliente recebeu o produto com embalagem danificada. Necessário verificar se o conteúdo foi afetado.',
+    type: 'avaria',
+    status: 'open',
+    priority: 'medium',
+    client: 'Distribuidora XYZ',
+    createdAt: '2023-05-14T09:15:00Z',
+    updatedAt: '2023-05-14T09:15:00Z',
+    attachments: [
+      {
+        id: 'ATT-001',
+        name: 'foto_dano_1.jpg',
+        url: 'https://example.com/photos/foto_dano_1.jpg',
+        type: 'image/jpeg'
+      },
+      {
+        id: 'ATT-002',
+        name: 'foto_dano_2.jpg',
+        url: 'https://example.com/photos/foto_dano_2.jpg',
+        type: 'image/jpeg'
+      }
+    ]
+  },
+  {
+    id: 'OC-2023-003',
+    title: 'Divergência de quantidade',
+    description: 'Quantidade entregue é menor que a especificada na nota fiscal. Faltam 2 volumes.',
+    type: 'divergencia',
     status: 'resolved',
-    prioridade: 'low'
+    priority: 'medium',
+    client: 'Transportes Rápidos',
+    createdAt: '2023-05-10T11:00:00Z',
+    updatedAt: '2023-05-11T14:20:00Z',
+    assignedTo: 'Ana Silva',
+    resolvedAt: '2023-05-11T14:20:00Z',
+    solution: 'Volumes localizados no depósito e entregues ao cliente no dia seguinte. Cliente confirmou recebimento.',
+    documents: [
+      {
+        id: 'NF-6789',
+        type: 'Nota Fiscal',
+        number: '6789',
+        description: 'Nota Fiscal de Venda'
+      }
+    ],
+    notaFiscal: {
+      id: 'NF-6789',
+      numero: '6789',
+      chave: '35230698765432109876550010000067891000067890',
+    }
   },
-  { 
-    id: 'OC-2023-004', 
-    cliente: 'Eletrônicos Tech', 
-    tipo: 'divergencia', 
-    dataRegistro: '07/05/2023', 
-    dataOcorrencia: '06/05/2023',
-    nf: '23456',
-    descricao: 'Quantidade recebida divergente da NF.',
-    status: 'closed',
-    prioridade: 'high'
+  {
+    id: 'OC-2023-004',
+    title: 'Extravio de mercadoria',
+    description: 'Volume não localizado durante o processo de entrega.',
+    type: 'extravio',
+    status: 'in_progress',
+    priority: 'high',
+    client: 'Farmacêutica Beta',
+    createdAt: '2023-05-15T08:30:00Z',
+    updatedAt: '2023-05-15T10:45:00Z',
+    assignedTo: 'Roberto Gomes'
   },
+  {
+    id: 'OC-2023-005',
+    title: 'Devolução de mercadoria',
+    description: 'Cliente solicita devolução por pedido incorreto.',
+    type: 'devolucao',
+    status: 'open',
+    priority: 'low',
+    client: 'Eletrônicos Tech',
+    createdAt: '2023-05-16T13:20:00Z',
+    updatedAt: '2023-05-16T13:20:00Z'
+  }
 ];
 
-// Mock data for documents that can be linked to occurrences
-export const documentosMock: DocumentosMock = {
-  notas: [
-    { id: 'NF-12345', numero: '12345', cliente: 'Indústria ABC Ltda', data: '08/05/2023', valor: '15000,00' },
-    { id: 'NF-23456', numero: '23456', cliente: 'Eletrônicos Tech', data: '06/05/2023', valor: '8750,00' },
-    { id: 'NF-34567', numero: '34567', cliente: 'Distribuidora XYZ', data: '05/05/2023', valor: '12300,00' },
-  ],
-  coletas: [
-    { id: 'COL-456', numero: '456', cliente: 'Indústria ABC Ltda', data: '08/05/2023', notasFiscais: ['NF-12345', 'NF-13579'] },
-    { id: 'COL-789', numero: '789', cliente: 'Distribuidora XYZ', data: '07/05/2023', notasFiscais: ['NF-98765'] },
-  ],
-  ordens: [
-    { id: 'OC-2023-150', numero: '150/2023', cliente: 'Eletrônicos Tech', data: '05/05/2023', notasFiscais: ['NF-23456'] },
-    { id: 'OC-2023-151', numero: '151/2023', cliente: 'Farmacêutica Beta', data: '04/05/2023', notasFiscais: ['NF-54321'] },
-  ]
-};
+export const timelineEvents: OcorrenciaTimeline[] = [
+  {
+    id: 'TL-001',
+    ocorrenciaId: 'OC-2023-001',
+    timestamp: '2023-05-12T14:30:00Z',
+    description: 'Ocorrência registrada',
+    type: 'creation',
+    user: 'Marina Costa'
+  },
+  {
+    id: 'TL-002',
+    ocorrenciaId: 'OC-2023-001',
+    timestamp: '2023-05-12T15:00:00Z',
+    description: 'Atribuída para Carlos Oliveira',
+    type: 'assignment',
+    user: 'Marina Costa'
+  },
+  {
+    id: 'TL-003',
+    ocorrenciaId: 'OC-2023-001',
+    timestamp: '2023-05-12T16:45:00Z',
+    description: 'Status alterado para "Em Andamento"',
+    type: 'status_change',
+    user: 'Carlos Oliveira'
+  }
+];
+
+export const comments: OcorrenciaComment[] = [
+  {
+    id: 'COM-001',
+    ocorrenciaId: 'OC-2023-001',
+    user: 'Carlos Oliveira',
+    content: 'Entrei em contato com a transportadora e estão verificando a localização da carga.',
+    timestamp: '2023-05-12T16:45:00Z'
+  },
+  {
+    id: 'COM-002',
+    ocorrenciaId: 'OC-2023-001',
+    user: 'Marina Costa',
+    content: 'Cliente ligou novamente solicitando previsão de entrega.',
+    timestamp: '2023-05-13T09:30:00Z'
+  }
+];
+
+export const documentosMock = [
+  {
+    id: 'NF-12345',
+    type: 'Nota Fiscal',
+    number: '12345',
+    date: '2023-05-10',
+    client: 'Indústria ABC Ltda',
+    value: 1250.75,
+    status: 'Emitida'
+  },
+  {
+    id: 'NF-6789',
+    type: 'Nota Fiscal',
+    number: '6789',
+    date: '2023-05-08',
+    client: 'Distribuidora XYZ',
+    value: 3450.00,
+    status: 'Entregue'
+  },
+  {
+    id: 'COL-456',
+    type: 'Coleta',
+    number: '456',
+    date: '2023-05-10',
+    client: 'Indústria ABC Ltda',
+    value: null,
+    status: 'Realizada'
+  },
+  {
+    id: 'COL-789',
+    type: 'Coleta',
+    number: '789',
+    date: '2023-05-09',
+    client: 'Transportes Rápidos',
+    value: null,
+    status: 'Pendente'
+  },
+  {
+    id: 'OC-123',
+    type: 'Ordem de Carregamento',
+    number: '123',
+    date: '2023-05-11',
+    client: 'Farmacêutica Beta',
+    value: null,
+    status: 'Carregado'
+  },
+  {
+    id: 'OC-234',
+    type: 'Ordem de Carregamento',
+    number: '234',
+    date: '2023-05-15',
+    client: 'Eletrônicos Tech',
+    value: null,
+    status: 'Agendado'
+  },
+  {
+    id: 'CTE-5678',
+    type: 'CT-e',
+    number: '5678',
+    date: '2023-05-11',
+    client: 'Indústria ABC Ltda',
+    value: 350.00,
+    status: 'Emitido'
+  }
+];

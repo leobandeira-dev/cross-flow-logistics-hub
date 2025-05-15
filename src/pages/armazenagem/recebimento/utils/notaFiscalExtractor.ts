@@ -4,7 +4,7 @@ import { NotaFiscalSchemaType } from '../components/forms/notaFiscalSchema';
 /**
  * Extract data from an XML object to populate a NotaFiscal form
  */
-export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> => {
+export const extractDataFromXml = (xmlData: any): Partial<any> => {
   try {
     console.log("Tentando extrair dados do XML:", xmlData);
     
@@ -12,8 +12,8 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
     const nfeProc = xmlData.nfeproc || xmlData.nfeProc || {};
     
     // Accessing the XML content in a more resilient way
-    const nfe = nfeProc.nfe || nfeProc.nfe;
-    const infNFe = nfe?.infnfe || nfe?.infnfe;
+    const nfe = nfeProc.nfe || nfeProc.NFe;
+    const infNFe = nfe?.infnfe || nfe?.infNfe || nfe?.infNFe;
     
     if (!infNFe) {
       console.error("Estrutura de XML não reconhecida:", xmlData);
@@ -26,7 +26,7 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
     const dest = infNFe.dest || {};
     const transp = infNFe.transp || {};
     const total = infNFe.total || {};
-    const infAdic = infNFe.infadic || {};
+    const infAdic = infNFe.infadic || infNFe.infAdic || {};
     
     console.log("Estrutura encontrada:", {
       ide: ide,
@@ -52,7 +52,7 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       return current?.toString() || defaultValue;
     };
 
-    // New function to extract order number from product details
+    // Extract order number from product details
     const extractOrderNumberFromProducts = (infNFe: any): string => {
       try {
         // Access the product information
@@ -70,6 +70,16 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
         // If det is a single object
         else if (det && det.prod && det.prod.xped) {
           return det.prod.xped.toString().replace(/-/g, '');
+        }
+        
+        // Try to extract from additional information if not found in products
+        if (infAdic && infAdic.infcpl || infAdic.infCpl) {
+          const infCpl = infAdic.infcpl || infAdic.infCpl;
+          const pedidoRegex = /pedido[:\s]*(\d+[-]?\d*)/i;
+          const match = infCpl.match(pedidoRegex);
+          if (match && match[1]) {
+            return match[1].toString();
+          }
         }
         
         return '';
@@ -113,15 +123,27 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
       };
     };
 
+    // Get chave from the right location
+    let chaveNF = '';
+    if (nfeProc.protNFe && nfeProc.protNFe.infProt && nfeProc.protNFe.infProt.chNFe) {
+      chaveNF = nfeProc.protNFe.infProt.chNFe;
+    } else if (infNFe.Id) {
+      // Sometimes the ID contains the key in format "NFe35230698765432109876550010000067891000067890"
+      const idMatch = infNFe.Id.toString().match(/NFe(\d+)/i);
+      if (idMatch && idMatch[1]) {
+        chaveNF = idMatch[1];
+      }
+    }
+
     // Extract order number from product details
     const orderNumber = extractOrderNumberFromProducts(infNFe);
     console.log("Número do pedido extraído dos produtos:", orderNumber);
     
     // Process emission date and time
     let emissionDate = '';
-    const dhEmi = getValue(ide, ['dhemi']);
-    const dEmi = getValue(ide, ['demi']);
-    const hEmi = getValue(ide, ['hemi']);
+    const dhEmi = getValue(ide, ['dhemi']) || getValue(ide, ['dhEmi']);
+    const dEmi = getValue(ide, ['demi']) || getValue(ide, ['dEmi']);
+    const hEmi = getValue(ide, ['hemi']) || getValue(ide, ['hEmi']);
     
     if (dhEmi) {
       // If we have a complete date+time string
@@ -143,12 +165,12 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
     console.log("Data de emissão processada:", emissionDate);
     
     // Process sender address
-    const emitentEndereco = getValue(emit, ['enderemit', 'xlgr']);
-    const emitenteNumero = getValue(emit, ['enderemit', 'nro']);
+    const emitentEndereco = getValue(emit, ['enderemit', 'xlgr']) || getValue(emit, ['enderEmit', 'xLgr']);
+    const emitenteNumero = getValue(emit, ['enderemit', 'nro']) || getValue(emit, ['enderEmit', 'nro']);
     
     // Process recipient address
-    const destinatarioEndereco = getValue(dest, ['enderdest', 'xlgr']);
-    const destinatarioNumero = getValue(dest, ['enderdest', 'nro']);
+    const destinatarioEndereco = getValue(dest, ['enderdest', 'xlgr']) || getValue(dest, ['enderDest', 'xLgr']);
+    const destinatarioNumero = getValue(dest, ['enderdest', 'nro']) || getValue(dest, ['enderDest', 'nro']);
     
     // If we don't have explicit number fields, try to extract them from addresses
     let emitenteEnderecoFinal = emitentEndereco;
@@ -170,47 +192,47 @@ export const extractDataFromXml = (xmlData: any): Partial<NotaFiscalSchemaType> 
     }
     
     // Extract infCpl for informacoes complementares
-    const informacoesComplementares = getValue(infAdic, ['infcpl']);
+    const informacoesComplementares = getValue(infAdic, ['infcpl']) || getValue(infAdic, ['infCpl']);
     console.log("Informações complementares extraídas:", informacoesComplementares);
     
     // Extracting data with the helper function
     return {
       // Note data
-      chaveNF: getValue(infNFe, ['id']) || getValue(infNFe, ['Id']),
-      numeroNF: getValue(ide, ['nnf']) || getValue(ide, ['nnf']),
+      chaveNF: chaveNF,
+      numeroNF: getValue(ide, ['nnf']) || getValue(ide, ['nNF']),
       serieNF: getValue(ide, ['serie']),
       dataHoraEmissao: emissionDate,
-      valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['icmstot', 'vnf']),
+      valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['ICMSTot', 'vNF']),
       numeroPedido: orderNumber, // Updated to use product-based order number
       
       // Sender data
-      emitenteCNPJ: getValue(emit, ['cnpj']),
-      emitenteRazaoSocial: getValue(emit, ['xnome']),
-      emitenteTelefone: getValue(emit, ['enderemit', 'fone']),
-      emitenteUF: getValue(emit, ['enderemit', 'uf']),
-      emitenteCidade: getValue(emit, ['enderemit', 'xmun']),
-      emitenteBairro: getValue(emit, ['enderemit', 'xbairro']),
+      emitenteCNPJ: getValue(emit, ['cnpj']) || getValue(emit, ['CNPJ']),
+      emitenteRazaoSocial: getValue(emit, ['xnome']) || getValue(emit, ['xNome']),
+      emitenteTelefone: getValue(emit, ['enderemit', 'fone']) || getValue(emit, ['enderEmit', 'fone']),
+      emitenteUF: getValue(emit, ['enderemit', 'uf']) || getValue(emit, ['enderEmit', 'UF']),
+      emitenteCidade: getValue(emit, ['enderemit', 'xmun']) || getValue(emit, ['enderEmit', 'xMun']),
+      emitenteBairro: getValue(emit, ['enderemit', 'xbairro']) || getValue(emit, ['enderEmit', 'xBairro']),
       emitenteEndereco: emitenteEnderecoFinal,
       emitenteNumero: emitenteNumeroFinal,
-      emitenteCEP: getValue(emit, ['enderemit', 'cep']),
+      emitenteCEP: getValue(emit, ['enderemit', 'cep']) || getValue(emit, ['enderEmit', 'CEP']),
       
       // Recipient data
-      destinatarioCNPJ: getValue(dest, ['cnpj']),
-      destinatarioRazaoSocial: getValue(dest, ['xnome']),
-      destinatarioTelefone: getValue(dest, ['enderdest', 'fone']),
-      destinatarioUF: getValue(dest, ['enderdest', 'uf']),
-      destinatarioCidade: getValue(dest, ['enderdest', 'xmun']),
-      destinatarioBairro: getValue(dest, ['enderdest', 'xbairro']),
+      destinatarioCNPJ: getValue(dest, ['cnpj']) || getValue(dest, ['CNPJ']),
+      destinatarioRazaoSocial: getValue(dest, ['xnome']) || getValue(dest, ['xNome']),
+      destinatarioTelefone: getValue(dest, ['enderdest', 'fone']) || getValue(dest, ['enderDest', 'fone']),
+      destinatarioUF: getValue(dest, ['enderdest', 'uf']) || getValue(dest, ['enderDest', 'UF']),
+      destinatarioCidade: getValue(dest, ['enderdest', 'xmun']) || getValue(dest, ['enderDest', 'xMun']),
+      destinatarioBairro: getValue(dest, ['enderdest', 'xbairro']) || getValue(dest, ['enderDest', 'xBairro']),
       destinatarioEndereco: destinatarioEnderecoFinal,
       destinatarioNumero: destinatarioNumeroFinal,
-      destinatarioCEP: getValue(dest, ['enderdest', 'cep']),
+      destinatarioCEP: getValue(dest, ['enderdest', 'cep']) || getValue(dest, ['enderDest', 'CEP']),
       
       // Transport information
-      responsavelEntrega: getValue(transp, ['transporta', 'xnome']),
+      responsavelEntrega: getValue(transp, ['transporta', 'xnome']) || getValue(transp, ['transporta', 'xNome']),
       motorista: getValue(transp, ['veictransp', 'placa']) ? 
         `Placa: ${getValue(transp, ['veictransp', 'placa'])}` : '',
-      volumesTotal: getValue(transp, ['vol', 'qvol']),
-      pesoTotalBruto: getValue(transp, ['vol', 'pesob']),
+      volumesTotal: getValue(transp, ['vol', 'qvol']) || getValue(transp, ['vol', 'qVol']),
+      pesoTotalBruto: getValue(transp, ['vol', 'pesob']) || getValue(transp, ['vol', 'pesoB']),
       
       // Additional information
       informacoesComplementares: informacoesComplementares,
