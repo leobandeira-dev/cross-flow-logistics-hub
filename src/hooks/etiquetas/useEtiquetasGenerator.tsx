@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/VolumesTable';
 import { useEtiquetaPreview } from './useEtiquetaPreview';
