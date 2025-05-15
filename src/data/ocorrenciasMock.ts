@@ -1,3 +1,4 @@
+
 import { Ocorrencia, OcorrenciaTimeline, OcorrenciaComment, DocumentosMock } from '@/types/ocorrencias.types';
 
 // Dados fictícios para testar a interface
@@ -174,12 +175,12 @@ export const documentosMock: DocumentosMock = {
     },
     {
       id: 'CTE-5678',
-      tipo: 'CT-e',
       numero: '5678',
       cliente: 'Indústria ABC Ltda',
       valor: 350.00,
       date: '2023-05-11',
-      status: 'Emitido'
+      status: 'Emitido',
+      type: 'CT-e'  // Changed from 'tipo' to 'type' to match interface
     }
   ],
   coletas: [

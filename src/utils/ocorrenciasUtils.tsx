@@ -20,7 +20,7 @@ export const getStatusBadge = (status: string) => {
     'resolved': { type: 'info', text: 'Resolvido' },
     'closed': { type: 'success', text: 'Fechado' },
   };
-  const statusData = statusMap[status];
+  const statusData = statusMap[status] || { type: 'pending', text: status };
   return <StatusBadge status={statusData.type} text={statusData.text} />;
 };
 
@@ -30,7 +30,8 @@ export const getPrioridadeBadge = (prioridade: string) => {
     'medium': { type: 'warning', text: 'Média' },
     'low': { type: 'info', text: 'Baixa' },
   };
-  const prioridadeData = prioridadeMap[prioridade];
+  // Add a fallback in case prioridade is not one of the keys in prioridadeMap
+  const prioridadeData = prioridadeMap[prioridade] || { type: 'pending', text: prioridade };
   return <StatusBadge status={prioridadeData.type} text={prioridadeData.text} />;
 };
 
