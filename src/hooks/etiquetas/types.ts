@@ -1,27 +1,25 @@
 
-import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/VolumesTable';
+export type GenerationOptions = {
+  tipo?: string;
+  altura?: number;
+  largura?: number;
+  comprimento?: number;
+  peso?: number;
+  fragil?: boolean;
+  unidade?: string;
+};
 
-export type LayoutStyle = 'standard' | 'compact' | 'modern';
-export type EtiquetaFormat = 'small' | 'a4';
-export type EtiquetaTipo = 'volume' | 'mae';
-export type EtiquetaMaeTipo = 'geral' | 'palete';
+export type PrintOptions = {
+  layout: LayoutStyle;
+  copies: number;
+  printer?: string;
+};
 
-export interface EtiquetaGenerationOptions {
-  formatoImpressao?: string;
-  tipo?: EtiquetaTipo;
-  etiquetaMaeId?: string;
-  layoutStyle?: LayoutStyle;
-  tipoEtiquetaMae?: EtiquetaMaeTipo;
-}
-
-export interface CurrentEtiqueta {
-  volumeData: Volume;
-  volumeNumber: number;
-  totalVolumes: number;
-}
-
-export interface EtiquetaGenerationResult {
-  status: 'success' | 'error';
-  volumes?: Volume[];
-  error?: any;
+export enum LayoutStyle {
+  MINIMAL = 'minimal',
+  STANDARD = 'standard',
+  DETAILED = 'detailed',
+  THERMAL_SMALL = 'thermal_small',
+  THERMAL_MEDIUM = 'thermal_medium',
+  CUSTOM = 'custom'
 }

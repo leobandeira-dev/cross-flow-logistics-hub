@@ -96,8 +96,9 @@ const carregamentoService = {
         ...ordem,
         numero_ordem: numeroOrdem,
         data_criacao: new Date().toISOString(),
+        tipo_carregamento: ordem.tipo_carregamento || 'padrao',
         status: 'pendente'
-      })
+      } as any)
       .select()
       .single();
     
@@ -115,7 +116,7 @@ const carregamentoService = {
       
       const { error: errorItens } = await supabase
         .from('itens_carregamento')
-        .insert(itensCarregamento);
+        .insert(itensCarregamento as any);
         
       if (errorItens) {
         throw new Error(`Erro ao vincular notas fiscais à ordem: ${errorItens.message}`);

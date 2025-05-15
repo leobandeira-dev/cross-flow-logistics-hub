@@ -71,11 +71,18 @@ const etiquetaService = {
     const { data, error } = await supabase
       .from('etiquetas')
       .insert({
-        ...etiqueta,
         codigo,
+        tipo: etiqueta.tipo || 'volume',
         data_geracao: new Date().toISOString(),
+        altura: etiqueta.altura,
+        largura: etiqueta.largura,
+        comprimento: etiqueta.comprimento,
+        peso: etiqueta.peso,
+        fragil: etiqueta.fragil || false,
+        nota_fiscal_id: etiqueta.nota_fiscal_id,
+        etiqueta_mae_id: etiqueta.etiqueta_mae_id,
         status: 'gerada'
-      })
+      } as any)
       .select()
       .single();
     

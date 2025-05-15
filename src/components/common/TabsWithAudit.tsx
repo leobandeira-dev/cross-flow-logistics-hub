@@ -1,44 +1,65 @@
 
-import React, { ReactNode } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AuditTrail, { AuditEntry } from './AuditTrail';
+import AuditTrail from './AuditTrail';
 import { useAuth } from '@/hooks/useAuth';
 
+interface TabItem {
+  value: string;
+  label: string;
+  content: React.ReactNode;
+}
+
 interface TabsWithAuditProps {
-  defaultTab?: string;
-  moduleName: string;
-  auditEntries: AuditEntry[];
-  children: ReactNode;
-  mainTabLabel?: string;
+  tabs: TabItem[];
+  defaultValue?: string;
+  moduleId: string;
+  entityId?: string;
+  className?: string;
 }
 
 const TabsWithAudit: React.FC<TabsWithAuditProps> = ({
-  defaultTab = 'principal',
-  moduleName,
-  auditEntries,
-  children,
-  mainTabLabel = 'Principal'
+  tabs,
+  defaultValue,
+  moduleId,
+  entityId,
+  className = '',
 }) => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
-  
+  const [activeTab, setActiveTab] = useState(defaultValue || tabs[0]?.value);
+
+  // Determinar se o usuário pode ver os logs de auditoria
+  const canViewAudit = user?.perfil?.nome === 'admin' || (user?.perfil?.permissoes && user?.perfil?.permissoes['audit:view']);
+
   return (
-    <Tabs defaultValue={defaultTab}>
-      <TabsList className="mb-6">
-        <TabsTrigger value="principal">{mainTabLabel}</TabsTrigger>
-        {isAdmin && <TabsTrigger value="auditoria">Auditoria</TabsTrigger>}
-      </TabsList>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className={`lg:col-span-2 ${className}`}>
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          <TabsList className="grid grid-cols-{tabs.length} mb-4">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {tabs.map((tab) => (
+            <TabsContent key={tab.value} value={tab.value}>
+              {tab.content}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
       
-      <TabsContent value="principal">
-        {children}
-      </TabsContent>
-      
-      {isAdmin && (
-        <TabsContent value="auditoria">
-          <AuditTrail entries={auditEntries} moduleName={moduleName} />
-        </TabsContent>
+      {canViewAudit && (
+        <div className="lg:col-span-1">
+          <AuditTrail moduleId={moduleId} entityId={entityId} />
+        </div>
       )}
-    </Tabs>
+    </div>
   );
 };
 

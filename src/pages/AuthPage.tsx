@@ -1,435 +1,161 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Shield, Mail, ArrowRight, BarChart, Truck, Package } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// Validação de formulários
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Digite um e-mail válido' }),
-  password: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres' }),
-});
+type LoginFormData = {
+  email: string;
+  password: string;
+};
 
-const registerSchema = z.object({
-  name: z.string().min(3, { message: 'O nome deve ter pelo menos 3 caracteres' }),
-  email: z.string().email({ message: 'Digite um e-mail válido' }),
-  password: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres' }),
-  confirmPassword: z.string(),
-}).refine(data => data.password === data.confirmPassword, {
-  message: "As senhas não conferem",
-  path: ["confirmPassword"],
-});
-
-const resetPasswordSchema = z.object({
-  email: z.string().email({ message: 'Digite um e-mail válido' }),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+type RegisterFormData = {
+  nome: string;
+  email: string;
+  telefone?: string;
+  password: string;
+};
 
 const AuthPage = () => {
-  const { toast } = useToast();
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [activeTab, setActiveTab] = useState("login");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('login');
+  const [error, setError] = useState<string | null>(null);
+  
+  const loginForm = useForm<LoginFormData>();
+  const registerForm = useForm<RegisterFormData>();
 
-  // Usar o parâmetro de URL para definir a tab ativa
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const registerParam = params.get('register');
-    const resetParam = params.get('reset');
+  const handleLogin = async (data: LoginFormData) => {
+    setIsLoading(true);
+    setError(null);
     
-    if (registerParam === 'true') {
-      setActiveTab('register');
-    } else if (resetParam === 'true') {
-      setActiveTab('reset');
-    }
-  }, [location]);
-
-  // Redirecionar se o usuário já estiver autenticado
-  useEffect(() => {
-    if (user) {
+    try {
+      await signIn(data.email, data.password);
       navigate('/');
-    }
-  }, [user, navigate]);
-
-  // Configuração dos formulários
-  const loginForm = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
-  });
-
-  const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
-  });
-
-  const resetPasswordForm = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { email: '' },
-  });
-
-  // Funções de submissão
-  const handleLogin = async (values: LoginFormValues) => {
-    setIsSubmitting(true);
-    try {
-      const { error } = await signIn(values.email, values.password);
-      if (error) {
-        throw new Error(error.message);
-      }
-      // Login bem-sucedido, redirecionamento é feito pelo useEffect
     } catch (error: any) {
-      toast({
-        title: "Falha no login",
-        description: error.message || "Ocorreu um erro ao fazer login. Verifique suas credenciais.",
-        variant: "destructive",
-      });
+      setError(error?.message || 'Ocorreu um erro ao fazer login.');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
-  const handleRegister = async (values: RegisterFormValues) => {
-    setIsSubmitting(true);
+  const handleRegister = async (data: RegisterFormData) => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      const { error } = await signUp(values.email, values.password);
-      if (error) {
-        throw new Error(error.message);
-      }
-      toast({
-        title: "Cadastro realizado com sucesso!",
-        description: "Verifique seu e-mail para confirmar seu cadastro.",
-      });
-      setActiveTab("login");
+      await signUp(data.email, data.password, data.nome, data.telefone);
+      setActiveTab('login');
     } catch (error: any) {
-      toast({
-        title: "Falha no cadastro",
-        description: error.message || "Ocorreu um erro ao criar sua conta.",
-        variant: "destructive",
-      });
+      setError(error?.message || 'Ocorreu um erro ao fazer cadastro.');
     } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleResetPassword = async (values: ResetPasswordFormValues) => {
-    setIsSubmitting(true);
-    try {
-      // Aqui implementaremos a lógica de reset de senha com Supabase
-      toast({
-        title: "E-mail enviado",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
-      });
-      setActiveTab("login");
-    } catch (error: any) {
-      toast({
-        title: "Falha no envio",
-        description: error.message || "Ocorreu um erro ao enviar o e-mail de recuperação.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Lado esquerdo - Banner */}
-      <div className="hidden lg:flex lg:w-1/2 bg-cross-blue relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cross-blue to-cross-blueDark opacity-90"></div>
-        <div className="relative z-10 p-12 flex flex-col justify-between h-full">
-          <div>
-            <div className="flex items-center">
-              <img src="/placeholder.svg" alt="CROSS Logo" className="h-10 w-10 mr-2" />
-              <h1 className="text-2xl font-heading text-white">CROSS</h1>
-            </div>
-          </div>
-          
-          <div className="max-w-md">
-            <h2 className="text-4xl font-heading text-white mb-6">Sistema completo para gestão logística</h2>
-            <p className="text-white/90 mb-8 text-lg">
-              Controle total da sua operação em uma única plataforma. Otimize processos, reduza erros e tome decisões mais inteligentes com base em dados em tempo real.
-            </p>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <div className="bg-white/20 rounded-full p-2 mr-4">
-                  <BarChart className="text-white h-5 w-5" />
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">Sistema Logístico</CardTitle>
+          <CardDescription>
+            Faça login ou crie sua conta para continuar
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-2 mb-4">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="register">Cadastro</TabsTrigger>
+            </TabsList>
+            
+            {error && (
+              <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-4">
+                {error}
+              </div>
+            )}
+            
+            <TabsContent value="login">
+              <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    {...loginForm.register('email', { required: true })}
+                  />
                 </div>
-                <p className="text-white">Dashboards de performance em tempo real</p>
-              </div>
-              <div className="flex items-center">
-                <div className="bg-white/20 rounded-full p-2 mr-4">
-                  <Truck className="text-white h-5 w-5" />
+                <div className="space-y-2">
+                  <Label htmlFor="password">Senha</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    {...loginForm.register('password', { required: true })}
+                  />
                 </div>
-                <p className="text-white">Gestão integrada de coletas e entregas</p>
-              </div>
-              <div className="flex items-center">
-                <div className="bg-white/20 rounded-full p-2 mr-4">
-                  <Package className="text-white h-5 w-5" />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Entrando...' : 'Entrar'}
+                </Button>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="register">
+              <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nome">Nome</Label>
+                  <Input
+                    id="nome"
+                    placeholder="Seu nome completo"
+                    {...registerForm.register('nome', { required: true })}
+                  />
                 </div>
-                <p className="text-white">Controle de armazenagem otimizado</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="text-white/80 text-sm">
-            &copy; {new Date().getFullYear()} CROSS Sistemas de Logística.
-          </div>
-        </div>
-      </div>
-      
-      {/* Lado direito - Formulários */}
-      <div className="flex items-center justify-center p-6 w-full lg:w-1/2">
-        <div className="w-full max-w-md">
-          {/* Botão para voltar à landing page */}
-          <div className="mb-8">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/')}
-              className="text-cross-gray"
-            >
-              Voltar para a página inicial
-            </Button>
-          </div>
-          
-          <Card className="border-none shadow-lg">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-heading text-center">Bem-vindo ao CROSS</CardTitle>
-              <CardDescription className="text-center">
-                {activeTab === 'login' && "Faça login para acessar sua conta"}
-                {activeTab === 'register' && "Crie uma nova conta para começar"}
-                {activeTab === 'reset' && "Recupere o acesso à sua conta"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="register">Cadastro</TabsTrigger>
-                </TabsList>
-                
-                {/* Tab de Login */}
-                <TabsContent value="login">
-                  <Form {...loginForm}>
-                    <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
-                      <FormField
-                        control={loginForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>E-mail</FormLabel>
-                            <FormControl>
-                              <Input placeholder="seu@email.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={loginForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Senha</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="********" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="text-right">
-                        <Button 
-                          type="button" 
-                          variant="link" 
-                          onClick={() => setActiveTab('reset')}
-                          className="p-0 h-auto text-cross-blue"
-                        >
-                          Esqueceu a senha?
-                        </Button>
-                      </div>
-                      <Button 
-                        type="submit" 
-                        className="w-full bg-cross-blue hover:bg-cross-blueDark"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Entrando..." : "Entrar"}
-                      </Button>
-                    </form>
-                  </Form>
-                </TabsContent>
-
-                {/* Tab de Cadastro */}
-                <TabsContent value="register">
-                  <Form {...registerForm}>
-                    <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
-                      <FormField
-                        control={registerForm.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nome completo</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Seu nome" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>E-mail</FormLabel>
-                            <FormControl>
-                              <Input placeholder="seu@email.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Senha</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="********" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Confirmar senha</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="********" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button 
-                        type="submit" 
-                        className="w-full bg-cross-blue hover:bg-cross-blueDark"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Criando conta..." : "Criar conta"}
-                      </Button>
-                    </form>
-                  </Form>
-                </TabsContent>
-                
-                {/* Tab de Recuperação de Senha */}
-                <TabsContent value="reset">
-                  <div className="mb-6 text-center">
-                    <div className="inline-block p-3 bg-blue-100 text-cross-blue rounded-full mb-4">
-                      <Mail className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-medium">Recuperar senha</h3>
-                    <p className="text-gray-500 text-sm mt-1">
-                      Enviaremos um link para redefinir sua senha no e-mail informado
-                    </p>
-                  </div>
-                  
-                  <Form {...resetPasswordForm}>
-                    <form onSubmit={resetPasswordForm.handleSubmit(handleResetPassword)} className="space-y-4">
-                      <FormField
-                        control={resetPasswordForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>E-mail</FormLabel>
-                            <FormControl>
-                              <Input placeholder="seu@email.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button 
-                        type="submit" 
-                        className="w-full bg-cross-blue hover:bg-cross-blueDark"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Enviando..." : "Enviar link de recuperação"}
-                      </Button>
-                      <Button 
-                        type="button" 
-                        variant="link" 
-                        onClick={() => setActiveTab('login')}
-                        className="w-full"
-                      >
-                        Voltar para o login
-                      </Button>
-                    </form>
-                  </Form>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-            <CardFooter>
-              <div className="text-center w-full text-sm text-gray-500">
-                {activeTab === 'login' ? (
-                  <p>
-                    Não tem uma conta?{" "}
-                    <Button 
-                      variant="link" 
-                      onClick={() => setActiveTab('register')}
-                      className="p-0 h-auto text-cross-blue"
-                    >
-                      Criar conta
-                    </Button>
-                  </p>
-                ) : activeTab === 'register' ? (
-                  <p>
-                    Já tem uma conta?{" "}
-                    <Button 
-                      variant="link" 
-                      onClick={() => setActiveTab('login')}
-                      className="p-0 h-auto text-cross-blue"
-                    >
-                      Fazer login
-                    </Button>
-                  </p>
-                ) : null}
-              </div>
-            </CardFooter>
-          </Card>
-          
-          <div className="mt-6 text-center text-sm text-gray-500">
-            <p>
-              Ao acessar o sistema, você concorda com nossos{" "}
-              <a href="#" className="text-cross-blue hover:underline">Termos de Serviço</a> e{" "}
-              <a href="#" className="text-cross-blue hover:underline">Política de Privacidade</a>.
-            </p>
-          </div>
-        </div>
-      </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-email">Email</Label>
+                  <Input
+                    id="register-email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    {...registerForm.register('email', { required: true })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="telefone">Telefone (opcional)</Label>
+                  <Input
+                    id="telefone"
+                    placeholder="(00) 00000-0000"
+                    {...registerForm.register('telefone')}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-password">Senha</Label>
+                  <Input
+                    id="register-password"
+                    type="password"
+                    {...registerForm.register('password', { required: true })}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Cadastrando...' : 'Cadastrar'}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-4">
+          <Separator />
+          <p className="text-sm text-center text-muted-foreground">
+            Ao continuar, você concorda com os termos de serviço e políticas de privacidade.
+          </p>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

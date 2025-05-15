@@ -32,6 +32,7 @@ export interface Usuario {
   status?: string;
   created_at: string;
   updated_at: string;
+  role?: string; // Adicionar propriedade role
   
   // Relacionamentos
   empresa?: Empresa;

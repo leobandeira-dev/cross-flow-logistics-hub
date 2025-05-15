@@ -77,11 +77,19 @@ const coletaService = {
     const { data, error } = await supabase
       .from('solicitacoes_coleta')
       .insert({
-        ...solicitacao,
         numero_solicitacao: numeroSolicitacao,
         data_solicitacao: new Date().toISOString(),
-        status: 'pendente'
-      })
+        tipo_coleta: solicitacao.tipo_coleta || 'padrao',
+        status: 'pendente',
+        empresa_solicitante_id: solicitacao.empresa_solicitante_id,
+        endereco_coleta: solicitacao.endereco_coleta,
+        cidade_coleta: solicitacao.cidade_coleta,
+        estado_coleta: solicitacao.estado_coleta,
+        cep_coleta: solicitacao.cep_coleta,
+        contato_nome: solicitacao.contato_nome,
+        contato_telefone: solicitacao.contato_telefone,
+        observacoes: solicitacao.observacoes
+      } as any)
       .select()
       .single();
     
@@ -123,10 +131,16 @@ const coletaService = {
     const { data, error } = await supabase
       .from('coletas')
       .insert({
-        ...coleta,
         numero_coleta: numeroColeta,
-        status: 'coletado'
-      })
+        solicitacao_id: coleta.solicitacao_id,
+        data_realizada: coleta.data_realizada || new Date().toISOString(),
+        motorista_id: coleta.motorista_id,
+        veiculo_id: coleta.veiculo_id,
+        quantidade_volumes: coleta.quantidade_volumes || 0,
+        peso_total: coleta.peso_total,
+        status: 'coletado',
+        observacoes: coleta.observacoes
+      } as any)
       .select()
       .single();
     
@@ -140,7 +154,7 @@ const coletaService = {
         .from('solicitacoes_coleta')
         .update({
           status: 'coletada',
-          data_coleta: coleta.data_realizada
+          data_coleta: coleta.data_realizada || new Date().toISOString()
         })
         .eq('id', coleta.solicitacao_id);
     }

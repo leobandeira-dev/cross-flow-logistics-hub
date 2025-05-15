@@ -1,72 +1,59 @@
 
 import React from 'react';
-import { Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
-
-export interface AuditEntry {
-  id: string;
-  timestamp: Date;
-  username: string;
-  action: string;
-  details?: string;
-}
+import { useAuditTrail } from '@/hooks/useAuditTrail';
 
 interface AuditTrailProps {
-  entries: AuditEntry[];
-  moduleName: string;
+  moduleId: string;
+  entityId?: string;
+  maxItems?: number;
 }
 
-const AuditTrail: React.FC<AuditTrailProps> = ({ entries, moduleName }) => {
+const AuditTrail: React.FC<AuditTrailProps> = ({ moduleId, entityId, maxItems = 5 }) => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin'; // This assumes user has a role property
-  
-  if (!isAdmin) {
-    return null; // Don't render anything for non-admins
+  const { auditLogs, isLoading } = useAuditTrail(moduleId, entityId);
+
+  // Determinar se o usuário pode ver os logs de auditoria
+  // Usuários com perfil admin podem ver todos os logs
+  const canViewAudit = user?.perfil?.nome === 'admin' || (user?.perfil?.permissoes && user?.perfil?.permissoes['audit:view']);
+
+  if (!canViewAudit) {
+    return null;
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center">
-          <Shield className="mr-2 text-cross-blue" size={20} />
-          Auditoria - {moduleName}
-        </CardTitle>
+    <Card className="w-full">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Histórico de Atividades</CardTitle>
       </CardHeader>
       <CardContent>
-        {entries.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">Nenhum registro de auditoria encontrado para este módulo.</p>
+        {isLoading ? (
+          <div className="flex justify-center py-4">
+            <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4"></div>
+          </div>
+        ) : auditLogs.length > 0 ? (
+          <div className="space-y-4">
+            {auditLogs.slice(0, maxItems).map((log, index) => (
+              <React.Fragment key={log.id || index}>
+                <div className="flex justify-between text-sm">
+                  <div>
+                    <span className="font-medium">{log.usuario?.nome || 'Sistema'}</span>
+                    <span className="text-muted-foreground"> {log.acao}</span>
+                  </div>
+                  <span className="text-muted-foreground text-xs">
+                    {new Date(log.data_hora).toLocaleString()}
+                  </span>
+                </div>
+                {index < auditLogs.length - 1 && <Separator />}
+              </React.Fragment>
+            ))}
+          </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data e Hora</TableHead>
-                <TableHead>Usuário</TableHead>
-                <TableHead>Ação</TableHead>
-                <TableHead>Detalhes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {entries.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell>
-                    {new Intl.DateTimeFormat('pt-BR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit'
-                    }).format(entry.timestamp)}
-                  </TableCell>
-                  <TableCell>{entry.username}</TableCell>
-                  <TableCell>{entry.action}</TableCell>
-                  <TableCell>{entry.details || '-'}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="text-center py-4 text-sm text-muted-foreground">
+            Nenhuma atividade registrada.
+          </div>
         )}
       </CardContent>
     </Card>
