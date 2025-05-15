@@ -8,37 +8,33 @@ import ConsultarOCTab from '@/components/carregamento/tabs/ConsultarOCTab';
 
 const OrdemCarregamento: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<string>(searchParams.get('tab') || 'criar');
+  const [activeTab, setActiveTab] = useState<string>('criar');
 
-  // Handler para mudança de tab
-  const handleTabChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('tab', value);
-    setSearchParams(newParams);
-    setActiveTab(value);
-  };
-
-  // Initialize tab from URL params
   useEffect(() => {
+    // Get tab from URL or default to 'criar'
     const tabParam = searchParams.get('tab');
-    if (tabParam) {
-      if (tabParam === 'criar' || tabParam === 'consultar') {
-        setActiveTab(tabParam);
-      } else {
-        // If invalid tab parameter, default to 'criar'
-        const newParams = new URLSearchParams(searchParams);
-        newParams.set('tab', 'criar');
-        setSearchParams(newParams);
-        setActiveTab('criar');
-      }
-    } else {
-      // If no tab parameter, default to 'criar'
+    if (tabParam && (tabParam === 'criar' || tabParam === 'consultar')) {
+      setActiveTab(tabParam);
+    } else if (tabParam && !(tabParam === 'criar' || tabParam === 'consultar')) {
+      // If invalid tab parameter, default to 'criar'
       const newParams = new URLSearchParams(searchParams);
       newParams.set('tab', 'criar');
       setSearchParams(newParams);
-      setActiveTab('criar');
+    } else if (!tabParam) {
+      // If no tab parameter, add default
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('tab', 'criar');
+      setSearchParams(newParams);
     }
-  }, [searchParams, setSearchParams]);
+  }, []);
+
+  // Handler for tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', value);
+    setSearchParams(newParams);
+  };
 
   return (
     <MainLayout title="Ordem de Carregamento">

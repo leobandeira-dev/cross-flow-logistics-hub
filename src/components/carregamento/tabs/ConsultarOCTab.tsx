@@ -7,7 +7,7 @@ import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import { FileText, Truck } from 'lucide-react';
 import { FilterConfig } from '@/components/common/SearchFilter';
-import { useOrdemCarregamento } from '@/hooks/carregamento/useOrdemCarregamento';
+import { useOrdemCarregamento } from '@/hooks/carregamento';
 import { useSearchParams } from 'react-router-dom';
 import ImportarNotasDialog from '@/components/carregamento/ImportarNotasDialog';
 
@@ -32,6 +32,7 @@ const ConsultarOCTab: React.FC = () => {
   } = useOrdemCarregamento();
 
   useEffect(() => {
+    // Fetch data when component mounts
     fetchOrdensCarregamento();
   }, [fetchOrdensCarregamento]);
 

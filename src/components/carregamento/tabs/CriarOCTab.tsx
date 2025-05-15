@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +6,8 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/hooks/use-toast';
-import { useOrdemCarregamento } from '@/hooks/carregamento/useOrdemCarregamento';
+import { toast } from '@/components/ui/use-toast';
+import { useOrdemCarregamento } from '@/hooks/carregamento';
 
 const tiposCarregamento = [
   { value: 'entrega', label: 'Entrega' },
