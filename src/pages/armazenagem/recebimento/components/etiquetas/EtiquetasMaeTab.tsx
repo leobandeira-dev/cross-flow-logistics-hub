@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Printer, Link as LinkIcon, Package, Truck } from 'lucide-react';
@@ -43,6 +44,7 @@ interface EtiquetasMaeTabProps {
   handleVincularVolumes?: (etiquetaMaeId: string, volumeIds: string[]) => void;
   handleCreateEtiquetaMae?: () => void;
   form?: UseFormReturn<any>;
+  returnUrl?: string; // New prop for return URL
 }
 
 const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
@@ -51,8 +53,10 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
   handlePrintEtiquetaMae,
   handleVincularVolumes,
   handleCreateEtiquetaMae,
-  form
+  form,
+  returnUrl
 }) => {
+  const navigate = useNavigate();
   const [vinculoDialogOpen, setVinculoDialogOpen] = useState(false);
   const [selectedEtiquetaMae, setSelectedEtiquetaMae] = useState<EtiquetaMae | null>(null);
 
@@ -67,14 +71,46 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
     }
   };
   
+  const handleCreateAndReturn = () => {
+    if (handleCreateEtiquetaMae) {
+      const result = handleCreateEtiquetaMae();
+      
+      // If we have a return URL, navigate back after creating the etiqueta mãe
+      if (returnUrl) {
+        setTimeout(() => {
+          navigate(returnUrl);
+        }, 1000);
+      }
+    }
+  };
+  
+  const handleSelectAndReturn = (etiqueta: EtiquetaMae) => {
+    if (returnUrl) {
+      // Pass selected etiqueta back to unitização page
+      navigate(returnUrl, { 
+        state: { 
+          selectedEtiquetaMae: etiqueta 
+        } 
+      });
+    }
+  };
+  
   return (
     <div className="space-y-6">
+      {returnUrl && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-md mb-4">
+          <p className="font-medium">Modo de seleção</p>
+          <p className="text-sm">Crie uma nova etiqueta mãe ou selecione uma existente para retornar à unitização de paletes.</p>
+        </div>
+      )}
+
       {form && handleCreateEtiquetaMae && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <EtiquetaMaeFormPanel 
               form={form}
-              handleCreateEtiquetaMae={handleCreateEtiquetaMae}
+              handleCreateEtiquetaMae={returnUrl ? handleCreateAndReturn : handleCreateEtiquetaMae}
+              isUnitizacaoMode={Boolean(returnUrl)}
             />
           </div>
           <div>
@@ -158,11 +194,24 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
                 accessor: 'actions',
                 cell: (row) => (
                   <div className="flex gap-2">
+                    {returnUrl && row.tipo === 'palete' && (
+                      <Button 
+                        variant="default" 
+                        size="sm"
+                        className="bg-cross-blue hover:bg-cross-blue/90"
+                        onClick={() => handleSelectAndReturn(row)}
+                      >
+                        <Package size={16} className="mr-1" />
+                        Selecionar
+                      </Button>
+                    )}
+
                     <Button variant="outline" size="sm">
                       <FileText size={16} className="mr-1" />
                       Detalhes
                     </Button>
-                    {handleVincularVolumes && (
+                    
+                    {handleVincularVolumes && !returnUrl && (
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -172,6 +221,7 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
                         Vincular
                       </Button>
                     )}
+                    
                     <Button 
                       variant="outline" 
                       size="sm"
