@@ -118,8 +118,8 @@ const ReportsDashboard = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full sm:w-80"
-              prefix={<Search className="h-4 w-4 text-muted-foreground" />}
             />
+            <Search className="h-4 w-4 text-muted-foreground absolute ml-3" />
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Select value={moduleFilter} onValueChange={setModuleFilter}>

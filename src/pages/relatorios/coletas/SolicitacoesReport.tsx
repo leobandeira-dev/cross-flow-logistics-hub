@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DatePicker } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
 import { BarChart, Download, FileText, Printer } from "lucide-react";
 import { format } from "date-fns";
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -46,15 +46,15 @@ const SolicitacoesReport = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
                 <DatePicker
-                  selected={startDate}
-                  onChange={setStartDate}
+                  date={startDate}
+                  setDate={setStartDate}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
                 <DatePicker
-                  selected={endDate}
-                  onChange={setEndDate}
+                  date={endDate}
+                  setDate={setEndDate}
                 />
               </div>
               <div>
