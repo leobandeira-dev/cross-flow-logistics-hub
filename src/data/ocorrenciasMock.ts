@@ -1,5 +1,4 @@
-
-import { Ocorrencia, OcorrenciaTimeline, OcorrenciaComment } from '@/types/ocorrencias.types';
+import { Ocorrencia, OcorrenciaTimeline, OcorrenciaComment, DocumentosMock } from '@/types/ocorrencias.types';
 
 // Dados fictícios para testar a interface
 export const ocorrencias: Ocorrencia[] = [
@@ -155,68 +154,68 @@ export const comments: OcorrenciaComment[] = [
   }
 ];
 
-export const documentosMock = [
-  {
-    id: 'NF-12345',
-    type: 'Nota Fiscal',
-    number: '12345',
-    date: '2023-05-10',
-    client: 'Indústria ABC Ltda',
-    value: 1250.75,
-    status: 'Emitida'
-  },
-  {
-    id: 'NF-6789',
-    type: 'Nota Fiscal',
-    number: '6789',
-    date: '2023-05-08',
-    client: 'Distribuidora XYZ',
-    value: 3450.00,
-    status: 'Entregue'
-  },
-  {
-    id: 'COL-456',
-    type: 'Coleta',
-    number: '456',
-    date: '2023-05-10',
-    client: 'Indústria ABC Ltda',
-    value: null,
-    status: 'Realizada'
-  },
-  {
-    id: 'COL-789',
-    type: 'Coleta',
-    number: '789',
-    date: '2023-05-09',
-    client: 'Transportes Rápidos',
-    value: null,
-    status: 'Pendente'
-  },
-  {
-    id: 'OC-123',
-    type: 'Ordem de Carregamento',
-    number: '123',
-    date: '2023-05-11',
-    client: 'Farmacêutica Beta',
-    value: null,
-    status: 'Carregado'
-  },
-  {
-    id: 'OC-234',
-    type: 'Ordem de Carregamento',
-    number: '234',
-    date: '2023-05-15',
-    client: 'Eletrônicos Tech',
-    value: null,
-    status: 'Agendado'
-  },
-  {
-    id: 'CTE-5678',
-    type: 'CT-e',
-    number: '5678',
-    date: '2023-05-11',
-    client: 'Indústria ABC Ltda',
-    value: 350.00,
-    status: 'Emitido'
-  }
-];
+export const documentosMock: DocumentosMock = {
+  notas: [
+    {
+      id: 'NF-12345',
+      numero: '12345',
+      cliente: 'Indústria ABC Ltda',
+      valor: 1250.75,
+      date: '2023-05-10',
+      status: 'Emitida'
+    },
+    {
+      id: 'NF-6789',
+      numero: '6789',
+      cliente: 'Distribuidora XYZ',
+      valor: 3450.00,
+      date: '2023-05-08',
+      status: 'Entregue'
+    },
+    {
+      id: 'CTE-5678',
+      tipo: 'CT-e',
+      numero: '5678',
+      cliente: 'Indústria ABC Ltda',
+      valor: 350.00,
+      date: '2023-05-11',
+      status: 'Emitido'
+    }
+  ],
+  coletas: [
+    {
+      id: 'COL-456',
+      numero: '456',
+      cliente: 'Indústria ABC Ltda',
+      notasFiscais: ['NF-12345'],
+      date: '2023-05-10',
+      status: 'Realizada'
+    },
+    {
+      id: 'COL-789',
+      numero: '789',
+      cliente: 'Transportes Rápidos',
+      notasFiscais: ['NF-6789'],
+      date: '2023-05-09',
+      status: 'Pendente'
+    }
+  ],
+  ordens: [
+    {
+      id: 'OC-123',
+      numero: '123',
+      cliente: 'Farmacêutica Beta',
+      notasFiscais: ['NF-12345', 'NF-6789'],
+      date: '2023-05-11',
+      status: 'Carregado'
+    },
+    {
+      id: 'OC-234',
+      numero: '234',
+      cliente: 'Eletrônicos Tech',
+      notasFiscais: ['NF-6789'],
+      date: '2023-05-15',
+      status: 'Agendado'
+    }
+  ]
+};

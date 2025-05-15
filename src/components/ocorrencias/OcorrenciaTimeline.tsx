@@ -2,7 +2,6 @@
 import React from 'react';
 import { Ocorrencia } from '@/types/ocorrencias.types';
 import { Card, CardContent } from '@/components/ui/card';
-import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
 
 interface OcorrenciaTimelineProps {
   ocorrencia: Ocorrencia;

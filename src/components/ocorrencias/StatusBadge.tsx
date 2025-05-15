@@ -12,28 +12,28 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className }) => {
   const statusConfig = {
     open: {
       label: 'Aberta',
-      variant: 'destructive' as const
+      className: 'bg-red-500 hover:bg-red-600 text-white'
     },
     in_progress: {
       label: 'Em Andamento',
-      variant: 'warning' as const
+      className: 'bg-amber-500 hover:bg-amber-600 text-white'
     },
     resolved: {
       label: 'Resolvida',
-      variant: 'success' as const
+      className: 'bg-green-500 hover:bg-green-600 text-white'
     },
     closed: {
       label: 'Fechada',
-      variant: 'outline' as const
+      className: 'bg-gray-500 hover:bg-gray-600 text-white'
     }
   };
 
-  const { label, variant } = statusConfig[status];
+  const { label, className: badgeClassName } = statusConfig[status];
 
   return (
     <Badge 
-      variant={variant} 
-      className={cn("font-normal", className)}
+      variant="default"
+      className={cn(badgeClassName, "font-normal", className)}
     >
       {label}
     </Badge>

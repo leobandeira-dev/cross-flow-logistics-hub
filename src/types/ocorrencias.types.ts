@@ -1,3 +1,4 @@
+
 export interface Ocorrencia {
   id: string;
   title: string;
@@ -57,11 +58,37 @@ export interface OcorrenciaComment {
 }
 
 export interface DocumentosMock {
-  id: string;
-  tipo: string;
-  numero: string;
-  descricao?: string;
-  data: string;
-  cliente: string;
-  status: string;
+  notas: {
+    id: string;
+    numero: string;
+    cliente: string;
+    valor: number;
+    type?: string;
+    number?: string;
+    date?: string;
+    client?: string;
+    status?: string;
+  }[];
+  coletas: {
+    id: string;
+    numero: string;
+    cliente: string;
+    notasFiscais: string[];
+    type?: string;
+    number?: string;
+    date?: string;
+    client?: string;
+    status?: string;
+  }[];
+  ordens: {
+    id: string;
+    numero: string;
+    cliente: string;
+    notasFiscais: string[];
+    type?: string;
+    number?: string;
+    date?: string;
+    client?: string;
+    status?: string;
+  }[];
 }
