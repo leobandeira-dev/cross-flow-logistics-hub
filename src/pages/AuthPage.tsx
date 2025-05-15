@@ -184,22 +184,6 @@ const AuthPage = () => {
       </Card>
     </div>
   );
-  
-  function handleRegister(data: RegisterFormData) {
-    setIsLoading(true);
-    setError(null);
-    
-    signUp(data.email, data.password, data.nome, data.telefone)
-      .then(() => {
-        setActiveTab('login');
-      })
-      .catch((error: any) => {
-        setError(error?.message || 'Ocorreu um erro ao fazer cadastro.');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }
 };
 
 export default AuthPage;
