@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from "uuid";
 
 // Define types for the palete data
 export interface PaleteUnitizado {
