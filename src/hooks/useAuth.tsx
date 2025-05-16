@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import authService from '@/services/authService';
 import { Usuario } from '@/types/supabase.types';
 import { toast } from '@/hooks/use-toast';
+import { Session } from '@supabase/supabase-js';
 
 type AuthContextType = {
   user: Usuario | null;
@@ -12,22 +13,27 @@ type AuthContextType = {
   signUp: (email: string, password: string, nome: string, telefone?: string) => Promise<void>;
   signOut: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Usuario | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     console.log('Setting up auth state listener');
     
     // Set up auth state listener first
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session ? 'session exists' : 'no session');
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      console.log('Auth state changed:', event, newSession ? 'session exists' : 'no session');
       
-      if (session) {
+      // Update session state immediately
+      setSession(newSession);
+      
+      if (newSession) {
         // Immediately update loading state to show we're working
         setLoading(true);
         
@@ -53,20 +59,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkUser = async () => {
       try {
         console.log('Checking for existing session');
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session: existingSession } } = await supabase.auth.getSession();
         
-        if (session) {
+        if (existingSession) {
           console.log('Existing session found, fetching user data');
+          setSession(existingSession);
           const userData = await authService.getCurrentUser();
           console.log('User data fetched for existing session:', userData);
           setUser(userData);
         } else {
           console.log('No existing session found');
           setUser(null);
+          setSession(null);
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
         setUser(null);
+        setSession(null);
       } finally {
         setLoading(false);
       }
@@ -133,6 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Attempting to sign out');
       await authService.signOut();
       setUser(null);
+      setSession(null);
       toast({
         title: "Logout realizado com sucesso",
         description: "Você foi desconectado do sistema.",
@@ -165,6 +175,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updatePassword = async (password: string) => {
+    try {
+      await authService.updatePassword(password);
+      toast({
+        title: "Senha atualizada",
+        description: "Sua senha foi atualizada com sucesso.",
+      });
+    } catch (error: any) {
+      console.error('Erro ao atualizar senha:', error);
+      toast({
+        title: "Erro ao atualizar senha",
+        description: error?.message || "Ocorreu um erro ao atualizar sua senha.",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -174,6 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signUp,
         signOut,
         forgotPassword,
+        updatePassword,
       }}
     >
       {children}

@@ -9,6 +9,7 @@ import LandingPage from '../pages/LandingPage';
 import Dashboard from '../pages/dashboard/Dashboard';
 import NotFound from '../pages/NotFound';
 import Index from '../pages/Index';
+import ResetPassword from '../pages/ResetPassword';
 
 // Páginas de Armazenagem
 import RecebimentoOverview from '../pages/armazenagem/RecebimentoOverview';
@@ -49,6 +50,12 @@ const AppRoutes = () => {
       <Route path="/auth" element={
         <PublicRoute>
           <AuthPage />
+        </PublicRoute>
+      } />
+      
+      <Route path="/reset-password" element={
+        <PublicRoute>
+          <ResetPassword />
         </PublicRoute>
       } />
       
