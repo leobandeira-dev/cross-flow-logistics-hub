@@ -9,6 +9,7 @@ import Dashboard from '../pages/dashboard/Dashboard';
 import NotFound from '../pages/NotFound';
 import Index from '../pages/Index';
 import ResetPassword from '../pages/ResetPassword';
+import UserProfilePage from '../pages/UserProfilePage';
 
 // Páginas de Armazenagem
 import RecebimentoOverview from '../pages/armazenagem/RecebimentoOverview';
@@ -63,6 +64,12 @@ const AppRoutes = () => {
       } />
       
       <Route path="/" element={<LandingPage />} />
+      
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <UserProfilePage />
+        </ProtectedRoute>
+      } />
       
       <Route path="/dashboard" element={
         <ProtectedRoute>

@@ -14,9 +14,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 export const UserProfileMenu: React.FC = () => {
-  const { profile, logout } = useUserProfile();
+  const { profile } = useUserProfile();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
   if (!profile) return null;
@@ -28,6 +30,15 @@ export const UserProfileMenu: React.FC = () => {
       .join('')
       .substring(0, 2)
       .toUpperCase();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
   };
 
   return (
@@ -56,7 +67,7 @@ export const UserProfileMenu: React.FC = () => {
         <DropdownMenuSeparator />
         
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => navigate('/perfil')}>
+          <DropdownMenuItem onClick={() => navigate('/profile')}>
             <User className="mr-2 h-4 w-4" />
             <span>Meu Perfil</span>
           </DropdownMenuItem>
@@ -68,7 +79,7 @@ export const UserProfileMenu: React.FC = () => {
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem onClick={logout} className="text-red-500 focus:text-red-500">
+        <DropdownMenuItem onClick={handleLogout} className="text-red-500 focus:text-red-500">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sair</span>
         </DropdownMenuItem>
