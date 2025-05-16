@@ -14,7 +14,7 @@ export const useAuthState = () => {
     console.log('Setting up auth state listener');
     
     // Set up auth state listener first
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log('Auth state changed:', event, newSession ? 'session exists' : 'no session');
       
       // Update session state immediately
@@ -72,7 +72,7 @@ export const useAuthState = () => {
 
     return () => {
       console.log('Cleaning up auth listener');
-      authListener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 

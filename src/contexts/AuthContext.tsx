@@ -1,5 +1,5 @@
 
-import React, { createContext } from 'react';
+import React, { createContext, useContext } from 'react';
 import { Usuario } from "@/types/supabase.types";
 
 type AuthContextType = {
@@ -15,7 +15,7 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuthContext = (): AuthContextType => {
-  const context = React.useContext(AuthContext);
+  const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuthContext deve ser usado dentro de um AuthProvider');
   }

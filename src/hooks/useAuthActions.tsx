@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import authService from '@/services/auth';
 import { toast } from '@/hooks/use-toast';
+import { Usuario } from '@/types/supabase.types';
 
 export const useAuthActions = (
   setLoading: (loading: boolean) => void,
+  setUser: (user: Usuario | null) => void
 ) => {
   const signIn = async (email: string, password: string): Promise<void> => {
     setLoading(true);
@@ -58,6 +60,7 @@ export const useAuthActions = (
     try {
       console.log('Attempting to sign out');
       await authService.signOut();
+      setUser(null);
       toast({
         title: "Logout realizado com sucesso",
         description: "Você foi desconectado do sistema.",
