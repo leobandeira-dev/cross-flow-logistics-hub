@@ -1,7 +1,6 @@
 
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useEffect } from 'react';
 
 // Pages Import
 import AuthPage from '../pages/AuthPage';
@@ -45,6 +44,10 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
 
 const AppRoutes = () => {
+  const { user } = useAuth();
+  
+  console.log('AppRoutes rendering, user authenticated:', !!user);
+  
   return (
     <Routes>
       <Route path="/auth" element={
