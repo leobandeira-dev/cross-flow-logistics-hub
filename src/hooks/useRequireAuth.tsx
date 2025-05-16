@@ -9,7 +9,7 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate(redirectUrl);
+      navigate(redirectUrl, { state: { from: window.location.pathname } });
     }
   }, [user, loading, navigate, redirectUrl]);
 

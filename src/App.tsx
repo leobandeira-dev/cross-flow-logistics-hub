@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, BrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth'; 
@@ -8,6 +9,7 @@ import AuthPage from './pages/AuthPage';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/dashboard/Dashboard';
 import NotFound from './pages/NotFound';
+import Index from './pages/Index';
 
 // Páginas de Armazenagem
 import RecebimentoOverview from './pages/armazenagem/RecebimentoOverview';
@@ -111,6 +113,8 @@ function AppRoutes() {
           <Dashboard />
         </ProtectedRoute>
       } />
+
+      <Route path="/index" element={<Index />} />
 
       {/* Armazenagem */}
       <Route path="/armazenagem/recebimento" element={

@@ -10,6 +10,8 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 type LoginFormData = {
   email: string;
@@ -95,7 +97,16 @@ const AuthPage = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 p-4">
+      <div className="mb-6 w-full max-w-md">
+        <Button variant="link" asChild className="p-0">
+          <Link to="/" className="flex items-center text-primary">
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Voltar para a página inicial
+          </Link>
+        </Button>
+      </div>
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Sistema Logístico</CardTitle>
