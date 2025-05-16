@@ -7,7 +7,7 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
   useEffect(() => {
-    console.log('PublicRoute check - user:', !!user, 'loading:', loading);
+    console.log('PublicRoute check - user:', user ? 'authenticated' : 'not authenticated', 'loading:', loading);
   }, [user, loading]);
   
   if (loading) {

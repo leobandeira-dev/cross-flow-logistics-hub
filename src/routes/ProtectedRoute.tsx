@@ -8,7 +8,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   
   useEffect(() => {
-    console.log('ProtectedRoute check - user:', !!user, 'loading:', loading);
+    console.log('ProtectedRoute check - user:', user ? 'authenticated' : 'not authenticated', 'loading:', loading);
   }, [user, loading]);
   
   if (loading) {

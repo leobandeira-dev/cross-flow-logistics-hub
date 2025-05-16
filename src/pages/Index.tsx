@@ -8,7 +8,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('Index page - checking auth state: user:', !!user, 'loading:', loading);
+    console.log('Index page - checking auth state: user:', user ? 'authenticated' : 'not authenticated', 'loading:', loading);
     
     if (!loading) {
       if (user) {

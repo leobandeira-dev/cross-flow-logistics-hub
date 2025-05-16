@@ -125,11 +125,20 @@ const authService = {
       
       if (error) {
         console.error('AuthService: Error fetching user data:', error);
-        return null;
+        // Se houver erro na consulta, ainda retornamos os dados básicos do usuário
+        return {
+          id: user.id,
+          email: user.email,
+          nome: user.user_metadata?.nome || '',
+          telefone: user.user_metadata?.telefone,
+          created_at: user.created_at,
+          updated_at: user.updated_at,
+        } as Usuario;
       }
       
       if (!userData) {
         console.log('AuthService: No user data found for ID:', user.id);
+        // Se não encontrar o perfil no banco, criamos um registro básico em memória
         return {
           id: user.id,
           email: user.email,
@@ -144,7 +153,15 @@ const authService = {
       return userData as Usuario;
     } catch (error) {
       console.error('AuthService: Exception fetching user data:', error);
-      return null;
+      // Em caso de erro, retornamos os dados básicos do usuário
+      return {
+        id: user.id,
+        email: user.email,
+        nome: user.user_metadata?.nome || '',
+        telefone: user.user_metadata?.telefone,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+      } as Usuario;
     }
   },
 
