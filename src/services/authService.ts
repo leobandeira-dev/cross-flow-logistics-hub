@@ -104,7 +104,7 @@ const authService = {
   /**
    * Retorna o usuário atual
    */
-  async getCurrentUser() {
+  async getCurrentUser(): Promise<Usuario | null> {
     console.log('AuthService: Checking current user');
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -126,6 +126,18 @@ const authService = {
       if (error) {
         console.error('AuthService: Error fetching user data:', error);
         return null;
+      }
+      
+      if (!userData) {
+        console.log('AuthService: No user data found for ID:', user.id);
+        return {
+          id: user.id,
+          email: user.email,
+          nome: user.user_metadata?.nome || '',
+          telefone: user.user_metadata?.telefone,
+          created_at: user.created_at,
+          updated_at: user.updated_at,
+        } as Usuario;
       }
       
       console.log('AuthService: User data retrieved successfully:', userData);

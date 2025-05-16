@@ -24,25 +24,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Setting up auth state listener');
     
     // Set up auth state listener first
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session ? 'session exists' : 'no session');
       
       if (session) {
-        // Don't use async directly in the callback to prevent deadlocks
-        // Use setTimeout to defer the async operation
-        setTimeout(async () => {
-          try {
-            console.log('Fetching user data after auth state change');
-            const userData = await authService.getCurrentUser();
-            console.log('User data fetched:', userData);
-            setUser(userData);
-            setLoading(false);
-          } catch (error) {
-            console.error('Error fetching user data after state change:', error);
-            setUser(null);
-            setLoading(false);
-          }
-        }, 0);
+        // Immediately update loading state to show we're working
+        setLoading(true);
+        
+        try {
+          console.log('Fetching user data after auth state change');
+          const userData = await authService.getCurrentUser();
+          console.log('User data fetched:', userData);
+          setUser(userData);
+        } catch (error) {
+          console.error('Error fetching user data after state change:', error);
+          setUser(null);
+        } finally {
+          setLoading(false);
+        }
       } else {
         console.log('No session in auth state change, clearing user state');
         setUser(null);
@@ -88,11 +87,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await authService.signIn({ email, password });
       console.log('Sign in successful in useAuth');
       
-      // No need to manually set user here as it will be handled by the onAuthStateChange listener
+      // We'll let the onAuthStateChange listener update the user state
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo de volta!",
       });
+      
+      // Important: don't set loading to false here as the auth state change will do it
     } catch (error: any) {
       console.error('Erro ao fazer login:', error);
       toast({
@@ -100,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: error?.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
-      setLoading(false); // Make sure to set loading to false on error
+      setLoading(false); // Set loading to false on error
       throw error;
     }
   };

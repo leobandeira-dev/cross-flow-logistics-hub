@@ -6,7 +6,7 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://jnpgduntqwiqcvvykhta.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucGdkdW50cXdpcWN2dnlraHRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5NzM4NDIsImV4cCI6MjA2MjU0OTg0Mn0.UUN9xFVGEGOctzmUQJ2XTDOqINkgZJQeaSV1scX7f6U";
 
-// Configure o cliente Supabase com opções apropriadas para autenticação
+// Configure o cliente Supabase com opções explícitas para autenticação
 export const supabase = createClient<Database>(
   SUPABASE_URL, 
   SUPABASE_PUBLISHABLE_KEY,
