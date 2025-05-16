@@ -1,7 +1,6 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import authService from '@/services/authService';
+import authService from '@/services/auth';
 import { Usuario } from '@/types/supabase.types';
 import { toast } from '@/hooks/use-toast';
 import { Session } from '@supabase/supabase-js';
