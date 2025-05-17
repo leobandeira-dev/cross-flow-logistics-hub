@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
@@ -83,7 +84,7 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
                     </div>
                     <div className="col-span-2">
                       <p className="text-sm font-medium text-gray-500">Notas Fiscais</p>
-                      <p className="text-sm">{selectedRequest.notas.join(', ')}</p>
+                      <p className="text-sm">{selectedRequest.notas?.join(', ')}</p>
                     </div>
                     
                     {selectedRequest.status !== 'pending' && (

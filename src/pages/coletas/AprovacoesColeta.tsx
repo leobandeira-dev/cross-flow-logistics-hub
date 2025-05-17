@@ -8,6 +8,8 @@ import DetalhesAprovacaoDialog from './components/DetalhesAprovacaoDialog';
 import DocumentoAprovacaoRenderer from './components/DocumentoAprovacaoRenderer';
 import { solicitacoesPendentes as mockPendentes, historicoAprovacoes as mockHistorico } from './data/aprovacoesMock';
 import { SolicitacaoColeta } from './types/coleta.types';
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 const AprovacoesColeta = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -180,6 +182,8 @@ const AprovacoesColeta = () => {
         onApprove={handleApprove}
         onReject={handleReject}
       />
+      
+      <Toaster />
     </MainLayout>
   );
 };
