@@ -11,6 +11,17 @@ import { SolicitacaoColeta } from './types/coleta.types';
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
+// Check the props interface for DetalhesAprovacaoDialog
+export interface DetalhesAprovacaoDialogProps {
+  isOpen: boolean;
+  onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedRequest: SolicitacaoColeta | null;
+  isRejecting: boolean;
+  setIsRejecting: React.Dispatch<React.SetStateAction<boolean>>;
+  onApprove: (solicitacaoId: string, observacoes?: string) => void;
+  onReject: (solicitacaoId: string, motivoRecusa: string) => void;
+}
+
 const AprovacoesColeta = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<SolicitacaoColeta | null>(null);

@@ -1,181 +1,229 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Card, CardContent } from '@/components/ui/card'; // Add missing imports
-import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { SolicitacaoColeta } from '../types/coleta.types';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 
-interface DetalhesAprovacaoDialogProps {
+export interface DetalhesAprovacaoDialogProps {
   isOpen: boolean;
-  onClose: () => void; // Keep onClose for backward compatibility
-  onOpenChange?: (open: boolean) => void; // Add onOpenChange for newer components
-  solicitacao: SolicitacaoColeta | null;
+  onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedRequest: SolicitacaoColeta | null;
+  isRejecting: boolean;
+  setIsRejecting: React.Dispatch<React.SetStateAction<boolean>>;
+  onApprove: (solicitacaoId: string, observacoes?: string) => void;
+  onReject: (solicitacaoId: string, motivoRecusa: string) => void;
 }
-
-// Helper function to format date strings
-const formatDate = (dateString: string) => {
-  try {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  } catch (e) {
-    return dateString;
-  }
-};
-
-// Status badge renderer
-const StatusBadge = ({ status }: { status: string }) => {
-  const variantMap: Record<string, "default" | "destructive" | "outline" | "secondary"> = {
-    pending: 'outline',
-    approved: 'default',
-    rejected: 'destructive',
-  };
-
-  const labelMap: Record<string, string> = {
-    pending: 'Pendente',
-    approved: 'Aprovada',
-    rejected: 'Recusada',
-  };
-
-  return (
-    <Badge variant={variantMap[status] || 'outline'}>
-      {labelMap[status] || status}
-    </Badge>
-  );
-};
 
 const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
   isOpen,
-  onClose,
   onOpenChange,
-  solicitacao
+  selectedRequest,
+  isRejecting,
+  setIsRejecting,
+  onApprove,
+  onReject
 }) => {
-  if (!solicitacao) return null;
+  const [motivoRecusa, setMotivoRecusa] = React.useState('');
+  const [observacoes, setObservacoes] = React.useState('');
+  
+  // Reset form when dialog opens with new data
+  React.useEffect(() => {
+    if (isOpen && selectedRequest) {
+      setMotivoRecusa('');
+      setObservacoes(selectedRequest.observacoes || '');
+    }
+  }, [isOpen, selectedRequest]);
 
-  // Use either onOpenChange or onClose for compatibility
-  const handleOpenChange = (open: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(open);
-    } else if (!open) {
-      onClose();
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "—";
+    return dateString;
+  };
+
+  const handleConfirmReject = () => {
+    if (selectedRequest) {
+      onReject(selectedRequest.id, motivoRecusa);
+      onOpenChange(false);
+      setIsRejecting(false);
     }
   };
 
+  if (!selectedRequest) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-[800px]">
-        <DialogHeader>
-          <DialogTitle>Detalhes da Solicitação #{solicitacao.id}</DialogTitle>
-        </DialogHeader>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="text-lg font-medium">Informações da Solicitação</h3>
-                <p className="text-sm text-muted-foreground">
-                  Criada em {formatDate(solicitacao.dataSolicitacao || solicitacao.data || '')}
-                </p>
-              </div>
-              <StatusBadge status={solicitacao.status} />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <p className="text-sm font-medium">Cliente</p>
-                <p className="text-muted-foreground">{solicitacao.cliente}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Solicitante</p>
-                <p className="text-muted-foreground">{solicitacao.solicitante}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Origem</p>
-                <p className="text-muted-foreground">{solicitacao.origem}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Destino</p>
-                <p className="text-muted-foreground">{solicitacao.destino}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Volumes</p>
-                <p className="text-muted-foreground">{solicitacao.volumes}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Peso</p>
-                <p className="text-muted-foreground">{solicitacao.peso}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <>
+      <Dialog open={isOpen && !isRejecting} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Solicitação {selectedRequest.id}</DialogTitle>
+          </DialogHeader>
 
-        <Separator className="my-4" />
-
-        {solicitacao.status === 'approved' && (
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-lg font-medium mb-2">Informações da Aprovação</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium">Aprovado por</p>
-                  <p className="text-muted-foreground">{(solicitacao as any).aprovador}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Data da Aprovação</p>
-                  <p className="text-muted-foreground">{formatDate((solicitacao as any).dataAprovacao)}</p>
-                </div>
-                {(solicitacao as any).observacoes && (
-                  <div className="col-span-2">
-                    <p className="text-sm font-medium">Observações</p>
-                    <p className="text-muted-foreground">{(solicitacao as any).observacoes}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-medium mb-3">Informações da Solicitação</h3>
+                <dl className="space-y-2">
+                  <div className="flex justify-between">
+                    <dt className="font-medium text-gray-500">ID da Solicitação:</dt>
+                    <dd>{selectedRequest.id}</dd>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {solicitacao.status === 'rejected' && (
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-lg font-medium mb-2">Informações da Recusa</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium">Recusado por</p>
-                  <p className="text-muted-foreground">{(solicitacao as any).aprovador}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Data da Recusa</p>
-                  <p className="text-muted-foreground">{formatDate((solicitacao as any).dataAprovacao)}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-sm font-medium">Motivo da Recusa</p>
-                  <p className="text-muted-foreground">{(solicitacao as any).motivoRecusa}</p>
-                </div>
-                {(solicitacao as any).observacoes && (
-                  <div className="col-span-2">
-                    <p className="text-sm font-medium">Observações</p>
-                    <p className="text-muted-foreground">{(solicitacao as any).observacoes}</p>
+                  <div className="flex justify-between">
+                    <dt className="font-medium text-gray-500">Data da Solicitação:</dt>
+                    <dd>{formatDate(selectedRequest.dataSolicitacao)}</dd>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                  <div className="flex justify-between">
+                    <dt className="font-medium text-gray-500">Cliente:</dt>
+                    <dd>{selectedRequest.cliente}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="font-medium text-gray-500">Solicitante:</dt>
+                    <dd>{selectedRequest.solicitante}</dd>
+                  </div>
+                  {selectedRequest.status !== 'pending' && (
+                    <>
+                      <div className="flex justify-between">
+                        <dt className="font-medium text-gray-500">Aprovador:</dt>
+                        <dd>{selectedRequest.status === 'approved' || selectedRequest.status === 'rejected' 
+                          ? (selectedRequest as any).aprovador 
+                          : '—'}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="font-medium text-gray-500">Data de Aprovação:</dt>
+                        <dd>{selectedRequest.status === 'approved' || selectedRequest.status === 'rejected'
+                          ? formatDate((selectedRequest as any).dataAprovacao)
+                          : '—'}</dd>
+                      </div>
+                    </>
+                  )}
+                </dl>
+              </CardContent>
+            </Card>
 
-        <div className="flex justify-end mt-4">
-          <Button variant="outline" onClick={onClose}>
-            Fechar
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-medium mb-3">Detalhes da Coleta</h3>
+                <dl className="space-y-2">
+                  <div className="flex justify-between">
+                    <dt className="font-medium text-gray-500">Data da Coleta:</dt>
+                    <dd>{selectedRequest.data}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="font-medium text-gray-500">Origem:</dt>
+                    <dd>{selectedRequest.origem}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="font-medium text-gray-500">Destino:</dt>
+                    <dd>{selectedRequest.destino}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="font-medium text-gray-500">Prioridade:</dt>
+                    <dd className={`font-medium ${
+                      selectedRequest.status === 'pending' && (selectedRequest as any).prioridade === 'Alta' 
+                        ? 'text-red-500' 
+                        : 'text-gray-700'
+                    }`}>
+                      {selectedRequest.status === 'pending' ? (selectedRequest as any).prioridade : '—'}
+                    </dd>
+                  </div>
+                </dl>
+              </CardContent>
+            </Card>
+
+            <Card className="md:col-span-2">
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-medium mb-3">Notas Fiscais e Volumes</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-2">Notas Fiscais:</h4>
+                    <ul className="list-disc list-inside">
+                      {selectedRequest.notas && selectedRequest.notas.map((nota, index) => (
+                        <li key={index}>{nota}</li>
+                      ))}
+                      {!selectedRequest.notas?.length && <li className="text-gray-400">Nenhuma nota fiscal informada</li>}
+                    </ul>
+                  </div>
+                  <div>
+                    <dl className="space-y-2">
+                      <div className="flex justify-between">
+                        <dt className="font-medium text-gray-500">Volumes:</dt>
+                        <dd>{selectedRequest.volumes}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="font-medium text-gray-500">Peso:</dt>
+                        <dd>{selectedRequest.peso}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Observações */}
+          <div className="mt-4">
+            <h3 className="text-lg font-medium mb-2">Observações</h3>
+            <textarea
+              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              rows={3}
+              value={observacoes}
+              onChange={(e) => setObservacoes(e.target.value)}
+              placeholder="Observações para a aprovação (opcional)"
+            />
+          </div>
+
+          <div className="mt-6 flex justify-end space-x-2">
+            {selectedRequest.status === 'pending' && (
+              <>
+                <Button variant="outline" onClick={() => setIsRejecting(true)}>
+                  Recusar
+                </Button>
+                <Button onClick={() => onApprove(selectedRequest.id, observacoes)}>
+                  Aprovar
+                </Button>
+              </>
+            )}
+            {selectedRequest.status !== 'pending' && (
+              <Button onClick={() => onOpenChange(false)}>
+                Fechar
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de confirmação de recusa */}
+      <AlertDialog open={isRejecting} onOpenChange={setIsRejecting}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Recusar solicitação?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Por favor, informe o motivo da recusa:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <textarea
+            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            rows={3}
+            value={motivoRecusa}
+            onChange={(e) => setMotivoRecusa(e.target.value)}
+            placeholder="Motivo da recusa (obrigatório)"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsRejecting(false)}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmReject}
+              disabled={!motivoRecusa.trim()}
+              className={!motivoRecusa.trim() ? 'opacity-50 cursor-not-allowed' : ''}
+            >
+              Confirmar Recusa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

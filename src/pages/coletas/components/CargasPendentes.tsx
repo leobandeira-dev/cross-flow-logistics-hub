@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Carga } from '../types/coleta.types';
 import { useMemo } from 'react';
 import SearchFilter from '@/components/common/SearchFilter';
 import { filterConfig } from './CargasPendentes/filterConfig';
-import AlocacaoModal from './AlocacaoModal';
+import AlocacaoModal from '../AlocacaoModal';
 import RoteirizacaoModal from './RoteirizacaoModal';
 import { Tag, Route, Map } from 'lucide-react';
 
@@ -16,7 +15,7 @@ interface CargasPendentesProps {
   cargas: Carga[];
   currentPage: number;
   setCurrentPage: (page: number) => void;
-  onAlocar: (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
+  onAlocar?: (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
 }
 
 const CargasPendentes: React.FC<CargasPendentesProps> = ({ 
@@ -194,10 +193,11 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
       <AlocacaoModal
         isOpen={isAlocacaoModalOpen}
         onClose={() => setIsAlocacaoModalOpen(false)}
-        cargasIds={selectedCargasIds}
         cargas={cargas.filter(carga => selectedCargasIds.includes(carga.id))}
-        onAlocar={(motoristaId, motoristaName, veiculoId, veiculoName) => {
-          onAlocar(selectedCargasIds, motoristaId, motoristaName, veiculoId, veiculoName);
+        onConfirm={(cargasIds, motoristaId, motoristaName, veiculoId, veiculoName) => {
+          if (onAlocar) {
+            onAlocar(selectedCargasIds, motoristaId, motoristaName, veiculoId, veiculoName);
+          }
           setIsAlocacaoModalOpen(false);
         }}
       />
