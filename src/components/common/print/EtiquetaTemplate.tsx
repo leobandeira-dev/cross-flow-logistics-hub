@@ -18,6 +18,7 @@ interface EtiquetaTemplateProps {
     tipoVolume?: 'geral' | 'quimico';
     codigoONU?: string;
     codigoRisco?: string;
+    classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
     etiquetaMae?: string;
     chaveNF?: string;
     descricao?: string;
@@ -42,6 +43,19 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
     
     // For etiqueta mãe with no linked volumes
     const isStandaloneEtiquetaMae = isMae && !volumeData.notaFiscal;
+    
+    // Get classification text
+    const getClassificacaoText = () => {
+      switch (volumeData.classificacaoQuimica) {
+        case 'nao_perigosa':
+          return 'Cargas Não Perigosas';
+        case 'perigosa':
+          return 'Cargas Perigosas';
+        case 'nao_classificada':
+        default:
+          return 'Cargas Não Classificadas';
+      }
+    };
     
     // Render the selected layout based on layoutStyle
     const renderLayout = () => {
@@ -144,15 +158,20 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
           
           {/* Chemical product info if applicable */}
           {isQuimico && (
-            <div className="col-span-7 bg-yellow-100 p-1 border border-yellow-500 rounded flex justify-between items-center mt-1">
+            <div className="col-span-7 bg-yellow-100 p-1 border border-yellow-500 rounded flex flex-col justify-between items-start mt-1">
               <div>
                 <div className="text-xs font-bold">PRODUTO QUÍMICO</div>
                 <div className="text-xs">
                   <span className="font-bold">ONU:</span> {volumeData.codigoONU || 'N/A'}
                   <span className="font-bold ml-2">RISCO:</span> {volumeData.codigoRisco || 'N/A'}
                 </div>
+                <div className="text-xs mt-1">
+                  <span className="font-bold">CLASSIFICAÇÃO:</span> {getClassificacaoText()}
+                </div>
               </div>
-              <Biohazard size={24} className="text-red-600" />
+              <div className="self-end">
+                <Biohazard size={24} className="text-red-600" />
+              </div>
             </div>
           )}
         </div>
@@ -269,6 +288,9 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                     <div className="text-sm">
                       <span className="font-bold">RISCO:</span> {volumeData.codigoRisco || 'N/A'}
                     </div>
+                    <div className="text-sm mt-1 border-t pt-1">
+                      <span className="font-bold">CLASSIFICAÇÃO:</span> {getClassificacaoText()}
+                    </div>
                   </div>
                   <Biohazard size={40} className="text-red-600" />
                 </div>
@@ -334,15 +356,18 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
               </div>
               
               {isQuimico && (
-                <div className="bg-yellow-100 p-2 border-2 border-yellow-500 rounded flex items-center space-x-2">
-                  <Biohazard size={30} className="text-red-600" />
+                <div className="bg-yellow-100 p-2 border-2 border-yellow-500 rounded flex items-start space-x-2">
+                  <Biohazard size={30} className="text-red-600 mt-1" />
                   <div>
                     <div className="text-xs font-bold">PRODUTO QUÍMICO</div>
                     <div className="text-xs">
                       <span className="font-bold">ONU:</span> {volumeData.codigoONU || 'N/A'}
                     </div>
-                    <div className="text-sm">
+                    <div className="text-xs">
                       <span className="font-bold">RISCO:</span> {volumeData.codigoRisco || 'N/A'}
+                    </div>
+                    <div className="text-xs mt-1 pt-1 border-t border-yellow-400">
+                      <span className="font-bold">CLASSIFICAÇÃO:</span> {getClassificacaoText()}
                     </div>
                   </div>
                 </div>

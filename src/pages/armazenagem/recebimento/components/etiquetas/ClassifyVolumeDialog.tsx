@@ -18,6 +18,7 @@ interface Volume {
   tipoVolume?: 'geral' | 'quimico';
   codigoONU?: string;
   codigoRisco?: string;
+  classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   [key: string]: any;
 }
 
@@ -38,7 +39,8 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
     defaultValues: {
       tipoVolume: volume?.tipoVolume || 'geral',
       codigoONU: volume?.codigoONU || '',
-      codigoRisco: volume?.codigoRisco || ''
+      codigoRisco: volume?.codigoRisco || '',
+      classificacaoQuimica: volume?.classificacaoQuimica || 'nao_classificada'
     }
   });
 
@@ -48,7 +50,8 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
       form.reset({
         tipoVolume: volume.tipoVolume || 'geral',
         codigoONU: volume.codigoONU || '',
-        codigoRisco: volume.codigoRisco || ''
+        codigoRisco: volume.codigoRisco || '',
+        classificacaoQuimica: volume.classificacaoQuimica || 'nao_classificada'
       });
     }
   }, [volume, form]);
@@ -149,6 +152,32 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
                       <FormControl>
                         <Input placeholder="Ex: 33" {...field} />
                       </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="classificacaoQuimica"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Classificação</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione a classificação" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="nao_perigosa">Cargas Não Perigosas</SelectItem>
+                          <SelectItem value="perigosa">Cargas Perigosas</SelectItem>
+                          <SelectItem value="nao_classificada">Cargas Não Classificadas</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormItem>
                   )}
                 />

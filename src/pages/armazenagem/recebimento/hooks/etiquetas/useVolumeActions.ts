@@ -16,7 +16,8 @@ export const useVolumeActions = () => {
     notaFiscalData: any,
     tipoVolume: 'geral' | 'quimico' = 'geral',
     codigoONU?: string,
-    codigoRisco?: string
+    codigoRisco?: string,
+    classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada'
   ): Volume[] => {
     if (!notaFiscal || quantidadeVolumes <= 0) return [];
     
@@ -50,6 +51,7 @@ export const useVolumeActions = () => {
         tipoVolume,
         codigoONU,
         codigoRisco,
+        classificacaoQuimica: tipoVolume === 'quimico' ? classificacaoQuimica || 'nao_classificada' : undefined,
         etiquetaMae: '',
       });
     }
@@ -69,7 +71,8 @@ export const useVolumeActions = () => {
           ...vol,
           tipoVolume: formData.tipoVolume,
           codigoONU: formData.codigoONU,
-          codigoRisco: formData.codigoRisco
+          codigoRisco: formData.codigoRisco,
+          classificacaoQuimica: formData.tipoVolume === 'quimico' ? formData.classificacaoQuimica : undefined
         };
       }
       return vol;

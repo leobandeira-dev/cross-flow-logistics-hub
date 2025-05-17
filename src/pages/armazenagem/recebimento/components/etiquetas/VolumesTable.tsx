@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,10 +12,6 @@ export interface Volume {
   descricao: string;
   quantidade: number;
   etiquetado: boolean;
-  tipoVolume?: 'geral' | 'quimico';
-  codigoONU?: string;
-  codigoRisco?: string;
-  etiquetaMae?: string;
   remetente?: string;
   destinatario?: string;
   endereco?: string;
@@ -25,7 +20,13 @@ export interface Volume {
   uf?: string;
   pesoTotal?: string;
   chaveNF?: string;
-  [key: string]: any;
+  etiquetaMae?: string;
+  tipoEtiquetaMae?: 'geral' | 'palete';
+  tipoVolume?: 'geral' | 'quimico';
+  codigoONU?: string;
+  codigoRisco?: string;
+  classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
+  transportadora?: string;
 }
 
 interface VolumesTableProps {

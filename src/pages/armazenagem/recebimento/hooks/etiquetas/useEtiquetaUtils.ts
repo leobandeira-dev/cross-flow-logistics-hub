@@ -35,7 +35,8 @@ export const useEtiquetaUtils = () => {
       chaveNF: volume.chaveNF || notaFiscalData?.chaveNF || '',
       transportadora: notaFiscalData?.transportadora || notaFiscalData?.transportadoraNome || 'Transportadora não especificada',
       codigoONU: volume.codigoONU || '',
-      codigoRisco: volume.codigoRisco || ''
+      codigoRisco: volume.codigoRisco || '',
+      classificacaoQuimica: volume.classificacaoQuimica || 'nao_classificada'
     };
   };
   

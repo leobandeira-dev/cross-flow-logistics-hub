@@ -50,6 +50,23 @@ const VolumeTypeFields: React.FC<VolumeTypeFieldsProps> = ({ form }) => {
               placeholder="Ex: 33"
             />
           </div>
+          <div>
+            <Label htmlFor="classificacaoQuimica">Classificação</Label>
+            <Select 
+              defaultValue="nao_classificada"
+              onValueChange={(value) => form.setValue('classificacaoQuimica', value)}
+              value={form.watch('classificacaoQuimica', 'nao_classificada')}
+            >
+              <SelectTrigger id="classificacaoQuimica">
+                <SelectValue placeholder="Selecione a classificação" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="nao_perigosa">Cargas Não Perigosas</SelectItem>
+                <SelectItem value="perigosa">Cargas Perigosas</SelectItem>
+                <SelectItem value="nao_classificada">Cargas Não Classificadas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </>
       )}
     </>
