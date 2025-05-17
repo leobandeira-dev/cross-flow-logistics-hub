@@ -13,6 +13,39 @@ export const useAuthState = () => {
   useEffect(() => {
     console.log('Setting up auth state listener');
     
+    // Função para processar tokens da URL (convites, reset de senha, etc)
+    const processUrlParams = async () => {
+      // Verificar se há parâmetros de autenticação na URL (inclusive convites)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
+      
+      if (accessToken && refreshToken) {
+        console.log(`Encontrado token na URL, tipo: ${type}`);
+        try {
+          // Setar a sessão com os tokens da URL
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) throw error;
+          
+          // Limpar URL após processamento dos tokens
+          window.history.replaceState(null, document.title, window.location.pathname);
+          
+          console.log('Sessão definida com sucesso a partir dos parâmetros da URL');
+          return; // Não prosseguir, pois o onAuthStateChange será acionado
+        } catch (error) {
+          console.error('Erro ao processar tokens da URL:', error);
+        }
+      }
+    };
+    
+    // Processar parâmetros da URL primeiro
+    processUrlParams();
+    
     // Configurar o listener de mudanças de estado de autenticação primeiro
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log('Auth state changed:', event, newSession ? 'session exists' : 'no session');

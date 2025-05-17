@@ -12,10 +12,10 @@ export const supabase = createClient<Database>(
   SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storage: localStorage
+      persistSession: true,  // Manter sessão persistente entre atualizações de página
+      autoRefreshToken: true, // Atualizar token automaticamente
+      detectSessionInUrl: true, // Detectar sessão na URL (importante para convites e reset de senha)
+      storage: localStorage  // Armazenar dados de autenticação no localStorage
     }
   }
 );

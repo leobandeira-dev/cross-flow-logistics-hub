@@ -51,6 +51,13 @@ const AppRoutes = () => {
   
   return (
     <Routes>
+      {/* Rota especial para processar tokens de autenticação */}
+      <Route path="/auth/*" element={
+        <PublicRoute>
+          <AuthPage />
+        </PublicRoute>
+      } />
+      
       <Route path="/auth" element={
         <PublicRoute>
           <AuthPage />
