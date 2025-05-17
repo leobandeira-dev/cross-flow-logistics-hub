@@ -13,19 +13,9 @@ const AuthPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [processingInvite, setProcessingInvite] = useState(false);
-
-  // Verifica se há tokens de convite ou outros parâmetros na URL
+  
+  // Verificar parâmetros na URL para definir qual aba mostrar
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const type = hashParams.get('type');
-    
-    if (type === 'invite') {
-      setProcessingInvite(true);
-      setSuccess("Processando convite, por favor aguarde...");
-    }
-    
-    // Check URL parameters for registration tab
     const params = new URLSearchParams(location.search);
     if (params.get('register') === 'true') {
       setActiveTab('register');
@@ -44,16 +34,9 @@ const AuthPage = () => {
     
     if (user && !loading) {
       console.log('User is authenticated, redirecting to:', from);
-      // Limpar mensagem de processamento de convite
-      setProcessingInvite(false);
       navigate(from, { replace: true });
-    } else if (!loading && processingInvite) {
-      // Se não está mais carregando mas estava processando um convite
-      // e não há usuário, algo deu errado
-      setProcessingInvite(false);
-      setError("Não foi possível processar o convite. Por favor, entre em contato com o administrador.");
     }
-  }, [user, loading, navigate, from, processingInvite]);
+  }, [user, loading, navigate, from]);
 
   const handleForgotPasswordClick = () => {
     setShowForgotPassword(true);
@@ -64,17 +47,10 @@ const AuthPage = () => {
   };
 
   // Show loading state while checking authentication
-  if (loading || processingInvite) {
+  if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
-          {processingInvite && (
-            <p className="text-center text-gray-600">
-              Processando seu convite, por favor aguarde...
-            </p>
-          )}
-        </div>
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
       </div>
     );
   }
