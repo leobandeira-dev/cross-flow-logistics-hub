@@ -4,13 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Carga } from '../../types/coleta.types';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Archive, Package, Calculator, MapPin, SortDesc, Trash2, Truck } from 'lucide-react';
+import { Archive, Package, Calculator, MapPin, SortDesc, Trash2, Truck, Route, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchFilter from '@/components/common/SearchFilter';
 import { filterConfig } from './filterConfig';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import AlocacaoModal from '../AlocacaoModal';
+import RoteirizacaoModal from '../RoteirizacaoModal';
+import MapaRotaModal from '../MapaRotaModal';
 import { toast } from '@/hooks/use-toast';
 
 interface CargasPreRomaneioProps {
@@ -32,6 +34,8 @@ const CargasPreRomaneio: React.FC<CargasPreRomaneioProps> = ({
   const [selectedCargasIds, setSelectedCargasIds] = useState<string[]>([]);
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [isAlocacaoModalOpen, setIsAlocacaoModalOpen] = useState(false);
+  const [isRoteirizacaoModalOpen, setIsRoteirizacaoModalOpen] = useState(false);
+  const [isMapaRotaModalOpen, setIsMapaRotaModalOpen] = useState(false);
   
   // Filter cargas by search value
   const filteredCargas = useMemo(() => {
@@ -272,6 +276,29 @@ const CargasPreRomaneio: React.FC<CargasPreRomaneioProps> = ({
                     variant="outline" 
                     size="sm"
                     onClick={() => {
+                      toggleSelectCargasInGroup(groupName, true);
+                      setIsRoteirizacaoModalOpen(true);
+                    }}
+                    className="flex items-center"
+                  >
+                    <Route className="h-4 w-4 mr-2" /> Roteirizar
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      toggleSelectCargasInGroup(groupName, true);
+                      setIsMapaRotaModalOpen(true);
+                    }}
+                  >
+                    <Map className="h-4 w-4 mr-2" /> Ver no Mapa
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
                       toast({
                         title: "Impressão iniciada",
                         description: "Pré-Romaneio enviado para impressão."
@@ -319,6 +346,19 @@ const CargasPreRomaneio: React.FC<CargasPreRomaneioProps> = ({
           setIsAlocacaoModalOpen(false);
           setSelectedCargasIds([]);
         }}
+      />
+      
+      <RoteirizacaoModal
+        isOpen={isRoteirizacaoModalOpen}
+        onClose={() => setIsRoteirizacaoModalOpen(false)}
+        cargas={cargas.filter(carga => selectedCargasIds.includes(carga.id))}
+      />
+      
+      <MapaRotaModal
+        isOpen={isMapaRotaModalOpen}
+        onClose={() => setIsMapaRotaModalOpen(false)}
+        motorista={null}
+        cargas={cargas.filter(carga => selectedCargasIds.includes(carga.id))}
       />
     </>
   );
