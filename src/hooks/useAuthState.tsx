@@ -9,9 +9,11 @@ export const useAuthState = () => {
   const [user, setUser] = useState<Usuario | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [connectionError, setConnectionError] = useState<boolean>(false);
 
   useEffect(() => {
     console.log('Setting up auth state listener');
+    let connectionTimeout: ReturnType<typeof setTimeout>;
     
     // Função para processar tokens da URL (convites, reset de senha, etc)
     const processUrlParams = async () => {
@@ -39,6 +41,7 @@ export const useAuthState = () => {
           return; // Não prosseguir, pois o onAuthStateChange será acionado
         } catch (error) {
           console.error('Erro ao processar tokens da URL:', error);
+          setConnectionError(true);
         }
       }
     };
@@ -62,9 +65,12 @@ export const useAuthState = () => {
           const userData = await authService.getCurrentUser();
           console.log('User data fetched:', userData);
           setUser(userData);
+          setConnectionError(false);
+          clearTimeout(connectionTimeout);
         } catch (error) {
           console.error('Error fetching user data after state change:', error);
           setUser(null);
+          setConnectionError(true);
         } finally {
           setLoading(false);
         }
@@ -79,14 +85,38 @@ export const useAuthState = () => {
     const checkUser = async () => {
       try {
         console.log('Checking for existing session');
-        const { data: { session: existingSession } } = await supabase.auth.getSession();
+        
+        // Set a timeout to detect connection issues
+        connectionTimeout = setTimeout(() => {
+          console.log('Connection timeout reached - setting connection error state');
+          setConnectionError(true);
+          setLoading(false);
+        }, 5000); // 5 seconds timeout
+        
+        const { data: { session: existingSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setConnectionError(true);
+          setUser(null);
+          setSession(null);
+          setLoading(false);
+          return;
+        }
+        
+        clearTimeout(connectionTimeout);
         
         if (existingSession) {
           console.log('Existing session found, fetching user data');
           setSession(existingSession);
-          const userData = await authService.getCurrentUser();
-          console.log('User data fetched for existing session:', userData);
-          setUser(userData);
+          try {
+            const userData = await authService.getCurrentUser();
+            console.log('User data fetched for existing session:', userData);
+            setUser(userData);
+          } catch (userError) {
+            console.error('Error fetching user data:', userError);
+            setUser(null);
+          }
         } else {
           console.log('No existing session found');
           setUser(null);
@@ -94,6 +124,7 @@ export const useAuthState = () => {
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
+        setConnectionError(true);
         setUser(null);
         setSession(null);
       } finally {
@@ -106,8 +137,9 @@ export const useAuthState = () => {
     return () => {
       console.log('Cleaning up auth listener');
       subscription.unsubscribe();
+      clearTimeout(connectionTimeout);
     };
   }, []);
 
-  return { user, session, setUser, loading, setLoading };
+  return { user, session, setUser, loading, setLoading, connectionError };
 };
