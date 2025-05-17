@@ -52,6 +52,12 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
 
   // Function to load Google Maps script safely
   const loadGoogleMapsScript = () => {
+    // Check if the script is already loaded
+    if (window.google && window.google.maps) {
+      initMap();
+      return;
+    }
+    
     // Check if the script is already in the document
     const existingScript = document.getElementById('google-maps-script');
     
@@ -98,7 +104,8 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       googleMapRef.current = null;
     }
     
-    // Clean up global callback
+    // Clean up global callback but don't remove the script
+    // This prevents DOM-related errors when unmounting
     if (window.initMap) {
       window.initMap = () => {};
     }

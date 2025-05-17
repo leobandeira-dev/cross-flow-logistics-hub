@@ -26,28 +26,18 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const modalContentRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
   
   // Reset selected card when modal opens or cargas change
   useEffect(() => {
     if (isOpen) {
       setSelectedCardId(null);
       
-      // Clear any existing timer
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      
-      // Delay setting map ready to ensure proper DOM arrangement
-      timerRef.current = setTimeout(() => {
+      // Give the DOM time to render before initializing the map
+      const timer = setTimeout(() => {
         setIsMapReady(true);
-      }, 300); // Increased delay for more reliability
+      }, 300);
       
-      return () => {
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-      };
+      return () => clearTimeout(timer);
     } else {
       setIsMapReady(false);
     }
@@ -73,13 +63,6 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   const handleClose = () => {
     setSelectedCardId(null);
     setIsMapReady(false);
-    
-    // Clear any existing timer
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    
     onClose();
   };
   
