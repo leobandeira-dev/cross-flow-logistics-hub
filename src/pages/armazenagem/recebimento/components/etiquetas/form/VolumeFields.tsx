@@ -9,7 +9,8 @@ interface VolumeFieldsProps {
 }
 
 const VolumeFields: React.FC<VolumeFieldsProps> = ({ form }) => {
-  const { register } = form;
+  const { register, watch } = form;
+  const volumesTotal = watch('volumesTotal', '');
 
   return (
     <div>
@@ -22,6 +23,7 @@ const VolumeFields: React.FC<VolumeFieldsProps> = ({ form }) => {
         pattern="[0-9]*"
         min="1"
         placeholder="Quantidade de volumes"
+        value={volumesTotal}
       />
     </div>
   );

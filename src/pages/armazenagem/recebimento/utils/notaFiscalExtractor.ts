@@ -1,4 +1,3 @@
-
 import { NotaFiscalSchemaType } from '../components/forms/notaFiscalSchema';
 
 /**
@@ -13,7 +12,7 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
     
     // Accessing the XML content in a more resilient way
     const nfe = nfeProc.nfe || nfeProc.NFe;
-    const infNFe = nfe?.infnfe || nfe?.infNfe || nfe?.infNFe;
+    const infNFe = nfe?.infnfe || nfe?.infNFe || nfe?.infNFe;
     
     if (!infNFe) {
       console.error("Estrutura de XML não reconhecida:", xmlData);
@@ -195,6 +194,14 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
     const informacoesComplementares = getValue(infAdic, ['infcpl']) || getValue(infAdic, ['infCpl']);
     console.log("Informações complementares extraídas:", informacoesComplementares);
     
+    // Extract volumesTotal field properly
+    const volumesTotal = getValue(transp, ['vol', 'qvol']) || 
+                         getValue(transp, ['vol', 'qVol']) ||
+                         getValue(transp, ['volumes']) ||
+                         '';
+                         
+    console.log("Volumes totais extraídos:", volumesTotal);
+    
     // Extracting data with the helper function
     return {
       // Note data
@@ -231,7 +238,8 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
       responsavelEntrega: getValue(transp, ['transporta', 'xnome']) || getValue(transp, ['transporta', 'xNome']),
       motorista: getValue(transp, ['veictransp', 'placa']) ? 
         `Placa: ${getValue(transp, ['veictransp', 'placa'])}` : '',
-      volumesTotal: getValue(transp, ['vol', 'qvol']) || getValue(transp, ['vol', 'qVol']),
+      volumesTotal: volumesTotal,
+      volumesTotais: volumesTotal, // Add both formats to ensure compatibility
       pesoTotalBruto: getValue(transp, ['vol', 'pesob']) || getValue(transp, ['vol', 'pesoB']),
       
       // Additional information
