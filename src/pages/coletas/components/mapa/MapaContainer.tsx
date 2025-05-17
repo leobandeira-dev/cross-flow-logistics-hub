@@ -113,7 +113,6 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
     // Clear map
     if (googleMapRef.current) {
       google.maps.event.clearInstanceListeners(googleMapRef.current);
-      googleMapRef.current = null;
     }
     
     // Reset initialization flag
@@ -142,6 +141,10 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       if (window.google && window.google.maps) {
         cleanup();
       }
+      
+      // Set map to null without removing it from DOM
+      // This is critical to avoid the "removeChild" error
+      googleMapRef.current = null;
     };
   }, []);
 

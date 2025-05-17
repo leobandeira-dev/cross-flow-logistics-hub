@@ -40,6 +40,9 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
       return () => {
         clearTimeout(timer);
       };
+    } else {
+      // When modal closes, we hide the map first
+      setMapVisible(false);
     }
   }, [isOpen]);
   
@@ -74,7 +77,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
     // Delay the actual closing to allow React to process state changes
     setTimeout(() => {
       onClose();
-    }, 100);
+    }, 200);
   };
   
   return (
@@ -110,7 +113,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
                 onCardSelect={openGoogleMaps} 
               />
 
-              {mapVisible && isOpen && (
+              {mapVisible && (
                 <MapaContainer 
                   cargas={cargas} 
                   selectedCardId={selectedCardId} 
