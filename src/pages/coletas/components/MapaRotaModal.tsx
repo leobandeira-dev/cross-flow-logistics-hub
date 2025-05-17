@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Carga } from '../types/coleta.types';
@@ -199,7 +198,10 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
         destination,
         waypoints,
         optimizeWaypoints: true,
-        travelMode: google.maps.TravelMode.DRIVING
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+        avoidHighways: false,
+        avoidTolls: false,
       },
       (response, status) => {
         if (status === google.maps.DirectionsStatus.OK) {
