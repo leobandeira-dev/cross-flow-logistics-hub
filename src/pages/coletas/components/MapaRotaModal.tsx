@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Carga } from '../types/coleta.types';
 import { Map } from 'lucide-react';
@@ -23,6 +23,13 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
 }) => {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   
+  // Reset selected card when modal opens or cargas change
+  useEffect(() => {
+    if (isOpen && cargas.length > 0) {
+      setSelectedCardId(null);
+    }
+  }, [isOpen, cargas]);
+  
   // Função para abrir o Google Maps com o endereço
   const openGoogleMaps = (carga: Carga) => {
     const address = `${carga.destino}, ${carga.cep}, Brasil`;
@@ -33,8 +40,14 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
     setSelectedCardId(carga.id);
   };
   
+  // Handle close with cleanup
+  const handleClose = () => {
+    setSelectedCardId(null);
+    onClose();
+  };
+  
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-[90vw] w-[800px]">
         <DialogHeader>
           <DialogTitle className="flex items-center">
@@ -44,24 +57,28 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
         </DialogHeader>
         
         <div className="py-4">
-          <CargaCards 
-            cargas={cargas} 
-            selectedCardId={selectedCardId} 
-            onCardSelect={openGoogleMaps} 
-          />
+          {isOpen && (
+            <>
+              <CargaCards 
+                cargas={cargas} 
+                selectedCardId={selectedCardId} 
+                onCardSelect={openGoogleMaps} 
+              />
 
-          <MapaContainer 
-            cargas={cargas} 
-            selectedCardId={selectedCardId} 
-            setSelectedCardId={setSelectedCardId} 
-          />
+              <MapaContainer 
+                cargas={cargas} 
+                selectedCardId={selectedCardId} 
+                setSelectedCardId={setSelectedCardId} 
+              />
 
-          <RotaInfo 
-            showInfo={cargas.length > 1} 
-            cargasCount={cargas.length} 
-          />
-          
-          <MapaLegenda />
+              <RotaInfo 
+                showInfo={cargas.length > 1} 
+                cargasCount={cargas.length} 
+              />
+              
+              <MapaLegenda />
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>

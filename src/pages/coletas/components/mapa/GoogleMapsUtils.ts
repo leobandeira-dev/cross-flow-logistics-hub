@@ -21,14 +21,17 @@ export const initializeMarkers = (
 ): void => {
   if (!map || cargas.length === 0) return;
   
-  // Limpar marcadores existentes
-  markersRef.current.forEach(marker => marker.setMap(null));
+  // Clear existing markers
+  markersRef.current.forEach(marker => {
+    google.maps.event.clearListeners(marker, 'click');
+    marker.setMap(null);
+  });
   markersRef.current = [];
   
   const bounds = new google.maps.LatLngBounds();
   const geocoder = new google.maps.Geocoder();
   
-  // Para cada carga, fazer a geocodificação do endereço
+  // For each carga, geocode the address
   cargas.forEach((carga, index) => {
     const enderecoCompleto = `${carga.destino}, ${carga.cep}, Brasil`;
     
@@ -36,7 +39,7 @@ export const initializeMarkers = (
       if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
         const position = results[0].geometry.location;
         
-        // Criar marcador
+        // Create marker
         const marker = new google.maps.Marker({
           position,
           map,
@@ -51,14 +54,14 @@ export const initializeMarkers = (
           }
         });
         
-        // Adicionar ao array de marcadores
+        // Add to markers array
         markersRef.current.push(marker);
         
-        // Adicionar evento de clique no marcador
+        // Add click event to the marker
         marker.addListener('click', () => {
           onSelectCard(carga.id);
           
-          // Criar janela de informação
+          // Create info window
           const infoWindow = new google.maps.InfoWindow({
             content: `
               <div style="padding: 8px;">
@@ -70,19 +73,19 @@ export const initializeMarkers = (
             `
           });
           
-          // Usar o método open apenas com o mapa e definir a posição diretamente
+          // Use setPosition method directly followed by open with map
           infoWindow.setPosition(marker.getPosition());
           infoWindow.open(map);
         });
         
-        // Expandir os limites do mapa para incluir este marcador
+        // Extend the bounds of the map to include this marker
         bounds.extend(position);
         
-        // Ajustar o mapa para incluir todos os marcadores
+        // Adjust the map to include all markers
         if (index === cargas.length - 1) {
           map.fitBounds(bounds);
           
-          // Evitar zoom excessivo quando há poucos marcadores
+          // Avoid excessive zoom when there are few markers
           const listener = google.maps.event.addListener(map, 'idle', () => {
             if (map.getZoom() && map.getZoom() > 16) {
               map.setZoom(16);
@@ -96,7 +99,7 @@ export const initializeMarkers = (
     });
   });
   
-  // Se temos uma rota definida (mais de uma carga), mostrar a linha da rota
+  // If we have a route defined (more than one carga), show the route line
   if (cargas.length > 1) {
     renderRoute(map, cargas);
   }
@@ -111,7 +114,7 @@ export const renderRoute = (map: google.maps.Map, cargasRota: Carga[]): void => 
   const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer({
     map,
-    suppressMarkers: true, // Não mostrar os marcadores padrão do directions
+    suppressMarkers: true, // Don't show the default markers from directions
     polylineOptions: {
       strokeColor: '#4285F4',
       strokeWeight: 5,
@@ -119,20 +122,20 @@ export const renderRoute = (map: google.maps.Map, cargasRota: Carga[]): void => 
     }
   });
   
-  // Obter endereços para origem e destinos
+  // Get addresses for origin and destinations
   const enderecos = cargasRota.map(carga => `${carga.destino}, ${carga.cep}, Brasil`);
   
-  // Configurar a rota com o primeiro como origem e o último como destino
+  // Configure the route with the first as origin and the last as destination
   const origin = enderecos[0];
   const destination = enderecos[enderecos.length - 1];
   
-  // Pontos intermediários (waypoints)
+  // Intermediate points (waypoints)
   const waypoints = enderecos.slice(1, -1).map(endereco => ({
     location: endereco,
     stopover: true
   }));
   
-  // Solicitar a rota
+  // Request the route
   directionsService.route(
     {
       origin,
@@ -148,7 +151,7 @@ export const renderRoute = (map: google.maps.Map, cargasRota: Carga[]): void => 
       if (status === google.maps.DirectionsStatus.OK) {
         directionsRenderer.setDirections(response);
         
-        // Calcular distância total e tempo estimado
+        // Calculate total distance and estimated time
         let distanciaTotal = 0;
         let tempoTotal = 0;
         
@@ -159,12 +162,12 @@ export const renderRoute = (map: google.maps.Map, cargasRota: Carga[]): void => 
             if (leg.duration) tempoTotal += leg.duration.value;
           });
           
-          // Converter para formatos mais legíveis
+          // Convert to more readable formats
           const distanciaKm = (distanciaTotal / 1000).toFixed(1);
           const tempoHoras = Math.floor(tempoTotal / 3600);
           const tempoMinutos = Math.floor((tempoTotal % 3600) / 60);
           
-          // Exibir informações da rota
+          // Display route information
           toast({
             title: "Rota calculada",
             description: `Distância total: ${distanciaKm} km. Tempo estimado: ${tempoHoras}h ${tempoMinutos}min.`,

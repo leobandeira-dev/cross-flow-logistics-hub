@@ -19,43 +19,17 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
 
   // Função para carregar o script do Google Maps
   useEffect(() => {
     if (!mapRef.current) return;
     
-    // Cleanup function para remover o script quando o componente for desmontado
-    const cleanupScript = () => {
-      const existingScript = document.getElementById('google-maps-script');
-      if (existingScript) {
-        existingScript.remove();
-      }
-      
-      // Limpar marcadores
-      if (markersRef.current.length > 0) {
-        markersRef.current.forEach(marker => marker.setMap(null));
-        markersRef.current = [];
-      }
-      
-      // Limpar mapa
-      googleMapRef.current = null;
-    };
-    
-    // Remover script existente antes de adicionar um novo
-    cleanupScript();
-    
-    // Adicionar script do Google Maps
-    const googleMapsScript = document.createElement('script');
-    googleMapsScript.id = 'google-maps-script';
-    googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBpywkIjAfeo7YKzS85lcLxJFCAEfcQPmg&libraries=places&callback=initMap`;
-    googleMapsScript.async = true;
-    googleMapsScript.defer = true;
-    
-    // Função para inicializar o mapa após o carregamento do script
-    window.initMap = () => {
+    // Function to initialize map after script is loaded
+    const initMap = () => {
       if (!mapRef.current) return;
       
-      // Criar mapa
+      // Create map
       const newMap = new google.maps.Map(mapRef.current, {
         center: { lat: -23.5505, lng: -46.6333 }, // São Paulo como centro inicial
         zoom: 10,
@@ -64,16 +38,55 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       
       googleMapRef.current = newMap;
       
-      // Adicionar marcadores para cada carga
+      // Add markers for each cargo
       initializeMarkers(newMap, cargas, markersRef, setSelectedCardId);
       
       setIsLoading(false);
     };
+
+    // Set global callback function
+    window.initMap = initMap;
     
-    document.head.appendChild(googleMapsScript);
+    // Check if script already exists
+    if (!scriptRef.current) {
+      const googleMapsScript = document.createElement('script');
+      googleMapsScript.id = 'google-maps-script';
+      googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBpywkIjAfeo7YKzS85lcLxJFCAEfcQPmg&libraries=places&callback=initMap&loading=async`;
+      googleMapsScript.async = true;
+      googleMapsScript.defer = true;
+      document.head.appendChild(googleMapsScript);
+      scriptRef.current = googleMapsScript;
+    } else {
+      // If script exists but map needs to be reinitialized
+      if (window.google && window.google.maps) {
+        initMap();
+      }
+    }
     
-    return cleanupScript;
-  }, [cargas]);
+    // Cleanup function
+    return () => {
+      // Clear markers
+      if (markersRef.current.length > 0) {
+        markersRef.current.forEach(marker => {
+          google.maps.event.clearListeners(marker, 'click');
+          marker.setMap(null);
+        });
+        markersRef.current = [];
+      }
+      
+      // Clear map
+      if (googleMapRef.current) {
+        google.maps.event.clearInstanceListeners(googleMapRef.current);
+        googleMapRef.current = null;
+      }
+      
+      // Don't remove the script on component unmount, as it might be needed by other components
+      // Instead, just clean up the callback to avoid memory leaks
+      if (window.initMap) {
+        window.initMap = () => {};
+      }
+    };
+  }, [cargas, setSelectedCardId]);
 
   return (
     <div ref={mapRef} className="h-[400px] rounded-md border bg-muted/20 relative">
@@ -88,5 +101,12 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
     </div>
   );
 };
+
+// Add typing for the global window object
+declare global {
+  interface Window {
+    initMap: () => void;
+  }
+}
 
 export default MapaContainer;
