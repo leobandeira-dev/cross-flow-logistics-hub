@@ -173,6 +173,7 @@ const CargasAlocacao: React.FC = () => {
   const [cargasFinalizadas, setCargasFinalizadas] = useState<Carga[]>(
     mockCargas.filter(carga => carga.status === 'delivered' || carga.status === 'problem')
   );
+  const [preRomaneioCargas, setPreRomaneioCargas] = useState<Carga[]>([]);
   
   const [currentPendentesPage, setCurrentPendentesPage] = useState(1);
   const [currentEmRotaPage, setCurrentEmRotaPage] = useState(1);
@@ -201,22 +202,53 @@ const CargasAlocacao: React.FC = () => {
     });
   };
   
-  // Função para alocar coletas para um motorista
-  const handleAlocarColetas = (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => {
-    // Atualizar as cargas pendentes
-    const novasCargasPendentes = cargasPendentes.filter(carga => !cargasIds.includes(carga.id));
-    
-    // Atualizar as cargas em rota com as novas alocações
-    const cargasAlocadas = cargasPendentes
+  // Função para gerar pré-romaneio
+  const handleGerarPreRomaneio = (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => {
+    // Selecionar cargas para o pré-romaneio
+    const cargasParaPreRomaneio = cargasPendentes
       .filter(carga => cargasIds.includes(carga.id))
       .map(carga => ({
         ...carga,
-        status: 'transit' as const,
-        motorista: motoristaName,
-        veiculo: veiculoName
+        tipoVeiculo: tipoVeiculoNome,
+        tipoVeiculoId: tipoVeiculoId,
+        grupoRota: `PR-${new Date().getTime().toString().slice(-6)}`  // Identificador do grupo de rota
       }));
     
+    // Remover cargas da lista de pendentes
+    const novasCargasPendentes = cargasPendentes.filter(carga => !cargasIds.includes(carga.id));
+    
     setCargasPendentes(novasCargasPendentes);
+    setPreRomaneioCargas(prev => [...prev, ...cargasParaPreRomaneio]);
+    
+    toast({
+      title: "Pré-romaneio gerado",
+      description: `${cargasIds.length} carga(s) agrupada(s) em um pré-romaneio com veículo tipo ${tipoVeiculoNome}.`,
+    });
+  };
+  
+  // Função para alocar coletas para um motorista
+  const handleAlocarColetas = (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => {
+    // Verificar se as cargas estão no pré-romaneio ou nas pendentes
+    const cargasPreRomaneioDaAlocacao = preRomaneioCargas.filter(carga => cargasIds.includes(carga.id));
+    const cargasPendentesDaAlocacao = cargasPendentes.filter(carga => cargasIds.includes(carga.id));
+    
+    // Juntar todas as cargas da alocação
+    const cargasDaAlocacao = [...cargasPreRomaneioDaAlocacao, ...cargasPendentesDaAlocacao];
+    
+    // Atualizar as cargas em rota com as novas alocações
+    const cargasAlocadas = cargasDaAlocacao.map(carga => ({
+      ...carga,
+      status: 'transit' as const,
+      motorista: motoristaName,
+      veiculo: veiculoName
+    }));
+    
+    // Remover as cargas das listas originais
+    const novasCargasPendentes = cargasPendentes.filter(carga => !cargasIds.includes(carga.id));
+    const novasPreRomaneioCargas = preRomaneioCargas.filter(carga => !cargasIds.includes(carga.id));
+    
+    setCargasPendentes(novasCargasPendentes);
+    setPreRomaneioCargas(novasPreRomaneioCargas);
     setCargasEmRota([...cargasEmRota, ...cargasAlocadas]);
     
     toast({
@@ -249,6 +281,28 @@ const CargasAlocacao: React.FC = () => {
       variant: status === 'delivered' ? "default" : "destructive",
     });
   };
+  
+  // Voltar cargas do pré-romaneio para pendentes
+  const handleVoltarParaPendentes = (cargasIds: string[]) => {
+    const cargasParaVoltar = preRomaneioCargas.filter(carga => cargasIds.includes(carga.id));
+    
+    // Remover do pré-romaneio
+    const novasPreRomaneioCargas = preRomaneioCargas.filter(carga => !cargasIds.includes(carga.id));
+    
+    // Resetar grupo de rota antes de adicionar às pendentes
+    const cargasResetadas = cargasParaVoltar.map(carga => ({
+      ...carga,
+      grupoRota: undefined
+    }));
+    
+    setPreRomaneioCargas(novasPreRomaneioCargas);
+    setCargasPendentes(prev => [...prev, ...cargasResetadas]);
+    
+    toast({
+      title: "Cargas movidas",
+      description: `${cargasIds.length} carga(s) retornada(s) para lista de pendentes.`,
+    });
+  };
 
   return (
     <MainLayout title="Alocação de Cargas">
@@ -270,15 +324,17 @@ const CargasAlocacao: React.FC = () => {
               setCurrentPage={setCurrentPendentesPage}
               onAlocar={handleAlocarColetas}
               onPreAlocar={handlePreAlocarCargas}
+              onGerarPreRomaneio={handleGerarPreRomaneio}
             />
           </TabsContent>
           
           <TabsContent value="preromaneio" className="mt-4">
             <CargasPreRomaneio
-              cargas={cargasPendentes}
+              cargas={preRomaneioCargas}
               currentPage={currentPreRomaneioPage}
               setCurrentPage={setCurrentPreRomaneioPage}
-              onPreAlocar={handlePreAlocarCargas}
+              onAlocar={handleAlocarColetas}
+              onRemoverDoPreRomaneio={handleVoltarParaPendentes}
             />
           </TabsContent>
           

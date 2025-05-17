@@ -17,6 +17,7 @@ interface CargasPendentesProps {
   setCurrentPage: (page: number) => void;
   onAlocar?: (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
   onPreAlocar?: (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => void;
+  onGerarPreRomaneio?: (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => void;
 }
 
 const CargasPendentes: React.FC<CargasPendentesProps> = ({ 
@@ -24,7 +25,8 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
   currentPage, 
   setCurrentPage,
   onAlocar,
-  onPreAlocar
+  onPreAlocar,
+  onGerarPreRomaneio
 }) => {
   const [searchValue, setSearchValue] = useState('');
   const [selectedCargasIds, setSelectedCargasIds] = useState<string[]>([]);
@@ -105,6 +107,18 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
     }
   };
   
+  // Gerenciar geração de pré-romaneio
+  const handleGerarPreRomaneio = (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => {
+    if (onGerarPreRomaneio) {
+      onGerarPreRomaneio(cargasIds, tipoVeiculoId, tipoVeiculoNome);
+    } else {
+      toast({
+        title: "Pré-romaneio gerado",
+        description: `${cargasIds.length} carga(s) agrupada(s) em um pré-romaneio.`
+      });
+    }
+  };
+  
   // Pagination
   const itemsPerPage = 5;
   const totalPages = Math.ceil(sortedCargas.length / itemsPerPage);
@@ -168,6 +182,7 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
         onClose={() => setIsPreAlocacaoModalOpen(false)}
         cargas={cargas.filter(carga => selectedCargasIds.includes(carga.id))}
         onPreAlocar={handlePreAlocar}
+        onGerarPreRomaneio={handleGerarPreRomaneio}
       />
 
       <RoteirizacaoModal
