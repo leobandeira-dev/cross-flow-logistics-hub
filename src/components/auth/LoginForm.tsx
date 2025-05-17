@@ -21,7 +21,7 @@ interface LoginFormProps {
 export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormProps) => {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const { register, handleSubmit } = useForm<LoginFormData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -31,11 +31,12 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
     try {
       console.log('Submitting login form with email:', data.email);
       await signIn(data.email, data.password);
-      console.log('Sign in completed in handleLogin');
-      // The redirection will happen automatically via the useEffect in AuthPage
+      console.log('Sign in completed');
+      // Navigation will be handled by the auth redirects
     } catch (error: any) {
-      console.error('Login error in AuthPage:', error);
-      setError(error?.message || 'Ocorreu um erro ao fazer login. Verifique suas credenciais.');
+      console.error('Login error:', error);
+      setError(error?.message || 'An error occurred during login. Please check your credentials.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -47,17 +48,23 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
         <Input
           id="email"
           type="email"
-          placeholder="seu@email.com"
-          {...register('email', { required: true })}
+          placeholder="your@email.com"
+          {...register('email', { required: "Email is required" })}
         />
+        {errors.email && (
+          <p className="text-sm text-red-500">{errors.email.message}</p>
+        )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Senha</Label>
+        <Label htmlFor="password">Password</Label>
         <Input
           id="password"
           type="password"
-          {...register('password', { required: true })}
+          {...register('password', { required: "Password is required" })}
         />
+        {errors.password && (
+          <p className="text-sm text-red-500">{errors.password.message}</p>
+        )}
         <div className="text-right">
           <Button 
             variant="link" 
@@ -67,12 +74,12 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
               onForgotPassword();
             }}
           >
-            Esqueceu a senha?
+            Forgot password?
           </Button>
         </div>
       </div>
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? 'Entrando...' : 'Entrar'}
+        {isLoading ? 'Logging in...' : 'Login'}
       </Button>
     </form>
   );

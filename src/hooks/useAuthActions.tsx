@@ -10,10 +10,9 @@ export const useAuthActions = (
   const signIn = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     try {
-      console.log('Tentativa de login com:', email);
+      console.log('Login attempt with:', email);
       
-      // Simulação de login - verificar se as credenciais são válidas
-      // Para demonstração, permitimos qualquer login
+      // For demonstration, allow any login in frontend-only mode
       const mockUser: Usuario = {
         id: '1',
         email: email,
@@ -22,21 +21,23 @@ export const useAuthActions = (
         updated_at: new Date().toISOString(),
       };
       
-      // Armazenar usuário no localStorage
+      // Store user in localStorage for persistence
       localStorage.setItem('mockUser', JSON.stringify(mockUser));
       
-      // Definir o usuário no estado
+      // Update user state
       setUser(mockUser);
       
       toast({
-        title: "Login realizado com sucesso",
-        description: "Bem-vindo de volta!",
+        title: "Login successful",
+        description: "Welcome back!",
       });
+      
+      console.log('User logged in:', mockUser);
     } catch (error: any) {
-      console.error('Erro ao fazer login:', error);
+      console.error('Login error:', error);
       toast({
-        title: "Erro ao fazer login",
-        description: error?.message || "Verifique suas credenciais e tente novamente.",
+        title: "Login error",
+        description: error?.message || "Check your credentials and try again.",
         variant: "destructive",
       });
       throw error;
@@ -48,9 +49,9 @@ export const useAuthActions = (
   const signUp = async (email: string, password: string, nome: string, telefone?: string): Promise<void> => {
     setLoading(true);
     try {
-      console.log('Tentativa de cadastro com:', email);
+      console.log('Registration attempt with:', email);
       
-      // Simulação de cadastro
+      // Frontend-only mode registration
       const mockUser: Usuario = {
         id: '1',
         email: email,
@@ -60,21 +61,23 @@ export const useAuthActions = (
         updated_at: new Date().toISOString(),
       };
       
-      // Armazenar usuário no localStorage para simulação
+      // Store user in localStorage for simulation
       localStorage.setItem('mockUser', JSON.stringify(mockUser));
       
-      // Definir o usuário no estado
+      // Update user state
       setUser(mockUser);
       
       toast({
-        title: "Cadastro realizado com sucesso",
-        description: "Bem-vindo ao sistema!",
+        title: "Registration successful",
+        description: "Welcome to the system!",
       });
+      
+      console.log('User registered:', mockUser);
     } catch (error: any) {
-      console.error('Erro ao fazer cadastro:', error);
+      console.error('Registration error:', error);
       toast({
-        title: "Erro ao fazer cadastro",
-        description: error?.message || "Verifique os dados informados e tente novamente.",
+        title: "Registration error",
+        description: error?.message || "Check the information provided and try again.",
         variant: "destructive",
       });
       throw error;
@@ -85,23 +88,25 @@ export const useAuthActions = (
 
   const signOut = async () => {
     try {
-      console.log('Efetuando logout');
+      console.log('Signing out');
       
-      // Remover usuário do localStorage
+      // Remove user from localStorage
       localStorage.removeItem('mockUser');
       
-      // Limpar o usuário no estado
+      // Clear user state
       setUser(null);
       
       toast({
-        title: "Logout realizado com sucesso",
-        description: "Você foi desconectado do sistema.",
+        title: "Logged out successfully",
+        description: "You have been disconnected from the system.",
       });
+      
+      console.log('User signed out');
     } catch (error: any) {
-      console.error('Erro ao fazer logout:', error);
+      console.error('Error signing out:', error);
       toast({
-        title: "Erro ao fazer logout",
-        description: error?.message || "Ocorreu um erro ao desconectar.",
+        title: "Error signing out",
+        description: error?.message || "An error occurred while disconnecting.",
         variant: "destructive",
       });
     }
@@ -109,18 +114,18 @@ export const useAuthActions = (
 
   const forgotPassword = async (email: string) => {
     try {
-      // Simulação de envio de e-mail para redefinição de senha
-      console.log('Solicitação de redefinição de senha para:', email);
+      // Simulate sending password reset email
+      console.log('Password reset request for:', email);
       
       toast({
-        title: "E-mail enviado",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        title: "Email sent",
+        description: "Check your inbox to reset your password.",
       });
     } catch (error: any) {
-      console.error('Erro ao solicitar redefinição de senha:', error);
+      console.error('Error requesting password reset:', error);
       toast({
-        title: "Erro ao solicitar redefinição",
-        description: error?.message || "Verifique o e-mail informado e tente novamente.",
+        title: "Error requesting reset",
+        description: error?.message || "Check the email provided and try again.",
         variant: "destructive",
       });
       throw error;
@@ -129,18 +134,18 @@ export const useAuthActions = (
 
   const updatePassword = async (password: string) => {
     try {
-      // Simulação de atualização de senha
-      console.log('Atualizando senha');
+      // Simulate password update
+      console.log('Updating password');
       
       toast({
-        title: "Senha atualizada",
-        description: "Sua senha foi atualizada com sucesso.",
+        title: "Password updated",
+        description: "Your password has been updated successfully.",
       });
     } catch (error: any) {
-      console.error('Erro ao atualizar senha:', error);
+      console.error('Error updating password:', error);
       toast({
-        title: "Erro ao atualizar senha",
-        description: error?.message || "Ocorreu um erro ao atualizar sua senha.",
+        title: "Error updating password",
+        description: error?.message || "An error occurred while updating your password.",
         variant: "destructive",
       });
       throw error;

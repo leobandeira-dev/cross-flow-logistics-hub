@@ -14,7 +14,7 @@ const AuthPage = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   
-  // Verificar parâmetros na URL para definir qual aba mostrar
+  // Check URL parameters to determine which tab to show
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('register') === 'true') {
@@ -25,8 +25,8 @@ const AuthPage = () => {
     }
   }, [location]);
 
-  // Get the intended destination from the location state or default to dashboard
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Get the intended destination from location state or default to dashboard
+  const from = location.state?.from || '/dashboard';
 
   // Redirect authenticated users
   useEffect(() => {
@@ -50,7 +50,8 @@ const AuthPage = () => {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <p className="ml-3 text-gray-600">Loading authentication state...</p>
       </div>
     );
   }

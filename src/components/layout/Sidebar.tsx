@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
   Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
@@ -66,6 +67,17 @@ const SubMenu: React.FC<SubMenuProps> = ({ label, icon: Icon, children, defaultO
 };
 
 const Sidebar: React.FC = () => {
+  const { signOut } = useAuth();
+  
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Redirect will be handled automatically by the AuthContext
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+  
   return (
     <aside className="w-64 bg-sidebar h-screen flex flex-col fixed left-0 top-0">
       <div className="p-4 border-b border-sidebar-border">
@@ -164,7 +176,10 @@ const Sidebar: React.FC = () => {
       
       <div className="border-t border-sidebar-border p-4">
         <SidebarItem icon={Settings} label="Configurações" href="/configuracoes" />
-        <button className="flex items-center gap-3 py-3 px-4 text-sidebar-foreground/70 hover:text-sidebar-foreground w-full rounded-md transition-colors">
+        <button 
+          className="flex items-center gap-3 py-3 px-4 text-sidebar-foreground/70 hover:text-sidebar-foreground w-full rounded-md transition-colors"
+          onClick={handleLogout}
+        >
           <LogOut size={20} />
           <span>Sair</span>
         </button>
