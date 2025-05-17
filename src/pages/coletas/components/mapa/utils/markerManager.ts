@@ -87,13 +87,15 @@ export const initializeMarkers = (
             `
           });
           
-          // Add click listener using proper parameters
+          // Add click listener with corrected InfoWindow open parameters
           marker.addListener('click', () => {
-            // Close all other info windows first (optional)
+            // Update selected card ID
             setSelectedCardId(carga.id);
+            
+            // Fix: Correct way to open an InfoWindow
             infoWindow.open({
-              map: map,
-              anchor: marker
+              anchor: marker,
+              map
             });
           });
           
