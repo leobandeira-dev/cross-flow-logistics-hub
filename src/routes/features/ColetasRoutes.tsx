@@ -8,27 +8,25 @@ import AprovacoesColeta from '../../pages/coletas/AprovacoesColeta';
 import CargasAlocacao from '../../pages/coletas/CargasAlocacao';
 
 const ColetasRoutes = () => {
-  return (
-    <>
-      <Route path="/coletas/solicitacoes" element={
-        <ProtectedRoute>
-          <SolicitacoesColeta />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/coletas/aprovacoes" element={
-        <ProtectedRoute>
-          <AprovacoesColeta />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/coletas/cargas" element={
-        <ProtectedRoute>
-          <CargasAlocacao />
-        </ProtectedRoute>
-      } />
-    </>
-  );
+  return [
+    <Route key="coletas-solicitacoes" path="/coletas/solicitacoes" element={
+      <ProtectedRoute>
+        <SolicitacoesColeta />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="coletas-aprovacoes" path="/coletas/aprovacoes" element={
+      <ProtectedRoute>
+        <AprovacoesColeta />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="coletas-cargas" path="/coletas/cargas" element={
+      <ProtectedRoute>
+        <CargasAlocacao />
+      </ProtectedRoute>
+    } />
+  ];
 };
 
 export default ColetasRoutes;

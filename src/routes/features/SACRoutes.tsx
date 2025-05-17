@@ -6,15 +6,13 @@ import { ProtectedRoute } from '../ProtectedRoute';
 import Ocorrencias from '../../pages/sac/Ocorrencias';
 
 const SACRoutes = () => {
-  return (
-    <>
-      <Route path="/sac/ocorrencias" element={
-        <ProtectedRoute>
-          <Ocorrencias />
-        </ProtectedRoute>
-      } />
-    </>
-  );
+  return [
+    <Route key="sac-ocorrencias" path="/sac/ocorrencias" element={
+      <ProtectedRoute>
+        <Ocorrencias />
+      </ProtectedRoute>
+    } />
+  ];
 };
 
 export default SACRoutes;

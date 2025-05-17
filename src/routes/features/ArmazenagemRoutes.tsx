@@ -18,91 +18,85 @@ import RecebimentoColeta from '../../pages/armazenagem/recebimento/RecebimentoCo
 import RecebimentoFiliais from '../../pages/armazenagem/recebimento/RecebimentoFiliais';
 
 const ArmazenagemRoutes = () => {
-  return (
-    <>
-      {/* Main Armazenagem Route */}
-      <Route path="/armazenagem" element={
-        <ProtectedRoute>
-          <Armazenagem />
-        </ProtectedRoute>
-      } />
+  return [
+    <Route key="armazenagem" path="/armazenagem" element={
+      <ProtectedRoute>
+        <Armazenagem />
+      </ProtectedRoute>
+    } />,
 
-      {/* Armazenagem Subpages */}
-      <Route path="/armazenagem/recebimento" element={
-        <ProtectedRoute>
-          <RecebimentoOverview />
-        </ProtectedRoute>
-      } />
+    <Route key="armazenagem-recebimento" path="/armazenagem/recebimento" element={
+      <ProtectedRoute>
+        <RecebimentoOverview />
+      </ProtectedRoute>
+    } />,
 
-      {/* Recebimento subpages */}
-      <Route path="/armazenagem/recebimento/notas" element={
-        <ProtectedRoute>
-          <EntradaNotas />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/recebimento/etiquetas" element={
-        <ProtectedRoute>
-          <GeracaoEtiquetas />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/recebimento/fornecedor" element={
-        <ProtectedRoute>
-          <RecebimentoFornecedor />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/recebimento/coleta" element={
-        <ProtectedRoute>
-          <RecebimentoColeta />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/recebimento/filiais" element={
-        <ProtectedRoute>
-          <RecebimentoFiliais />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/movimentacoes" element={
-        <ProtectedRoute>
-          <MovimentacoesInternas />
-        </ProtectedRoute>
-      } />
-      
-      {/* Movimentacoes subpages */}
-      <Route path="/armazenagem/movimentacoes/unitizacao" element={
-        <ProtectedRoute>
-          <UnitizacaoPaletes />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/movimentacoes/cancelar-unitizacao" element={
-        <ProtectedRoute>
-          <CancelarUnitizacao />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/movimentacoes/enderecamento" element={
-        <ProtectedRoute>
-          <Enderecamento />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/carregamento" element={
-        <ProtectedRoute>
-          <Carregamento />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/armazenagem/ordem-carregamento" element={
-        <ProtectedRoute>
-          <OrdemCarregamento />
-        </ProtectedRoute>
-      } />
-    </>
-  );
+    <Route key="armazenagem-recebimento-notas" path="/armazenagem/recebimento/notas" element={
+      <ProtectedRoute>
+        <EntradaNotas />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-recebimento-etiquetas" path="/armazenagem/recebimento/etiquetas" element={
+      <ProtectedRoute>
+        <GeracaoEtiquetas />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-recebimento-fornecedor" path="/armazenagem/recebimento/fornecedor" element={
+      <ProtectedRoute>
+        <RecebimentoFornecedor />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-recebimento-coleta" path="/armazenagem/recebimento/coleta" element={
+      <ProtectedRoute>
+        <RecebimentoColeta />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-recebimento-filiais" path="/armazenagem/recebimento/filiais" element={
+      <ProtectedRoute>
+        <RecebimentoFiliais />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-movimentacoes" path="/armazenagem/movimentacoes" element={
+      <ProtectedRoute>
+        <MovimentacoesInternas />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-movimentacoes-unitizacao" path="/armazenagem/movimentacoes/unitizacao" element={
+      <ProtectedRoute>
+        <UnitizacaoPaletes />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-movimentacoes-cancelar-unitizacao" path="/armazenagem/movimentacoes/cancelar-unitizacao" element={
+      <ProtectedRoute>
+        <CancelarUnitizacao />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-movimentacoes-enderecamento" path="/armazenagem/movimentacoes/enderecamento" element={
+      <ProtectedRoute>
+        <Enderecamento />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-carregamento" path="/armazenagem/carregamento" element={
+      <ProtectedRoute>
+        <Carregamento />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-ordem-carregamento" path="/armazenagem/ordem-carregamento" element={
+      <ProtectedRoute>
+        <OrdemCarregamento />
+      </ProtectedRoute>
+    } />
+  ];
 };
 
 export default ArmazenagemRoutes;

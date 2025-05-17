@@ -9,25 +9,23 @@ import Index from '../../pages/Index';
 import UserProfilePage from '../../pages/UserProfilePage';
 
 const CoreRoutes = () => {
-  return (
-    <>
-      <Route path="/" element={<LandingPage />} />
-      
-      <Route path="/profile" element={
-        <ProtectedRoute>
-          <UserProfilePage />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      } />
+  return [
+    <Route key="landing" path="/" element={<LandingPage />} />,
+    
+    <Route key="profile" path="/profile" element={
+      <ProtectedRoute>
+        <UserProfilePage />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="dashboard" path="/dashboard" element={
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    } />,
 
-      <Route path="/index" element={<Index />} />
-    </>
-  );
+    <Route key="index" path="/index" element={<Index />} />
+  ];
 };
 
 export default CoreRoutes;

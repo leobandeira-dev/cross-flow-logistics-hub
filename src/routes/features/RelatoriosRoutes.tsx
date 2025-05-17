@@ -7,21 +7,19 @@ import ReportsDashboard from '../../pages/relatorios/ReportsDashboard';
 import SolicitacoesReport from '../../pages/relatorios/coletas/SolicitacoesReport';
 
 const RelatoriosRoutes = () => {
-  return (
-    <>
-      <Route path="/relatorios" element={
-        <ProtectedRoute>
-          <ReportsDashboard />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/relatorios/coletas/solicitacoes" element={
-        <ProtectedRoute>
-          <SolicitacoesReport />
-        </ProtectedRoute>
-      } />
-    </>
-  );
+  return [
+    <Route key="relatorios" path="/relatorios" element={
+      <ProtectedRoute>
+        <ReportsDashboard />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="relatorios-coletas-solicitacoes" path="/relatorios/coletas/solicitacoes" element={
+      <ProtectedRoute>
+        <SolicitacoesReport />
+      </ProtectedRoute>
+    } />
+  ];
 };
 
 export default RelatoriosRoutes;

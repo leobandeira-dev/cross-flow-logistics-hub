@@ -20,15 +20,15 @@ const AppRoutes = () => {
   
   return (
     <Routes>
-      {/* Include all route components directly */}
-      <CoreRoutes />
-      <AuthRoutes />
-      <ArmazenagemRoutes />
-      <ExpedicaoRoutes />
-      <SACRoutes />
-      <ColetasRoutes />
-      <RelatoriosRoutes />
-      <CadastrosRoutes />
+      {/* Feature routes */}
+      {CoreRoutes()}
+      {AuthRoutes()}
+      {ArmazenagemRoutes()}
+      {ExpedicaoRoutes()}
+      {SACRoutes()}
+      {ColetasRoutes()}
+      {RelatoriosRoutes()}
+      {CadastrosRoutes()}
       
       {/* NotFound */}
       <Route path="*" element={<NotFound />} />
