@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Carga } from '../types/coleta.types';
 import { useMemo } from 'react';
 import SearchFilter from '@/components/common/SearchFilter';
 import { filterConfig } from './CargasPendentes/filterConfig';
-import AlocacaoModal from '../AlocacaoModal';
+import AlocacaoModal from './AlocacaoModal';
 import RoteirizacaoModal from './RoteirizacaoModal';
 import { Tag, Route, Map } from 'lucide-react';
 
