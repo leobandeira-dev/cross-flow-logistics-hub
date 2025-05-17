@@ -17,6 +17,7 @@ export const initializeMarkers = (
   map: google.maps.Map,
   cargas: Carga[],
   markersRef: React.MutableRefObject<google.maps.Marker[]>,
+  directionsRendererRef: React.MutableRefObject<google.maps.DirectionsRenderer | null>,
   onSelectCard: (id: string) => void
 ): void => {
   if (!map || cargas.length === 0) return;
@@ -73,9 +74,11 @@ export const initializeMarkers = (
             `
           });
           
-          // Use setPosition method directly followed by open with map
-          infoWindow.setPosition(marker.getPosition());
-          infoWindow.open(map);
+          infoWindow.open({
+            anchor: marker,
+            map,
+            shouldFocus: false
+          });
         });
         
         // Extend the bounds of the map to include this marker
@@ -101,18 +104,29 @@ export const initializeMarkers = (
   
   // If we have a route defined (more than one carga), show the route line
   if (cargas.length > 1) {
-    renderRoute(map, cargas);
+    renderRoute(map, cargas, directionsRendererRef);
   }
 };
 
 /**
  * Render a route between points on the map
  */
-export const renderRoute = (map: google.maps.Map, cargasRota: Carga[]): void => {
+export const renderRoute = (
+  map: google.maps.Map, 
+  cargasRota: Carga[],
+  directionsRendererRef: React.MutableRefObject<google.maps.DirectionsRenderer | null>
+): void => {
   if (cargasRota.length < 2) return;
   
   const directionsService = new google.maps.DirectionsService();
-  const directionsRenderer = new google.maps.DirectionsRenderer({
+  
+  // Clear previous renderer if it exists
+  if (directionsRendererRef.current) {
+    directionsRendererRef.current.setMap(null);
+  }
+  
+  // Create new renderer
+  directionsRendererRef.current = new google.maps.DirectionsRenderer({
     map,
     suppressMarkers: true, // Don't show the default markers from directions
     polylineOptions: {
@@ -148,8 +162,8 @@ export const renderRoute = (map: google.maps.Map, cargasRota: Carga[]): void => 
       avoidTolls: false,
     },
     (response, status) => {
-      if (status === google.maps.DirectionsStatus.OK) {
-        directionsRenderer.setDirections(response);
+      if (status === google.maps.DirectionsStatus.OK && directionsRendererRef.current) {
+        directionsRendererRef.current.setDirections(response);
         
         // Calculate total distance and estimated time
         let distanciaTotal = 0;

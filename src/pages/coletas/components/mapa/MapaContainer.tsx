@@ -20,15 +20,13 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   const markersRef = useRef<google.maps.Marker[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
 
-  // Função para carregar o script do Google Maps
-  useEffect(() => {
-    if (!mapRef.current) return;
+  // Function to initialize map after script is loaded
+  const initMap = () => {
+    if (!mapRef.current || !window.google) return;
     
-    // Function to initialize map after script is loaded
-    const initMap = () => {
-      if (!mapRef.current) return;
-      
+    try {
       // Create map
       const newMap = new google.maps.Map(mapRef.current, {
         center: { lat: -23.5505, lng: -46.6333 }, // São Paulo como centro inicial
@@ -39,29 +37,43 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       googleMapRef.current = newMap;
       
       // Add markers for each cargo
-      initializeMarkers(newMap, cargas, markersRef, setSelectedCardId);
+      if (cargas.length > 0) {
+        initializeMarkers(newMap, cargas, markersRef, directionsRendererRef, setSelectedCardId);
+      }
       
       setIsLoading(false);
-    };
+    } catch (error) {
+      console.error("Error initializing map:", error);
+      setIsLoading(false);
+    }
+  };
 
-    // Set global callback function
-    window.initMap = initMap;
+  // Function to load Google Maps script
+  const loadGoogleMapsScript = () => {
+    // Check if the script is already in the document
+    const existingScript = document.getElementById('google-maps-script');
     
-    // Check if script already exists
-    if (!scriptRef.current) {
+    if (!existingScript) {
       const googleMapsScript = document.createElement('script');
       googleMapsScript.id = 'google-maps-script';
       googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBpywkIjAfeo7YKzS85lcLxJFCAEfcQPmg&libraries=places&callback=initMap&loading=async`;
       googleMapsScript.async = true;
       googleMapsScript.defer = true;
+      
+      // Add global callback
+      window.initMap = initMap;
+      
       document.head.appendChild(googleMapsScript);
       scriptRef.current = googleMapsScript;
-    } else {
-      // If script exists but map needs to be reinitialized
-      if (window.google && window.google.maps) {
-        initMap();
-      }
+    } else if (window.google && window.google.maps) {
+      // Script exists and Google Maps is loaded
+      initMap();
     }
+  };
+
+  useEffect(() => {
+    // Load the Google Maps script when the component mounts
+    loadGoogleMapsScript();
     
     // Cleanup function
     return () => {
@@ -74,19 +86,43 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
         markersRef.current = [];
       }
       
+      // Clear directions renderer
+      if (directionsRendererRef.current) {
+        directionsRendererRef.current.setMap(null);
+        directionsRendererRef.current = null;
+      }
+      
       // Clear map
       if (googleMapRef.current) {
         google.maps.event.clearInstanceListeners(googleMapRef.current);
         googleMapRef.current = null;
       }
       
-      // Don't remove the script on component unmount, as it might be needed by other components
-      // Instead, just clean up the callback to avoid memory leaks
+      // Clean up global callback to avoid memory leaks
       if (window.initMap) {
         window.initMap = () => {};
       }
     };
-  }, [cargas, setSelectedCardId]);
+  }, []);
+
+  // Effect to update markers when cargas or selectedCardId change
+  useEffect(() => {
+    if (googleMapRef.current && cargas.length > 0) {
+      // Clear existing markers before adding new ones
+      markersRef.current.forEach(marker => {
+        marker.setMap(null);
+      });
+      markersRef.current = [];
+      
+      // Clear directions renderer
+      if (directionsRendererRef.current) {
+        directionsRendererRef.current.setMap(null);
+        directionsRendererRef.current = null;
+      }
+      
+      initializeMarkers(googleMapRef.current, cargas, markersRef, directionsRendererRef, setSelectedCardId);
+    }
+  }, [cargas, selectedCardId, setSelectedCardId]);
 
   return (
     <div ref={mapRef} className="h-[400px] rounded-md border bg-muted/20 relative">

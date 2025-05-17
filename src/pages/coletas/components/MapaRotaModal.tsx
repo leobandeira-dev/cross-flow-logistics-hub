@@ -22,11 +22,23 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   cargas
 }) => {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [isMapReady, setIsMapReady] = useState(false);
   
   // Reset selected card when modal opens or cargas change
   useEffect(() => {
-    if (isOpen && cargas.length > 0) {
+    if (isOpen) {
       setSelectedCardId(null);
+      
+      // Delay setting map ready to ensure proper DOM arrangement
+      const timer = setTimeout(() => {
+        setIsMapReady(true);
+      }, 100);
+      
+      return () => {
+        clearTimeout(timer);
+      };
+    } else {
+      setIsMapReady(false);
     }
   }, [isOpen, cargas]);
   
@@ -43,6 +55,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   // Handle close with cleanup
   const handleClose = () => {
     setSelectedCardId(null);
+    setIsMapReady(false);
     onClose();
   };
   
@@ -65,11 +78,13 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
                 onCardSelect={openGoogleMaps} 
               />
 
-              <MapaContainer 
-                cargas={cargas} 
-                selectedCardId={selectedCardId} 
-                setSelectedCardId={setSelectedCardId} 
-              />
+              {isMapReady && (
+                <MapaContainer 
+                  cargas={cargas} 
+                  selectedCardId={selectedCardId} 
+                  setSelectedCardId={setSelectedCardId} 
+                />
+              )}
 
               <RotaInfo 
                 showInfo={cargas.length > 1} 
