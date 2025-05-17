@@ -1,31 +1,32 @@
 
-import { 
-  getStandardFilters, 
-  dateRangeFilterOptions, 
-  getDocumentFilters 
-} from '../../../../components/common/StandardFilterConfig';
-
-const standardFilters = getStandardFilters();
-
 export const filterConfig = [
   {
-    name: 'Período',
-    options: dateRangeFilterOptions
-  },
-  {
-    name: 'Status',
+    name: "Origem",
     options: [
-      { label: 'Todos', value: 'all' },
-      { label: 'Pendentes', value: 'pending' },
-      { label: 'Agendadas', value: 'scheduled' },
+      { label: "Todos", value: "all" },
+      { label: "São Paulo", value: "sao-paulo" },
+      { label: "Rio de Janeiro", value: "rio-janeiro" },
+      { label: "Belo Horizonte", value: "belo-horizonte" }
     ]
   },
-  standardFilters.remetente,
-  standardFilters.destinatario,
-  standardFilters.tipoCarga,
-  standardFilters.cidadeOrigem,
-  standardFilters.cidadeDestino,
-  getDocumentFilters('coleta'),
-  getDocumentFilters('nf'),
-  getDocumentFilters('pedido')
+  {
+    name: "Destino",
+    options: [
+      { label: "Todos", value: "all" },
+      { label: "São Paulo", value: "sao-paulo" },
+      { label: "Rio de Janeiro", value: "rio-janeiro" },
+      { label: "Belo Horizonte", value: "belo-horizonte" },
+      { label: "Curitiba", value: "curitiba" },
+      { label: "Campinas", value: "campinas" }
+    ]
+  },
+  {
+    name: "Previsão",
+    options: [
+      { label: "Todos", value: "all" },
+      { label: "Hoje", value: "today" },
+      { label: "Amanhã", value: "tomorrow" },
+      { label: "Esta semana", value: "this-week" }
+    ]
+  }
 ];

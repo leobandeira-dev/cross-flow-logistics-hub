@@ -1,62 +1,65 @@
 
 import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-
-// Mock de motoristas disponíveis
-const motoristasDisponiveis = [
-  { id: 1, nome: 'José da Silva' },
-  { id: 2, nome: 'Carlos Santos' },
-  { id: 3, nome: 'Pedro Oliveira' },
-  { id: 4, nome: 'Antônio Ferreira' },
-  { id: 5, nome: 'Manuel Costa' },
-  { id: 6, nome: 'Roberto Almeida' },
-];
-
-// Mock de veículos disponíveis
-const veiculosDisponiveis = [
-  { placa: 'ABC-1234', tipo: 'Caminhão 3/4' },
-  { placa: 'DEF-5678', tipo: 'Caminhão Toco' },
-  { placa: 'GHI-9012', tipo: 'Caminhão Truck' },
-  { placa: 'JKL-3456', tipo: 'Carreta Simples' },
-  { placa: 'MNO-7890', tipo: 'Carreta Eixo Estendido' },
-  { placa: 'PQR-1234', tipo: 'VUC' },
-];
+import { Carga } from '../types/coleta.types';
+import { Tag } from 'lucide-react';
 
 interface AlocacaoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  carga: any;
-  onConfirm: (cargaId: string, motorista: string, veiculo: string) => void;
+  cargasIds: string[];
+  cargas: Carga[];
+  onAlocar: (motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
 }
+
+interface Motorista {
+  id: string;
+  nome: string;
+}
+
+interface Veiculo {
+  id: string;
+  placa: string;
+  modelo: string;
+}
+
+// Mock data para motoristas e veículos
+const motoristas: Motorista[] = [
+  { id: 'mot-001', nome: 'José da Silva' },
+  { id: 'mot-002', nome: 'Carlos Santos' },
+  { id: 'mot-003', nome: 'Pedro Oliveira' },
+  { id: 'mot-004', nome: 'Antônio Ferreira' },
+  { id: 'mot-005', nome: 'Manuel Costa' },
+];
+
+const veiculos: Veiculo[] = [
+  { id: 'veic-001', placa: 'ABC-1234', modelo: 'Fiorino' },
+  { id: 'veic-002', placa: 'DEF-5678', modelo: 'Van' },
+  { id: 'veic-003', placa: 'GHI-9012', modelo: 'Caminhão 3/4' },
+  { id: 'veic-004', placa: 'JKL-3456', modelo: 'Caminhão Baú' },
+];
 
 const AlocacaoModal: React.FC<AlocacaoModalProps> = ({
   isOpen,
   onClose,
-  carga,
-  onConfirm
+  cargasIds,
+  cargas,
+  onAlocar
 }) => {
-  const [motoristaSelected, setMotoristaSelected] = useState('');
-  const [veiculoSelected, setVeiculoSelected] = useState('');
+  const [selectedMotorista, setSelectedMotorista] = useState<string>('');
+  const [selectedVeiculo, setSelectedVeiculo] = useState<string>('');
 
-  const handleConfirm = () => {
-    if (motoristaSelected && veiculoSelected) {
-      onConfirm(carga.id, motoristaSelected, veiculoSelected);
+  const handleSubmit = () => {
+    if (!selectedMotorista || !selectedVeiculo) return;
+
+    const motorista = motoristas.find(m => m.id === selectedMotorista);
+    const veiculo = veiculos.find(v => v.id === selectedVeiculo);
+    
+    if (motorista && veiculo) {
+      const veiculoNome = `${veiculo.modelo} - ${veiculo.placa}`;
+      onAlocar(selectedMotorista, motorista.nome, selectedVeiculo, veiculoNome);
     }
   };
 
@@ -64,59 +67,78 @@ const AlocacaoModal: React.FC<AlocacaoModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Alocar Motorista e Veículo</DialogTitle>
-          <DialogDescription>
-            Carga: {carga.id} - Destino: {carga.destino}
-          </DialogDescription>
+          <DialogTitle className="flex items-center">
+            <Tag className="mr-2 h-5 w-5" />
+            Alocar {cargasIds.length} Coleta{cargasIds.length !== 1 ? 's' : ''}
+          </DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="motorista">Motorista</Label>
-            <Select 
-              value={motoristaSelected} 
-              onValueChange={setMotoristaSelected}
-            >
-              <SelectTrigger id="motorista">
-                <SelectValue placeholder="Selecione um motorista" />
-              </SelectTrigger>
-              <SelectContent>
-                {motoristasDisponiveis.map((motorista) => (
-                  <SelectItem key={motorista.id} value={motorista.nome}>
-                    {motorista.nome}
-                  </SelectItem>
+        <div className="py-4">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium mb-1.5">Coletas selecionadas:</h3>
+              <div className="text-sm bg-muted/50 p-2 rounded-md max-h-[100px] overflow-y-auto">
+                {cargas.map(carga => (
+                  <div key={carga.id} className="mb-1 last:mb-0">
+                    {carga.id} - {carga.destino} ({carga.volumes} vol., {carga.peso})
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="grid gap-2">
-            <Label htmlFor="veiculo">Veículo</Label>
-            <Select 
-              value={veiculoSelected} 
-              onValueChange={setVeiculoSelected}
-            >
-              <SelectTrigger id="veiculo">
-                <SelectValue placeholder="Selecione um veículo" />
-              </SelectTrigger>
-              <SelectContent>
-                {veiculosDisponiveis.map((veiculo) => (
-                  <SelectItem key={veiculo.placa} value={veiculo.placa}>
-                    {veiculo.placa} - {veiculo.tipo}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              </div>
+            </div>
+            
+            <div className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <label htmlFor="motorista" className="text-sm font-medium">
+                  Motorista
+                </label>
+                <Select 
+                  value={selectedMotorista} 
+                  onValueChange={setSelectedMotorista}
+                >
+                  <SelectTrigger id="motorista">
+                    <SelectValue placeholder="Selecione um motorista" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {motoristas.map(motorista => (
+                      <SelectItem key={motorista.id} value={motorista.id}>
+                        {motorista.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="veiculo" className="text-sm font-medium">
+                  Veículo
+                </label>
+                <Select 
+                  value={selectedVeiculo} 
+                  onValueChange={setSelectedVeiculo}
+                >
+                  <SelectTrigger id="veiculo">
+                    <SelectValue placeholder="Selecione um veículo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {veiculos.map(veiculo => (
+                      <SelectItem key={veiculo.id} value={veiculo.id}>
+                        {veiculo.modelo} - {veiculo.placa}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         </div>
         
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button 
-            onClick={handleConfirm} 
-            disabled={!motoristaSelected || !veiculoSelected}
+            onClick={handleSubmit}
+            disabled={!selectedMotorista || !selectedVeiculo}
           >
-            Confirmar Alocação
+            Alocar
           </Button>
         </DialogFooter>
       </DialogContent>
