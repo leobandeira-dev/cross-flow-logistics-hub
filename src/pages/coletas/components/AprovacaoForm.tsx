@@ -3,7 +3,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { DialogFooter } from '@/components/ui/dialog';
@@ -111,8 +111,24 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
         description: `A coleta ${selectedRequest.id} foi aprovada em ${formattedDate} por ${approverName}.`,
       });
     }
+  };
+
+  // Função específica para lidar com a aprovação direta (evitando problemas com o formulário)
+  const handleApproveClick = () => {
+    const observacoes = form.getValues("observacoes");
+    console.log("AprovacaoForm: Clique direto no botão Aprovar, observações:", observacoes);
     
-    form.reset();
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
+    const approverName = "Maria Oliveira"; // Normalmente viria da sessão do usuário
+    
+    // Chama a função onApprove do componente pai com o ID da solicitação e observações
+    onApprove(selectedRequest.id, observacoes);
+    
+    toast({
+      title: "Coleta aprovada com sucesso!",
+      description: `A coleta ${selectedRequest.id} foi aprovada em ${formattedDate} por ${approverName}.`,
+    });
   };
 
   return (
@@ -158,31 +174,34 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
         <DialogFooter className="mt-4">
           <Button variant="outline" type="button" onClick={onClose}>Fechar</Button>
           {!isRejecting && (
+            <>
+              <Button 
+                variant="destructive" 
+                type="button" 
+                onClick={() => {
+                  setIsRejecting(true);
+                  (window as any).isRejecting = true;
+                }}
+              >
+                <X className="mr-2 h-4 w-4" /> Recusar
+              </Button>
+              <Button 
+                type="button" 
+                className="bg-green-600 hover:bg-green-700"
+                onClick={handleApproveClick}
+              >
+                <CheckCircle className="mr-2 h-4 w-4" /> Aprovar
+              </Button>
+            </>
+          )}
+          {isRejecting && (
             <Button 
-              variant="destructive" 
-              type="button" 
-              onClick={() => {
-                setIsRejecting(true);
-                (window as any).isRejecting = true;
-              }}
+              type="submit" 
+              className="bg-destructive hover:bg-destructive/90"
             >
-              <XCircle className="mr-2 h-4 w-4" /> Recusar
+              <X className="mr-2 h-4 w-4" /> Confirmar Recusa
             </Button>
           )}
-          <Button 
-            type="submit" 
-            className={isRejecting ? "bg-destructive hover:bg-destructive/90" : "bg-green-600 hover:bg-green-700"}
-          >
-            {isRejecting ? (
-              <>
-                <XCircle className="mr-2 h-4 w-4" /> Confirmar Recusa
-              </>
-            ) : (
-              <>
-                <CheckCircle className="mr-2 h-4 w-4" /> Aprovar
-              </>
-            )}
-          </Button>
         </DialogFooter>
       </form>
     </Form>
