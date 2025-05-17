@@ -92,11 +92,8 @@ export const initializeMarkers = (
             // Update selected card ID
             setSelectedCardId(carga.id);
             
-            // Fix: Correct way to open an InfoWindow
-            infoWindow.open({
-              anchor: marker,
-              map
-            });
+            // Fix: Use the correct method signature for InfoWindow.open()
+            infoWindow.open(map, marker);
           });
           
           // Fit map to markers after all have been added
