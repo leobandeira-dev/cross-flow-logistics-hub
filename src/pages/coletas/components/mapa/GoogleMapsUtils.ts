@@ -1,4 +1,3 @@
-
 // Utility functions for Google Maps integration
 import { Carga } from '../../types/coleta.types';
 import { toast } from '@/hooks/use-toast';
@@ -97,12 +96,9 @@ export const initializeMarkers = (
                 google.maps.event.clearListeners(m, 'closeclick');
               });
               
-              // Open the info window at the marker's position
-              // FIX: Use correct parameters for infoWindow.open()
-              infoWindow.open({
-                anchor: marker,
-                map: map
-              });
+              // Open the info window at the marker's position - Fixed method call
+              // The correct way to open an InfoWindow in this version of Google Maps API
+              infoWindow.open(map, marker);
               
               // Add close listener to clean up when info window closes
               google.maps.event.addListenerOnce(infoWindow, 'closeclick', () => {
