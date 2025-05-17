@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Carga } from '../types/coleta.types';
-import { Map, MapPin, CircleCheck, Circle } from 'lucide-react';
+import { Map, MapPin, CircleCheck, Circle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 interface MapaRotaModalProps {
   isOpen: boolean;
@@ -12,18 +14,6 @@ interface MapaRotaModalProps {
   cargas: Carga[];
 }
 
-// Mock de dados de geolocalização para as cidades
-const geocodingMock: Record<string, { lat: number, lng: number }> = {
-  "01310-200": { lat: -23.5505, lng: -46.6333 }, // São Paulo
-  "22041-011": { lat: -22.9068, lng: -43.1729 }, // Rio de Janeiro
-  "30130-110": { lat: -19.9167, lng: -43.9345 }, // Belo Horizonte
-  "80010-010": { lat: -25.4284, lng: -49.2733 }, // Curitiba
-  "13015-904": { lat: -22.9064, lng: -47.0616 }, // Campinas
-  "11010-000": { lat: -23.9618, lng: -46.3322 }, // Santos
-  "18035-400": { lat: -23.5015, lng: -47.4526 }, // Sorocaba
-  "default": { lat: -23.5505, lng: -46.6333 }, // Default (São Paulo)
-};
-
 const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   isOpen,
   onClose,
@@ -31,63 +21,234 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   cargas
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapObjectRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const googleMapRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   
+  // Função para carregar o script do Google Maps
   useEffect(() => {
     if (!isOpen || !mapRef.current) return;
     
-    // Setup do mapa (simulado)
-    console.log("Inicializando mapa para visualizar as coletas");
-    
-    // Limpar mapa antigo se existir
-    if (mapObjectRef.current) {
-      markersRef.current.forEach(marker => {
-        // Remover marcadores antigos (simulado)
-        console.log("Removendo marcador antigo");
-      });
-      markersRef.current = [];
-    }
-    
-    // Em uma implementação real, aqui usaríamos uma biblioteca de mapas como Leaflet, Google Maps ou Mapbox
-    setTimeout(() => {
-      if (mapRef.current) {
-        mapRef.current.innerHTML = `
-          <div class="text-center p-6 bg-muted/30 rounded-md">
-            <p class="text-muted-foreground mb-2">Mapa da rota com ${cargas.length} coletas</p>
-            <div class="flex justify-center gap-4 mb-4">
-              <div class="flex items-center">
-                <span class="w-4 h-4 rounded-full bg-red-500 inline-block mr-2"></span>
-                <span>Pendentes</span>
-              </div>
-              <div class="flex items-center">
-                <span class="w-4 h-4 rounded-full bg-blue-500 inline-block mr-2"></span>
-                <span>Finalizadas</span>
-              </div>
-            </div>
-            <div class="border-2 border-dashed border-gray-300 p-4 rounded text-gray-500">
-              Nesta área seria exibido o mapa interativo usando Google Maps ou Mapbox.
-            </div>
-          </div>
-        `;
+    // Cleanup function para remover o script quando o componente for desmontado
+    const cleanupScript = () => {
+      const existingScript = document.getElementById('google-maps-script');
+      if (existingScript) {
+        existingScript.remove();
       }
-    }, 100);
+      
+      // Limpar marcadores
+      if (markersRef.current.length > 0) {
+        markersRef.current.forEach(marker => marker.setMap(null));
+        markersRef.current = [];
+      }
+      
+      // Limpar mapa
+      googleMapRef.current = null;
+    };
     
-    // Adicionar marcadores para cada coleta (simulado)
-    cargas.forEach(carga => {
-      const coords = geocodingMock[carga.cep || "default"] || geocodingMock.default;
-      const status = carga.status || 'pending';
-      console.log(`Adicionando marcador para coleta ${carga.id} em ${coords.lat}, ${coords.lng} - Status: ${status}`);
+    // Remover script existente antes de adicionar um novo
+    cleanupScript();
+    
+    // Adicionar script do Google Maps
+    const googleMapsScript = document.createElement('script');
+    googleMapsScript.id = 'google-maps-script';
+    googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBpywkIjAfeo7YKzS85lcLxJFCAEfcQPmg&libraries=places&callback=initMap`;
+    googleMapsScript.async = true;
+    googleMapsScript.defer = true;
+    
+    // Função para inicializar o mapa após o carregamento do script
+    window.initMap = () => {
+      if (!mapRef.current) return;
+      
+      // Criar mapa
+      const newMap = new google.maps.Map(mapRef.current, {
+        center: { lat: -23.5505, lng: -46.6333 }, // São Paulo como centro inicial
+        zoom: 10,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      });
+      
+      googleMapRef.current = newMap;
+      
+      // Adicionar marcadores para cada carga
+      initializeMarkers(newMap);
+      
+      setIsLoading(false);
+    };
+    
+    document.head.appendChild(googleMapsScript);
+    
+    return cleanupScript;
+  }, [isOpen, cargas]);
+  
+  // Função para inicializar marcadores no mapa
+  const initializeMarkers = (map: google.maps.Map) => {
+    if (!map || cargas.length === 0) return;
+    
+    // Limpar marcadores existentes
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+    
+    const bounds = new google.maps.LatLngBounds();
+    const geocoder = new google.maps.Geocoder();
+    
+    // Para cada carga, fazer a geocodificação do endereço
+    cargas.forEach((carga, index) => {
+      const enderecoCompleto = `${carga.destino}, ${carga.cep}, Brasil`;
+      
+      geocoder.geocode({ address: enderecoCompleto }, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+          const position = results[0].geometry.location;
+          
+          // Criar marcador
+          const marker = new google.maps.Marker({
+            position,
+            map,
+            title: `${carga.id} - ${carga.destino}`,
+            label: `${index + 1}`,
+            icon: {
+              url: carga.status === 'delivered' 
+                ? 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' 
+                : carga.status === 'problem'
+                  ? 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                  : 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png'
+            }
+          });
+          
+          // Adicionar ao array de marcadores
+          markersRef.current.push(marker);
+          
+          // Adicionar evento de clique no marcador
+          marker.addListener('click', () => {
+            setSelectedCardId(carga.id);
+            
+            // Criar janela de informação
+            const infoWindow = new google.maps.InfoWindow({
+              content: `
+                <div style="padding: 8px;">
+                  <h3 style="margin: 0; font-size: 16px;">${carga.destino}</h3>
+                  <p style="margin: 4px 0 0;">ID: ${carga.id}</p>
+                  <p style="margin: 4px 0 0;">CEP: ${carga.cep || 'N/A'}</p>
+                  <p style="margin: 4px 0 0;">Volumes: ${carga.volumes}</p>
+                </div>
+              `
+            });
+            
+            infoWindow.open(map, marker);
+          });
+          
+          // Expandir os limites do mapa para incluir este marcador
+          bounds.extend(position);
+          
+          // Ajustar o mapa para incluir todos os marcadores
+          if (index === cargas.length - 1) {
+            map.fitBounds(bounds);
+            
+            // Evitar zoom excessivo quando há poucos marcadores
+            const listener = google.maps.event.addListener(map, 'idle', () => {
+              if (map.getZoom() && map.getZoom() > 16) {
+                map.setZoom(16);
+              }
+              google.maps.event.removeListener(listener);
+            });
+          }
+        } else {
+          console.error(`Erro ao geocodificar ${enderecoCompleto}:`, status);
+        }
+      });
     });
     
-  }, [isOpen, cargas]);
-
+    // Se temos uma rota definida (mais de uma carga), mostrar a linha da rota
+    if (cargas.length > 1) {
+      renderRoute(map, cargas);
+    }
+  };
+  
+  // Função para renderizar a rota entre os pontos
+  const renderRoute = (map: google.maps.Map, cargasRota: Carga[]) => {
+    if (cargasRota.length < 2) return;
+    
+    const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+      map,
+      suppressMarkers: true, // Não mostrar os marcadores padrão do directions
+      polylineOptions: {
+        strokeColor: '#4285F4',
+        strokeWeight: 5,
+        strokeOpacity: 0.7
+      }
+    });
+    
+    // Obter endereços para origem e destinos
+    const enderecos = cargasRota.map(carga => `${carga.destino}, ${carga.cep}, Brasil`);
+    
+    // Configurar a rota com o primeiro como origem e o último como destino
+    const origin = enderecos[0];
+    const destination = enderecos[enderecos.length - 1];
+    
+    // Pontos intermediários (waypoints)
+    const waypoints = enderecos.slice(1, -1).map(endereco => ({
+      location: endereco,
+      stopover: true
+    }));
+    
+    // Solicitar a rota
+    directionsService.route(
+      {
+        origin,
+        destination,
+        waypoints,
+        optimizeWaypoints: true,
+        travelMode: google.maps.TravelMode.DRIVING
+      },
+      (response, status) => {
+        if (status === google.maps.DirectionsStatus.OK) {
+          directionsRenderer.setDirections(response);
+          
+          // Calcular distância total e tempo estimado
+          let distanciaTotal = 0;
+          let tempoTotal = 0;
+          
+          const rota = response?.routes[0];
+          if (rota && rota.legs) {
+            rota.legs.forEach(leg => {
+              if (leg.distance) distanciaTotal += leg.distance.value;
+              if (leg.duration) tempoTotal += leg.duration.value;
+            });
+            
+            // Converter para formatos mais legíveis
+            const distanciaKm = (distanciaTotal / 1000).toFixed(1);
+            const tempoHoras = Math.floor(tempoTotal / 3600);
+            const tempoMinutos = Math.floor((tempoTotal % 3600) / 60);
+            
+            // Exibir informações da rota
+            toast({
+              title: "Rota calculada",
+              description: `Distância total: ${distanciaKm} km. Tempo estimado: ${tempoHoras}h ${tempoMinutos}min.`,
+            });
+          }
+        } else {
+          console.error('Erro ao calcular rota:', status);
+          toast({
+            title: "Erro ao calcular rota",
+            description: "Não foi possível calcular a rota entre os pontos.",
+            variant: "destructive"
+          });
+        }
+      }
+    );
+  };
+  
+  // Função para abrir o Google Maps com o endereço
   const openGoogleMaps = (carga: Carga) => {
-    const address = `${carga.destino}, ${carga.cep}`;
+    const address = `${carga.destino}, ${carga.cep}, Brasil`;
     const encodedAddress = encodeURIComponent(address);
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+    
+    // Destacar o card selecionado
+    setSelectedCardId(carga.id);
   };
-
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[90vw] w-[800px]">
@@ -110,6 +271,8 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
                     : carga.status === 'problem'
                       ? 'border-red-500'
                       : 'border-gray-300'
+                } ${
+                  selectedCardId === carga.id ? 'bg-secondary' : ''
                 }`}
                 onClick={() => openGoogleMaps(carga)}
               >
@@ -129,19 +292,50 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
           </div>
 
           <div ref={mapRef} className="h-[400px] rounded-md border bg-muted/20 relative">
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-              <p>Carregando mapa...</p>
-            </div>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="mt-2 text-sm text-muted-foreground">Carregando mapa...</span>
+                </div>
+              </div>
+            )}
           </div>
 
+          {cargas.length > 1 && (
+            <div className="mt-4 p-3 bg-muted/30 rounded-md">
+              <h3 className="text-sm font-medium mb-1">Informações da Rota</h3>
+              <Separator className="my-2" />
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Cargas:</span> {cargas.length}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Tipo:</span> Rota otimizada
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="mt-4 text-sm text-muted-foreground">
             <p>Clique nos botões acima para abrir a localização no Google Maps.</p>
-            <p>Ícones vermelhos representam coletas pendentes e ícones azuis representam coletas finalizadas.</p>
+            <p>
+              <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span> Coletas entregues
+              <span className="inline-block w-3 h-3 rounded-full bg-red-500 mx-1 ml-3"></span> Coletas com problema
+              <span className="inline-block w-3 h-3 rounded-full bg-orange-500 mx-1 ml-3"></span> Coletas pendentes
+            </p>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
+
+// Definir a interface global do window para o initMap
+declare global {
+  interface Window {
+    initMap: () => void;
+  }
+}
 
 export default MapaRotaModal;
