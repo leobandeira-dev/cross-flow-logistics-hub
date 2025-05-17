@@ -8,6 +8,9 @@ import RecebimentoOverview from '../../pages/armazenagem/RecebimentoOverview';
 import MovimentacoesInternas from '../../pages/armazenagem/MovimentacoesInternas';
 import Carregamento from '../../pages/armazenagem/Carregamento';
 import OrdemCarregamento from '../../pages/armazenagem/carregamento/OrdemCarregamento';
+import ConferenciaCarga from '../../pages/armazenagem/carregamento/ConferenciaCarga';
+import EnderecamentoCaminhao from '../../pages/armazenagem/carregamento/EnderecamentoCaminhao';
+import ChecklistCarga from '../../pages/armazenagem/carregamento/ChecklistCarga';
 import UnitizacaoPaletes from '../../pages/armazenagem/movimentacoes/UnitizacaoPaletes';
 import CancelarUnitizacao from '../../pages/armazenagem/movimentacoes/CancelarUnitizacao';
 import Enderecamento from '../../pages/armazenagem/movimentacoes/Enderecamento';
@@ -88,6 +91,30 @@ const ArmazenagemRoutes = () => {
     <Route key="armazenagem-carregamento" path="/armazenagem/carregamento" element={
       <ProtectedRoute>
         <Carregamento />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-carregamento-ordem" path="/armazenagem/carregamento/ordem" element={
+      <ProtectedRoute>
+        <OrdemCarregamento />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-carregamento-conferencia" path="/armazenagem/carregamento/conferencia" element={
+      <ProtectedRoute>
+        <ConferenciaCarga />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-carregamento-enderecamento" path="/armazenagem/carregamento/enderecamento" element={
+      <ProtectedRoute>
+        <EnderecamentoCaminhao />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-carregamento-checklist" path="/armazenagem/carregamento/checklist" element={
+      <ProtectedRoute>
+        <ChecklistCarga />
       </ProtectedRoute>
     } />,
     

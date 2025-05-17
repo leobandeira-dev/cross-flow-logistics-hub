@@ -95,9 +95,11 @@ const CancelarUnitizacao: React.FC = () => {
       await unitizacaoService.cancelarUnitizacao(id as string);
       
       // Update etiquetas status to 'gerada'
-      const etiquetas = selected.etiquetas_unitizacao.map((etiqueta: any) => etiqueta.etiqueta_id);
-      // Use atualizarEtiquetas from new refactored etiquetaBasicService
-      await etiquetaService.atualizarEtiquetas(etiquetas, { status: 'gerada' });
+      if (selected && selected.etiquetas_unitizacao) {
+        const etiquetas = selected.etiquetas_unitizacao.map((etiqueta: any) => etiqueta.etiqueta_id);
+        // Use atualizarEtiquetas from etiquetaService
+        await etiquetaService.atualizarEtiquetas(etiquetas, { status: 'gerada' });
+      }
       
       toast({
         title: "Unitização cancelada",

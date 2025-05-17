@@ -1,33 +1,27 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Localizacao } from "@/types/supabase.types";
 
-/**
- * Service for localizações operations
- */
 const localizacaoService = {
   /**
-   * Lista todas as localizações
+   * Lista localizações disponíveis
    */
-  async listarLocalizacoes(filtros?: {
-    tipo?: string;
-    status?: string;
+  async listarLocalizacoes(filtros: {
     ocupado?: boolean;
-  }): Promise<Localizacao[]> {
-    let query = supabase
-      .from('localizacoes')
-      .select('*');
+    tipo?: string;
+    setor?: string;
+  } = {}): Promise<any[]> {
+    let query = supabase.from('localizacoes').select('*');
     
-    if (filtros?.tipo) {
+    if (filtros.ocupado !== undefined) {
+      query = query.eq('ocupado', filtros.ocupado);
+    }
+    
+    if (filtros.tipo) {
       query = query.eq('tipo', filtros.tipo);
     }
     
-    if (filtros?.status) {
-      query = query.eq('status', filtros.status);
-    }
-    
-    if (filtros?.ocupado !== undefined) {
-      query = query.eq('ocupado', filtros.ocupado);
+    if (filtros.setor) {
+      query = query.eq('setor', filtros.setor);
     }
     
     const { data, error } = await query;
@@ -36,13 +30,13 @@ const localizacaoService = {
       throw new Error(`Erro ao listar localizações: ${error.message}`);
     }
     
-    return data as Localizacao[];
+    return data || [];
   },
   
   /**
-   * Busca uma localização pelo ID
+   * Busca localização por ID
    */
-  async buscarLocalizacaoPorId(id: string): Promise<Localizacao> {
+  async buscarLocalizacaoPorId(id: string): Promise<any> {
     const { data, error } = await supabase
       .from('localizacoes')
       .select('*')
@@ -53,7 +47,21 @@ const localizacaoService = {
       throw new Error(`Erro ao buscar localização: ${error.message}`);
     }
     
-    return data as Localizacao;
+    return data;
+  },
+  
+  /**
+   * Atualiza status de ocupação da localização
+   */
+  async atualizarStatusOcupacao(id: string, ocupado: boolean): Promise<void> {
+    const { error } = await supabase
+      .from('localizacoes')
+      .update({ ocupado })
+      .eq('id', id);
+    
+    if (error) {
+      throw new Error(`Erro ao atualizar status de ocupação: ${error.message}`);
+    }
   }
 };
 

@@ -119,60 +119,47 @@ export const usePDFGeneration = () => {
     return generateEtiquetaPDF(masterVolume, notaData, formatoImpressao, 'mae', layoutStyle);
   };
 
-  // Função auxiliar para gerar o HTML da etiqueta
+  // Função auxiliar para gerar o HTML da etiqueta (restaurando o estilo original)
   const generateEtiquetaHTML = (volume: any, tipoEtiqueta: string, layoutStyle: LayoutStyle) => {
-    // Template HTML conforme o tipo de layout selecionado
-    const templates = {
-      standard: `
-        <div class="etiqueta standard" style="width: 100%; height: 100%; padding: 10px; font-family: Arial;">
-          <div style="font-size: 14px; font-weight: bold; text-align: center;">${volume.id}</div>
-          <div style="font-size: 12px; margin-top: 5px;">${volume.descricao || ''}</div>
-          <div style="font-size: 12px; margin-top: 10px;">
-            <div>Remetente: ${volume.remetente}</div>
-            <div>Destinatário: ${volume.destinatario}</div>
-            <div>Cidade: ${volume.cidade} - ${volume.uf}</div>
-          </div>
-          <div style="font-size: 11px; margin-top: 10px; text-align: center;">
-            Peso: ${volume.pesoTotal || '0 kg'}
-          </div>
-          ${volume.qrCode ? `<div style="text-align: center; margin-top: 10px;"><img src="${volume.qrCode}" style="width: 80px; height: 80px;"></div>` : ''}
+    // Template HTML conforme o tipo de layout selecionado (usando o padrão antigo)
+    return `
+      <div class="etiqueta" style="width: 100%; height: 100%; padding: 10px; font-family: Arial; border: 1px solid #ccc;">
+        <div style="font-size: 16px; font-weight: bold; text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+          ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
         </div>
-      `,
-      compact: `
-        <div class="etiqueta compact" style="width: 100%; height: 100%; padding: 5px; font-family: Arial;">
-          <div style="font-size: 12px; font-weight: bold; text-align: center;">${volume.id}</div>
-          <div style="font-size: 10px; margin-top: 3px; text-align: center;">${volume.descricao || ''}</div>
-          <div style="font-size: 10px; margin-top: 5px;">
-            <div>Para: ${volume.destinatario}</div>
-            <div>${volume.cidade}/${volume.uf}</div>
-          </div>
-          ${volume.qrCode ? `<div style="text-align: center; margin-top: 5px;"><img src="${volume.qrCode}" style="width: 60px; height: 60px;"></div>` : ''}
-        </div>
-      `,
-      modern: `
-        <div class="etiqueta modern" style="width: 100%; height: 100%; padding: 10px; font-family: Arial; display: flex; flex-direction: column;">
-          <div style="font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">${volume.id}</div>
-          <div style="display: flex; justify-content: space-between; height: 100%;">
-            <div style="font-size: 12px; flex: 2;">
-              <div style="margin-bottom: 10px;">
-                <strong>De:</strong> ${volume.remetente}
-              </div>
-              <div style="margin-bottom: 10px;">
-                <strong>Para:</strong> ${volume.destinatario}<br>
-                ${volume.cidade}/${volume.uf}
-              </div>
-              <div><strong>Peso:</strong> ${volume.pesoTotal || '0 kg'}</div>
-              <div><strong>Desc:</strong> ${volume.descricao || 'N/A'}</div>
+        <div style="display: flex; margin-top: 10px;">
+          <div style="flex: 2; padding-right: 10px;">
+            <div style="font-size: 12px; margin-bottom: 5px;">
+              <span style="font-weight: bold;">ID:</span> ${volume.id}
             </div>
-            <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-              ${volume.qrCode ? `<img src="${volume.qrCode}" style="width: 100px; height: 100px;">` : ''}
+            <div style="font-size: 12px; margin-bottom: 5px;">
+              <span style="font-weight: bold;">Remetente:</span> ${volume.remetente}
+            </div>
+            <div style="font-size: 12px; margin-bottom: 5px;">
+              <span style="font-weight: bold;">Destinatário:</span> ${volume.destinatario}
+            </div>
+            <div style="font-size: 12px; margin-bottom: 5px;">
+              <span style="font-weight: bold;">Endereço:</span> ${volume.endereco || ''}
+            </div>
+            <div style="font-size: 12px; margin-bottom: 5px;">
+              <span style="font-weight: bold;">Cidade/UF:</span> ${volume.cidade}/${volume.uf}
+            </div>
+            <div style="font-size: 12px; margin-bottom: 5px;">
+              <span style="font-weight: bold;">Peso:</span> ${volume.pesoTotal || '0 Kg'}
             </div>
           </div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            ${volume.qrCode ? `<img src="${volume.qrCode}" style="width: 80px; height: 80px;">` : ''}
+            <div style="text-align: center; font-size: 10px; margin-top: 5px;">${volume.id}</div>
+          </div>
         </div>
-      `,
-    };
-    
-    return templates[layoutStyle] || templates.standard;
+        ${volume.descricao ? `
+          <div style="font-size: 12px; margin-top: 5px; padding-top: 5px; border-top: 1px solid #ccc;">
+            <span style="font-weight: bold;">Descrição:</span> ${volume.descricao}
+          </div>
+        ` : ''}
+      </div>
+    `;
   };
 
   return {

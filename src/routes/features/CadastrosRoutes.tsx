@@ -8,6 +8,7 @@ import CadastroEmpresas from '../../pages/empresas/CadastroEmpresas';
 import CadastroMotoristas from '../../pages/motoristas/CadastroMotoristas';
 import CargasMotoristas from '../../pages/motoristas/CargasMotoristas';
 import CadastroEnderecamento from '../../pages/cadastros/enderecamento/CadastroEnderecamento';
+import ConfiguracoesPage from '../../pages/configuracoes/ConfiguracoesPage';
 
 const CadastrosRoutes = () => {
   return [
@@ -38,6 +39,24 @@ const CadastrosRoutes = () => {
     <Route key="cadastros-enderecamento" path="/cadastros/enderecamento" element={
       <ProtectedRoute>
         <CadastroEnderecamento />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="motoristas-cadastro" path="/motoristas/cadastro" element={
+      <ProtectedRoute>
+        <CadastroMotoristas />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="motoristas-cargas" path="/motoristas/cargas" element={
+      <ProtectedRoute>
+        <CargasMotoristas />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="configuracoes" path="/configuracoes" element={
+      <ProtectedRoute>
+        <ConfiguracoesPage />
       </ProtectedRoute>
     } />
   ];

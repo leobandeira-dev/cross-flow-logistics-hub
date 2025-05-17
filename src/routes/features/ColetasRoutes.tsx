@@ -25,6 +25,12 @@ const ColetasRoutes = () => {
       <ProtectedRoute>
         <CargasAlocacao />
       </ProtectedRoute>
+    } />,
+    
+    <Route key="coletas-alocacao" path="/coletas/alocacao" element={
+      <ProtectedRoute>
+        <CargasAlocacao />
+      </ProtectedRoute>
     } />
   ];
 };
