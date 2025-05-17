@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Carga } from '../../types/coleta.types';
-import { Truck, Calculator } from 'lucide-react';
+import { Truck, Calculator, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface CargasListProps {
