@@ -18,22 +18,31 @@ export const renderRoute = (
     
     // Clear previous renderer if it exists
     if (directionsRendererRef.current) {
-      directionsRendererRef.current.setMap(null);
+      try {
+        directionsRendererRef.current.setMap(null);
+      } catch (e) {
+        console.error("Error clearing previous renderer:", e);
+      }
       directionsRendererRef.current = null;
     }
     
     // Create new renderer
-    directionsRendererRef.current = new google.maps.DirectionsRenderer({
-      suppressMarkers: true, // Don't show the default markers from directions
-      polylineOptions: {
-        strokeColor: '#4285F4',
-        strokeWeight: 5,
-        strokeOpacity: 0.7
-      }
-    });
-    
-    // Set map on the renderer (important to do this separately)
-    directionsRendererRef.current.setMap(map);
+    try {
+      directionsRendererRef.current = new google.maps.DirectionsRenderer({
+        suppressMarkers: true, // Don't show the default markers from directions
+        polylineOptions: {
+          strokeColor: '#4285F4',
+          strokeWeight: 5,
+          strokeOpacity: 0.7
+        }
+      });
+      
+      // Set map on the renderer (important to do this separately)
+      directionsRendererRef.current.setMap(map);
+    } catch (e) {
+      console.error("Error creating directions renderer:", e);
+      return;
+    }
     
     // Get addresses for origin and destinations
     const enderecos = cargasRota.map(carga => `${carga.destino}, ${carga.cep || ''}, Brasil`);
@@ -61,8 +70,19 @@ export const renderRoute = (
         avoidTolls: false,
       },
       async (response, status) => {
-        if (status === google.maps.DirectionsStatus.OK && directionsRendererRef.current) {
-          directionsRendererRef.current.setDirections(response);
+        // Check if directions renderer is still valid
+        if (!directionsRendererRef.current) {
+          console.log("Directions renderer was unmounted, skipping route display");
+          return;
+        }
+        
+        if (status === google.maps.DirectionsStatus.OK) {
+          try {
+            directionsRendererRef.current.setDirections(response);
+          } catch (e) {
+            console.error("Error setting directions:", e);
+            return;
+          }
           
           // Use our distance matrix to get more accurate total distance and time
           try {
@@ -83,26 +103,30 @@ export const renderRoute = (
           }
           
           // Legacy calculation from the route response
-          let distanciaTotal = 0;
-          let tempoTotal = 0;
-          
-          const rota = response?.routes[0];
-          if (rota && rota.legs) {
-            rota.legs.forEach(leg => {
-              if (leg.distance) distanciaTotal += leg.distance.value;
-              if (leg.duration) tempoTotal += leg.duration.value;
-            });
+          try {
+            let distanciaTotal = 0;
+            let tempoTotal = 0;
             
-            // Convert to more readable formats
-            const distanciaKm = (distanciaTotal / 1000).toFixed(1);
-            const tempoHoras = Math.floor(tempoTotal / 3600);
-            const tempoMinutos = Math.floor((tempoTotal % 3600) / 60);
-            
-            // Display route information
-            toast({
-              title: "Rota calculada",
-              description: `Distância total: ${distanciaKm} km. Tempo estimado: ${tempoHoras}h ${tempoMinutos}min.`,
-            });
+            const rota = response?.routes[0];
+            if (rota && rota.legs) {
+              rota.legs.forEach(leg => {
+                if (leg.distance) distanciaTotal += leg.distance.value;
+                if (leg.duration) tempoTotal += leg.duration.value;
+              });
+              
+              // Convert to more readable formats
+              const distanciaKm = (distanciaTotal / 1000).toFixed(1);
+              const tempoHoras = Math.floor(tempoTotal / 3600);
+              const tempoMinutos = Math.floor((tempoTotal % 3600) / 60);
+              
+              // Display route information
+              toast({
+                title: "Rota calculada",
+                description: `Distância total: ${distanciaKm} km. Tempo estimado: ${tempoHoras}h ${tempoMinutos}min.`,
+              });
+            }
+          } catch (e) {
+            console.error("Error calculating route summary:", e);
           }
         } else if (status !== "ZERO_RESULTS") {
           console.error('Erro ao calcular rota:', status);

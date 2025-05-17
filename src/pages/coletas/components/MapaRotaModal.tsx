@@ -41,7 +41,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
         if (!closingRef.current) {
           setMapVisible(true);
         }
-      }, 300);
+      }, 500); // Increased delay for safer initialization
       
       return () => {
         clearTimeout(timer);
@@ -87,11 +87,18 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
     // Delay the actual closing to allow React to process state changes
     setTimeout(() => {
       onClose();
-    }, 300);
+    }, 500);  // Increased delay for safer cleanup
+  };
+  
+  // Handle Dialog open change
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose();
+    }
   };
   
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-[90vw] w-[800px]">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">

@@ -97,8 +97,12 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
     if (markersRef.current && markersRef.current.length > 0) {
       markersRef.current.forEach(marker => {
         if (marker) {
-          google.maps.event.clearInstanceListeners(marker);
-          marker.setMap(null);
+          try {
+            google.maps.event.clearInstanceListeners(marker);
+            marker.setMap(null);
+          } catch (e) {
+            console.error("Error cleaning up marker:", e);
+          }
         }
       });
       markersRef.current = [];
@@ -106,13 +110,21 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
     
     // Clear directions renderer
     if (directionsRendererRef.current) {
-      directionsRendererRef.current.setMap(null);
+      try {
+        directionsRendererRef.current.setMap(null);
+      } catch (e) {
+        console.error("Error cleaning directions renderer:", e);
+      }
       directionsRendererRef.current = null;
     }
     
     // Clear map
     if (googleMapRef.current) {
-      google.maps.event.clearInstanceListeners(googleMapRef.current);
+      try {
+        google.maps.event.clearInstanceListeners(googleMapRef.current);
+      } catch (e) {
+        console.error("Error cleaning map listeners:", e);
+      }
     }
     
     // Reset initialization flag
@@ -158,8 +170,12 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       if (markersRef.current.length > 0) {
         markersRef.current.forEach(marker => {
           if (marker) {
-            google.maps.event.clearInstanceListeners(marker);
-            marker.setMap(null);
+            try {
+              google.maps.event.clearInstanceListeners(marker);
+              marker.setMap(null);
+            } catch (e) {
+              console.error("Error cleaning marker during update:", e);
+            }
           }
         });
         markersRef.current = [];
@@ -167,12 +183,20 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       
       // Clear directions renderer
       if (directionsRendererRef.current) {
-        directionsRendererRef.current.setMap(null);
+        try {
+          directionsRendererRef.current.setMap(null);
+        } catch (e) {
+          console.error("Error cleaning directions renderer during update:", e);
+        }
         directionsRendererRef.current = null;
       }
       
       // Add new markers
-      initializeMarkers(googleMapRef.current, cargas, markersRef, directionsRendererRef, setSelectedCardId);
+      try {
+        initializeMarkers(googleMapRef.current, cargas, markersRef, directionsRendererRef, setSelectedCardId);
+      } catch (e) {
+        console.error("Error initializing markers during update:", e);
+      }
     }
   }, [cargas, selectedCardId, setSelectedCardId]);
 
