@@ -1,15 +1,14 @@
 
-import { Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   
   useEffect(() => {
-    console.log('PublicRoute check - user:', user ? 'authenticated' : 'not authenticated', 'loading:', loading);
-  }, [user, loading]);
+    console.log('PublicRoute bypassing authentication - allowing access to public routes');
+  }, []);
   
   if (loading) {
     return (
@@ -19,11 +18,6 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  if (user) {
-    console.log('User already authenticated, redirecting to dashboard');
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  console.log('No authenticated user, rendering public content');
+  // Always render the children without redirecting
   return <>{children}</>;
 };

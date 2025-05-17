@@ -1,15 +1,15 @@
 
-import { Navigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   const location = useLocation();
   
   useEffect(() => {
-    console.log('ProtectedRoute check - user:', user ? 'authenticated' : 'not authenticated', 'loading:', loading);
-  }, [user, loading]);
+    console.log('ProtectedRoute bypassing authentication - path:', location.pathname);
+  }, [location]);
   
   if (loading) {
     return (
@@ -19,11 +19,6 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  if (!user) {
-    console.log('No user found, redirecting to auth');
-    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
-  }
-  
-  console.log('User authenticated, rendering protected content');
+  // Always render the children without checking for user authentication
   return <>{children}</>;
 };

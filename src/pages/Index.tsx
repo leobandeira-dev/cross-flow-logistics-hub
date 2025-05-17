@@ -1,25 +1,20 @@
 
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('Index page - checking auth state: user:', user ? 'authenticated' : 'not authenticated', 'loading:', loading);
+    console.log('Index page - bypassing authentication checks');
     
     if (!loading) {
-      if (user) {
-        console.log('User authenticated on Index page, redirecting to dashboard');
-        navigate('/dashboard', { replace: true });
-      } else {
-        console.log('User not authenticated on Index page, redirecting to landing page');
-        navigate('/', { replace: true });
-      }
+      // Always redirect to dashboard regardless of authentication status
+      navigate('/dashboard', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [loading, navigate]);
 
   if (loading) {
     return (
@@ -29,8 +24,7 @@ const Index = () => {
     );
   }
 
-  // Immediate redirect if state is already determined
-  return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/" replace />;
+  return null; // Will redirect to dashboard via useEffect
 };
 
 export default Index;
