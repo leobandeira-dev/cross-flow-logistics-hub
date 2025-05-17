@@ -1,9 +1,9 @@
-
-import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CheckCircle2, ClipboardList } from 'lucide-react';
 import { SolicitacaoColeta } from '../types/coleta.types';
-import AprovacaoForm from './AprovacaoForm';
+import AprovacaoForm from './aprovacao/AprovacaoForm';
+import DocumentoAprovacaoRenderer from './DocumentoAprovacaoRenderer';
 
 interface DetalhesAprovacaoDialogProps {
   isOpen: boolean;
@@ -49,7 +49,6 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Detalhes da Solicitação de Coleta</DialogTitle>
-          <DialogDescription>Revise as informações da solicitação</DialogDescription>
         </DialogHeader>
 
         {selectedRequest && (
