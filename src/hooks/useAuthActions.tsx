@@ -1,7 +1,9 @@
+
 import { useState } from 'react';
 import authService from '@/services/auth';
 import { toast } from '@/hooks/use-toast';
 import { Usuario } from '@/types/supabase.types';
+import { Session } from '@supabase/supabase-js';
 
 export const useAuthActions = (
   setLoading: (loading: boolean) => void,
@@ -14,13 +16,13 @@ export const useAuthActions = (
       await authService.signIn({ email, password });
       console.log('Sign in successful in useAuth');
       
-      // We'll let the onAuthStateChange listener update the user state
+      // O listener onAuthStateChange atualizará o estado do usuário
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo de volta!",
       });
       
-      // Important: don't set loading to false here as the auth state change will do it
+      // Importante: não definir loading como false aqui já que a mudança de estado de autenticação o fará
     } catch (error: any) {
       console.error('Erro ao fazer login:', error);
       toast({
@@ -28,7 +30,7 @@ export const useAuthActions = (
         description: error?.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
-      setLoading(false); // Set loading to false on error
+      setLoading(false); // Definir loading como false em caso de erro
       throw error;
     }
   };

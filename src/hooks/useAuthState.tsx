@@ -13,15 +13,15 @@ export const useAuthState = () => {
   useEffect(() => {
     console.log('Setting up auth state listener');
     
-    // Set up auth state listener first
+    // Configurar o listener de mudanças de estado de autenticação primeiro
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log('Auth state changed:', event, newSession ? 'session exists' : 'no session');
       
-      // Update session state immediately
+      // Atualizar o estado da sessão imediatamente
       setSession(newSession);
       
       if (newSession) {
-        // Immediately update loading state to show we're working
+        // Imediatamente atualizar o estado de carregamento para mostrar que estamos trabalhando
         setLoading(true);
         
         try {
@@ -42,7 +42,7 @@ export const useAuthState = () => {
       }
     });
 
-    // Then check for existing session
+    // Verificar sessão existente
     const checkUser = async () => {
       try {
         console.log('Checking for existing session');
