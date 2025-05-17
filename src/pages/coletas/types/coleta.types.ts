@@ -46,6 +46,13 @@ export interface Carga {
   // Novos campos para pré-alocação do tipo de veículo
   tipoVeiculo?: string;
   tipoVeiculoId?: string;
+  // Novos campos para cálculo de volume e dimensionamento
+  volumeM3?: number;
+  altura?: number;
+  largura?: number;
+  comprimento?: number;
+  // Campo para agrupamento no pré-romaneio
+  grupoRota?: string;
 }
 
 // Adding specialized types for approval flows

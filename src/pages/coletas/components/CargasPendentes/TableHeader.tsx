@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Route, Tag, Truck, Map } from 'lucide-react';
+import { Route, Tag, Truck, Map, SortDesc } from 'lucide-react';
 import SearchFilter from '@/components/common/SearchFilter';
 import { filterConfig } from './filterConfig';
 
@@ -11,6 +11,7 @@ interface TableHeaderProps {
   setIsRoteirizacaoModalOpen: (isOpen: boolean) => void;
   setIsAlocacaoModalOpen: (isOpen: boolean) => void;
   setIsPreAlocacaoModalOpen?: (isOpen: boolean) => void;
+  onSortByCEP?: () => void;
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
@@ -18,7 +19,8 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   selectedCargasIds,
   setIsRoteirizacaoModalOpen,
   setIsAlocacaoModalOpen,
-  setIsPreAlocacaoModalOpen
+  setIsPreAlocacaoModalOpen,
+  onSortByCEP
 }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -28,7 +30,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
         filters={filterConfig}
       />
       
-      <div className="flex gap-2 w-full sm:w-auto">
+      <div className="flex gap-2 w-full sm:w-auto flex-wrap">
         <Button 
           variant="outline" 
           className="flex-1 sm:flex-none"
@@ -64,6 +66,16 @@ const TableHeader: React.FC<TableHeaderProps> = ({
         >
           <Map className="mr-2 h-4 w-4" /> Ver Mapa
         </Button>
+
+        {onSortByCEP && (
+          <Button 
+            variant="outline"
+            className="flex-1 sm:flex-none"
+            onClick={onSortByCEP}
+          >
+            <SortDesc className="mr-2 h-4 w-4" /> Ordenar por CEP
+          </Button>
+        )}
       </div>
     </div>
   );

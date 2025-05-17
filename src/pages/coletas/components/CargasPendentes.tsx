@@ -31,6 +31,7 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
   const [isAlocacaoModalOpen, setIsAlocacaoModalOpen] = useState(false);
   const [isPreAlocacaoModalOpen, setIsPreAlocacaoModalOpen] = useState(false);
   const [isRoteirizacaoModalOpen, setIsRoteirizacaoModalOpen] = useState(false);
+  const [sortByCEP, setSortByCEP] = useState(false);
 
   const filteredCargas = useMemo(() => {
     if (!searchValue) return cargas;
@@ -42,6 +43,18 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
       carga.origem?.toLowerCase().includes(searchLower)
     );
   }, [cargas, searchValue]);
+
+  // Sorted cargas
+  const sortedCargas = useMemo(() => {
+    if (!sortByCEP) return filteredCargas;
+    
+    return [...filteredCargas].sort((a, b) => {
+      if (!a.cep && !b.cep) return 0;
+      if (!a.cep) return 1;
+      if (!b.cep) return -1;
+      return a.cep.localeCompare(b.cep);
+    });
+  }, [filteredCargas, sortByCEP]);
 
   // Reset selected cargas when the cargas list changes
   useEffect(() => {
@@ -69,6 +82,17 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
     }
   };
   
+  // Handle sorting by CEP
+  const handleSortByCEP = () => {
+    setSortByCEP(prev => !prev);
+    if (!sortByCEP) {
+      toast({
+        title: "Ordenação aplicada",
+        description: "Cargas ordenadas por CEP para facilitar a roteirização."
+      });
+    }
+  };
+  
   // Gerenciar pré-alocação de veículo
   const handlePreAlocar = (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => {
     if (onPreAlocar) {
@@ -83,8 +107,8 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
   
   // Pagination
   const itemsPerPage = 5;
-  const totalPages = Math.ceil(filteredCargas.length / itemsPerPage);
-  const currentItems = filteredCargas.slice(
+  const totalPages = Math.ceil(sortedCargas.length / itemsPerPage);
+  const currentItems = sortedCargas.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -102,11 +126,12 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
           setIsRoteirizacaoModalOpen={setIsRoteirizacaoModalOpen}
           setIsAlocacaoModalOpen={setIsAlocacaoModalOpen}
           setIsPreAlocacaoModalOpen={setIsPreAlocacaoModalOpen}
+          onSortByCEP={handleSortByCEP}
         />
 
         <Card>
           <CardHeader className="py-4">
-            <CardTitle>Coletas Pendentes de Alocação</CardTitle>
+            <CardTitle>Coletas Pendentes de Alocação {sortByCEP && '(Ordenadas por CEP)'}</CardTitle>
           </CardHeader>
           <CardContent>
             <CargasList 
@@ -114,7 +139,7 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
               selectedCargasIds={selectedCargasIds}
               toggleSelectCarga={toggleSelectCarga}
               toggleSelectAll={toggleSelectAll}
-              filteredCargas={filteredCargas}
+              filteredCargas={sortedCargas}
             />
 
             <PaginationControls

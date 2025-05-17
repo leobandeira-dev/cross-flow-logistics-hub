@@ -5,8 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CargasPendentes from './components/CargasPendentes';
 import CargasEmRota from './components/CargasEmRota';
 import CargasFinalizadas from './components/CargasFinalizadas';
+import CargasPreRomaneio from './components/CargasPreRomaneio';
 import { Carga } from './types/coleta.types';
 import { toast } from '@/hooks/use-toast';
+import { Archive } from 'lucide-react';
 
 // This is mock data that would normally come from an API
 const mockCargas: Carga[] = [
@@ -18,7 +20,11 @@ const mockCargas: Carga[] = [
     volumes: 25,
     peso: '350kg',
     status: 'pending',
-    cep: '01310-200'
+    cep: '01310-200',
+    volumeM3: 4.5,
+    altura: 1.5,
+    largura: 1.2,
+    comprimento: 2.5
   },
   {
     id: 'CARGA-002',
@@ -30,7 +36,11 @@ const mockCargas: Carga[] = [
     status: 'transit',
     motorista: 'José da Silva',
     veiculo: 'Fiorino - ABC-1234',
-    cep: '22041-011'
+    cep: '22041-011',
+    volumeM3: 3.2,
+    altura: 1.4,
+    largura: 1.1,
+    comprimento: 2.1
   },
   {
     id: 'CARGA-003',
@@ -40,7 +50,11 @@ const mockCargas: Carga[] = [
     volumes: 32,
     peso: '410kg',
     status: 'pending',
-    cep: '30130-110'
+    cep: '30130-110',
+    volumeM3: 5.8,
+    altura: 1.8,
+    largura: 1.4,
+    comprimento: 2.3
   },
   {
     id: 'CARGA-004',
@@ -50,7 +64,11 @@ const mockCargas: Carga[] = [
     volumes: 15,
     peso: '180kg',
     status: 'pending',
-    cep: '80010-010'
+    cep: '80010-010',
+    volumeM3: 2.5,
+    altura: 1.2,
+    largura: 1.0,
+    comprimento: 2.1
   },
   {
     id: 'CARGA-005',
@@ -62,7 +80,11 @@ const mockCargas: Carga[] = [
     status: 'transit',
     motorista: 'Carlos Santos',
     veiculo: 'Van - DEF-5678',
-    cep: '13015-904'
+    cep: '13015-904',
+    volumeM3: 3.8,
+    altura: 1.5,
+    largura: 1.2,
+    comprimento: 2.1
   },
   {
     id: 'CARGA-006',
@@ -74,7 +96,11 @@ const mockCargas: Carga[] = [
     status: 'delivered',
     motorista: 'Pedro Oliveira',
     dataEntrega: '16/05/2025',
-    cep: '11010-000'
+    cep: '11010-000',
+    volumeM3: 1.8,
+    altura: 1.1,
+    largura: 0.9,
+    comprimento: 1.8
   },
   {
     id: 'CARGA-007',
@@ -86,7 +112,54 @@ const mockCargas: Carga[] = [
     status: 'delivered',
     motorista: 'Antônio Ferreira',
     dataEntrega: '17/05/2025',
-    cep: '18035-400'
+    cep: '18035-400',
+    volumeM3: 2.9,
+    altura: 1.3,
+    largura: 1.1,
+    comprimento: 2.0
+  },
+  // Cargas adicionais para testar agrupamento por CEP
+  {
+    id: 'CARGA-008',
+    destino: 'São Bernardo do Campo',
+    origem: 'São Paulo',
+    dataPrevisao: '19/05/2025',
+    volumes: 14,
+    peso: '175kg',
+    status: 'pending',
+    cep: '09750-000',
+    volumeM3: 2.3,
+    altura: 1.2,
+    largura: 1.0,
+    comprimento: 1.9
+  },
+  {
+    id: 'CARGA-009',
+    destino: 'Guarulhos',
+    origem: 'São Paulo',
+    dataPrevisao: '19/05/2025',
+    volumes: 8,
+    peso: '120kg',
+    status: 'pending',
+    cep: '07000-000',
+    volumeM3: 1.5,
+    altura: 1.0,
+    largura: 0.8,
+    comprimento: 1.7
+  },
+  {
+    id: 'CARGA-010',
+    destino: 'Santo André',
+    origem: 'São Paulo',
+    dataPrevisao: '20/05/2025',
+    volumes: 12,
+    peso: '160kg',
+    status: 'pending',
+    cep: '09000-000',
+    volumeM3: 2.0,
+    altura: 1.1,
+    largura: 0.9,
+    comprimento: 1.8
   }
 ];
 
@@ -104,6 +177,7 @@ const CargasAlocacao: React.FC = () => {
   const [currentPendentesPage, setCurrentPendentesPage] = useState(1);
   const [currentEmRotaPage, setCurrentEmRotaPage] = useState(1);
   const [currentFinalizadasPage, setCurrentFinalizadasPage] = useState(1);
+  const [currentPreRomaneioPage, setCurrentPreRomaneioPage] = useState(1);
 
   // Função para pré-alocar cargas com um tipo de veículo
   const handlePreAlocarCargas = (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => {
@@ -180,8 +254,11 @@ const CargasAlocacao: React.FC = () => {
     <MainLayout title="Alocação de Cargas">
       <div className="space-y-6">
         <Tabs defaultValue="pendentes" className="w-full">
-          <TabsList className="grid grid-cols-3 w-full md:w-[400px]">
+          <TabsList className="grid grid-cols-4 w-full md:w-[550px]">
             <TabsTrigger value="pendentes">Não Alocadas</TabsTrigger>
+            <TabsTrigger value="preromaneio">
+              <Archive className="h-4 w-4 mr-2" /> Pré Romaneio
+            </TabsTrigger>
             <TabsTrigger value="emrota">Em Rota</TabsTrigger>
             <TabsTrigger value="finalizadas">Finalizadas</TabsTrigger>
           </TabsList>
@@ -192,6 +269,15 @@ const CargasAlocacao: React.FC = () => {
               currentPage={currentPendentesPage}
               setCurrentPage={setCurrentPendentesPage}
               onAlocar={handleAlocarColetas}
+              onPreAlocar={handlePreAlocarCargas}
+            />
+          </TabsContent>
+          
+          <TabsContent value="preromaneio" className="mt-4">
+            <CargasPreRomaneio
+              cargas={cargasPendentes}
+              currentPage={currentPreRomaneioPage}
+              setCurrentPage={setCurrentPreRomaneioPage}
               onPreAlocar={handlePreAlocarCargas}
             />
           </TabsContent>

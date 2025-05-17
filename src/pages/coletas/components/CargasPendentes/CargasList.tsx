@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Carga } from '../../types/coleta.types';
-import { Truck } from 'lucide-react';
+import { Truck, Calculator } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface CargasListProps {
@@ -38,14 +38,25 @@ const CargasList: React.FC<CargasListProps> = ({
             <TableHead>Previsão</TableHead>
             <TableHead className="text-center">Volumes</TableHead>
             <TableHead>Peso</TableHead>
-            <TableHead>CEP</TableHead>
+            <TableHead>
+              <div className="flex items-center">
+                <Calculator className="h-3 w-3 mr-1" />
+                M³
+              </div>
+            </TableHead>
+            <TableHead>
+              <div className="flex items-center">
+                <MapPin className="h-3 w-3 mr-1" />
+                CEP
+              </div>
+            </TableHead>
             <TableHead>Veículo</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentItems.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="h-24 text-center">
+              <TableCell colSpan={10} className="h-24 text-center">
                 Nenhuma coleta pendente encontrada
               </TableCell>
             </TableRow>
@@ -64,6 +75,7 @@ const CargasList: React.FC<CargasListProps> = ({
                 <TableCell>{carga.dataPrevisao}</TableCell>
                 <TableCell className="text-center">{carga.volumes}</TableCell>
                 <TableCell>{carga.peso}</TableCell>
+                <TableCell>{carga.volumeM3?.toFixed(2) || "—"}</TableCell>
                 <TableCell>{carga.cep || "—"}</TableCell>
                 <TableCell>
                   {carga.tipoVeiculo ? (
