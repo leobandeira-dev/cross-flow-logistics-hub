@@ -22,10 +22,11 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   const scriptRef = useRef<HTMLScriptElement | null>(null);
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
   const mapsLoadedRef = useRef<boolean>(false);
+  const isMountedRef = useRef(true);
 
   // Function to initialize map after script is loaded
   const initMap = () => {
-    if (!mapRef.current || !window.google || !window.google.maps) return;
+    if (!mapRef.current || !window.google || !window.google.maps || !isMountedRef.current) return;
     
     try {
       // Create map
@@ -42,11 +43,15 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
         initializeMarkers(newMap, cargas, markersRef, directionsRendererRef, setSelectedCardId);
       }
       
-      setIsLoading(false);
-      mapsLoadedRef.current = true;
+      if (isMountedRef.current) {
+        setIsLoading(false);
+        mapsLoadedRef.current = true;
+      }
     } catch (error) {
       console.error("Error initializing map:", error);
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -85,7 +90,7 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
     if (markersRef.current.length > 0) {
       markersRef.current.forEach(marker => {
         if (marker) {
-          google.maps.event.clearListeners(marker, 'click');
+          google.maps.event.clearInstanceListeners(marker);
           marker.setMap(null);
         }
       });
@@ -111,19 +116,25 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
     }
   };
 
+  // On mount
   useEffect(() => {
+    isMountedRef.current = true;
     // Load the Google Maps script when the component mounts
     loadGoogleMapsScript();
     
-    // Cleanup function
-    return cleanup;
+    // Cleanup function for component unmount
+    return () => {
+      isMountedRef.current = false;
+      cleanup();
+    };
   }, []);
 
   // Effect to update markers safely when cargas or selectedCardId change
   useEffect(() => {
-    if (googleMapRef.current && window.google && cargas.length > 0 && mapsLoadedRef.current) {
+    if (googleMapRef.current && window.google && cargas.length > 0 && mapsLoadedRef.current && isMountedRef.current) {
       // Clear existing markers before adding new ones
       markersRef.current.forEach(marker => {
+        google.maps.event.clearInstanceListeners(marker);
         marker.setMap(null);
       });
       markersRef.current = [];
@@ -134,6 +145,7 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
         directionsRendererRef.current = null;
       }
       
+      // Add new markers
       initializeMarkers(googleMapRef.current, cargas, markersRef, directionsRendererRef, setSelectedCardId);
     }
   }, [cargas, selectedCardId, setSelectedCardId]);

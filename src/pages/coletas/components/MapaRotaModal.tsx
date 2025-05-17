@@ -27,43 +27,56 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   const [isMapReady, setIsMapReady] = useState(false);
   const modalContentRef = useRef<HTMLDivElement>(null);
   
-  // Reset selected card when modal opens or cargas change
+  // Set up and clean up when the modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setSelectedCardId(null);
       
-      // Give the DOM time to render before initializing the map
+      // Delay map initialization to ensure DOM is ready
       const timer = setTimeout(() => {
         setIsMapReady(true);
-      }, 300);
+      }, 500); // Increased delay for better stability
       
-      return () => clearTimeout(timer);
-    } else {
-      setIsMapReady(false);
+      return () => {
+        clearTimeout(timer);
+        setIsMapReady(false);
+      };
     }
-  }, [isOpen, cargas]);
+  }, [isOpen]);
   
-  // Função para abrir o Google Maps com o endereço
+  // Cleanup when cargas change
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedCardId(null);
+    }
+  }, [cargas, isOpen]);
+  
+  // Function to open Google Maps with an address
   const openGoogleMaps = (carga: Carga) => {
     const address = `${carga.destino}, ${carga.cep}, Brasil`;
     const encodedAddress = encodeURIComponent(address);
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
     
-    // Destacar o card selecionado
+    // Highlight the selected card
     setSelectedCardId(carga.id);
   };
   
-  // Função para abrir o Google Maps com a rota completa
+  // Function to open Google Maps with the complete route
   const openGoogleMapsRoute = () => {
     const url = generateGoogleMapsDirectionsUrl(cargas);
     window.open(url, '_blank');
   };
   
-  // Handle close with cleanup
+  // Handle close with proper cleanup
   const handleClose = () => {
-    setSelectedCardId(null);
+    // Important: Set map ready to false before closing to prevent React DOM manipulation issues
     setIsMapReady(false);
-    onClose();
+    setSelectedCardId(null);
+    
+    // Delay the actual closing to allow React to process state changes
+    setTimeout(() => {
+      onClose();
+    }, 50);
   };
   
   return (
@@ -99,7 +112,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
                 onCardSelect={openGoogleMaps} 
               />
 
-              {isMapReady && (
+              {isMapReady && isOpen && (
                 <MapaContainer 
                   cargas={cargas} 
                   selectedCardId={selectedCardId} 
