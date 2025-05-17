@@ -1,8 +1,32 @@
 
 import { Volume } from '@/pages/armazenagem/recebimento/hooks/etiquetas/useVolumeState';
 
+// Define and export the VolumeData type
+export type VolumeData = {
+  id: string;
+  notaFiscal: string;
+  descricao: string;
+  quantidade: number;
+  etiquetado: boolean;
+  remetente: string;
+  destinatario: string;
+  endereco: string;
+  cidade: string;
+  cidadeCompleta?: string;
+  uf: string;
+  pesoTotal: string;
+  chaveNF: string;
+  etiquetaMae?: string;
+  tipoEtiquetaMae?: string;
+  tipoVolume?: 'geral' | 'quimico';
+  codigoONU?: string;
+  codigoRisco?: string;
+  transportadora?: string;
+};
+
 export const useVolumePreparation = () => {
-  const prepareVolumeData = (volume: any) => {
+  // The existing function to prepare volume data
+  const prepareVolumeData = (volume: any): VolumeData => {
     // Extract transportadora from volume or from nested nota_fiscal if it exists
     const transportadora = volume.transportadora || 
       (volume.nota_fiscal && volume.nota_fiscal.transportadora) ||
@@ -28,11 +52,19 @@ export const useVolumePreparation = () => {
       tipoVolume: volume.tipoVolume || 'geral',
       codigoONU: volume.codigoONU || '',
       codigoRisco: volume.codigoRisco || '',
-      transportadora: transportadora // Added transportadora field
+      transportadora: transportadora
     };
   };
 
+  // Add the missing prepareVolume function
+  const prepareVolume = async (volume: VolumeData): Promise<VolumeData> => {
+    // This function can be used for any additional processing needed
+    // before using the volume data, such as API calls or transformations
+    return prepareVolumeData(volume);
+  };
+
   return {
-    prepareVolumeData
+    prepareVolumeData,
+    prepareVolume
   };
 };
