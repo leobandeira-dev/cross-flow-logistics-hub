@@ -32,7 +32,7 @@ export const usePDFGeneration = () => {
         destinatario: preparedVolume.destinatario || notaData?.destinatario || '',
         cidade: preparedVolume.cidade || notaData?.cidade || '',
         uf: preparedVolume.uf || notaData?.uf || '',
-        qrCode: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==` // Placeholder QR code
+        transportadora: preparedVolume.transportadora || notaData?.transportadora || 'N/D'
       };
     });
   };
@@ -133,6 +133,9 @@ export const usePDFGeneration = () => {
               <span style="font-weight: bold;">ID:</span> ${volume.id}
             </div>
             <div style="font-size: 12px; margin-bottom: 5px;">
+              <span style="font-weight: bold;">NF:</span> ${volume.notaFiscal}
+            </div>
+            <div style="font-size: 12px; margin-bottom: 5px;">
               <span style="font-weight: bold;">Remetente:</span> ${volume.remetente}
             </div>
             <div style="font-size: 12px; margin-bottom: 5px;">
@@ -147,9 +150,12 @@ export const usePDFGeneration = () => {
             <div style="font-size: 12px; margin-bottom: 5px;">
               <span style="font-weight: bold;">Peso:</span> ${volume.pesoTotal || '0 Kg'}
             </div>
+            <div style="font-size: 12px; margin-bottom: 5px;">
+              <span style="font-weight: bold;">Transportadora:</span> ${volume.transportadora || 'N/D'}
+            </div>
           </div>
-          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            ${volume.qrCode ? `<img src="${volume.qrCode}" style="width: 80px; height: 80px;">` : ''}
+          <div style="flex: 1; display: flex; flex-direction: column; justify-center: center; align-items: center;">
+            <div style="width: 80px; height: 80px; border: 1px solid #000; display: flex; justify-content: center; align-items: center; font-size: 10px;">QR Code: ${volume.id}</div>
             <div style="text-align: center; font-size: 10px; margin-top: 5px;">${volume.id}</div>
           </div>
         </div>

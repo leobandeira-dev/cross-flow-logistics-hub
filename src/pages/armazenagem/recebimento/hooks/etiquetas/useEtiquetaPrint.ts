@@ -133,7 +133,8 @@ export const useEtiquetaPrint = () => {
       cidadeCompleta: linkedVolumes[0].cidadeCompleta || '',
       uf: linkedVolumes[0].uf || '',
       pesoTotal: calculateTotalPeso(linkedVolumes),
-      chaveNF: linkedVolumes[0].chaveNF || ''
+      chaveNF: linkedVolumes[0].chaveNF || '',
+      transportadora: linkedVolumes[0].transportadora || 'Transportadora não especificada'
     } : {
       fornecedor: '',
       destinatario: '',
@@ -142,7 +143,8 @@ export const useEtiquetaPrint = () => {
       cidadeCompleta: '',
       uf: '',
       pesoTotal: '0 Kg',
-      chaveNF: ''
+      chaveNF: '',
+      transportadora: 'Transportadora não especificada'
     };
     
     // Create a dummy volume to represent the master etiqueta
@@ -161,7 +163,8 @@ export const useEtiquetaPrint = () => {
       pesoTotal: notaData.pesoTotal,
       chaveNF: notaData.chaveNF,
       etiquetaMae: etiquetaMae.id,
-      tipoEtiquetaMae: etiquetaMae.tipo || 'geral'
+      tipoEtiquetaMae: etiquetaMae.tipo || 'geral',
+      transportadora: notaData.transportadora
     }];
     
     // Generate master etiqueta

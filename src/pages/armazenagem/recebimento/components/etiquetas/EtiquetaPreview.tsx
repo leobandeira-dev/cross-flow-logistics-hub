@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Biohazard, QrCode, Package } from 'lucide-react';
+import { Biohazard, QrCode, Package, Truck } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LayoutStyle } from '@/hooks/etiquetas/types';
 
@@ -67,6 +67,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
                 <li>• Remetente / Destinatário</li>
                 <li>• Cidade completa / UF</li>
                 <li>• Peso total dos volumes</li>
+                <li>• Transportadora</li>
               </>
             ) : (
               <>
@@ -77,6 +78,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
                 <li>• Cidade completa / UF</li>
                 <li>• Tipo de volume (Geral / Químico)</li>
                 <li>• Peso total dos volumes</li>
+                <li>• Transportadora</li>
                 {isQuimico && (
                   <>
                     <li>• Código ONU</li>
