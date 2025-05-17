@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Biohazard, QrCode, Package, Truck } from 'lucide-react';
@@ -21,6 +22,7 @@ interface EtiquetaTemplateProps {
     chaveNF?: string;
     descricao?: string;
     quantidade?: number;
+    transportadora?: string; // Added transportadora field
   };
   volumeNumber: number;
   totalVolumes: number;
@@ -72,8 +74,15 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
           
           {/* Header - Right: NF and Volume info */}
           <div className="col-span-5">
+            {/* Highlighted Supplier Info */}
+            <div className="bg-blue-100 px-1 py-0.5 rounded mb-1 border border-blue-300">
+              <span className="text-xs text-gray-600">FORNECEDOR:</span>
+              <span className="font-bold ml-1">{volumeData.remetente}</span>
+            </div>
+            
             <div className="flex justify-between items-center mb-1">
-              <div className="bg-gray-100 px-1 py-0.5 rounded w-full mr-1">
+              {/* Highlighted NF */}
+              <div className="bg-yellow-100 px-1 py-0.5 rounded w-full mr-1 border border-yellow-300">
                 <span className="text-xs text-gray-600">NF:</span>
                 <span className="font-bold ml-1">{volumeData.notaFiscal}</span>
               </div>
@@ -93,6 +102,12 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
             </div>
           </div>
           
+          {/* Added Transportadora */}
+          <div className="col-span-7 bg-gray-100 px-1 py-0.5 rounded mt-1 mb-1">
+            <span className="text-xs text-gray-600">TRANSPORTADORA:</span>
+            <span className="font-bold ml-1">{volumeData.transportadora || "N/D"}</span>
+          </div>
+          
           {/* Sender and Recipient */}
           <div className="col-span-7 grid grid-cols-2 gap-1 mt-1">
             <div>
@@ -106,11 +121,13 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
             </div>
           </div>
           
-          {/* Destination */}
+          {/* Destination - Highlighted City */}
           <div className="col-span-5">
             <div className="text-xs text-gray-600">ENDEREÇO DE DESTINO</div>
             <div className="font-semibold truncate text-xs">{volumeData.endereco}</div>
-            <div className="font-bold mt-0.5">{displayCidade}</div>
+            <div className="font-bold mt-0.5 bg-green-100 px-1 py-0.5 rounded border border-green-300">
+              {displayCidade}
+            </div>
           </div>
           
           <div className="col-span-2 flex items-center justify-center">
@@ -150,16 +167,24 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
         <div className="grid grid-cols-3 gap-4">
           {/* Coluna 1: Dados do remetente e Nota Fiscal */}
           <div className="flex flex-col space-y-3">
-            {/* Remetente */}
-            <div>
-              <div className="text-xs text-gray-600">REMETENTE</div>
+            {/* Remetente - Highlighted */}
+            <div className="p-1 bg-blue-100 border border-blue-300 rounded">
+              <div className="text-xs text-gray-600">FORNECEDOR</div>
               <div className="font-bold text-base">{volumeData.remetente || 'A definir'}</div>
             </div>
             
-            {/* Nota Fiscal */}
-            <div className="p-1 bg-gray-100">
+            {/* Nota Fiscal - Highlighted */}
+            <div className="p-1 bg-yellow-100 border border-yellow-300 rounded">
               <div className="text-xs text-gray-600">NOTA FISCAL</div>
               <div className="font-bold text-lg">{volumeData.notaFiscal || 'N/A'}</div>
+            </div>
+            
+            {/* Transportadora - Added */}
+            <div className="p-1 bg-gray-100">
+              <div className="text-xs text-gray-600">TRANSPORTADORA</div>
+              <div className="font-bold text-base">
+                {volumeData.transportadora || 'N/D'}
+              </div>
             </div>
             
             {/* Tipo de Volume */}
@@ -180,9 +205,9 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
               <div className="text-xs">{volumeData.endereco || ''}</div>
             </div>
             
-            {/* Destino */}
+            {/* Destino - Highlighted city */}
             <div className="flex space-x-2 items-center">
-              <div className="flex-1">
+              <div className="flex-1 p-1 bg-green-100 border border-green-300 rounded">
                 <div className="text-xs text-gray-600">CIDADE</div>
                 <div className="font-bold text-base">{displayCidade || 'A definir'}</div>
               </div>
@@ -258,7 +283,7 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                 {isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
               </div>
               <div className="text-sm">
-                {isMae ? `ID: ${volumeData.etiquetaMae}` : `VOL: ${volumeNumber}/{totalVolumes}`}
+                {isMae ? `ID: ${volumeData.etiquetaMae}` : `VOL: ${volumeNumber}/${totalVolumes}`}
               </div>
             </div>
           </div>
@@ -269,6 +294,12 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
         </div>
         
         <div className="p-3">
+          {/* Highlighted transportadora */}
+          <div className="bg-gray-100 p-2 rounded mb-3">
+            <div className="text-xs text-gray-600">TRANSPORTADORA</div>
+            <div className="font-bold">{volumeData.transportadora || "N/D"}</div>
+          </div>
+          
           {/* Two column layout for main content */}
           <div className="grid grid-cols-2 gap-4">
             {/* Left column: QR Code and core identification */}
@@ -278,7 +309,14 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                 <div className="text-xs mt-1 font-mono">{volumeData.id}</div>
               </div>
               
-              <div className="bg-gray-100 p-2 rounded">
+              {/* Highlighted Fornecedor */}
+              <div className="bg-blue-100 p-2 rounded border border-blue-300">
+                <div className="text-xs text-gray-600">FORNECEDOR</div>
+                <div className="font-bold text-lg text-center">{volumeData.remetente}</div>
+              </div>
+              
+              {/* Highlighted Nota Fiscal */}
+              <div className="bg-yellow-100 p-2 rounded border border-yellow-300">
                 <div className="text-xs text-gray-600">NOTA FISCAL</div>
                 <div className="font-bold text-xl text-center">{volumeData.notaFiscal}</div>
               </div>
@@ -314,9 +352,9 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                 <div className="text-sm">{volumeData.endereco}</div>
               </div>
               
-              {/* Destination with UF highlight */}
+              {/* Destination with UF highlight and highlighted city */}
               <div className="flex space-x-2 items-center">
-                <div className="flex-1">
+                <div className="flex-1 bg-green-100 p-2 rounded border border-green-300">
                   <div className="text-xs text-gray-600">CIDADE</div>
                   <div className="font-bold">{displayCidade}</div>
                 </div>

@@ -1,42 +1,36 @@
 
 import { Volume } from '../../components/etiquetas/VolumesTable';
 
-/**
- * Hook for etiqueta utility functions
- */
 export const useEtiquetaUtils = () => {
   /**
-   * Calculate total peso from a collection of volumes
+   * Calcula o peso total dos volumes
    */
   const calculateTotalPeso = (volumes: Volume[]): string => {
-    if (volumes.length === 0) return '0 Kg';
+    if (!volumes || volumes.length === 0) return '0 Kg';
     
-    let totalPeso = 0;
+    // Assume que pesoTotal está no formato "X Kg"
+    const totalPeso = volumes.reduce((total, vol) => {
+      const peso = parseFloat(vol.pesoTotal?.replace('Kg', '').trim()) || 0;
+      return total + peso;
+    }, 0);
     
-    volumes.forEach(vol => {
-      const pesoStr = vol.pesoTotal || '0 Kg';
-      const pesoNum = parseFloat(pesoStr.replace(/[^0-9.,]/g, '').replace(',', '.'));
-      if (!isNaN(pesoNum)) {
-        totalPeso += pesoNum;
-      }
-    });
-    
-    return `${totalPeso.toFixed(2).replace('.', ',')} Kg`;
+    return `${totalPeso.toFixed(2)} Kg`;
   };
-
+  
   /**
-   * Prepare nota data for etiquetas
+   * Prepara os dados da nota fiscal para uso na etiqueta
    */
   const prepareNotaData = (volume: Volume, notaFiscalData: any) => {
     return {
-      fornecedor: volume.remetente || notaFiscalData?.remetente || '',
-      destinatario: volume.destinatario || notaFiscalData?.destinatario || '',
-      endereco: volume.endereco || notaFiscalData?.endereco || '',
-      cidade: volume.cidade || notaFiscalData?.cidade || '',
-      cidadeCompleta: volume.cidadeCompleta || notaFiscalData?.cidadeCompleta || '',
-      uf: volume.uf || notaFiscalData?.uf || '',
-      pesoTotal: volume.pesoTotal || notaFiscalData?.pesoTotal || '',
-      chaveNF: volume.chaveNF || notaFiscalData?.chaveNF || ''
+      fornecedor: volume.remetente || notaFiscalData?.fornecedor || notaFiscalData?.emitenteRazaoSocial || '',
+      destinatario: volume.destinatario || notaFiscalData?.destinatario || notaFiscalData?.destinatarioRazaoSocial || '',
+      endereco: volume.endereco || notaFiscalData?.endereco || notaFiscalData?.destinatarioEndereco || '',
+      cidade: volume.cidade || notaFiscalData?.cidade || notaFiscalData?.destinatarioCidade || '',
+      cidadeCompleta: volume.cidadeCompleta || notaFiscalData?.cidadeCompleta || notaFiscalData?.destinatarioCidadeCompleta || '',
+      uf: volume.uf || notaFiscalData?.uf || notaFiscalData?.destinatarioUF || '',
+      pesoTotal: volume.pesoTotal || notaFiscalData?.pesoTotal || '0 Kg',
+      chaveNF: volume.chaveNF || notaFiscalData?.chaveNF || '',
+      transportadora: notaFiscalData?.transportadora || notaFiscalData?.transportadoraNome || 'Transportadora não especificada'
     };
   };
   

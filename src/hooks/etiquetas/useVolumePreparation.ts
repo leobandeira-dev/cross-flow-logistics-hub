@@ -1,71 +1,38 @@
 
-import { useState } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import { Volume } from '@/pages/armazenagem/recebimento/components/etiquetas/VolumesTable';
-
-export interface VolumeData {
-  id: string;
-  tipo?: string;  // Making this optional since Volume might not have it
-  descricao: string;
-  peso?: string;
-  dimensoes?: string;
-  notaFiscal: string;
-  etiquetaMae?: string | null;
-  endereco?: string | null;
-  quantidade: number; // Required to match Volume
-  etiquetado: boolean; // Required to match Volume
-  [key: string]: any; // Allow additional properties to make it compatible with Volume
-}
+import { Volume } from '@/pages/armazenagem/recebimento/hooks/etiquetas/useVolumeState';
 
 export const useVolumePreparation = () => {
-  const { toast } = useToast();
-  const [preparingVolume, setPreparingVolume] = useState(false);
-
-  const prepareVolume = async (volumeData: VolumeData): Promise<VolumeData> => {
-    setPreparingVolume(true);
+  const prepareVolumeData = (volume: any) => {
+    // Extract transportadora from volume or from nested nota_fiscal if it exists
+    const transportadora = volume.transportadora || 
+      (volume.nota_fiscal && volume.nota_fiscal.transportadora) ||
+      'Transportadora não especificada';
     
-    try {
-      // Simulated API call or volume preparation logic
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Set default endereco to "Area de Conferencia" for all volumes except etiqueta mae
-      const isEtiquetaMae = volumeData.tipo === 'Etiqueta Mãe' || volumeData.tipo === 'Palete';
-      const volumeWithDefaultLocation = {
-        ...volumeData,
-        endereco: isEtiquetaMae ? null : 'Area de Conferência'
-      };
-      
-      toast({
-        title: "Volume preparado",
-        description: `Volume ${volumeData.id} preparado com sucesso${!isEtiquetaMae ? ' e endereçado para Área de Conferência' : ''}`,
-      });
-      
-      return volumeWithDefaultLocation;
-    } catch (error) {
-      toast({
-        title: "Erro ao preparar volume",
-        description: "Ocorreu um erro ao preparar o volume. Tente novamente.",
-        variant: "destructive"
-      });
-      throw error;
-    } finally {
-      setPreparingVolume(false);
-    }
-  };
-
-  // Function to prepare volume data without toast notifications or UI updates
-  const prepareVolumeData = (volumeData: Volume): Volume => {
-    // Set default endereco to "Area de Conferencia" for all volumes except etiqueta mae
-    const isEtiquetaMae = volumeData.tipo === 'Etiqueta Mãe' || volumeData.tipo === 'Palete';
+    // Convert the volume data to a standard format
     return {
-      ...volumeData,
-      endereco: isEtiquetaMae ? null : 'Area de Conferência'
+      id: volume.id || volume.codigo || '',
+      notaFiscal: volume.notaFiscal || volume.nota_fiscal?.numero || '',
+      descricao: volume.descricao || '',
+      quantidade: volume.quantidade || 1,
+      etiquetado: volume.etiquetado || false,
+      remetente: volume.remetente || volume.nota_fiscal?.emitente_nome || '',
+      destinatario: volume.destinatario || volume.nota_fiscal?.destinatario_nome || '',
+      endereco: volume.endereco || volume.nota_fiscal?.destinatario_endereco || '',
+      cidade: volume.cidade || volume.nota_fiscal?.destinatario_cidade || '',
+      cidadeCompleta: volume.cidadeCompleta || volume.nota_fiscal?.destinatario_cidade_completa || '',
+      uf: volume.uf || volume.nota_fiscal?.destinatario_uf || '',
+      pesoTotal: volume.pesoTotal || volume.nota_fiscal?.peso_total || '0 Kg',
+      chaveNF: volume.chaveNF || volume.nota_fiscal?.chave || '',
+      etiquetaMae: volume.etiquetaMae || volume.etiqueta_mae_id || '',
+      tipoEtiquetaMae: volume.tipoEtiquetaMae || 'geral',
+      tipoVolume: volume.tipoVolume || 'geral',
+      codigoONU: volume.codigoONU || '',
+      codigoRisco: volume.codigoRisco || '',
+      transportadora: transportadora // Added transportadora field
     };
   };
 
   return {
-    prepareVolume,
-    prepareVolumeData,
-    preparingVolume
+    prepareVolumeData
   };
 };

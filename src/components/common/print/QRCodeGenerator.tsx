@@ -24,8 +24,17 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ text, size = 100 }) =
       }
     };
     
-    generateQR();
+    if (text) {
+      generateQR();
+    } else {
+      // If no text, use a placeholder
+      setQrDataUrl('');
+    }
   }, [text, size]);
+  
+  if (!text) {
+    return null;
+  }
   
   if (!qrDataUrl) {
     return (
@@ -35,7 +44,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ text, size = 100 }) =
     );
   }
   
-  return <img src={qrDataUrl} alt="QR Code" width={size} height={size} />;
+  return <img src={qrDataUrl} alt={`QR Code: ${text}`} width={size} height={size} />;
 };
 
 export default QRCodeGenerator;
