@@ -99,8 +99,12 @@ export const initializeMarkers = (
           
           // Fit map to markers after all have been added
           if (index === cargas.length - 1) {
-            // Only fit bounds if the map is still valid
-            if (map.getDiv() && map.getDiv().offsetWidth > 0) {
+            // Check if the map is still valid before fitting bounds
+            // Using alternative check instead of getDiv()
+            try {
+              // A safer way to determine if the map is still valid
+              const center = map.getCenter(); // This will throw if map is not valid
+              
               map.fitBounds(bounds);
               
               // Set minimum zoom to prevent excessive zoom on single markers
@@ -114,6 +118,8 @@ export const initializeMarkers = (
               if (cargas.length > 1) {
                 renderRoute(map, cargas, directionsRendererRef);
               }
+            } catch (e) {
+              console.error("Map is no longer valid:", e);
             }
           }
         } else {
@@ -125,3 +131,4 @@ export const initializeMarkers = (
     console.error('Error initializing markers:', error);
   }
 };
+
