@@ -58,7 +58,7 @@ export const usePDFGeneration = () => {
         transportadora: preparedVolume.transportadora || notaData?.transportadora || 'N/D',
         codigoONU: preparedVolume.codigoONU || notaData?.codigoONU || '',
         codigoRisco: preparedVolume.codigoRisco || notaData?.codigoRisco || '',
-        classificacaoQuimica: preparedVolume.classificacaoQuimica || 'nao_classificada',
+        classificacaoQuimica: preparedVolume.classificacaoQuimica || 'nao_classificada' as 'nao_perigosa' | 'perigosa' | 'nao_classificada',
         qrCode: qrCodeDataURL
       });
     }
