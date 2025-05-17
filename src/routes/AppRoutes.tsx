@@ -17,6 +17,9 @@ import RecebimentoOverview from '../pages/armazenagem/RecebimentoOverview';
 import MovimentacoesInternas from '../pages/armazenagem/MovimentacoesInternas';
 import Carregamento from '../pages/armazenagem/Carregamento';
 import OrdemCarregamento from '../pages/armazenagem/carregamento/OrdemCarregamento';
+import UnitizacaoPaletes from '../pages/armazenagem/movimentacoes/UnitizacaoPaletes';
+import CancelarUnitizacao from '../pages/armazenagem/movimentacoes/CancelarUnitizacao';
+import Enderecamento from '../pages/armazenagem/movimentacoes/Enderecamento';
 
 // Páginas de Expedição
 import Faturamento from '../pages/expedicao/Faturamento';
@@ -105,6 +108,26 @@ const AppRoutes = () => {
           <MovimentacoesInternas />
         </ProtectedRoute>
       } />
+      
+      {/* Add the missing movimentacoes pages */}
+      <Route path="/armazenagem/movimentacoes/unitizacao" element={
+        <ProtectedRoute>
+          <UnitizacaoPaletes />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/armazenagem/movimentacoes/cancelar-unitizacao" element={
+        <ProtectedRoute>
+          <CancelarUnitizacao />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/armazenagem/movimentacoes/enderecamento" element={
+        <ProtectedRoute>
+          <Enderecamento />
+        </ProtectedRoute>
+      } />
+      
       <Route path="/armazenagem/carregamento" element={
         <ProtectedRoute>
           <Carregamento />
