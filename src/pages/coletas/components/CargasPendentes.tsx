@@ -8,23 +8,28 @@ import CargasList from './CargasPendentes/CargasList';
 import PaginationControls from './CargasPendentes/PaginationControls';
 import AlocacaoModal from './AlocacaoModal';
 import RoteirizacaoModal from './RoteirizacaoModal';
+import PreAlocacaoModal from './PreAlocacaoModal';
+import { toast } from '@/hooks/use-toast';
 
 interface CargasPendentesProps {
   cargas: Carga[];
   currentPage: number;
   setCurrentPage: (page: number) => void;
   onAlocar?: (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
+  onPreAlocar?: (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => void;
 }
 
 const CargasPendentes: React.FC<CargasPendentesProps> = ({ 
   cargas, 
   currentPage, 
   setCurrentPage,
-  onAlocar
+  onAlocar,
+  onPreAlocar
 }) => {
   const [searchValue, setSearchValue] = useState('');
   const [selectedCargasIds, setSelectedCargasIds] = useState<string[]>([]);
   const [isAlocacaoModalOpen, setIsAlocacaoModalOpen] = useState(false);
+  const [isPreAlocacaoModalOpen, setIsPreAlocacaoModalOpen] = useState(false);
   const [isRoteirizacaoModalOpen, setIsRoteirizacaoModalOpen] = useState(false);
 
   const filteredCargas = useMemo(() => {
@@ -64,6 +69,18 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
     }
   };
   
+  // Gerenciar pré-alocação de veículo
+  const handlePreAlocar = (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => {
+    if (onPreAlocar) {
+      onPreAlocar(cargasIds, tipoVeiculoId, tipoVeiculoNome);
+    } else {
+      toast({
+        title: "Pré-alocação concluída",
+        description: `${cargasIds.length} carga(s) pré-alocada(s) para veículo tipo ${tipoVeiculoNome}.`
+      });
+    }
+  };
+  
   // Pagination
   const itemsPerPage = 5;
   const totalPages = Math.ceil(filteredCargas.length / itemsPerPage);
@@ -84,6 +101,7 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
           selectedCargasIds={selectedCargasIds}
           setIsRoteirizacaoModalOpen={setIsRoteirizacaoModalOpen}
           setIsAlocacaoModalOpen={setIsAlocacaoModalOpen}
+          setIsPreAlocacaoModalOpen={setIsPreAlocacaoModalOpen}
         />
 
         <Card>
@@ -118,6 +136,13 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
           }
           setIsAlocacaoModalOpen(false);
         }}
+      />
+
+      <PreAlocacaoModal
+        isOpen={isPreAlocacaoModalOpen}
+        onClose={() => setIsPreAlocacaoModalOpen(false)}
+        cargas={cargas.filter(carga => selectedCargasIds.includes(carga.id))}
+        onPreAlocar={handlePreAlocar}
       />
 
       <RoteirizacaoModal

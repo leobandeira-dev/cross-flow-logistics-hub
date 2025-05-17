@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Route, Tag, Map } from 'lucide-react';
+import { Route, Tag, Truck, Map } from 'lucide-react';
 import SearchFilter from '@/components/common/SearchFilter';
 import { filterConfig } from './filterConfig';
 
@@ -10,13 +10,15 @@ interface TableHeaderProps {
   selectedCargasIds: string[];
   setIsRoteirizacaoModalOpen: (isOpen: boolean) => void;
   setIsAlocacaoModalOpen: (isOpen: boolean) => void;
+  setIsPreAlocacaoModalOpen?: (isOpen: boolean) => void;
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
   onSearch,
   selectedCargasIds,
   setIsRoteirizacaoModalOpen,
-  setIsAlocacaoModalOpen
+  setIsAlocacaoModalOpen,
+  setIsPreAlocacaoModalOpen
 }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -36,12 +38,23 @@ const TableHeader: React.FC<TableHeaderProps> = ({
           <Route className="mr-2 h-4 w-4" /> Roteirizar
         </Button>
         
+        {setIsPreAlocacaoModalOpen && (
+          <Button 
+            variant="outline"
+            className="flex-1 sm:flex-none"
+            onClick={() => setIsPreAlocacaoModalOpen(true)}
+            disabled={selectedCargasIds.length === 0}
+          >
+            <Truck className="mr-2 h-4 w-4" /> Pré-Alocar Veículo
+          </Button>
+        )}
+        
         <Button 
           className="flex-1 sm:flex-none"
           onClick={() => setIsAlocacaoModalOpen(true)}
           disabled={selectedCargasIds.length === 0}
         >
-          <Tag className="mr-2 h-4 w-4" /> Alocar Selecionados
+          <Tag className="mr-2 h-4 w-4" /> Alocar Motorista
         </Button>
 
         <Button 

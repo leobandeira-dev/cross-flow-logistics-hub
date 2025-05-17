@@ -32,7 +32,7 @@ export interface Carga {
   id: string;
   destino: string;
   dataPrevisao: string;
-  dataEntrega?: string; // Added to fix errors
+  dataEntrega?: string; 
   volumes: number;
   peso: string;
   status: 'pending' | 'scheduled' | 'transit' | 'loading' | 'delivered' | 'problem';
@@ -41,8 +41,11 @@ export interface Carga {
   origem?: string;
   notasFiscais?: string[];
   valorTotal?: number;
-  cep?: string; // Added to fix errors
-  observacoes?: string; // Added to fix errors
+  cep?: string;
+  observacoes?: string;
+  // Novos campos para pré-alocação do tipo de veículo
+  tipoVeiculo?: string;
+  tipoVeiculoId?: string;
 }
 
 // Adding specialized types for approval flows

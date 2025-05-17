@@ -105,6 +105,28 @@ const CargasAlocacao: React.FC = () => {
   const [currentEmRotaPage, setCurrentEmRotaPage] = useState(1);
   const [currentFinalizadasPage, setCurrentFinalizadasPage] = useState(1);
 
+  // Função para pré-alocar cargas com um tipo de veículo
+  const handlePreAlocarCargas = (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => {
+    // Atualizar as cargas pendentes com as informações do tipo de veículo
+    const novasCargasPendentes = cargasPendentes.map(carga => {
+      if (cargasIds.includes(carga.id)) {
+        return {
+          ...carga,
+          tipoVeiculo: tipoVeiculoNome,
+          tipoVeiculoId: tipoVeiculoId
+        };
+      }
+      return carga;
+    });
+    
+    setCargasPendentes(novasCargasPendentes);
+    
+    toast({
+      title: "Pré-alocação concluída",
+      description: `${cargasIds.length} carga(s) pré-alocada(s) para veículo tipo ${tipoVeiculoNome}.`,
+    });
+  };
+  
   // Função para alocar coletas para um motorista
   const handleAlocarColetas = (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => {
     // Atualizar as cargas pendentes
@@ -170,6 +192,7 @@ const CargasAlocacao: React.FC = () => {
               currentPage={currentPendentesPage}
               setCurrentPage={setCurrentPendentesPage}
               onAlocar={handleAlocarColetas}
+              onPreAlocar={handlePreAlocarCargas}
             />
           </TabsContent>
           
