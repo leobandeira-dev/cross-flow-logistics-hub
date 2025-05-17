@@ -2,6 +2,7 @@
 export * from './mapUrls';
 export * from './routeRenderer';
 export * from './distanceMatrix';
+export * from './markerManager'; // Adding this export
 
 // Function to calculate optimized route
 export const getOptimizedRoute = async (cargas) => {

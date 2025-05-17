@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 interface PaginationControlsProps {
   currentPage: number;
   totalPages: number;
-  handlePageChange: (page: number) => void;
+  handlePageChange: (page: number) => void; // Changed from onPageChange to handlePageChange
 }
 
 const PaginationControls: React.FC<PaginationControlsProps> = ({

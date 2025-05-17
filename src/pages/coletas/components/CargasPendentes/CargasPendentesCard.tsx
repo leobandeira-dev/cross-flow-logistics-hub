@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Carga } from '../../types/coleta.types';
 import PaginationControls from './PaginationControls';
 import ActionButtons from './ActionButtons';
-import TableHeader from './TableHeader';
+import CargasTableHeader from './TableHeader'; // Renamed import to avoid collision
 import RoteirizacaoModal from '../RoteirizacaoModal';
 import AlocacaoModal from '../AlocacaoModal';
 import PreAlocacaoModal from '../PreAlocacaoModal';
@@ -75,7 +75,7 @@ const CargasPendentesCard: React.FC<CargasPendentesCardProps> = ({
     <Card>
       <CardHeader>
         <CardTitle>Cargas Pendentes</CardTitle>
-        <TableHeader 
+        <CargasTableHeader 
           onSearch={setSearchTerm}
           selectedCargasIds={selectedCargasIds}
           setIsRoteirizacaoModalOpen={setIsRoteirizacaoModalOpen}
@@ -145,7 +145,7 @@ const CargasPendentesCard: React.FC<CargasPendentesCardProps> = ({
         <PaginationControls 
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          handlePageChange={setCurrentPage}
         />
       </CardContent>
 

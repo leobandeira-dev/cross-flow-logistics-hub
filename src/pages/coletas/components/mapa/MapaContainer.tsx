@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Carga } from '../../types/coleta.types';
-import { initializeMarkers } from './utils'; // Updated import path
+import { initializeMarkers } from './utils/markerManager'; // Updated import path
 
 interface MapaContainerProps {
   cargas: Carga[];

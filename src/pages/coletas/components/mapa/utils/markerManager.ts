@@ -131,4 +131,3 @@ export const initializeMarkers = (
     console.error('Error initializing markers:', error);
   }
 };
-
