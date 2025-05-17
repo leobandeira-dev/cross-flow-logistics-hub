@@ -37,7 +37,6 @@ const createQueryBuilder = () => {
     not: () => queryBuilder,
     contains: () => queryBuilder,
     containedBy: () => queryBuilder,
-    range: () => queryBuilder,
     overlaps: () => queryBuilder,
     textSearch: () => queryBuilder,
     match: () => queryBuilder,
@@ -45,6 +44,7 @@ const createQueryBuilder = () => {
     maybeSingle: async () => mockSuccess(),
     order: () => queryBuilder,
     limit: () => queryBuilder,
+    // Remove duplicate range property
     range: () => queryBuilder,
     then: (callback: any) => Promise.resolve(mockSuccess()).then(callback)
   };
