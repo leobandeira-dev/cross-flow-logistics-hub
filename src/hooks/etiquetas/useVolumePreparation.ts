@@ -1,28 +1,9 @@
 
 import { Volume } from '@/pages/armazenagem/recebimento/hooks/etiquetas/useVolumeState';
+import { VolumeData as EtiquetaVolumeData } from './types';
 
-// Define and export the VolumeData type
-export type VolumeData = {
-  id: string;
-  notaFiscal: string;
-  descricao: string;
-  quantidade: number;
-  etiquetado: boolean;
-  remetente: string;
-  destinatario: string;
-  endereco: string;
-  cidade: string;
-  cidadeCompleta?: string;
-  uf: string;
-  pesoTotal: string;
-  chaveNF: string;
-  etiquetaMae?: string;
-  tipoEtiquetaMae?: string;
-  tipoVolume?: 'geral' | 'quimico';
-  codigoONU?: string;
-  codigoRisco?: string;
-  transportadora?: string;
-};
+// We'll use the VolumeData from types.ts, not define a new one
+export type VolumeData = EtiquetaVolumeData;
 
 export const useVolumePreparation = () => {
   // The existing function to prepare volume data
@@ -52,7 +33,8 @@ export const useVolumePreparation = () => {
       tipoVolume: volume.tipoVolume || 'geral',
       codigoONU: volume.codigoONU || '',
       codigoRisco: volume.codigoRisco || '',
-      transportadora: transportadora
+      transportadora: transportadora,
+      classificacaoQuimica: volume.classificacaoQuimica || 'nao_classificada'
     };
   };
 

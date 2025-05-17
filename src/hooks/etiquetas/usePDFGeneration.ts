@@ -41,7 +41,7 @@ export const usePDFGeneration = () => {
         codigoRisco: preparedVolume.codigoRisco || notaData?.codigoRisco || '',
         classificacaoQuimica: preparedVolume.classificacaoQuimica || 'nao_classificada',
         qrCode: qrCodeDataURL
-      });
+      } as VolumeData);  // Type assertion to make TypeScript recognize all properties
     }
     
     return preparedVolumes;
