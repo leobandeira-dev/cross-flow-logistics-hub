@@ -3,32 +3,33 @@ import { supabase } from "@/integrations/supabase/client";
 import { SignUpCredentials } from "./authTypes";
 
 /**
- * Service for registration operations
+ * Service for registration operations - frontend only mock
  */
 const registrationService = {
   /**
    * Cadastra um novo usuário
    */
   async signUp(credentials: SignUpCredentials) {
-    console.log('RegistrationService: Attempting sign up with:', credentials.email);
-    const { data, error } = await supabase.auth.signUp({
-      email: credentials.email,
-      password: credentials.password,
-      options: {
-        data: {
+    console.log('RegistrationService: Mocking sign up with:', credentials.email);
+    
+    // In frontend-only mode, return mock data
+    return {
+      user: {
+        id: 'mock-new-user-id',
+        email: credentials.email,
+        user_metadata: {
           nome: credentials.nome,
-          telefone: credentials.telefone,
+          telefone: credentials.telefone
         },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       },
-    });
-
-    if (error) {
-      console.error('RegistrationService: Sign up error:', error);
-      throw new Error(error.message);
-    }
-
-    console.log('RegistrationService: Sign up successful');
-    return data;
+      session: {
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_at: Date.now() + 3600000 // 1 hour from now
+      }
+    };
   },
 };
 

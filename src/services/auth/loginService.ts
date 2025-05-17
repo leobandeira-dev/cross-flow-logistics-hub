@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SignInCredentials, AuthSession } from "./authTypes";
 
 /**
- * Service for login operations
+ * Service for login operations - frontend only mock
  */
 const loginService = {
   /**
@@ -11,31 +11,16 @@ const loginService = {
    */
   async signIn(credentials: SignInCredentials): Promise<AuthSession> {
     console.log('LoginService: Attempting sign in with:', credentials.email);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: credentials.email,
-      password: credentials.password,
-    });
-
-    if (error) {
-      console.error('LoginService: Sign in error:', error);
-      throw new Error(error.message);
-    }
-
-    if (!data.user || !data.session) {
-      console.error('LoginService: No user or session returned');
-      throw new Error('Falha no login: Resposta inválida do servidor');
-    }
-
-    console.log('LoginService: Sign in successful, session:', data.session);
-
+    
+    // In frontend-only mode, just simulate a successful login
     return {
       user: {
-        id: data.user.id,
-        email: data.user.email || '',
+        id: 'mock-user-id',
+        email: credentials.email,
       },
       session: {
-        access_token: data.session.access_token,
-        expires_at: data.session.expires_at,
+        access_token: 'mock-access-token',
+        expires_at: Date.now() + 3600000, // 1 hour from now
       },
     };
   },

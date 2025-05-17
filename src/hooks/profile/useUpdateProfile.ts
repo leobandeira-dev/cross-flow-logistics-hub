@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { toast } from '@/hooks/use-toast';
 
 interface UpdateProfileData {
   nome?: string;
@@ -10,7 +11,7 @@ interface UpdateProfileData {
 }
 
 export const useUpdateProfile = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const updateProfile = async (data: UpdateProfileData) => {
@@ -20,36 +21,34 @@ export const useUpdateProfile = () => {
 
     setIsLoading(true);
     try {
-      // Update user metadata in auth.users
-      const { error: authUpdateError } = await supabase.auth.updateUser({
-        data: {
-          nome: data.nome,
-          telefone: data.telefone
-        }
+      // In frontend-only mode, just update the local user object
+      const updatedUser = {
+        ...user,
+        nome: data.nome || user.nome,
+        telefone: data.telefone || user.telefone,
+        avatar_url: data.avatar_url || user.avatar_url,
+        updated_at: new Date().toISOString()
+      };
+      
+      // Update localStorage to persist the changes
+      localStorage.setItem('mockUser', JSON.stringify(updatedUser));
+      
+      // Update the user in the auth context
+      setUser(updatedUser);
+      
+      toast({
+        title: "Perfil atualizado",
+        description: "Suas informações foram atualizadas com sucesso."
       });
-
-      if (authUpdateError) {
-        throw authUpdateError;
-      }
-
-      // Update profile in usuarios table
-      const { error: profileUpdateError } = await supabase
-        .from('usuarios')
-        .update({
-          nome: data.nome,
-          telefone: data.telefone,
-          avatar_url: data.avatar_url,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (profileUpdateError) {
-        throw profileUpdateError;
-      }
-
+      
       return true;
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
+      toast({
+        title: "Erro ao atualizar perfil",
+        description: "Ocorreu um erro ao atualizar suas informações.",
+        variant: "destructive"
+      });
       throw error;
     } finally {
       setIsLoading(false);
