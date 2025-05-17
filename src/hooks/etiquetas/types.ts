@@ -39,4 +39,28 @@ export interface NotaData {
   pesoTotal: string;
   chaveNF: string;
   tipoEtiquetaMae?: string;
+  transportadora?: string;
+}
+
+export interface VolumeData {
+  id: string;
+  notaFiscal: string;
+  descricao: string;
+  quantidade: number;
+  etiquetado: boolean;
+  remetente: string;
+  destinatario: string;
+  endereco: string;
+  cidade: string;
+  cidadeCompleta?: string;
+  uf: string;
+  pesoTotal: string;
+  chaveNF: string;
+  etiquetaMae?: string;
+  tipoEtiquetaMae?: string;
+  tipoVolume?: 'geral' | 'quimico';
+  codigoONU?: string;
+  codigoRisco?: string;
+  classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
+  transportadora?: string;
 }
