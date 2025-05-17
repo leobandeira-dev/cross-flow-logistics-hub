@@ -12,12 +12,14 @@ interface CargasPendentesProps {
   cargas: any[];
   currentPage: number;
   setCurrentPage: (page: number) => void;
+  onAlocar?: (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
 }
 
 const CargasPendentes: React.FC<CargasPendentesProps> = ({ 
   cargas, 
   currentPage, 
-  setCurrentPage 
+  setCurrentPage,
+  onAlocar 
 }) => {
   const { 
     handleSearch, 
@@ -60,8 +62,13 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
         <AlocacaoModal 
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          carga={selectedCarga}
-          onConfirm={handleAlocacaoConfirmada}
+          cargas={[selectedCarga]} 
+          onConfirm={(cargaIds, motoristaId, motoristaName, veiculoId, veiculoName) => {
+            handleAlocacaoConfirmada(selectedCarga.id, motoristaName, veiculoName);
+            if (onAlocar) {
+              onAlocar(cargaIds, motoristaId, motoristaName, veiculoId, veiculoName);
+            }
+          }}
         />
       )}
 

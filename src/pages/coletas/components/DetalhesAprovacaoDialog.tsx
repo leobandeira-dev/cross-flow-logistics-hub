@@ -1,163 +1,168 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { CheckCircle2, ClipboardList } from 'lucide-react';
-import { SolicitacaoColeta } from '../types/coleta.types';
-import AprovacaoForm from './aprovacao/AprovacaoForm';
-import DocumentoAprovacaoRenderer from './DocumentoAprovacaoRenderer';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { SolicitacaoColeta } from './types/coleta.types';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 interface DetalhesAprovacaoDialogProps {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedRequest: SolicitacaoColeta | null;
-  isRejecting: boolean;
-  setIsRejecting: (value: boolean) => void;
-  onApprove: (solicitacaoId: string, observacoes?: string) => void;
-  onReject: (solicitacaoId: string, motivoRecusa: string) => void;
+  onClose: () => void;
+  solicitacao: SolicitacaoColeta | null;
 }
 
-const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
-  isOpen,
-  onOpenChange,
-  selectedRequest,
-  isRejecting,
-  setIsRejecting,
-  onApprove,
-  onReject
-}) => {
-  // Manipula o fechamento do diálogo (restaura o estado de rejeição)
-  const handleCloseDialog = () => {
-    setIsRejecting(false);
-    onOpenChange(false);
+// Helper function to format date strings
+const formatDate = (dateString: string) => {
+  try {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (e) {
+    return dateString;
+  }
+};
+
+// Status badge renderer
+const StatusBadge = ({ status }: { status: string }) => {
+  const variantMap: Record<string, "default" | "destructive" | "outline" | "secondary"> = {
+    pending: 'outline',
+    approved: 'default',
+    rejected: 'destructive',
   };
 
-  // Wrapper para o onApprove que também fecha o diálogo
-  const handleApprove = (solicitacaoId: string, observacoes?: string) => {
-    console.log("DetalhesAprovacaoDialog: Chamando onApprove para:", solicitacaoId);
-    onApprove(solicitacaoId, observacoes);
-    handleCloseDialog();
-  };
-
-  // Wrapper para o onReject que também fecha o diálogo
-  const handleReject = (solicitacaoId: string, motivoRecusa: string) => {
-    console.log("DetalhesAprovacaoDialog: Chamando onReject para:", solicitacaoId);
-    onReject(solicitacaoId, motivoRecusa);
-    handleCloseDialog();
+  const labelMap: Record<string, string> = {
+    pending: 'Pendente',
+    approved: 'Aprovada',
+    rejected: 'Recusada',
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
-      <DialogContent className="max-w-3xl">
+    <Badge variant={variantMap[status] || 'outline'}>
+      {labelMap[status] || status}
+    </Badge>
+  );
+};
+
+const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
+  isOpen,
+  onClose,
+  solicitacao
+}) => {
+  if (!solicitacao) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>Detalhes da Solicitação de Coleta</DialogTitle>
+          <DialogTitle>Detalhes da Solicitação #{solicitacao.id}</DialogTitle>
         </DialogHeader>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-medium">Informações da Solicitação</h3>
+                <p className="text-sm text-muted-foreground">
+                  Criada em {formatDate(solicitacao.dataSolicitacao || solicitacao.data || '')}
+                </p>
+              </div>
+              <StatusBadge status={solicitacao.status} />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-sm font-medium">Cliente</p>
+                <p className="text-muted-foreground">{solicitacao.cliente}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Solicitante</p>
+                <p className="text-muted-foreground">{solicitacao.solicitante}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Origem</p>
+                <p className="text-muted-foreground">{solicitacao.origem}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Destino</p>
+                <p className="text-muted-foreground">{solicitacao.destino}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Volumes</p>
+                <p className="text-muted-foreground">{solicitacao.volumes}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Peso</p>
+                <p className="text-muted-foreground">{solicitacao.peso}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {selectedRequest && (
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
-            <div className="md:col-span-2">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">ID da Solicitação</p>
-                      <p className="text-sm font-bold">{selectedRequest.id}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Cliente</p>
-                      <p className="text-sm font-bold">{selectedRequest.cliente}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Data da Solicitação</p>
-                      <p className="text-sm">{selectedRequest.data}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Solicitante</p>
-                      <p className="text-sm">{selectedRequest.solicitante}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Volumes</p>
-                      <p className="text-sm">{selectedRequest.volumes}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Peso</p>
-                      <p className="text-sm">{selectedRequest.peso}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-sm font-medium text-gray-500">Notas Fiscais</p>
-                      <p className="text-sm">{selectedRequest.notas?.join(', ')}</p>
-                    </div>
-                    
-                    {selectedRequest.status !== 'pending' && (
-                      <>
-                        <div>
-                          <p className="text-sm font-medium text-gray-500">Aprovador</p>
-                          <p className="text-sm">
-                            {selectedRequest.status === 'approved' 
-                              ? (selectedRequest as any).aprovador 
-                              : (selectedRequest as any).aprovador}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-500">Data da Aprovação</p>
-                          <p className="text-sm">
-                            {selectedRequest.status === 'approved' 
-                              ? (selectedRequest as any).dataAprovacao 
-                              : (selectedRequest as any).dataAprovacao}
-                          </p>
-                        </div>
-                      </>
-                    )}
-                    
-                    {selectedRequest.status !== 'pending' && (selectedRequest as any).observacoes && (
-                      <div className="col-span-2">
-                        <p className="text-sm font-medium text-gray-500">Observações</p>
-                        <p className="text-sm">{(selectedRequest as any).observacoes}</p>
-                      </div>
-                    )}
-                    
-                    {selectedRequest.status === 'rejected' && (selectedRequest as any).motivoRecusa && (
-                      <div className="col-span-2">
-                        <p className="text-sm font-medium text-gray-500 text-destructive">Motivo da Recusa</p>
-                        <p className="text-sm">{(selectedRequest as any).motivoRecusa}</p>
-                      </div>
-                    )}
+        <Separator className="my-4" />
+
+        {solicitacao.status === 'approved' && (
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-medium mb-2">Informações da Aprovação</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium">Aprovado por</p>
+                  <p className="text-muted-foreground">{(solicitacao as any).aprovador}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Data da Aprovação</p>
+                  <p className="text-muted-foreground">{formatDate((solicitacao as any).dataAprovacao)}</p>
+                </div>
+                {(solicitacao as any).observacoes && (
+                  <div className="col-span-2">
+                    <p className="text-sm font-medium">Observações</p>
+                    <p className="text-muted-foreground">{(solicitacao as any).observacoes}</p>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="md:col-span-1">
-              {selectedRequest.status === 'pending' ? (
-                <AprovacaoForm 
-                  selectedRequest={selectedRequest}
-                  isRejecting={isRejecting}
-                  setIsRejecting={setIsRejecting}
-                  onClose={handleCloseDialog}
-                  onApprove={handleApprove}
-                  onReject={handleReject}
-                />
-              ) : (
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center">
-                      <p className="font-medium">
-                        Status: {selectedRequest.status === 'approved' ? (
-                          <span className="text-green-600">Aprovada</span>
-                        ) : (
-                          <span className="text-destructive">Recusada</span>
-                        )}
-                      </p>
-                      {selectedRequest.status === 'approved' ? (
-                        <p className="mt-2 text-sm">Esta solicitação já foi aprovada.</p>
-                      ) : (
-                        <p className="mt-2 text-sm">Esta solicitação foi recusada.</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )}
+
+        {solicitacao.status === 'rejected' && (
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-medium mb-2">Informações da Recusa</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium">Recusado por</p>
+                  <p className="text-muted-foreground">{(solicitacao as any).aprovador}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Data da Recusa</p>
+                  <p className="text-muted-foreground">{formatDate((solicitacao as any).dataAprovacao)}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-sm font-medium">Motivo da Recusa</p>
+                  <p className="text-muted-foreground">{(solicitacao as any).motivoRecusa}</p>
+                </div>
+                {(solicitacao as any).observacoes && (
+                  <div className="col-span-2">
+                    <p className="text-sm font-medium">Observações</p>
+                    <p className="text-muted-foreground">{(solicitacao as any).observacoes}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="flex justify-end mt-4">
+          <Button variant="outline" onClick={onClose}>
+            Fechar
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

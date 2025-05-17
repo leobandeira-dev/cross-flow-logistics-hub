@@ -56,4 +56,6 @@ export interface Carga {
   motorista?: string;
   veiculo?: string;
   observacoes?: string;
+  cep?: string;
+  origem?: string;
 }
