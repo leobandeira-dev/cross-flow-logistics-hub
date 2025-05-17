@@ -1,4 +1,3 @@
-
 // Utility functions for Google Maps integration
 import { Carga } from '../../types/coleta.types';
 import { toast } from '@/hooks/use-toast';
@@ -74,8 +73,12 @@ export const initializeMarkers = (
             `
           });
           
-          // Fixed: Use the correct typing for InfoWindow.open() method
-          infoWindow.open(map, marker);
+          // Fixed: Use the correct method signature for InfoWindow.open() 
+          // The first parameter is the map object
+          infoWindow.open(map);
+          
+          // Set the position of the info window to the marker's position
+          infoWindow.setPosition(marker.getPosition());
         });
         
         // Extend the bounds of the map to include this marker
