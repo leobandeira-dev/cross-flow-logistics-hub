@@ -87,13 +87,15 @@ export const initializeMarkers = (
             `
           });
           
-          // Add click listener with corrected InfoWindow open parameters
+          // Add click listener with the correct InfoWindow open method
           marker.addListener('click', () => {
             // Update selected card ID
             setSelectedCardId(carga.id);
             
-            // Fix: Use the correct method signature for InfoWindow.open()
-            infoWindow.open(map, marker);
+            // Fix: Using the correct typing for InfoWindow.open()
+            // The Marker class inherits from MVCObject in the Google Maps API
+            infoWindow.open(map);
+            infoWindow.setPosition(marker.getPosition());
           });
           
           // Fit map to markers after all have been added
