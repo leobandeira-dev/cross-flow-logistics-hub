@@ -19,11 +19,11 @@ export const renderRoute = (
     // Clear previous renderer if it exists
     if (directionsRendererRef.current) {
       directionsRendererRef.current.setMap(null);
+      directionsRendererRef.current = null;
     }
     
     // Create new renderer
     directionsRendererRef.current = new google.maps.DirectionsRenderer({
-      map,
       suppressMarkers: true, // Don't show the default markers from directions
       polylineOptions: {
         strokeColor: '#4285F4',
@@ -31,6 +31,9 @@ export const renderRoute = (
         strokeOpacity: 0.7
       }
     });
+    
+    // Set map on the renderer (important to do this separately)
+    directionsRendererRef.current.setMap(map);
     
     // Get addresses for origin and destinations
     const enderecos = cargasRota.map(carga => `${carga.destino}, ${carga.cep || ''}, Brasil`);
@@ -101,17 +104,15 @@ export const renderRoute = (
               description: `Distância total: ${distanciaKm} km. Tempo estimado: ${tempoHoras}h ${tempoMinutos}min.`,
             });
           }
-        } else {
+        } else if (status !== "ZERO_RESULTS") {
           console.error('Erro ao calcular rota:', status);
           
           // Only show error toast if it's not a simple zero results error
-          if (status !== "ZERO_RESULTS") {
-            toast({
-              title: "Erro ao calcular rota",
-              description: "Não foi possível calcular a rota entre os pontos.",
-              variant: "destructive"
-            });
-          }
+          toast({
+            title: "Erro ao calcular rota",
+            description: "Não foi possível calcular a rota entre os pontos.",
+            variant: "destructive"
+          });
         }
       }
     );

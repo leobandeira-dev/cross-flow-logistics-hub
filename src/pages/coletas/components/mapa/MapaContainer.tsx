@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Carga } from '../../types/coleta.types';
@@ -93,13 +94,13 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   // Cleanup function to safely remove elements and listeners
   const cleanup = () => {
     // Clear markers
-    if (markersRef.current.length > 0) {
-      markersRef.current.forEach(marker => {
-        if (marker) {
-          google.maps.event.clearInstanceListeners(marker);
-          marker.setMap(null);
+    if (markersRef.current && markersRef.current.length > 0) {
+      for (let i = 0; i < markersRef.current.length; i++) {
+        if (markersRef.current[i]) {
+          google.maps.event.clearInstanceListeners(markersRef.current[i]);
+          markersRef.current[i].setMap(null);
         }
-      });
+      }
       markersRef.current = [];
     }
     
@@ -136,21 +137,31 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
     return () => {
       console.log("MapaContainer unmounting");
       isMountedRef.current = false;
-      cleanup();
+      
+      // Make sure we run cleanup synchronously before component is fully unmounted
+      if (window.google && window.google.maps) {
+        cleanup();
+      }
     };
   }, []);
 
   // Effect to update markers safely when cargas or selectedCardId change
   useEffect(() => {
-    if (googleMapRef.current && window.google && cargas.length > 0 && mapsLoadedRef.current && isMountedRef.current) {
+    if (!isMountedRef.current) return; // Skip if not mounted
+    
+    if (googleMapRef.current && window.google && cargas.length > 0 && mapsLoadedRef.current) {
       console.log("Updating markers");
       
       // Clear existing markers before adding new ones
-      markersRef.current.forEach(marker => {
-        google.maps.event.clearInstanceListeners(marker);
-        marker.setMap(null);
-      });
-      markersRef.current = [];
+      if (markersRef.current.length > 0) {
+        for (let i = 0; i < markersRef.current.length; i++) {
+          if (markersRef.current[i]) {
+            google.maps.event.clearInstanceListeners(markersRef.current[i]);
+            markersRef.current[i].setMap(null);
+          }
+        }
+        markersRef.current = [];
+      }
       
       // Clear directions renderer
       if (directionsRendererRef.current) {

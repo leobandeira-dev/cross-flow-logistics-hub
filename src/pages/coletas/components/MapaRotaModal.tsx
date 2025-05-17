@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Carga } from '../types/coleta.types';
@@ -38,10 +39,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
       
       return () => {
         clearTimeout(timer);
-        setMapVisible(false);
       };
-    } else {
-      setMapVisible(false);
     }
   }, [isOpen]);
   
