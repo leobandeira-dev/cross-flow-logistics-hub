@@ -119,7 +119,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
           markersRef.current.push(marker);
           
           // Adicionar evento de clique no marcador
-          marker.addListener('click', () => {
+          google.maps.event.addListener(marker, 'click', () => {
             setSelectedCardId(carga.id);
             
             // Criar janela de informação
