@@ -3,3 +3,4 @@
 export { generateGoogleMapsDirectionsUrl } from './mapUrls';
 export { initializeMarkers } from './markerManager';
 export { renderRoute } from './routeRenderer';
+export { calculateDistanceMatrix, getOptimizedRoute } from './distanceMatrix';

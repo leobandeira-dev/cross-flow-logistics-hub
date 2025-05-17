@@ -3,9 +3,10 @@ import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Carga } from '../types/coleta.types';
-import { Route, ArrowUp, ArrowDown } from 'lucide-react';
+import { Route, ArrowUp, ArrowDown, RefreshCw } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
+import { getOptimizedRoute } from './mapa/utils';
 
 interface RoteirizacaoModalProps {
   isOpen: boolean;
@@ -31,25 +32,65 @@ const RoteirizacaoModal: React.FC<RoteirizacaoModalProps> = ({
 }) => {
   const [rotaOtimizada, setRotaOtimizada] = useState<Carga[]>([]);
   const [isRotaCalculada, setIsRotaCalculada] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Calcular rota otimizada quando o modal é aberto
   React.useEffect(() => {
     if (isOpen && cargas.length > 0) {
-      setRotaOtimizada(calcularRotaOtimizada(cargas));
+      setRotaOtimizada([...cargas]); // Inicialmente, mantenha a ordem original
+      setIsRotaCalculada(false);
     } else {
       setIsRotaCalculada(false);
     }
   }, [isOpen, cargas]);
 
-  // Calcular a ordem otimizada
-  const calcularRota = () => {
-    setRotaOtimizada(calcularRotaOtimizada(cargas));
-    setIsRotaCalculada(true);
-    
-    toast({
-      title: "Rota otimizada calculada!",
-      description: `${cargas.length} coletas foram organizadas com base em proximidade de CEP.`,
-    });
+  // Calcular a ordem otimizada usando as APIs avançadas do Google Maps
+  const calcularRota = async () => {
+    if (cargas.length < 2) {
+      toast({
+        title: "Erro na otimização",
+        description: "São necessários pelo menos 2 pontos para calcular uma rota.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Tenta usar a API do Google Maps para calcular a rota otimizada
+      if (window.google && window.google.maps) {
+        const optimizedCargas = await getOptimizedRoute(cargas);
+        setRotaOtimizada(optimizedCargas);
+        setIsRotaCalculada(true);
+        
+        toast({
+          title: "Rota otimizada calculada!",
+          description: `${cargas.length} coletas foram organizadas na ordem mais eficiente.`,
+        });
+      } else {
+        // Fallback para o método simples se a API do Google não estiver disponível
+        setRotaOtimizada(calcularRotaOtimizada(cargas));
+        setIsRotaCalculada(true);
+        
+        toast({
+          title: "Rota calculada com método alternativo",
+          description: `${cargas.length} coletas foram organizadas com base em proximidade de CEP.`,
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao calcular rota:", error);
+      // Fallback para o método simples se houver erro
+      setRotaOtimizada(calcularRotaOtimizada(cargas));
+      setIsRotaCalculada(true);
+      
+      toast({
+        title: "Rota calculada com método alternativo",
+        description: `${cargas.length} coletas foram organizadas com base em proximidade de CEP.`,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Movimentar um item para cima na lista
@@ -92,8 +133,14 @@ const RoteirizacaoModal: React.FC<RoteirizacaoModalProps> = ({
             
             <Button 
               onClick={calcularRota} 
-              disabled={cargas.length <= 1 || isRotaCalculada}
+              disabled={cargas.length <= 1 || isLoading}
+              className="flex items-center gap-2"
             >
+              {isLoading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
               Otimizar Rota
             </Button>
           </div>
@@ -113,7 +160,9 @@ const RoteirizacaoModal: React.FC<RoteirizacaoModalProps> = ({
                 {rotaOtimizada.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                      Clique em "Otimizar Rota" para calcular a melhor rota
+                      {isLoading 
+                        ? "Calculando a melhor rota..." 
+                        : "Clique em \"Otimizar Rota\" para calcular a melhor rota"}
                     </TableCell>
                   </TableRow>
                 ) : (

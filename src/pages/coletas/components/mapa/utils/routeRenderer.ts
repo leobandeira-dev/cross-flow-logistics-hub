@@ -1,6 +1,7 @@
 
 import { Carga } from '../../../types/coleta.types';
 import { toast } from '@/hooks/use-toast';
+import { calculateDistanceMatrix } from './distanceMatrix';
 
 /**
  * Render a route between points on the map
@@ -32,7 +33,7 @@ export const renderRoute = (
     });
     
     // Get addresses for origin and destinations
-    const enderecos = cargasRota.map(carga => `${carga.destino}, ${carga.cep}, Brasil`);
+    const enderecos = cargasRota.map(carga => `${carga.destino}, ${carga.cep || ''}, Brasil`);
     
     // Configure the route with the first as origin and the last as destination
     const origin = enderecos[0];
@@ -50,17 +51,35 @@ export const renderRoute = (
         origin,
         destination,
         waypoints,
-        optimizeWaypoints: true,
+        optimizeWaypoints: false, // We don't optimize here as it could be already optimized
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.METRIC,
         avoidHighways: false,
         avoidTolls: false,
       },
-      (response, status) => {
+      async (response, status) => {
         if (status === google.maps.DirectionsStatus.OK && directionsRendererRef.current) {
           directionsRendererRef.current.setDirections(response);
           
-          // Calculate total distance and estimated time
+          // Use our distance matrix to get more accurate total distance and time
+          try {
+            const matrixResult = await calculateDistanceMatrix(cargasRota);
+            
+            if (matrixResult) {
+              // Display route information using the matrix calculation
+              toast({
+                title: "Rota calculada",
+                description: `Distância total: ${matrixResult.formattedDistance}. Tempo estimado: ${matrixResult.formattedDuration}.`,
+              });
+              
+              return; // Skip the legacy calculation below
+            }
+          } catch (error) {
+            console.error("Error calculating distance matrix:", error);
+            // Continue with legacy calculation if matrix calculation fails
+          }
+          
+          // Legacy calculation from the route response
           let distanciaTotal = 0;
           let tempoTotal = 0;
           
