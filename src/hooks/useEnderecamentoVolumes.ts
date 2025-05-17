@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useVolumePreparation, VolumeData } from "@/hooks/etiquetas/useVolumePreparation";
@@ -26,12 +27,84 @@ export const useEnderecamentoVolumes = () => {
   const { toast } = useToast();
   const { prepareVolume } = useVolumePreparation();
   
-  // Mock data
+  // Mock data with all required fields from Volume type
   const initialVolumesParaEnderecar = [
-    { id: 'VOL-2023-001', tipo: 'Volume', descricao: 'Caixa 30x20x15', notaFiscal: '12345', endereco: null, etiquetaMae: 'ETM-001', quantidade: 1, etiquetado: true },
-    { id: 'VOL-2023-002', tipo: 'Volume', descricao: 'Caixa 40x30x25', notaFiscal: '12345', endereco: null, etiquetaMae: 'ETM-001', quantidade: 1, etiquetado: true },
-    { id: 'VOL-2023-003', tipo: 'Volume', descricao: 'Caixa 10x10x10', notaFiscal: '54321', endereco: null, etiquetaMae: 'ETM-002', quantidade: 1, etiquetado: true },
-    { id: 'PAL-2023-001', tipo: 'Palete', descricao: 'Palete Standard', notaFiscal: 'Múltiplas', endereco: 'A-01-02-03', etiquetaMae: null, quantidade: 1, etiquetado: true },
+    { 
+      id: 'VOL-2023-001', 
+      tipo: 'Volume', 
+      descricao: 'Caixa 30x20x15', 
+      notaFiscal: '12345', 
+      endereco: null, 
+      etiquetaMae: 'ETM-001', 
+      quantidade: 1, 
+      etiquetado: true,
+      remetente: 'Fornecedor A',
+      destinatario: 'Destinatário A',
+      cidade: 'São Paulo',
+      cidadeCompleta: 'São Paulo - SP',
+      uf: 'SP',
+      pesoTotal: '10 Kg',
+      chaveNF: 'chave-nf-12345',
+      tipoVolume: 'geral' as 'geral' | 'quimico',
+      transportadora: 'Transportadora A'
+    },
+    { 
+      id: 'VOL-2023-002', 
+      tipo: 'Volume', 
+      descricao: 'Caixa 40x30x25', 
+      notaFiscal: '12345', 
+      endereco: null, 
+      etiquetaMae: 'ETM-001', 
+      quantidade: 1, 
+      etiquetado: true,
+      remetente: 'Fornecedor A',
+      destinatario: 'Destinatário A',
+      cidade: 'São Paulo',
+      cidadeCompleta: 'São Paulo - SP',
+      uf: 'SP',
+      pesoTotal: '15 Kg',
+      chaveNF: 'chave-nf-12345',
+      tipoVolume: 'geral' as 'geral' | 'quimico',
+      transportadora: 'Transportadora A'
+    },
+    { 
+      id: 'VOL-2023-003', 
+      tipo: 'Volume', 
+      descricao: 'Caixa 10x10x10', 
+      notaFiscal: '54321', 
+      endereco: null, 
+      etiquetaMae: 'ETM-002', 
+      quantidade: 1, 
+      etiquetado: true,
+      remetente: 'Fornecedor B',
+      destinatario: 'Destinatário B',
+      cidade: 'Rio de Janeiro',
+      cidadeCompleta: 'Rio de Janeiro - RJ',
+      uf: 'RJ',
+      pesoTotal: '5 Kg',
+      chaveNF: 'chave-nf-54321',
+      tipoVolume: 'geral' as 'geral' | 'quimico',
+      transportadora: 'Transportadora B'
+    },
+    { 
+      id: 'PAL-2023-001', 
+      tipo: 'Palete', 
+      descricao: 'Palete Standard', 
+      notaFiscal: 'Múltiplas', 
+      endereco: 'A-01-02-03', 
+      etiquetaMae: null, 
+      quantidade: 1, 
+      etiquetado: true,
+      remetente: 'Múltiplos',
+      destinatario: 'Múltiplos',
+      cidade: 'São Paulo',
+      cidadeCompleta: 'São Paulo - SP',
+      uf: 'SP',
+      pesoTotal: '100 Kg',
+      chaveNF: 'multiplas',
+      tipoVolume: 'geral' as 'geral' | 'quimico',
+      transportadora: 'Transportadora C'
+    },
   ];
   
   const enderecosDisponiveis = [
