@@ -1,15 +1,9 @@
-
-import { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { loading } = useAuth();
-  
-  useEffect(() => {
-    console.log('PublicRoute bypassing authentication - allowing access to public routes');
-  }, []);
-  
+  const { user, loading } = useAuth();
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -17,7 +11,13 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  
-  // Always render the children without redirecting
+
+  // For public routes, if user is already authenticated,
+  // redirect them to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // Otherwise render the public page
   return <>{children}</>;
 };

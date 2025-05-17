@@ -11,6 +11,11 @@ import OrdemCarregamento from '../../pages/armazenagem/carregamento/OrdemCarrega
 import UnitizacaoPaletes from '../../pages/armazenagem/movimentacoes/UnitizacaoPaletes';
 import CancelarUnitizacao from '../../pages/armazenagem/movimentacoes/CancelarUnitizacao';
 import Enderecamento from '../../pages/armazenagem/movimentacoes/Enderecamento';
+import EntradaNotas from '../../pages/armazenagem/recebimento/EntradaNotas';
+import GeracaoEtiquetas from '../../pages/armazenagem/recebimento/GeracaoEtiquetas';
+import RecebimentoFornecedor from '../../pages/armazenagem/recebimento/RecebimentoFornecedor';
+import RecebimentoColeta from '../../pages/armazenagem/recebimento/RecebimentoColeta';
+import RecebimentoFiliais from '../../pages/armazenagem/recebimento/RecebimentoFiliais';
 
 const ArmazenagemRoutes = () => {
   return (
@@ -26,6 +31,37 @@ const ArmazenagemRoutes = () => {
       <Route path="/armazenagem/recebimento" element={
         <ProtectedRoute>
           <RecebimentoOverview />
+        </ProtectedRoute>
+      } />
+
+      {/* Recebimento subpages */}
+      <Route path="/armazenagem/recebimento/notas" element={
+        <ProtectedRoute>
+          <EntradaNotas />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/armazenagem/recebimento/etiquetas" element={
+        <ProtectedRoute>
+          <GeracaoEtiquetas />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/armazenagem/recebimento/fornecedor" element={
+        <ProtectedRoute>
+          <RecebimentoFornecedor />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/armazenagem/recebimento/coleta" element={
+        <ProtectedRoute>
+          <RecebimentoColeta />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/armazenagem/recebimento/filiais" element={
+        <ProtectedRoute>
+          <RecebimentoFiliais />
         </ProtectedRoute>
       } />
       

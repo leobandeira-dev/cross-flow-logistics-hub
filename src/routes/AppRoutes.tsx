@@ -20,13 +20,9 @@ const AppRoutes = () => {
   
   return (
     <Routes>
-      {/* Core Routes */}
+      {/* Include all route components directly */}
       <CoreRoutes />
-      
-      {/* Auth Routes */}
       <AuthRoutes />
-      
-      {/* Feature Routes */}
       <ArmazenagemRoutes />
       <ExpedicaoRoutes />
       <SACRoutes />

@@ -6,8 +6,8 @@ import MainLayout from '@/components/layout/MainLayout';
 import ProfileForm from '@/components/profile/ProfileForm';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileTabs from '@/components/profile/ProfileTabs';
+import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { toast } from '@/hooks/use-toast';
 
 const UserProfilePage = () => {
   const { user, loading } = useAuth();
@@ -52,15 +52,12 @@ const UserProfilePage = () => {
               <ProfileForm user={user} />
             )}
             {activeTab === 'security' && (
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium">Segurança</h3>
-                <p>Configurações de segurança serão implementadas aqui.</p>
-              </div>
+              <PasswordChangeForm />
             )}
             {activeTab === 'notifications' && (
               <div className="space-y-6">
                 <h3 className="text-lg font-medium">Notificações</h3>
-                <p>Configurações de notificações serão implementadas aqui.</p>
+                <p>Configure quais notificações você deseja receber do sistema.</p>
               </div>
             )}
           </CardContent>
