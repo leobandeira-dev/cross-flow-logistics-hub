@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Carga } from '../types/coleta.types';
@@ -8,7 +7,7 @@ import CargaCards from './mapa/CargaCards';
 import MapaContainer from './mapa/MapaContainer';
 import RotaInfo from './mapa/RotaInfo';
 import MapaLegenda from './mapa/MapaLegenda';
-import { generateGoogleMapsDirectionsUrl } from './mapa/GoogleMapsUtils';
+import { generateGoogleMapsDirectionsUrl } from './mapa/utils'; // Updated import path
 
 interface MapaRotaModalProps {
   isOpen: boolean;
