@@ -1,3 +1,4 @@
+
 // Utility functions for Google Maps integration
 import { Carga } from '../../types/coleta.types';
 import { toast } from '@/hooks/use-toast';
@@ -8,6 +9,27 @@ declare global {
     initMap: () => void;
   }
 }
+
+/**
+ * Generate a Google Maps directions URL for a sequence of addresses
+ * This can be used when the Maps API isn't working properly
+ */
+export const generateGoogleMapsDirectionsUrl = (cargas: Carga[]): string => {
+  if (cargas.length === 0) return '';
+  
+  // Base URL for Google Maps directions
+  let url = 'https://www.google.com/maps/dir/';
+  
+  // Add each address to the URL
+  cargas.forEach((carga) => {
+    const endereco = `${carga.destino}, ${carga.cep || ''}, Brasil`;
+    // Replace spaces with '+' and encode the address for URL
+    const encodedEndereco = encodeURIComponent(endereco);
+    url += `${encodedEndereco}/`;
+  });
+  
+  return url;
+};
 
 /**
  * Initialize markers on the map for each carga

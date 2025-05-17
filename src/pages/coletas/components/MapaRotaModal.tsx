@@ -2,11 +2,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Carga } from '../types/coleta.types';
-import { Map } from 'lucide-react';
+import { Map, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import CargaCards from './mapa/CargaCards';
 import MapaContainer from './mapa/MapaContainer';
 import RotaInfo from './mapa/RotaInfo';
 import MapaLegenda from './mapa/MapaLegenda';
+import { generateGoogleMapsDirectionsUrl } from './mapa/GoogleMapsUtils';
 
 interface MapaRotaModalProps {
   isOpen: boolean;
@@ -61,6 +63,12 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
     setSelectedCardId(carga.id);
   };
   
+  // Função para abrir o Google Maps com a rota completa
+  const openGoogleMapsRoute = () => {
+    const url = generateGoogleMapsDirectionsUrl(cargas);
+    window.open(url, '_blank');
+  };
+  
   // Handle close with cleanup
   const handleClose = () => {
     setSelectedCardId(null);
@@ -79,9 +87,23 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-[90vw] w-[800px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <Map className="mr-2 h-5 w-5" />
-            {motorista ? `Rota de ${motorista}` : "Visualização das Coletas"}
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Map className="mr-2 h-5 w-5" />
+              {motorista ? `Rota de ${motorista}` : "Visualização das Coletas"}
+            </div>
+            
+            {cargas.length > 1 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2" 
+                onClick={openGoogleMapsRoute}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Abrir rota no Google Maps
+              </Button>
+            )}
           </DialogTitle>
         </DialogHeader>
         
