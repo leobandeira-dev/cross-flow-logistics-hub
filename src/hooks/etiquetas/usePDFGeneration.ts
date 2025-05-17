@@ -6,7 +6,7 @@ import { useVolumePreparation } from './useVolumePreparation';
 import { useEtiquetaFormat } from './useEtiquetaFormat';
 import { useEtiquetaHTML } from './useEtiquetaHTML';
 import { usePDFGenerator } from './usePDFGenerator';
-import { EtiquetaFormat, LayoutStyle } from './types';
+import { EtiquetaFormat, LayoutStyle, VolumeData } from './types';
 
 export const usePDFGeneration = () => {
   const [isLoading, setIsLoading] = useState(false);
