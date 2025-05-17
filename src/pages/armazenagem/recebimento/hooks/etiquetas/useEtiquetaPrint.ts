@@ -83,7 +83,11 @@ export const useEtiquetaPrint = () => {
       pesoTotal: '0 Kg',
       chaveNF: '',
       etiquetaMae: etiquetaMaeId,
-      tipoEtiquetaMae: tipoEtiquetaMae // Add the type to the volume data
+      tipoEtiquetaMae: tipoEtiquetaMae, // Add the type to the volume data
+      tipoVolume: 'geral',
+      codigoONU: '',
+      codigoRisco: '',
+      transportadora: 'Transportadora não especificada'
     }];
     
     // Empty nota data since this is a standalone master etiqueta
@@ -96,7 +100,8 @@ export const useEtiquetaPrint = () => {
       uf: '',
       pesoTotal: '0 Kg',
       chaveNF: '',
-      tipoEtiquetaMae: tipoEtiquetaMae
+      tipoEtiquetaMae: tipoEtiquetaMae,
+      transportadora: 'Transportadora não especificada'
     };
     
     // Generate master etiqueta
@@ -164,6 +169,9 @@ export const useEtiquetaPrint = () => {
       chaveNF: notaData.chaveNF,
       etiquetaMae: etiquetaMae.id,
       tipoEtiquetaMae: etiquetaMae.tipo || 'geral',
+      tipoVolume: 'geral',
+      codigoONU: '',
+      codigoRisco: '',
       transportadora: notaData.transportadora
     }];
     

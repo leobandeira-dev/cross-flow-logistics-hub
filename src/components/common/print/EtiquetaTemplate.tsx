@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Biohazard, QrCode, Package, Truck } from 'lucide-react';
+import { Biohazard, QrCode, Package, Truck, TestTube } from 'lucide-react';
 import QRCodeGenerator from './QRCodeGenerator';
 
 interface EtiquetaTemplateProps {
@@ -22,7 +22,7 @@ interface EtiquetaTemplateProps {
     chaveNF?: string;
     descricao?: string;
     quantidade?: number;
-    transportadora?: string; // Added transportadora field
+    transportadora?: string;
   };
   volumeNumber: number;
   totalVolumes: number;
@@ -58,10 +58,16 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
     
     // Compact layout - optimized for small labels, inspired by Braspress
     const renderCompactLayout = () => (
-      <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-2`}>
+      <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-2 relative`}>
         {isMae && (
           <div className="mb-2 text-center bg-red-500 text-white p-1 rounded">
             <div className="font-bold text-sm">ETIQUETA MÃE - ID: {volumeData.etiquetaMae}</div>
+          </div>
+        )}
+        
+        {isQuimico && (
+          <div className="absolute top-2 right-2">
+            <TestTube size={18} className="text-red-500" />
           </div>
         )}
         
@@ -77,14 +83,14 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
             {/* Highlighted Supplier Info */}
             <div className="bg-blue-100 px-1 py-0.5 rounded mb-1 border border-blue-300">
               <span className="text-xs text-gray-600">FORNECEDOR:</span>
-              <span className="font-bold ml-1">{volumeData.remetente}</span>
+              <span className="font-bold ml-1">{volumeData.remetente || 'N/A'}</span>
             </div>
             
             <div className="flex justify-between items-center mb-1">
               {/* Highlighted NF */}
               <div className="bg-yellow-100 px-1 py-0.5 rounded w-full mr-1 border border-yellow-300">
                 <span className="text-xs text-gray-600">NF:</span>
-                <span className="font-bold ml-1">{volumeData.notaFiscal}</span>
+                <span className="font-bold ml-1">{volumeData.notaFiscal || 'N/A'}</span>
               </div>
               <div className="bg-gray-800 text-white px-2 py-0.5 rounded text-center min-w-[40px]">
                 <span className="font-bold">{volumeNumber}/{totalVolumes}</span>
@@ -98,7 +104,7 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
             
             <div className="bg-gray-100 px-1 py-0.5 rounded">
               <span className="text-xs text-gray-600">PESO:</span>
-              <span className="font-bold ml-1">{volumeData.pesoTotal}</span>
+              <span className="font-bold ml-1">{volumeData.pesoTotal || '0 Kg'}</span>
             </div>
           </div>
           
@@ -112,27 +118,27 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
           <div className="col-span-7 grid grid-cols-2 gap-1 mt-1">
             <div>
               <div className="text-xs text-gray-600">REMETENTE</div>
-              <div className="font-semibold truncate">{volumeData.remetente}</div>
+              <div className="font-semibold truncate">{volumeData.remetente || 'N/A'}</div>
             </div>
             
             <div className="bg-gray-100 px-1 py-0.5 rounded">
               <div className="text-xs text-gray-600">DESTINATÁRIO</div>
-              <div className="font-bold truncate">{volumeData.destinatario}</div>
+              <div className="font-bold truncate">{volumeData.destinatario || 'N/A'}</div>
             </div>
           </div>
           
           {/* Destination - Highlighted City */}
           <div className="col-span-5">
             <div className="text-xs text-gray-600">ENDEREÇO DE DESTINO</div>
-            <div className="font-semibold truncate text-xs">{volumeData.endereco}</div>
+            <div className="font-semibold truncate text-xs">{volumeData.endereco || 'N/A'}</div>
             <div className="font-bold mt-0.5 bg-green-100 px-1 py-0.5 rounded border border-green-300">
-              {displayCidade}
+              {displayCidade || 'N/A'}
             </div>
           </div>
           
           <div className="col-span-2 flex items-center justify-center">
             <div className="w-full h-10 border border-black flex items-center justify-center">
-              <div className="font-bold text-2xl">{volumeData.uf}</div>
+              <div className="font-bold text-2xl">{volumeData.uf || 'N/A'}</div>
             </div>
           </div>
           
@@ -142,8 +148,8 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
               <div>
                 <div className="text-xs font-bold">PRODUTO QUÍMICO</div>
                 <div className="text-xs">
-                  <span className="font-bold">ONU:</span> {volumeData.codigoONU}
-                  <span className="font-bold ml-2">RISCO:</span> {volumeData.codigoRisco}
+                  <span className="font-bold">ONU:</span> {volumeData.codigoONU || 'N/A'}
+                  <span className="font-bold ml-2">RISCO:</span> {volumeData.codigoRisco || 'N/A'}
                 </div>
               </div>
               <Biohazard size={24} className="text-red-600" />
@@ -155,12 +161,18 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
     
     // Standard layout - similar to the original but with better space utilization
     const renderStandardLayout = () => (
-      <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-3`}>
+      <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-3 relative`}>
         {isMae && (
           <div className="mb-2 text-center bg-red-500 text-white p-1 rounded">
             <div className="font-bold text-lg">ETIQUETA MÃE</div>
             <div className="text-sm">ID: {volumeData.etiquetaMae}</div>
             {volumeData.descricao && <div className="text-sm">{volumeData.descricao}</div>}
+          </div>
+        )}
+        
+        {isQuimico && (
+          <div className="absolute top-3 right-3">
+            <TestTube size={24} className="text-red-500" />
           </div>
         )}
         
@@ -252,10 +264,10 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                   <div>
                     <div className="text-xs font-bold">PRODUTO QUÍMICO</div>
                     <div className="text-sm">
-                      <span className="font-bold">ONU:</span> {volumeData.codigoONU}
+                      <span className="font-bold">ONU:</span> {volumeData.codigoONU || 'N/A'}
                     </div>
                     <div className="text-sm">
-                      <span className="font-bold">RISCO:</span> {volumeData.codigoRisco}
+                      <span className="font-bold">RISCO:</span> {volumeData.codigoRisco || 'N/A'}
                     </div>
                   </div>
                   <Biohazard size={40} className="text-red-600" />
@@ -269,7 +281,7 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
     
     // Modern layout - inspired by Jadlog/UPS
     const renderModernLayout = () => (
-      <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-0 overflow-hidden`}>
+      <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-0 overflow-hidden relative`}>
         {/* Header bar */}
         <div className={`${isMae ? 'bg-red-500' : 'bg-black'} text-white p-2 flex justify-between items-center`}>
           <div className="flex items-center">
@@ -287,11 +299,17 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
               </div>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-xs">DATA</div>
-            <div>{new Date().toLocaleDateString('pt-BR')}</div>
+          <div className="text-right bg-yellow-100 text-black p-1 rounded">
+            <div className="text-xs">NF</div>
+            <div className="font-bold">{volumeData.notaFiscal || 'N/A'}</div>
           </div>
         </div>
+        
+        {isQuimico && (
+          <div className="absolute top-12 right-3">
+            <TestTube size={24} className="text-red-500" />
+          </div>
+        )}
         
         <div className="p-3">
           {/* Highlighted transportadora */}
@@ -312,13 +330,7 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
               {/* Highlighted Fornecedor */}
               <div className="bg-blue-100 p-2 rounded border border-blue-300">
                 <div className="text-xs text-gray-600">FORNECEDOR</div>
-                <div className="font-bold text-lg text-center">{volumeData.remetente}</div>
-              </div>
-              
-              {/* Highlighted Nota Fiscal */}
-              <div className="bg-yellow-100 p-2 rounded border border-yellow-300">
-                <div className="text-xs text-gray-600">NOTA FISCAL</div>
-                <div className="font-bold text-xl text-center">{volumeData.notaFiscal}</div>
+                <div className="font-bold text-lg text-center">{volumeData.remetente || 'N/A'}</div>
               </div>
               
               {isQuimico && (
@@ -327,10 +339,10 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                   <div>
                     <div className="text-xs font-bold">PRODUTO QUÍMICO</div>
                     <div className="text-xs">
-                      <span className="font-bold">ONU:</span> {volumeData.codigoONU}
+                      <span className="font-bold">ONU:</span> {volumeData.codigoONU || 'N/A'}
                     </div>
                     <div className="text-sm">
-                      <span className="font-bold">RISCO:</span> {volumeData.codigoRisco}
+                      <span className="font-bold">RISCO:</span> {volumeData.codigoRisco || 'N/A'}
                     </div>
                   </div>
                 </div>
@@ -342,24 +354,24 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
               {/* Remetente */}
               <div>
                 <div className="text-xs text-gray-600">REMETENTE</div>
-                <div className="font-bold">{volumeData.remetente}</div>
+                <div className="font-bold">{volumeData.remetente || 'N/A'}</div>
               </div>
               
               {/* Destinatário - Highlighted with background like other key fields */}
               <div className="bg-gray-100 p-2 rounded">
                 <div className="text-xs text-gray-600">DESTINATÁRIO</div>
-                <div className="font-bold">{volumeData.destinatario}</div>
-                <div className="text-sm">{volumeData.endereco}</div>
+                <div className="font-bold">{volumeData.destinatario || 'N/A'}</div>
+                <div className="text-sm">{volumeData.endereco || 'N/A'}</div>
               </div>
               
               {/* Destination with UF highlight and highlighted city */}
               <div className="flex space-x-2 items-center">
                 <div className="flex-1 bg-green-100 p-2 rounded border border-green-300">
                   <div className="text-xs text-gray-600">CIDADE</div>
-                  <div className="font-bold">{displayCidade}</div>
+                  <div className="font-bold">{displayCidade || 'N/A'}</div>
                 </div>
                 <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-full border-2 border-black">
-                  <div className="font-bold text-xl">{volumeData.uf}</div>
+                  <div className="font-bold text-xl">{volumeData.uf || 'N/A'}</div>
                 </div>
               </div>
               
@@ -371,7 +383,7 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaTemplateProps>
                 </div>
                 <div className="bg-gray-100 p-2 rounded">
                   <div className="text-xs text-gray-600">PESO</div>
-                  <div className="font-bold">{volumeData.pesoTotal}</div>
+                  <div className="font-bold">{volumeData.pesoTotal || '0 Kg'}</div>
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Biohazard, QrCode, Package, Truck } from 'lucide-react';
+import { Biohazard, QrCode, Package, Truck, TestTube } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LayoutStyle } from '@/hooks/etiquetas/types';
 
@@ -107,7 +107,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
 
 // Helper function to render the standard layout preview
 const renderStandardPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
-  <div className={`p-3 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-blue-500 bg-blue-50'}`}>
+  <div className={`p-3 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-blue-500 bg-blue-50'} relative`}>
     <div className="grid grid-cols-2 gap-2">
       <div>
         <QrCode size={40} className={`mx-auto mb-2 ${tipoEtiqueta === 'mae' ? 'text-red-600' : isQuimico ? 'text-yellow-600' : 'text-blue-600'}`} />
@@ -115,8 +115,17 @@ const renderStandardPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolea
           <p className="font-bold text-red-600">ETIQUETA MÃE</p>
         ) : isQuimico ? (
           <div>
-            <Biohazard size={20} className="inline-block mr-1 text-red-500" />
-            <span className="font-bold text-red-500">PRODUTO QUÍMICO</span>
+            <div className="absolute top-2 right-2">
+              <TestTube size={24} className="text-red-500" />
+            </div>
+            <div className="flex items-center justify-center">
+              <Biohazard size={20} className="inline-block mr-1 text-red-500" />
+              <span className="font-bold text-red-500">PRODUTO QUÍMICO</span>
+            </div>
+            <div className="text-xs mt-1 bg-yellow-100 p-1 border border-yellow-400 rounded">
+              <span className="font-bold">ONU:</span> 1090 <br />
+              <span className="font-bold">RISCO:</span> 33
+            </div>
           </div>
         ) : (
           <p className="font-bold text-blue-600">ETIQUETA DE VOLUME</p>
@@ -126,6 +135,12 @@ const renderStandardPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolea
         <div className="font-bold">Sedex</div>
         <div className="text-xs mt-1">Layout Padrão</div>
         <div className="text-xs mt-2">Otimizado para informações completas</div>
+        <div className="mt-2 bg-yellow-100 p-1 border border-yellow-300 rounded text-xs">
+          <span className="font-bold">NF:</span> 123456
+        </div>
+        <div className="mt-1 bg-blue-100 p-1 border border-blue-300 rounded text-xs">
+          <span className="font-bold">Remetente:</span> ABC Ltda
+        </div>
       </div>
     </div>
   </div>
@@ -133,7 +148,7 @@ const renderStandardPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolea
 
 // Helper function to render the compact layout preview - Fixed visual conflicts with improved layout
 const renderCompactPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
-  <div className={`p-2 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-gray-500 bg-gray-50'}`}>
+  <div className={`p-2 border-2 ${tipoEtiqueta === 'mae' ? 'border-red-500 bg-red-50' : isQuimico ? 'border-yellow-500 bg-yellow-50' : 'border-gray-500 bg-gray-50'} relative`}>
     <div className="flex justify-between items-center mb-1">
       <div className="flex items-center">
         <QrCode size={16} className="mr-1" />
@@ -145,20 +160,37 @@ const renderCompactPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean
     </div>
     
     {isQuimico && (
-      <div className="flex items-center bg-yellow-100 p-1 mb-1 rounded border border-yellow-500">
-        <Biohazard size={12} className="mr-1 text-red-500" />
-        <span className="text-xs font-bold">QUÍMICO</span>
+      <div>
+        <div className="absolute top-2 right-2">
+          <TestTube size={16} className="text-red-500" />
+        </div>
+        <div className="flex items-center bg-yellow-100 p-1 mb-1 rounded border border-yellow-500">
+          <Biohazard size={12} className="mr-1 text-red-500" />
+          <span className="text-xs font-bold">QUÍMICO</span>
+          <span className="text-xs ml-1">ONU:1090 / RISCO:33</span>
+        </div>
       </div>
     )}
     
     <div className="grid grid-cols-2 gap-1 text-xs">
-      <div>
+      <div className="bg-yellow-100 border border-yellow-300 p-1 rounded">
+        <span className="text-gray-600">NF:</span>
+        <div className="truncate font-bold">123456</div>
+      </div>
+      <div className="bg-blue-100 border border-blue-300 p-1 rounded">
         <span className="text-gray-600">REMETENTE:</span>
         <div className="truncate font-medium">EMPRESA XYZ</div>
       </div>
+    </div>
+    
+    <div className="grid grid-cols-2 gap-1 text-xs mt-1">
       <div>
         <span className="text-gray-600">DESTINO:</span>
         <div className="truncate font-medium">SÃO PAULO - SP</div>
+      </div>
+      <div className="bg-gray-100 p-1 rounded">
+        <span className="text-gray-600">TRANSP:</span>
+        <div className="truncate font-medium">TRANSPORTES ABC</div>
       </div>
     </div>
     
@@ -171,19 +203,39 @@ const renderCompactPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean
 
 // Helper function to render the modern layout preview
 const renderModernPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
-  <div className="border-2 border-black rounded overflow-hidden">
+  <div className="border-2 border-black rounded overflow-hidden relative">
     <div className={`${tipoEtiqueta === 'mae' ? 'bg-red-500' : 'bg-black'} text-white p-2 text-sm`}>
       <div className="flex items-center justify-between">
-        <Package size={16} className="mr-1" />
-        <span className="font-bold">{tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA VOLUME'}</span>
+        <div className="flex items-center">
+          <Package size={16} className="mr-1" />
+          <span className="font-bold">{tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA VOLUME'}</span>
+        </div>
+        <span className="text-xs bg-white text-black px-1 rounded">NF: 123456</span>
       </div>
     </div>
     <div className="p-2 bg-white text-center">
-      {isQuimico && <Biohazard size={20} className="mx-auto mb-1 text-red-500" />}
+      {isQuimico && (
+        <div className="absolute top-2 right-2">
+          <TestTube size={16} className="text-red-500" />
+        </div>
+      )}
+      {isQuimico && (
+        <div className="bg-yellow-100 p-1 rounded border border-yellow-400 mb-2 flex items-center justify-center">
+          <Biohazard size={16} className="text-red-500 mr-1" />
+          <span className="text-xs">ONU:1090 / RISCO:33</span>
+        </div>
+      )}
       <QrCode size={30} className="mx-auto mb-1" />
       <p className="text-xs font-bold">Jadlog/UPS</p>
-      <p className="text-xs">Layout Moderno</p>
+      <div className="bg-blue-100 border border-blue-300 p-1 rounded mt-1 text-xs text-left">
+        <span className="text-gray-600">REMETENTE:</span>
+        <div className="truncate font-medium">EMPRESA XYZ</div>
+      </div>
       <p className="text-xs font-medium text-blue-600 mt-1">DESTINATÁRIO</p>
+      <div className="bg-gray-100 p-1 rounded mt-1 text-xs text-left">
+        <span className="text-gray-600">TRANSP:</span>
+        <div className="truncate font-medium">TRANSPORTES ABC</div>
+      </div>
     </div>
   </div>
 );
