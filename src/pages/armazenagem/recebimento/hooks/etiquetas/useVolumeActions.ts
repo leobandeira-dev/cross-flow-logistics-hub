@@ -28,11 +28,22 @@ export const useVolumeActions = () => {
     }
     const pesoMedio = pesoNumerico / quantidadeVolumes;
     
+    // Gerar ID único para ser usado em todos os volumes da mesma nota
+    const uniqueId = uuidv4().split('-')[0];
+    
+    // Obter data atual no formato ddmmaa
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = String(today.getFullYear()).slice(-2);
+    const dateFormat = `${day}${month}${year}`;
+    
     // Gerar volumes
     const volumes: Volume[] = [];
     
     for (let i = 1; i <= quantidadeVolumes; i++) {
-      const id = `${notaFiscal}-VOL${i.toString().padStart(3, '0')}`;
+      // Formato: "id unico"-"numero da nota"-"ddmmaa"-"1,2,3 etc"
+      const id = `${uniqueId}-${notaFiscal}-${dateFormat}-${i.toString().padStart(3, '0')}`;
       
       volumes.push({
         id,
