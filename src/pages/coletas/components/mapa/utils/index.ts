@@ -1,6 +1,16 @@
 
-// Export all map utilities from a single entry point
-export { generateGoogleMapsDirectionsUrl } from './mapUrls';
-export { initializeMarkers } from './markerManager';
-export { renderRoute } from './routeRenderer';
-export { calculateDistanceMatrix, getOptimizedRoute } from './distanceMatrix';
+export * from './mapUrls';
+export * from './routeRenderer';
+export * from './distanceMatrix';
+
+// Function to calculate optimized route
+export const getOptimizedRoute = async (cargas) => {
+  try {
+    // Here we would implement actual route optimization
+    // For now, just return the original array
+    return [...cargas];
+  } catch (error) {
+    console.error('Error optimizing route:', error);
+    return cargas;
+  }
+};

@@ -13,13 +13,17 @@ interface CargasPendentesProps {
   currentPage: number;
   setCurrentPage: (page: number) => void;
   onAlocar?: (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
+  onPreAlocar?: (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => void;
+  onGerarPreRomaneio?: (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => void;
 }
 
 const CargasPendentes: React.FC<CargasPendentesProps> = ({ 
   cargas, 
   currentPage, 
   setCurrentPage,
-  onAlocar 
+  onAlocar,
+  onPreAlocar,
+  onGerarPreRomaneio
 }) => {
   const { 
     handleSearch, 
@@ -56,6 +60,9 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
           setSelectedCarga(carga);
           setOpenSupportDialog(true);
         }}
+        onAlocar={onAlocar}
+        onPreAlocar={onPreAlocar}
+        onGerarPreRomaneio={onGerarPreRomaneio}
       />
       
       {isModalOpen && selectedCarga && (

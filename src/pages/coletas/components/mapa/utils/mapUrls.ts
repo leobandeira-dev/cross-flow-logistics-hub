@@ -21,3 +21,11 @@ export const generateGoogleMapsDirectionsUrl = (cargas: Carga[]): string => {
   
   return url;
 };
+
+/**
+ * Generate a Google Maps search URL for a single address
+ */
+export const generateGoogleMapsSearchUrl = (carga: Carga): string => {
+  const address = `${carga.destino}, ${carga.cep || ''}, Brasil`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+};
