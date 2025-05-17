@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Carga } from '../types/coleta.types';
@@ -118,7 +119,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
           markersRef.current.push(marker);
           
           // Adicionar evento de clique no marcador
-          google.maps.event.addListener(marker, 'click', () => {
+          marker.addListener('click', () => {
             setSelectedCardId(carga.id);
             
             // Criar janela de informação
@@ -133,7 +134,9 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
               `
             });
             
-            infoWindow.open(map, marker);
+            // Modificado: Usar o método open apenas com o mapa e definir a posição diretamente
+            infoWindow.setPosition(marker.getPosition());
+            infoWindow.open(map);
           });
           
           // Expandir os limites do mapa para incluir este marcador
