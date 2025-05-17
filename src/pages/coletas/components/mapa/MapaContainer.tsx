@@ -23,12 +23,19 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
   const mapsLoadedRef = useRef<boolean>(false);
   const isMountedRef = useRef(true);
+  const mapInitializedRef = useRef(false);
 
   // Function to initialize map after script is loaded
   const initMap = () => {
     if (!mapRef.current || !window.google || !window.google.maps || !isMountedRef.current) return;
     
     try {
+      // Prevent multiple initializations
+      if (mapInitializedRef.current) return;
+      mapInitializedRef.current = true;
+      
+      console.log("Initializing Google Map");
+      
       // Create map
       const newMap = new google.maps.Map(mapRef.current, {
         center: { lat: -23.5505, lng: -46.6333 }, // São Paulo como centro inicial
@@ -109,8 +116,10 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       googleMapRef.current = null;
     }
     
+    // Reset initialization flag
+    mapInitializedRef.current = false;
+    
     // Clean up global callback but don't remove the script
-    // This prevents DOM-related errors when unmounting
     if (window.initMap) {
       window.initMap = () => {};
     }
@@ -118,12 +127,15 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
 
   // On mount
   useEffect(() => {
+    console.log("MapaContainer mounting");
     isMountedRef.current = true;
+    
     // Load the Google Maps script when the component mounts
     loadGoogleMapsScript();
     
     // Cleanup function for component unmount
     return () => {
+      console.log("MapaContainer unmounting");
       isMountedRef.current = false;
       cleanup();
     };
@@ -132,6 +144,8 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   // Effect to update markers safely when cargas or selectedCardId change
   useEffect(() => {
     if (googleMapRef.current && window.google && cargas.length > 0 && mapsLoadedRef.current && isMountedRef.current) {
+      console.log("Updating markers");
+      
       // Clear existing markers before adding new ones
       markersRef.current.forEach(marker => {
         google.maps.event.clearInstanceListeners(marker);

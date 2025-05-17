@@ -24,27 +24,29 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   cargas
 }) => {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-  const [isMapReady, setIsMapReady] = useState(false);
+  const [mapVisible, setMapVisible] = useState(false);
   const modalContentRef = useRef<HTMLDivElement>(null);
   
-  // Set up and clean up when the modal opens/closes
+  // Set up map visibility when the modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedCardId(null);
       
       // Delay map initialization to ensure DOM is ready
       const timer = setTimeout(() => {
-        setIsMapReady(true);
-      }, 500); // Increased delay for better stability
+        setMapVisible(true);
+      }, 300);
       
       return () => {
         clearTimeout(timer);
-        setIsMapReady(false);
+        setMapVisible(false);
       };
+    } else {
+      setMapVisible(false);
     }
   }, [isOpen]);
   
-  // Cleanup when cargas change
+  // Reset selected card when cargas change
   useEffect(() => {
     if (isOpen) {
       setSelectedCardId(null);
@@ -67,16 +69,15 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
     window.open(url, '_blank');
   };
   
-  // Handle close with proper cleanup
+  // Handle close with cleanup
   const handleClose = () => {
-    // Important: Set map ready to false before closing to prevent React DOM manipulation issues
-    setIsMapReady(false);
-    setSelectedCardId(null);
+    // Set map visibility to false first, allowing the map component to clean up
+    setMapVisible(false);
     
     // Delay the actual closing to allow React to process state changes
     setTimeout(() => {
       onClose();
-    }, 50);
+    }, 100);
   };
   
   return (
@@ -112,7 +113,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
                 onCardSelect={openGoogleMaps} 
               />
 
-              {isMapReady && isOpen && (
+              {mapVisible && isOpen && (
                 <MapaContainer 
                   cargas={cargas} 
                   selectedCardId={selectedCardId} 

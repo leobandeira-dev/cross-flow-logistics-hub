@@ -3,13 +3,6 @@
 import { Carga } from '../../types/coleta.types';
 import { toast } from '@/hooks/use-toast';
 
-// Define window interface for Google Maps callback
-declare global {
-  interface Window {
-    initMap: () => void;
-  }
-}
-
 /**
  * Generate a Google Maps directions URL for a sequence of addresses
  * This can be used when the Maps API isn't working properly
@@ -83,55 +76,62 @@ export const initializeMarkers = (
             // Add to markers array
             markersRef.current.push(marker);
             
-            // Add click event to the marker with proper cleanup
-            const clickListener = marker.addListener('click', () => {
-              onSelectCard(carga.id);
-              
-              // Create info window content
-              const content = `
+            // Create info window (but don't open it yet)
+            const infoWindow = new google.maps.InfoWindow({
+              content: `
                 <div style="padding: 8px;">
                   <h3 style="margin: 0; font-size: 16px;">${carga.destino}</h3>
                   <p style="margin: 4px 0 0;">ID: ${carga.id}</p>
                   <p style="margin: 4px 0 0;">CEP: ${carga.cep || 'N/A'}</p>
                   <p style="margin: 4px 0 0;">Volumes: ${carga.volumes}</p>
                 </div>
-              `;
+              `
+            });
+            
+            // Add click event to the marker with proper cleanup
+            marker.addListener('click', () => {
+              onSelectCard(carga.id);
               
-              // Create and open info window
-              const infoWindow = new google.maps.InfoWindow({
-                content
+              // Close any open info windows first to prevent stacking
+              markersRef.current.forEach(m => {
+                google.maps.event.clearListeners(m, 'closeclick');
               });
               
-              // Use the proper open method and set position
-              infoWindow.open(map);
-              infoWindow.setPosition(marker.getPosition());
+              // Open the info window at the marker's position
+              infoWindow.open({
+                map,
+                anchor: marker
+              });
               
-              // Close the info window when the map is clicked
-              const clickListenerOnMap = map.addListener('click', () => {
+              // Add close listener to clean up when info window closes
+              google.maps.event.addListenerOnce(infoWindow, 'closeclick', () => {
                 infoWindow.close();
-                google.maps.event.removeListener(clickListenerOnMap);
               });
             });
             
-            // Extend the bounds of the map to include this marker
+            // Extend the bounds to include this marker
             bounds.extend(position);
             
             // Adjust the map to include all markers
             if (index === cargas.length - 1) {
-              map.fitBounds(bounds);
-              
-              // Avoid excessive zoom when there are few markers
-              const zoomChangedListener = google.maps.event.addListenerOnce(map, 'idle', () => {
-                if (map.getZoom() && map.getZoom() > 16) {
-                  map.setZoom(16);
-                }
-              });
+              try {
+                map.fitBounds(bounds);
+                
+                // Avoid excessive zoom when there are few markers
+                const zoomChangedListener = google.maps.event.addListenerOnce(map, 'idle', () => {
+                  if (map.getZoom() && map.getZoom() > 16) {
+                    map.setZoom(16);
+                  }
+                });
+              } catch (error) {
+                console.error("Error fitting bounds:", error);
+              }
             }
           } catch (error) {
             console.error(`Error creating marker for ${enderecoCompleto}:`, error);
           }
         } else {
-          console.error(`Erro ao geocodificar ${enderecoCompleto}:`, status);
+          console.warn(`Erro ao geocodificar ${enderecoCompleto}:`, status);
         }
       });
     });
@@ -231,11 +231,15 @@ export const renderRoute = (
           }
         } else {
           console.error('Erro ao calcular rota:', status);
-          toast({
-            title: "Erro ao calcular rota",
-            description: "Não foi possível calcular a rota entre os pontos.",
-            variant: "destructive"
-          });
+          
+          // Only show error toast if it's not a simple zero results error
+          if (status !== "ZERO_RESULTS") {
+            toast({
+              title: "Erro ao calcular rota",
+              description: "Não foi possível calcular a rota entre os pontos.",
+              variant: "destructive"
+            });
+          }
         }
       }
     );
