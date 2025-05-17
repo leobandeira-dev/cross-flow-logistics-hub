@@ -21,10 +21,11 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
+  const mapsLoadedRef = useRef<boolean>(false);
 
   // Function to initialize map after script is loaded
   const initMap = () => {
-    if (!mapRef.current || !window.google) return;
+    if (!mapRef.current || !window.google || !window.google.maps) return;
     
     try {
       // Create map
@@ -42,13 +43,14 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       }
       
       setIsLoading(false);
+      mapsLoadedRef.current = true;
     } catch (error) {
       console.error("Error initializing map:", error);
       setIsLoading(false);
     }
   };
 
-  // Function to load Google Maps script
+  // Function to load Google Maps script safely
   const loadGoogleMapsScript = () => {
     // Check if the script is already in the document
     const existingScript = document.getElementById('google-maps-script');
@@ -56,7 +58,7 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
     if (!existingScript) {
       const googleMapsScript = document.createElement('script');
       googleMapsScript.id = 'google-maps-script';
-      googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBpywkIjAfeo7YKzS85lcLxJFCAEfcQPmg&libraries=places&callback=initMap&loading=async`;
+      googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBpywkIjAfeo7YKzS85lcLxJFCAEfcQPmg&libraries=places&callback=initMap`;
       googleMapsScript.async = true;
       googleMapsScript.defer = true;
       
@@ -70,44 +72,49 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       initMap();
     }
   };
+  
+  // Cleanup function to safely remove elements and listeners
+  const cleanup = () => {
+    // Clear markers
+    if (markersRef.current.length > 0) {
+      markersRef.current.forEach(marker => {
+        if (marker) {
+          google.maps.event.clearListeners(marker, 'click');
+          marker.setMap(null);
+        }
+      });
+      markersRef.current = [];
+    }
+    
+    // Clear directions renderer
+    if (directionsRendererRef.current) {
+      directionsRendererRef.current.setMap(null);
+      directionsRendererRef.current = null;
+    }
+    
+    // Clear map
+    if (googleMapRef.current) {
+      google.maps.event.clearInstanceListeners(googleMapRef.current);
+      googleMapRef.current = null;
+    }
+    
+    // Clean up global callback
+    if (window.initMap) {
+      window.initMap = () => {};
+    }
+  };
 
   useEffect(() => {
     // Load the Google Maps script when the component mounts
     loadGoogleMapsScript();
     
     // Cleanup function
-    return () => {
-      // Clear markers
-      if (markersRef.current.length > 0) {
-        markersRef.current.forEach(marker => {
-          google.maps.event.clearListeners(marker, 'click');
-          marker.setMap(null);
-        });
-        markersRef.current = [];
-      }
-      
-      // Clear directions renderer
-      if (directionsRendererRef.current) {
-        directionsRendererRef.current.setMap(null);
-        directionsRendererRef.current = null;
-      }
-      
-      // Clear map
-      if (googleMapRef.current) {
-        google.maps.event.clearInstanceListeners(googleMapRef.current);
-        googleMapRef.current = null;
-      }
-      
-      // Clean up global callback to avoid memory leaks
-      if (window.initMap) {
-        window.initMap = () => {};
-      }
-    };
+    return cleanup;
   }, []);
 
-  // Effect to update markers when cargas or selectedCardId change
+  // Effect to update markers safely when cargas or selectedCardId change
   useEffect(() => {
-    if (googleMapRef.current && cargas.length > 0) {
+    if (googleMapRef.current && window.google && cargas.length > 0 && mapsLoadedRef.current) {
       // Clear existing markers before adding new ones
       markersRef.current.forEach(marker => {
         marker.setMap(null);

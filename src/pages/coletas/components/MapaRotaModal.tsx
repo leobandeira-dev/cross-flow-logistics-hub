@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Carga } from '../types/coleta.types';
 import { Map } from 'lucide-react';
@@ -23,19 +23,28 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
 }) => {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
+  const modalContentRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   
   // Reset selected card when modal opens or cargas change
   useEffect(() => {
     if (isOpen) {
       setSelectedCardId(null);
       
+      // Clear any existing timer
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      
       // Delay setting map ready to ensure proper DOM arrangement
-      const timer = setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         setIsMapReady(true);
-      }, 100);
+      }, 300); // Increased delay for more reliability
       
       return () => {
-        clearTimeout(timer);
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
       };
     } else {
       setIsMapReady(false);
@@ -56,6 +65,13 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   const handleClose = () => {
     setSelectedCardId(null);
     setIsMapReady(false);
+    
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    
     onClose();
   };
   
@@ -69,7 +85,7 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
           </DialogTitle>
         </DialogHeader>
         
-        <div className="py-4">
+        <div className="py-4" ref={modalContentRef}>
           {isOpen && (
             <>
               <CargaCards 

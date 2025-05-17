@@ -74,11 +74,8 @@ export const initializeMarkers = (
             `
           });
           
-          infoWindow.open({
-            anchor: marker,
-            map,
-            shouldFocus: false
-          });
+          // Fix: Use proper infoWindow.open() parameters
+          infoWindow.open(map, marker);
         });
         
         // Extend the bounds of the map to include this marker
