@@ -24,6 +24,9 @@ export const useEtiquetaUtils = () => {
    * Prepara os dados da nota fiscal para uso na etiqueta
    */
   const prepareNotaData = (volume: Volume, notaFiscalData: any) => {
+    // Priorizar o uso do peso da nota fiscal quando disponível
+    const pesoNotaFiscal = notaFiscalData?.pesoTotal || '0 Kg';
+    
     return {
       fornecedor: volume.remetente || notaFiscalData?.fornecedor || notaFiscalData?.emitenteRazaoSocial || notaFiscalData?.emitente || '',
       destinatario: volume.destinatario || notaFiscalData?.destinatario || notaFiscalData?.destinatarioRazaoSocial || '',
@@ -31,7 +34,7 @@ export const useEtiquetaUtils = () => {
       cidade: volume.cidade || notaFiscalData?.cidade || notaFiscalData?.cidadeDestinatario || notaFiscalData?.destinatarioCidade || '',
       cidadeCompleta: volume.cidadeCompleta || notaFiscalData?.cidadeCompleta || `${notaFiscalData?.cidadeDestinatario || ''} - ${notaFiscalData?.ufDestinatario || ''}` || notaFiscalData?.destinatarioCidadeCompleta || '',
       uf: volume.uf || notaFiscalData?.uf || notaFiscalData?.ufDestinatario || notaFiscalData?.destinatarioUF || '',
-      pesoTotal: volume.pesoTotal || notaFiscalData?.pesoTotal || '0 Kg',
+      pesoTotal: pesoNotaFiscal, // Usar o peso da nota fiscal
       chaveNF: volume.chaveNF || notaFiscalData?.chaveNF || '',
       transportadora: notaFiscalData?.transportadora || notaFiscalData?.transportadoraNome || 'Transportadora não especificada',
       codigoONU: volume.codigoONU || '',
@@ -40,8 +43,24 @@ export const useEtiquetaUtils = () => {
     };
   };
   
+  /**
+   * Obtém o texto da classificação química com base no código
+   */
+  const getClassificacaoText = (classificacao?: string) => {
+    switch (classificacao) {
+      case 'nao_perigosa':
+        return 'Cargas Não Perigosas';
+      case 'perigosa':
+        return 'Cargas Perigosas';
+      case 'nao_classificada':
+      default:
+        return 'Cargas Não Classificadas';
+    }
+  };
+  
   return {
     calculateTotalPeso,
-    prepareNotaData
+    prepareNotaData,
+    getClassificacaoText
   };
 };

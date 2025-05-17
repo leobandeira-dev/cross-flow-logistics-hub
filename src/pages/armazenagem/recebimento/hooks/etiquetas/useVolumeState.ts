@@ -19,10 +19,11 @@ export interface Volume {
   pesoTotal: string;
   chaveNF: string;
   etiquetaMae?: string;
-  tipoEtiquetaMae?: string;
+  tipoEtiquetaMae?: 'geral' | 'palete';
   tipoVolume?: 'geral' | 'quimico';
   codigoONU?: string;
   codigoRisco?: string;
+  classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   transportadora?: string;
 }
 

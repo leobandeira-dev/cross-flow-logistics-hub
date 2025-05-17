@@ -54,10 +54,11 @@ export const usePDFGeneration = () => {
         cidade: preparedVolume.cidade || notaData?.cidade || '',
         cidadeCompleta: preparedVolume.cidadeCompleta || notaData?.cidadeCompleta || '',
         uf: preparedVolume.uf || notaData?.uf || '',
-        pesoTotal: preparedVolume.pesoTotal || notaData?.pesoTotal || '0 Kg',
+        pesoTotal: notaData?.pesoTotal || preparedVolume.pesoTotal || '0 Kg', // Use nota fiscal weight when available
         transportadora: preparedVolume.transportadora || notaData?.transportadora || 'N/D',
         codigoONU: preparedVolume.codigoONU || notaData?.codigoONU || '',
         codigoRisco: preparedVolume.codigoRisco || notaData?.codigoRisco || '',
+        classificacaoQuimica: preparedVolume.classificacaoQuimica || 'nao_classificada',
         qrCode: qrCodeDataURL
       });
     }
@@ -160,6 +161,15 @@ export const usePDFGeneration = () => {
       </div>
     ` : '';
     
+    // Obter texto da classificação
+    const classificacaoText = (() => {
+      switch(volume.classificacaoQuimica) {
+        case 'nao_perigosa': return 'Cargas Não Perigosas';
+        case 'perigosa': return 'Cargas Perigosas';
+        default: return 'Cargas Não Classificadas';
+      }
+    })();
+    
     // Template HTML usando o layout original solicitado
     return `
       <div class="etiqueta" style="width: 100%; height: 100%; padding: 10px; font-family: Arial; border: 1px solid #ccc; position: relative;">
@@ -199,6 +209,9 @@ export const usePDFGeneration = () => {
             </div>
             <div style="font-size: 12px; margin-bottom: 5px; background-color: #FFEBEE; padding: 2px 5px; border: 1px solid #FFCDD2; border-radius: 3px;">
               <span style="font-weight: bold;">Código de Risco:</span> ${volume.codigoRisco || 'N/A'}
+            </div>
+            <div style="font-size: 12px; margin-bottom: 5px; background-color: #FFEBEE; padding: 2px 5px; border: 1px solid #FFCDD2; border-radius: 3px;">
+              <span style="font-weight: bold;">Classificação:</span> ${classificacaoText}
             </div>
             ` : ''}
           </div>

@@ -21,7 +21,7 @@ export const useVolumeActions = () => {
   ): Volume[] => {
     if (!notaFiscal || quantidadeVolumes <= 0) return [];
     
-    // Calcular peso por volume
+    // Usar o peso da nota fiscal diretamente quando disponível
     let pesoNumerico = 0;
     if (pesoTotal) {
       pesoNumerico = parseFloat(pesoTotal.replace(/[^\d,.-]/g, '').replace(',', '.'));
@@ -46,7 +46,7 @@ export const useVolumeActions = () => {
         cidade: notaFiscalData?.cidade || '',
         cidadeCompleta: `${notaFiscalData?.cidade || ''} - ${notaFiscalData?.uf || ''}`,
         uf: notaFiscalData?.uf || '',
-        pesoTotal: `${pesoMedio.toFixed(2)} Kg`,
+        pesoTotal: notaFiscalData?.pesoTotal || `${pesoMedio.toFixed(2)} Kg`,
         chaveNF: notaFiscalData?.chaveNF || '',
         tipoVolume,
         codigoONU,

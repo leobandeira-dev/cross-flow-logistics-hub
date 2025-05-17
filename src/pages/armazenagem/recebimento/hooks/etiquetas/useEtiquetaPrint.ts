@@ -29,7 +29,7 @@ export const useEtiquetaPrint = () => {
     const notaData = prepareNotaData(volume, notaFiscalData);
     
     // Generate etiquetas for all volumes of this nota fiscal
-    const result = generateEtiquetasPDF(volumesNota, notaData, formatoImpressao, 'volume', undefined, layoutStyle);
+    const result = generateEtiquetasPDF(volumesNota, notaData, formatoImpressao, 'volume', layoutStyle);
     
     return result;
   };
@@ -49,7 +49,7 @@ export const useEtiquetaPrint = () => {
     
     const notaData = prepareNotaData(volume, notaFiscalData);
     
-    generateEtiquetasPDF(volumesNota, notaData, formatoImpressao, 'volume', undefined, layoutStyle);
+    generateEtiquetasPDF(volumesNota, notaData, formatoImpressao, 'volume', layoutStyle);
     
     toast({
       title: "Etiquetas Reimpressas",
@@ -87,6 +87,7 @@ export const useEtiquetaPrint = () => {
       tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
+      classificacaoQuimica: 'nao_classificada',
       transportadora: 'Transportadora não especificada'
     }];
     
@@ -172,6 +173,7 @@ export const useEtiquetaPrint = () => {
       tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
+      classificacaoQuimica: 'nao_classificada',
       transportadora: notaData.transportadora
     }];
     
