@@ -95,12 +95,12 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   const cleanup = () => {
     // Clear markers
     if (markersRef.current && markersRef.current.length > 0) {
-      for (let i = 0; i < markersRef.current.length; i++) {
-        if (markersRef.current[i]) {
-          google.maps.event.clearInstanceListeners(markersRef.current[i]);
-          markersRef.current[i].setMap(null);
+      markersRef.current.forEach(marker => {
+        if (marker) {
+          google.maps.event.clearInstanceListeners(marker);
+          marker.setMap(null);
         }
-      }
+      });
       markersRef.current = [];
     }
     
@@ -142,8 +142,7 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
         cleanup();
       }
       
-      // Set map to null without removing it from DOM
-      // This is critical to avoid the "removeChild" error
+      // Clear map ref without manipulating DOM
       googleMapRef.current = null;
     };
   }, []);
@@ -157,12 +156,12 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       
       // Clear existing markers before adding new ones
       if (markersRef.current.length > 0) {
-        for (let i = 0; i < markersRef.current.length; i++) {
-          if (markersRef.current[i]) {
-            google.maps.event.clearInstanceListeners(markersRef.current[i]);
-            markersRef.current[i].setMap(null);
+        markersRef.current.forEach(marker => {
+          if (marker) {
+            google.maps.event.clearInstanceListeners(marker);
+            marker.setMap(null);
           }
-        }
+        });
         markersRef.current = [];
       }
       

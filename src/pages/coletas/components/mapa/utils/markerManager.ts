@@ -87,31 +87,33 @@ export const initializeMarkers = (
             `
           });
           
-          // Add click listener with the correct InfoWindow open method
+          // Add click listener
           marker.addListener('click', () => {
             // Update selected card ID
             setSelectedCardId(carga.id);
             
-            // Fix: Using the correct typing for InfoWindow.open()
-            // The Marker class inherits from MVCObject in the Google Maps API
+            // Open info window at marker's position
             infoWindow.open(map);
             infoWindow.setPosition(marker.getPosition());
           });
           
           // Fit map to markers after all have been added
           if (index === cargas.length - 1) {
-            map.fitBounds(bounds);
-            
-            // Set minimum zoom to prevent excessive zoom on single markers
-            const listener = google.maps.event.addListenerOnce(map, 'idle', () => {
-              if (map.getZoom() && map.getZoom() > 15) {
-                map.setZoom(15);
+            // Only fit bounds if the map is still valid
+            if (map.getDiv() && map.getDiv().offsetWidth > 0) {
+              map.fitBounds(bounds);
+              
+              // Set minimum zoom to prevent excessive zoom on single markers
+              const listener = google.maps.event.addListenerOnce(map, 'idle', () => {
+                if (map.getZoom() && map.getZoom() > 15) {
+                  map.setZoom(15);
+                }
+              });
+              
+              // If more than one cargo, draw a route
+              if (cargas.length > 1) {
+                renderRoute(map, cargas, directionsRendererRef);
               }
-            });
-            
-            // If more than one cargo, draw a route
-            if (cargas.length > 1) {
-              renderRoute(map, cargas, directionsRendererRef);
             }
           }
         } else {

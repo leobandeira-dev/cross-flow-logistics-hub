@@ -26,23 +26,30 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [mapVisible, setMapVisible] = useState(false);
   const modalContentRef = useRef<HTMLDivElement>(null);
+  const closingRef = useRef<boolean>(false);
   
-  // Set up map visibility when the modal opens
+  // Set up map visibility when the modal opens or closes
   useEffect(() => {
     if (isOpen) {
+      // Reset closing state
+      closingRef.current = false;
+      
       setSelectedCardId(null);
       
       // Delay map initialization to ensure DOM is ready
       const timer = setTimeout(() => {
-        setMapVisible(true);
+        if (!closingRef.current) {
+          setMapVisible(true);
+        }
       }, 300);
       
       return () => {
         clearTimeout(timer);
       };
     } else {
-      // When modal closes, we hide the map first
+      // When modal closes, hide the map first
       setMapVisible(false);
+      closingRef.current = true;
     }
   }, [isOpen]);
   
@@ -71,13 +78,16 @@ const MapaRotaModal: React.FC<MapaRotaModalProps> = ({
   
   // Handle close with cleanup
   const handleClose = () => {
+    // Mark that we're in closing process
+    closingRef.current = true;
+    
     // Set map visibility to false first, allowing the map component to clean up
     setMapVisible(false);
     
     // Delay the actual closing to allow React to process state changes
     setTimeout(() => {
       onClose();
-    }, 200);
+    }, 300);
   };
   
   return (
