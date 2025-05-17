@@ -16,6 +16,7 @@ export interface SolicitacaoPendente extends SolicitacaoColetaBase {
   status: 'pending';
   prioridade: string;
   observacoes?: string;
+  dataSolicitacao?: string; // Add dataSolicitacao to fix errors
 }
 
 export interface SolicitacaoAprovada extends SolicitacaoColetaBase {
@@ -23,6 +24,7 @@ export interface SolicitacaoAprovada extends SolicitacaoColetaBase {
   aprovador: string;
   dataAprovacao: string;
   observacoes?: string;
+  dataSolicitacao?: string; // Add dataSolicitacao to fix errors
 }
 
 export interface SolicitacaoRecusada extends SolicitacaoColetaBase {
@@ -31,6 +33,7 @@ export interface SolicitacaoRecusada extends SolicitacaoColetaBase {
   dataAprovacao: string;
   motivoRecusa: string;
   observacoes?: string;
+  dataSolicitacao?: string; // Add dataSolicitacao to fix errors
 }
 
 export type SolicitacaoColeta = SolicitacaoPendente | SolicitacaoAprovada | SolicitacaoRecusada;
@@ -49,13 +52,13 @@ export interface Carga {
   id: string;
   destino: string;
   dataPrevisao?: string;
-  dataEntrega?: string;
+  dataEntrega?: string; // Added to fix errors
   volumes: number;
   peso: string;
   status: StatusCarga;
   motorista?: string;
   veiculo?: string;
-  observacoes?: string;
-  cep?: string;
+  observacoes?: string; // Added to fix errors
+  cep?: string; // Added to fix errors
   origem?: string;
 }

@@ -1,39 +1,36 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { FileText, MessageSquare } from 'lucide-react';
-import { DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { FileText, MoreHorizontal, Trash2 } from 'lucide-react';
 import { Carga } from '../../types/coleta.types';
 
-interface ActionButtonsProps {
+export interface ActionButtonsProps {
   carga: Carga;
-  setSelectedCarga: (carga: Carga) => void;
+  onDetalhes: (carga: Carga) => void;
+  onExcluir: (cargaId: string) => void;
 }
 
-const ActionButtons: React.FC<ActionButtonsProps> = ({ 
-  carga, 
-  setSelectedCarga 
-}) => {
+const ActionButtons: React.FC<ActionButtonsProps> = ({ carga, onDetalhes, onExcluir }) => {
   return (
-    <div className="flex space-x-2 justify-end">
-      <DialogTrigger asChild>
-        <Button 
-          variant="outline"
-          size="sm"
-          className="bg-green-500 hover:bg-green-600 text-white border-none"
-          onClick={() => setSelectedCarga(carga)}
-        >
-          <MessageSquare className="h-4 w-4 mr-1" /> Suporte
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Abrir menu</span>
+          <MoreHorizontal className="h-4 w-4" />
         </Button>
-      </DialogTrigger>
-      
-      <Button 
-        variant="outline"
-        size="sm"
-      >
-        <FileText className="h-4 w-4 mr-1" /> Detalhes
-      </Button>
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onDetalhes(carga)}>
+          <FileText className="mr-2 h-4 w-4" />
+          Ver detalhes
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onExcluir(carga.id)} className="text-destructive focus:text-destructive">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Excluir
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

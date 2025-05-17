@@ -63,10 +63,10 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           cargas={[selectedCarga]} 
-          onConfirm={(cargaIds, motoristaId, motoristaName, veiculoId, veiculoName) => {
+          onConfirm={(cargasIds, motoristaId, motoristaName, veiculoId, veiculoName) => {
             handleAlocacaoConfirmada(selectedCarga.id, motoristaName, veiculoName);
             if (onAlocar) {
-              onAlocar(cargaIds, motoristaId, motoristaName, veiculoId, veiculoName);
+              onAlocar(cargasIds, motoristaId, motoristaName, veiculoId, veiculoName);
             }
           }}
         />

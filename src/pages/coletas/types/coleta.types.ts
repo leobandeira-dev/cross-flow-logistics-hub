@@ -4,7 +4,7 @@ import { DadosEmpresa } from '../components/solicitacao/SolicitacaoTypes';
 
 export interface SolicitacaoColeta {
   id: string;
-  dataSolicitacao: string;
+  dataSolicitacao: string; // Ensure this is always required
   dataColeta?: string;
   status: 'pending' | 'approved' | 'rejected';
   remetente?: DadosEmpresa;
@@ -32,6 +32,7 @@ export interface Carga {
   id: string;
   destino: string;
   dataPrevisao: string;
+  dataEntrega?: string; // Added to fix errors
   volumes: number;
   peso: string;
   status: 'pending' | 'scheduled' | 'transit' | 'loading' | 'delivered' | 'problem';
@@ -40,6 +41,8 @@ export interface Carga {
   origem?: string;
   notasFiscais?: string[];
   valorTotal?: number;
+  cep?: string; // Added to fix errors
+  observacoes?: string; // Added to fix errors
 }
 
 // Adding specialized types for approval flows

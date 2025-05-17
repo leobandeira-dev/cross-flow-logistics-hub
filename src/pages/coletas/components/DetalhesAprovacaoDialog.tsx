@@ -1,15 +1,16 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card'; // Add missing imports
 import { Button } from '@/components/ui/button';
-import { SolicitacaoColeta } from './types/coleta.types';
+import { SolicitacaoColeta } from '../types/coleta.types';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 
 interface DetalhesAprovacaoDialogProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: () => void; // Keep onClose for backward compatibility
+  onOpenChange?: (open: boolean) => void; // Add onOpenChange for newer components
   solicitacao: SolicitacaoColeta | null;
 }
 
@@ -52,12 +53,22 @@ const StatusBadge = ({ status }: { status: string }) => {
 const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
   isOpen,
   onClose,
+  onOpenChange,
   solicitacao
 }) => {
   if (!solicitacao) return null;
 
+  // Use either onOpenChange or onClose for compatibility
+  const handleOpenChange = (open: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(open);
+    } else if (!open) {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Detalhes da Solicitação #{solicitacao.id}</DialogTitle>

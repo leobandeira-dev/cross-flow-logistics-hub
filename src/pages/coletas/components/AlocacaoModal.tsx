@@ -38,6 +38,7 @@ export interface AlocacaoModalProps {
   isOpen: boolean;
   onClose: () => void;
   cargas: Carga[];
+  cargasIds?: string[]; // Make cargasIds optional to maintain compatibility
   onConfirm: (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
 }
 
@@ -45,6 +46,7 @@ const AlocacaoModal: React.FC<AlocacaoModalProps> = ({
   isOpen,
   onClose,
   cargas,
+  cargasIds,
   onConfirm
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -68,12 +70,12 @@ const AlocacaoModal: React.FC<AlocacaoModalProps> = ({
       return;
     }
     
-    // Get carga IDs
-    const cargasIds = cargas.map(carga => carga.id);
+    // Get carga IDs - use the provided cargasIds if available, otherwise extract from cargas
+    const actualCargasIds = cargasIds || cargas.map(carga => carga.id);
     
     // Call the onConfirm callback
     onConfirm(
-      cargasIds,
+      actualCargasIds,
       motorista.id,
       motorista.nome,
       veiculo.id,
