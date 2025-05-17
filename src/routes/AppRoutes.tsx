@@ -12,6 +12,7 @@ import SACRoutes from './features/SACRoutes';
 import ColetasRoutes from './features/ColetasRoutes';
 import RelatoriosRoutes from './features/RelatoriosRoutes';
 import CadastrosRoutes from './features/CadastrosRoutes';
+import ConfiguracoesRoutes from './features/ConfiguracoesRoutes';
 
 const AppRoutes = () => {
   const { user } = useAuth();
@@ -29,6 +30,7 @@ const AppRoutes = () => {
       {ColetasRoutes()}
       {RelatoriosRoutes()}
       {CadastrosRoutes()}
+      {ConfiguracoesRoutes()}
       
       {/* NotFound */}
       <Route path="*" element={<NotFound />} />
