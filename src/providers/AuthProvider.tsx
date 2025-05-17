@@ -5,13 +5,14 @@ import { useAuthState } from '@/hooks/useAuthState';
 import { useAuthActions } from '@/hooks/useAuthActions';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading, setLoading, setUser } = useAuthState();
+  const { user, session, loading, setLoading, setUser } = useAuthState();
   const { signIn, signUp, signOut, forgotPassword, updatePassword } = useAuthActions(setLoading, setUser);
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        session,
         loading,
         signIn,
         signUp,

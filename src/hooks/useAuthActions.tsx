@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import authService from '@/services/auth';
 import { toast } from '@/hooks/use-toast';
@@ -110,7 +109,7 @@ export const useAuthActions = (
       throw error;
     }
   };
-
+  
   return {
     signIn,
     signUp,
