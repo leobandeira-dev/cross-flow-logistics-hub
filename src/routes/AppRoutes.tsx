@@ -11,7 +11,8 @@ import Index from '../pages/Index';
 import ResetPassword from '../pages/ResetPassword';
 import UserProfilePage from '../pages/UserProfilePage';
 
-// Páginas de Armazenagem
+// Armazenagem Pages
+import Armazenagem from '../pages/armazenagem/Armazenagem';
 import RecebimentoOverview from '../pages/armazenagem/RecebimentoOverview';
 import MovimentacoesInternas from '../pages/armazenagem/MovimentacoesInternas';
 import Carregamento from '../pages/armazenagem/Carregamento';
@@ -85,6 +86,13 @@ const AppRoutes = () => {
       } />
 
       <Route path="/index" element={<Index />} />
+
+      {/* Main Armazenagem Route */}
+      <Route path="/armazenagem" element={
+        <ProtectedRoute>
+          <Armazenagem />
+        </ProtectedRoute>
+      } />
 
       {/* Armazenagem */}
       <Route path="/armazenagem/recebimento" element={
