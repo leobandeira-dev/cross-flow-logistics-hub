@@ -98,9 +98,10 @@ export const initializeMarkers = (
               });
               
               // Open the info window at the marker's position
+              // FIX: Use correct parameters for infoWindow.open()
               infoWindow.open({
-                map,
-                anchor: marker
+                anchor: marker,
+                map: map
               });
               
               // Add close listener to clean up when info window closes
