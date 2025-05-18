@@ -13,9 +13,9 @@ import {
   ShieldCheck, 
   Warehouse,
   FileCheck,
-  TruckLoading,
+  Headphones,
   BadgeCheck,
-  HeadsetMic
+  Headset
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -75,7 +75,7 @@ const LandingPage = () => {
     {
       title: "Controle de Carregamento",
       description: "Planejamento e execução de carregamentos com rastreabilidade total",
-      icon: TruckLoading,
+      icon: Truck,
       features: ["Ordens de Carregamento", "Conferência de Carga", "Checklist de Veículos", "Endereçamento em Caminhão"]
     },
     {
@@ -99,7 +99,7 @@ const LandingPage = () => {
     {
       title: "Suporte ao Cliente",
       description: "Gestão completa de ocorrências e atendimentos",
-      icon: HeadsetMic,
+      icon: Headset,
       features: ["Registro de Ocorrências", "Tratamento de Chamados", "Notificações Automáticas", "Histórico de Atendimentos"]
     }
   ];
