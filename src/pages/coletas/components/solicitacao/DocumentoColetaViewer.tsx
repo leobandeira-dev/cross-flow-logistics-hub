@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { SolicitacaoColeta } from '../../types/coleta.types';
-import { formatarNumero } from '../../utils/volumes/formatters';
+import SolicitacaoViewer from './SolicitacaoViewer';
+import { InternalFormData } from './hooks/solicitacaoFormTypes';
 import { Badge } from '@/components/ui/badge';
 
 interface DocumentoColetaViewerProps {
@@ -32,6 +32,27 @@ const DocumentoColetaViewer: React.FC<DocumentoColetaViewerProps> = ({
     }
   };
   
+  // Convert SolicitacaoColeta to InternalFormData format
+  const formData: InternalFormData = {
+    remetente: solicitacao.remetente || { razaoSocial: '', cnpj: '' },
+    destinatario: solicitacao.destinatario || { razaoSocial: '', cnpj: '' },
+    dataColeta: solicitacao.dataColeta || solicitacao.data || '',
+    horaColeta: '',
+    observacoes: solicitacao.observacoes || '',
+    notasFiscais: solicitacao.notasFiscais || [],
+    tipoFrete: solicitacao.cliente ? 'FOB' : 'CIF',
+    origem: solicitacao.origem || '',
+    destino: solicitacao.destino || '',
+    // Address display
+    origemEndereco: solicitacao.remetente?.endereco?.logradouro || '',
+    origemCEP: solicitacao.remetente?.endereco?.cep || '',
+    destinoEndereco: solicitacao.destinatario?.endereco?.logradouro || '',
+    destinoCEP: solicitacao.destinatario?.endereco?.cep || '',
+    // Approval flow data
+    dataAprovacao: solicitacao.dataAprovacao || '',
+    dataInclusao: solicitacao.dataSolicitacao || solicitacao.data || '',
+  };
+  
   return (
     <div className="space-y-6">
       {/* Document Header */}
@@ -45,138 +66,15 @@ const DocumentoColetaViewer: React.FC<DocumentoColetaViewerProps> = ({
         </div>
       </div>
       
-      {/* Main Content - Split into columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left Column - Origin and Destination */}
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold text-lg mb-4">Informações da Coleta</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500">Tipo de Frete</p>
-                <p className="font-medium">{solicitacao.cliente ? 'FOB' : 'CIF'}</p>
-              </div>
-              
-              <div>
-                <p className="text-sm text-gray-500">Origem</p>
-                <p className="font-medium">{solicitacao.origem || (solicitacao.remetente?.razaoSocial)}</p>
-                {solicitacao.remetente && (
-                  <p className="text-sm text-gray-400">CNPJ: {solicitacao.remetente.cnpj}</p>
-                )}
-              </div>
-              
-              <div>
-                <p className="text-sm text-gray-500">Destino</p>
-                <p className="font-medium">{solicitacao.destino || (solicitacao.destinatario?.razaoSocial)}</p>
-                {solicitacao.destinatario && (
-                  <p className="text-sm text-gray-400">CNPJ: {solicitacao.destinatario.cnpj}</p>
-                )}
-              </div>
-              
-              <div>
-                <p className="text-sm text-gray-500">Data de Coleta</p>
-                <p className="font-medium">{solicitacao.dataColeta || solicitacao.data}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Right Column - Volume Details */}
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold text-lg mb-4">Detalhes dos Volumes</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500">Volumes</p>
-                <p className="font-medium">{solicitacao.volumes || 0}</p>
-              </div>
-              
-              <div>
-                <p className="text-sm text-gray-500">Peso Total</p>
-                <p className="font-medium">
-                  {formatarNumero(parseFloat(solicitacao.peso || '0'))} kg
-                </p>
-              </div>
-              
-              <div>
-                <p className="text-sm text-gray-500">Notas Fiscais</p>
-                <p className="font-medium">{solicitacao.notas?.join(', ') || 'N/A'}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Observations */}
-      {solicitacao.observacoes && (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold text-lg mb-4">Observações</h3>
-            <p className="text-gray-700">{solicitacao.observacoes}</p>
-          </CardContent>
-        </Card>
-      )}
-      
-      {/* Approval Information */}
-      {'dataAprovacao' in solicitacao && solicitacao.dataAprovacao && (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold text-lg mb-4">Informações de Aprovação</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500">Data de Aprovação</p>
-                <p className="font-medium">{solicitacao.dataAprovacao}</p>
-              </div>
-              
-              <div>
-                <p className="text-sm text-gray-500">Aprovado por</p>
-                <p className="font-medium">{'aprovador' in solicitacao ? solicitacao.aprovador : 'N/A'}</p>
-              </div>
-              
-              {'motivoRecusa' in solicitacao && solicitacao.motivoRecusa && (
-                <div>
-                  <p className="text-sm text-gray-500 text-red-600">Motivo da Recusa</p>
-                  <p className="font-medium text-red-600">{solicitacao.motivoRecusa}</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      {/* Action Buttons for various stages */}
-      {showActions && (
-        <div className="flex justify-end space-x-4">
-          {solicitacao.status === 'pending' && onApprove && onReject && (
-            <>
-              <button 
-                onClick={onReject} 
-                className="px-4 py-2 bg-red-100 text-red-800 rounded hover:bg-red-200"
-              >
-                Recusar
-              </button>
-              <button 
-                onClick={onApprove} 
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                Aprovar
-              </button>
-            </>
-          )}
-          
-          {solicitacao.status === 'approved' && onAllocate && (
-            <button 
-              onClick={onAllocate} 
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Alocar Carga
-            </button>
-          )}
-        </div>
-      )}
+      {/* Main Document Viewer */}
+      <SolicitacaoViewer 
+        formData={formData}
+        readOnly={true}
+        showActions={showActions}
+        onApprove={onApprove}
+        onReject={onReject}
+        onAllocate={onAllocate}
+      />
     </div>
   );
 };

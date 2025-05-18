@@ -1,64 +1,90 @@
 
-import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SolicitacaoColeta } from '../types/coleta.types';
-import DocumentoColetaViewer from './solicitacao/DocumentoColetaViewer';
+import SolicitacaoViewer from './solicitacao/SolicitacaoViewer';
 import AprovacaoForm from './aprovacao/AprovacaoForm';
+import { InternalFormData } from './solicitacao/hooks/solicitacaoFormTypes';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// Update the interface to match the one in AprovacoesColeta.tsx
 interface DetalhesAprovacaoDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedRequest: SolicitacaoColeta | null;
-  isRejecting: boolean;
-  setIsRejecting: (value: boolean) => void;
-  onApprove: (solicitacaoId: string, observacoes?: string) => void;
-  onReject: (solicitacaoId: string, motivoRecusa: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  solicitacao: SolicitacaoColeta | null;
+  onApprove: (id: string, observacoes: string) => void;
+  onReject: (id: string, motivoRecusa: string, observacoes: string) => void;
 }
 
+const mapSolicitacaoToFormData = (solicitacao: SolicitacaoColeta): InternalFormData => {
+  return {
+    remetente: solicitacao.remetente || { razaoSocial: '', cnpj: '' },
+    destinatario: solicitacao.destinatario || { razaoSocial: '', cnpj: '' },
+    dataColeta: solicitacao.dataColeta || '',
+    notasFiscais: solicitacao.notasFiscais || [],
+    observacoes: solicitacao.observacoes || '',
+    tipoFrete: solicitacao.cliente ? 'FOB' : 'CIF',
+    origem: solicitacao.origem || '',
+    destino: solicitacao.destino || '',
+    origemEndereco: solicitacao.remetente?.endereco?.logradouro || '',
+    origemCEP: solicitacao.remetente?.endereco?.cep || '',
+    destinoEndereco: solicitacao.destinatario?.endereco?.logradouro || '',
+    destinoCEP: solicitacao.destinatario?.endereco?.cep || '',
+  };
+};
+
 const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
-  selectedRequest,
-  open,
-  onOpenChange,
-  isRejecting,
-  setIsRejecting,
+  isOpen,
+  onClose,
+  solicitacao,
   onApprove,
   onReject
 }) => {
-  if (!selectedRequest) return null;
-
-  const handleClose = () => {
-    onOpenChange(false);
-    setIsRejecting(false);
-  };
-
+  const [activeTab, setActiveTab] = useState('visualizar');
+  
+  if (!solicitacao) return null;
+  
+  const formData = mapSolicitacaoToFormData(solicitacao);
+  
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            Detalhes da Solicitação - {selectedRequest.id}
-          </DialogTitle>
+          <DialogTitle>Solicitação de Coleta #{solicitacao.id}</DialogTitle>
         </DialogHeader>
-
-        <div className="py-4">
-          <DocumentoColetaViewer solicitacao={selectedRequest} />
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="visualizar">Visualizar Solicitação</TabsTrigger>
+            <TabsTrigger value="aprovacao">Aprovação</TabsTrigger>
+          </TabsList>
           
-          <div className="mt-8 pt-4 border-t">
-            <h3 className="font-semibold text-lg mb-4">
-              {isRejecting ? 'Recusar Solicitação' : 'Aprovação da Solicitação'}
-            </h3>
-            
-            <AprovacaoForm
-              selectedRequest={selectedRequest}
-              isRejecting={isRejecting}
-              setIsRejecting={setIsRejecting}
-              onClose={handleClose}
-              onApprove={onApprove}
-              onReject={onReject}
+          <TabsContent value="visualizar" className="pt-4">
+            <SolicitacaoViewer 
+              formData={formData} 
+              readOnly={true}
+              showActions={false}
             />
-          </div>
-        </div>
+          </TabsContent>
+          
+          <TabsContent value="aprovacao" className="pt-4">
+            <AprovacaoForm 
+              solicitacaoId={solicitacao.id}
+              onApprove={(id, observacoes) => {
+                onApprove(id, observacoes);
+                onClose();
+              }}
+              onReject={(id, motivoRecusa, observacoes) => {
+                onReject(id, motivoRecusa, observacoes);
+                onClose();
+              }}
+            />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
