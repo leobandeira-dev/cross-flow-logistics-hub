@@ -30,3 +30,28 @@ export interface SolicitacaoFormHeaderProps {
   // Additional props
   readOnlyAddresses?: boolean;
 }
+
+// Add missing AddressSectionProps
+export interface AddressSectionProps {
+  label: string;
+  cidade: string;
+  uf: string;
+  endereco: string;
+  cep: string;
+  readOnly?: boolean;
+  onCidadeChange?: (value: string) => void;
+  onUFChange?: (value: string) => void;
+  id: string;
+}
+
+// Add missing DateSectionProps
+export interface DateSectionProps {
+  dataLabel: string;
+  horaLabel: string;
+  data: string;
+  hora: string;
+  readonly?: boolean;
+  onDataChange?: (data: string) => void;
+  onHoraChange?: (hora: string) => void;
+  id: string;
+}

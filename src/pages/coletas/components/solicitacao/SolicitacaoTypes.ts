@@ -91,3 +91,19 @@ export const EMPTY_ENDERECO: EnderecoCompleto = {
   uf: '',
   cep: ''
 };
+
+// Add missing SolicitacaoFooterProps
+export interface SolicitacaoFooterProps {
+  currentStep: number;
+  onPrev: () => void;
+  onNext: () => void;
+  onSubmit: () => void;
+  isLoading?: boolean;
+}
+
+// Add missing SolicitacaoProgressProps
+export interface SolicitacaoProgressProps {
+  currentStep: number;
+  onNext?: () => void;
+  onPrev?: () => void;
+}

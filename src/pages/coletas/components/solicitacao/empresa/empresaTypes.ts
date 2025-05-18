@@ -2,7 +2,7 @@
 import { EnderecoCompleto, DadosEmpresa } from '../SolicitacaoTypes';
 
 // Using types from SolicitacaoTypes.ts
-export { EnderecoCompleto, DadosEmpresa };
+export type { EnderecoCompleto, DadosEmpresa };
 
 // Empty empresa data objects
 export const EMPTY_ENDERECO: EnderecoCompleto = {
@@ -22,3 +22,11 @@ export const EMPTY_EMPRESA: DadosEmpresa = {
   endereco: EMPTY_ENDERECO,
   enderecoFormatado: ''
 };
+
+// Add missing EnderecoFormProps type
+export interface EnderecoFormProps {
+  endereco: EnderecoCompleto;
+  readOnly?: boolean;
+  tipo: 'remetente' | 'destinatario';
+  onEnderecoChange: (field: keyof EnderecoCompleto, value: string) => void;
+}
