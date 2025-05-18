@@ -124,6 +124,12 @@ const ArmazenagemRoutes = () => {
       </ProtectedRoute>
     } />,
     
+    <Route key="armazenagem-rastreamento" path="/armazenagem/rastreamento" element={
+      <ProtectedRoute>
+        <RastreamentoNotasFiscais />
+      </ProtectedRoute>
+    } />,
+    
     <Route key="armazenagem-ordem-carregamento" path="/armazenagem/ordem-carregamento" element={
       <ProtectedRoute>
         <OrdemCarregamento />

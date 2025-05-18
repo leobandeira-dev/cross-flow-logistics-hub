@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
   Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
-  Calculator, BarChart, PieChart, Table, Download, Printer, Search, Filter
+  Calculator, BarChart, PieChart, Table, Download, Printer, Search, Filter, list, kanban
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -107,7 +107,6 @@ const Sidebar: React.FC = () => {
             <SidebarItem icon={Box} label="Entre Filiais" href="/armazenagem/recebimento/filiais" />
             <SidebarItem icon={FileText} label="Notas Fiscais" href="/armazenagem/recebimento/notas" />
             <SidebarItem icon={FileText} label="Etiquetas" href="/armazenagem/recebimento/etiquetas" />
-            <SidebarItem icon={FileText} label="Rastreamento NF" href="/armazenagem/recebimento/rastreamento" />
           </SubMenu>
           
           {/* Movimentações (Internal Movements) */}
@@ -126,6 +125,9 @@ const Sidebar: React.FC = () => {
             <SidebarItem icon={Box} label="Endereçamento" href="/armazenagem/carregamento/enderecamento" />
             <SidebarItem icon={FileText} label="Checklist" href="/armazenagem/carregamento/checklist" />
           </SubMenu>
+          
+          {/* Rastreamento NF now at the same level as Carregamento */}
+          <SidebarItem icon={Search} label="Rastreamento NF" href="/armazenagem/rastreamento" />
         </SubMenu>
         
         <SubMenu icon={Users} label="Motoristas" defaultOpen={false}>
