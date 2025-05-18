@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,7 +55,9 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
       const reader = new FileReader();
       const xmlContentPromise = new Promise<string>((resolve) => {
         reader.onload = (e) => {
-          resolve(e.target?.result as string || '');
+          const content = e.target?.result as string || '';
+          console.log(`XML Content Length: ${content.length} bytes`);
+          resolve(content);
         };
         reader.readAsText(file);
       });
@@ -85,17 +88,18 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
         cliente: mergedData.destinatarioRazaoSocial || '',
         remetente: mergedData.emitenteRazaoSocial || '',
         notaFiscal: mergedData.numeroNF || '',
-        pedido: mergedData.numeroPedido || '', // Map pedido field correctly
+        pedido: mergedData.numeroPedido || '', 
         dataEmissao: mergedData.dataHoraEmissao ? new Date(mergedData.dataHoraEmissao) : new Date(),
-        // Preserve the exact string value from the XML for the weight
-        pesoNota: mergedData.pesoTotalBruto ? parseFloat(mergedData.pesoTotalBruto.replace(',', '.')) : 0,
-        valorNF: parseFloat(mergedData.valorTotal || '0') || 0,
+        // Parse the weight correctly, handling both comma and dot as decimal separators
+        pesoNota: mergedData.pesoTotalBruto ? 
+          parseFloat(mergedData.pesoTotalBruto.toString().replace(',', '.')) : 0,
+        valorNF: parseFloat(mergedData.valorTotal?.replace(',', '.') || '0') || 0,
         fretePorTonelada: 0,
         pesoMinimo: 0,
         aliquotaICMS: 0,
         aliquotaExpresso: 0,
-        // Store the raw XML content
-        xmlContent: xmlContent
+        // Store the raw XML content with proper validation
+        xmlContent: xmlContent || ''
       };
 
       console.log('Nota fiscal extraída do XML:', notaFiscal);

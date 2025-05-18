@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Printer } from 'lucide-react';
 import { NotaFiscal } from '../../../Faturamento';
 import { toast } from '@/hooks/use-toast';
-import { generateDANFEFromXML } from '@/pages/armazenagem/recebimento/utils/danfeAPI';
-import { createPDFDataUrl } from '@/pages/armazenagem/recebimento/utils/danfeAPI';
+import { generateDANFEFromXML, createPDFDataUrl } from '@/pages/armazenagem/recebimento/utils/danfeAPI';
 
 interface NotasTableProps {
   notasLote: Partial<NotaFiscal>[];
@@ -34,16 +33,26 @@ const NotasTable: React.FC<NotasTableProps> = ({ notasLote, onUpdateNota, onRemo
         description: "Aguarde enquanto processamos o documento.",
       });
       
+      console.log("Conteúdo XML enviado:", nota.xmlContent.slice(0, 100) + "...");
+      
       const pdfBase64 = await generateDANFEFromXML(nota.xmlContent);
       if (pdfBase64) {
         // Open the PDF in a new window
         const dataUrl = createPDFDataUrl(pdfBase64);
-        window.open(dataUrl, '_blank');
+        const newWindow = window.open(dataUrl, '_blank');
         
-        toast({
-          title: "DANFE gerado com sucesso",
-          description: "O documento foi aberto em uma nova janela.",
-        });
+        if (!newWindow) {
+          toast({
+            title: "Aviso",
+            description: "O bloqueador de pop-ups pode ter impedido a abertura do DANFE. Verifique as configurações do navegador.",
+            variant: "warning"
+          });
+        } else {
+          toast({
+            title: "DANFE gerado com sucesso",
+            description: "O documento foi aberto em uma nova janela.",
+          });
+        }
       } else {
         throw new Error("Falha ao gerar o PDF do DANFE");
       }
