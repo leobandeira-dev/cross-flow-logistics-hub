@@ -13,9 +13,9 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import ObservacoesField from './fields/ObservacoesField';
-import RejeicaoFields from './fields/RejeicaoFields';
-import AprovacaoActions from './actions/AprovacaoActions';
+import { ObservacoesField } from './fields/ObservacoesField';
+import { RejeicaoFields } from './fields/RejeicaoFields';
+import { AprovacaoActions } from './actions/AprovacaoActions';
 
 interface AprovacaoFormProps {
   solicitacaoId: string;
