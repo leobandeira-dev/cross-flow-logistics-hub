@@ -9,12 +9,4 @@ export * from './fiscal.types';
 export * from './shipping.types';
 export * from './warehouse.types';
 export * from './occurrence.types';
-
-// Export Database type for compatibility
-export type Database = {
-  public: {
-    Tables: {
-      // Tables will be added here if needed
-    }
-  }
-};
+export * from './database.types';

@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Deletes a nota fiscal and its related items from the database
+ * Exclui uma nota fiscal e seus itens relacionados do banco de dados
  */
 export const excluirNotaFiscal = async (id: string): Promise<void> => {
   try {

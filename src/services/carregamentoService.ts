@@ -45,7 +45,7 @@ const carregamentoService = {
       throw new Error(`Erro ao listar ordens de carregamento: ${error.message}`);
     }
     
-    return data as OrdemCarregamento[];
+    return (data || []) as unknown as OrdemCarregamento[];
   },
 
   /**
@@ -70,13 +70,17 @@ const carregamentoService = {
       throw new Error(`Erro ao buscar ordem de carregamento: ${error.message}`);
     }
 
+    if (!data) {
+      throw new Error(`Ordem de carregamento não encontrada: ${id}`);
+    }
+
     // Reorganizar as notas fiscais para o formato esperado
-    const notasFiscais = data.notas_fiscais.map((item: any) => item.nota_fiscal);
+    const notasFiscais = data.notas_fiscais?.map((item: any) => item.nota_fiscal) || [];
     
     return {
       ...data,
       notas_fiscais: notasFiscais
-    } as OrdemCarregamento;
+    } as unknown as OrdemCarregamento;
   },
 
   /**
@@ -105,6 +109,10 @@ const carregamentoService = {
     if (error) {
       throw new Error(`Erro ao criar ordem de carregamento: ${error.message}`);
     }
+
+    if (!data) {
+      throw new Error('Erro ao criar ordem de carregamento: dados não retornados');
+    }
     
     // Vincular as notas fiscais à ordem
     if (notasFiscaisIds.length > 0) {
@@ -131,7 +139,7 @@ const carregamentoService = {
         .in('id', notasFiscaisIds);
     }
     
-    return data as OrdemCarregamento;
+    return data as unknown as OrdemCarregamento;
   },
 
   /**
@@ -152,6 +160,10 @@ const carregamentoService = {
     if (errorOrdem) {
       throw new Error(`Erro ao buscar ordem de carregamento: ${errorOrdem.message}`);
     }
+
+    if (!ordem) {
+      throw new Error(`Ordem de carregamento não encontrada: ${ordemId}`);
+    }
     
     // Obter o total de volumes das notas fiscais desta ordem
     const { data: notasFiscais, error: errorNotas } = await supabase
@@ -163,7 +175,7 @@ const carregamentoService = {
       throw new Error(`Erro ao buscar notas fiscais: ${errorNotas.message}`);
     }
     
-    const totalVolumes = notasFiscais.reduce(
+    const totalVolumes = (notasFiscais || []).reduce(
       (total, nota) => total + (nota.quantidade_volumes || 0), 
       0
     );
@@ -185,6 +197,10 @@ const carregamentoService = {
     if (error) {
       throw new Error(`Erro ao iniciar carregamento: ${error.message}`);
     }
+
+    if (!data) {
+      throw new Error('Erro ao iniciar carregamento: dados não retornados');
+    }
     
     // Atualizar status da ordem de carregamento
     await supabase
@@ -195,7 +211,7 @@ const carregamentoService = {
       })
       .eq('id', ordemId);
     
-    return data as Carregamento;
+    return data as unknown as Carregamento;
   },
 
   /**
@@ -246,6 +262,10 @@ const carregamentoService = {
     if (errorCarregamento) {
       throw new Error(`Erro ao buscar carregamento: ${errorCarregamento.message}`);
     }
+
+    if (!carregamento) {
+      throw new Error(`Carregamento não encontrado: ${carregamentoId}`);
+    }
     
     // Atualizar carregamento
     const { data, error } = await supabase
@@ -260,6 +280,10 @@ const carregamentoService = {
     
     if (error) {
       throw new Error(`Erro ao finalizar carregamento: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Erro ao finalizar carregamento: dados não retornados');
     }
     
     // Atualizar ordem de carregamento
@@ -280,7 +304,7 @@ const carregamentoService = {
       })
       .eq('ordem_carregamento_id', carregamento.ordem_carregamento_id);
     
-    return data as Carregamento;
+    return data as unknown as Carregamento;
   },
 
   /**
@@ -300,7 +324,7 @@ const carregamentoService = {
       throw new Error(`Erro ao buscar volumes do carregamento: ${error.message}`);
     }
     
-    return data;
+    return data || [];
   }
 };
 

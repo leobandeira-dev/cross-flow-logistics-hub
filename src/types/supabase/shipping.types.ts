@@ -63,3 +63,34 @@ export interface Carregamento {
   responsavel_carregamento?: Usuario;
   conferente?: Usuario;
 }
+
+// Enderecamento no caminhão
+export interface EnderecamentoCaminhao {
+  id: string;
+  carregamento_id: string;
+  etiqueta_id: string;
+  posicao: string;
+  ordem?: number;
+  created_at: string;
+  updated_at: string;
+  
+  // Relationships
+  carregamento?: Carregamento;
+  etiqueta?: Etiqueta;
+}
+
+// Etiqueta
+export interface Etiqueta {
+  id: string;
+  codigo: string;
+  nota_fiscal_id?: string;
+  status: string;
+  tipo: string;
+  volume_numero?: number;
+  total_volumes?: number;
+  created_at: string;
+  updated_at: string;
+  
+  // Relationships
+  nota_fiscal?: NotaFiscal;
+}
