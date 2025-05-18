@@ -9,32 +9,21 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
   const [previewLoading, setPreviewLoading] = useState(false);
   const [xmlContent, setXmlContent] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
-  const [importedNotasFiscais, setImportedNotasFiscais] = useState<NotaFiscal[]>([]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     // Call the original onFileUpload function
     onFileUpload(e);
     
     // Additional functionality for DANFE preview
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
-    setPreviewLoading(true);
-
-    try {
-      const importedNotas: NotaFiscal[] = [];
-      
-      // Process each selected file
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.type !== 'text/xml') continue;
+    const file = e.target.files?.[0];
+    if (file && file.type === 'text/xml') {
+      try {
+        setPreviewLoading(true);
+        setFileName(file.name);
         
-        // For preview, we'll use the first file
-        if (i === 0) {
-          setFileName(file.name);
-          const content = await readFileAsText(file);
-          setXmlContent(content);
-        }
+        // Read the XML file
+        const content = await readFileAsText(file);
+        setXmlContent(content);
         
         // Parse XML to extract nota fiscal data
         const xmlData = await parseXmlFile(file);
@@ -44,7 +33,6 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
           try {
             // Use the extractDataFromXml function to get all fields
             const extractedData = extractDataFromXml(xmlData);
-            const content = await readFileAsText(file);
 
             // Extract information from XML
             const notaId = extractedData.numeroNF || `NF-${Math.floor(Math.random() * 100000)}`;
@@ -77,42 +65,35 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
               xmlContent: content // Store XML content for DANFE generation
             };
             
-            // Add to the imported notas array
-            importedNotas.push(novaNota);
-            
-            // Add to the global notas fiscais array
+            // Add to the existing array of notas fiscais
             notasFiscais.unshift(novaNota);
             
             console.log("Nota fiscal criada do XML com dados completos:", novaNota);
+            
+            toast({
+              title: "Nota fiscal importada com sucesso",
+              description: `A nota fiscal ${numeroNota} foi importada e adicionada à lista.`,
+            });
           } catch (error) {
             console.error("Erro ao extrair dados do XML:", error);
           }
         }
-      }
-      
-      // Update state with imported notas
-      setImportedNotasFiscais(importedNotas);
-      
-      // Show success toast
-      if (importedNotas.length > 0) {
+        
         toast({
-          title: files.length === 1 
-            ? "Nota fiscal importada com sucesso" 
-            : `${importedNotas.length} notas fiscais importadas com sucesso`,
-          description: files.length === 1 
-            ? `A nota fiscal foi importada e adicionada à lista.` 
-            : `As notas fiscais foram importadas e adicionadas à lista.`,
+          title: "XML carregado",
+          description: `O arquivo ${file.name} foi carregado com sucesso.`,
         });
+        
+      } catch (error) {
+        console.error('Error reading XML file:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível ler o arquivo XML.",
+          variant: "destructive"
+        });
+      } finally {
+        setPreviewLoading(false);
       }
-    } catch (error) {
-      console.error('Error reading XML files:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível ler os arquivos XML.",
-        variant: "destructive"
-      });
-    } finally {
-      setPreviewLoading(false);
     }
   };
 
@@ -136,8 +117,6 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
     previewLoading,
     xmlContent,
     fileName,
-    handleFileChange,
-    notasFiscais: importedNotasFiscais,
-    setNotasFiscais: setImportedNotasFiscais
+    handleFileChange
   };
 };

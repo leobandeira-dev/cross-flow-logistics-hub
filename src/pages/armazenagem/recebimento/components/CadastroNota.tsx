@@ -1,13 +1,21 @@
 
 import React from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { FileText } from 'lucide-react';
 import NotaFiscalForm from './NotaFiscalForm';
 
 const CadastroNota: React.FC = () => {
   return (
-    <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Cadastro de Nota Fiscal</h2>
-      <NotaFiscalForm />
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center">
+          <FileText className="mr-2 text-cross-blue" size={20} />
+          Cadastro de Nota Fiscal
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <NotaFiscalForm />
+      </CardContent>
     </Card>
   );
 };

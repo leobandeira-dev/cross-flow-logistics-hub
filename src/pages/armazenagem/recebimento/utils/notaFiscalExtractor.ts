@@ -1,24 +1,21 @@
-
 import { NotaFiscalSchemaType } from '../components/forms/notaFiscalSchema';
 
 /**
- * Extrai dados da nota fiscal a partir de um XML
- * @param xmlObj Objeto XML parseado
- * @returns Objeto com os dados extraídos
+ * Extract data from an XML object to populate a NotaFiscal form
  */
-export const extractDataFromXml = (xmlObj: any): Record<string, any> => {
+export const extractDataFromXml = (xmlData: any): Partial<any> => {
   try {
-    console.log("Tentando extrair dados do XML:", xmlObj);
+    console.log("Tentando extrair dados do XML:", xmlData);
     
     // Navigate through the XML structure using the new approach
-    const nfeProc = xmlObj.nfeproc || xmlObj.nfeProc || {};
+    const nfeProc = xmlData.nfeproc || xmlData.nfeProc || {};
     
     // Accessing the XML content in a more resilient way
     const nfe = nfeProc.nfe || nfeProc.NFe;
     const infNFe = nfe?.infnfe || nfe?.infNFe || nfe?.infNFe;
     
     if (!infNFe) {
-      console.error("Estrutura de XML não reconhecida:", xmlObj);
+      console.error("Estrutura de XML não reconhecida:", xmlData);
       return {};
     }
     
@@ -206,7 +203,7 @@ export const extractDataFromXml = (xmlObj: any): Record<string, any> => {
     console.log("Volumes totais extraídos:", volumesTotal);
     
     // Extracting data with the helper function
-    const result: Record<string, any> = {
+    return {
       // Note data
       chaveNF: chaveNF,
       numeroNF: getValue(ide, ['nnf']) || getValue(ide, ['nNF']),
@@ -248,18 +245,6 @@ export const extractDataFromXml = (xmlObj: any): Record<string, any> => {
       // Additional information
       informacoesComplementares: informacoesComplementares,
     };
-    
-    // Adiciona campos adicionais para preencher na interface
-    result.localArmazenagem = '';
-    result.tempoArmazenamento = '';
-    result.entregueAoFornecedor = 'nao';
-    result.observacoes = '';
-    result.fobCif = '';
-    result.quimico = 'nao';
-    result.fracionado = 'nao';
-    result.statusEmbarque = 'pendente';
-    
-    return result;
   } catch (error) {
     console.error("Erro ao extrair dados do XML:", error);
     return {};
@@ -283,9 +268,6 @@ export const searchNotaFiscalByChave = async (chaveNF: string): Promise<Partial<
         valorTotal: '1850.75',
         emitenteRazaoSocial: 'Fornecedor ABC Ltda',
         emitenteCNPJ: '12.345.678/0001-90',
-        numeroPedido: 'PED-12345',
-        fobCif: 'fob',
-        informacoesComplementares: 'Nota fiscal de exemplo',
       });
     }, 1500);
   });
