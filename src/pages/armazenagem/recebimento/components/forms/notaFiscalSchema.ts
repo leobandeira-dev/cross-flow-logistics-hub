@@ -12,6 +12,7 @@ export const notaFiscalSchema = z.object({
   serieNF: z.string().optional(),
   dataHoraEmissao: z.string().optional(),
   tipoOperacao: z.string().optional(),
+  entregueAoFornecedor: z.string().optional(),
   
   // Emitente
   emitenteCNPJ: z.string().optional(),
@@ -56,8 +57,8 @@ export const notaFiscalSchema = z.object({
   dataHoraEntrada: z.string().optional(),
   statusEmbarque: z.string().optional(),
   responsavelEntrega: z.string().optional(),
-  quimico: z.boolean().default(false),
-  fracionado: z.boolean().default(false),
+  quimico: z.string().optional(),  // Changed from boolean to string to match the Select component usage
+  fracionado: z.string().optional(),  // Changed from boolean to string to match the Select component usage
   motorista: z.string().optional(),
   tempoArmazenamento: z.string().optional(),
 });
@@ -73,6 +74,7 @@ export const defaultValues: NotaFiscalSchemaType = {
   serieNF: '',
   dataHoraEmissao: '',
   tipoOperacao: '',
+  entregueAoFornecedor: '',
   emitenteCNPJ: '',
   emitenteRazaoSocial: '',
   emitenteTelefone: '',
@@ -105,8 +107,8 @@ export const defaultValues: NotaFiscalSchemaType = {
   dataHoraEntrada: '',
   statusEmbarque: '',
   responsavelEntrega: '',
-  quimico: false,
-  fracionado: false,
+  quimico: '',  // Changed default from false to empty string
+  fracionado: '', // Changed default from false to empty string
   motorista: '',
   tempoArmazenamento: '',
 };
