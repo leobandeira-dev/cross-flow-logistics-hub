@@ -1,13 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { SolicitacaoColeta } from '../types/coleta.types';
-import SolicitacaoProgress from './solicitacao/SolicitacaoProgress';
-import { SolicitacaoFormHeader } from './solicitacao/formHeader';
-import NotasFiscaisStep from './solicitacao/NotasFiscaisStep';
-import ConfirmationStep from './solicitacao/ConfirmationStep';
-import SolicitacaoFooter from './solicitacao/SolicitacaoFooter';
 
 interface EditSolicitacaoDialogProps {
   solicitacao: SolicitacaoColeta | null;
@@ -23,143 +23,158 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
   onSave
 }) => {
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<SolicitacaoColeta | null>(solicitacao);
 
-  // Update formData when the solicitacao changes
-  useEffect(() => {
-    if (solicitacao) {
-      // Transform the solicitacao to match the format expected by the form components
-      setFormData({
-        tipoFrete: solicitacao.cliente ? 'FOB' : 'CIF', // Default or use actual value if available
-        dataColeta: solicitacao.dataColeta || solicitacao.data || '',
-        horaColeta: '',
-        observacoes: solicitacao.observacoes || '',
-        notasFiscais: [], // Would need to transform existing notes
-        remetente: {
-          razaoSocial: solicitacao.remetente?.razaoSocial || solicitacao.origem || '',
-          cnpj: solicitacao.remetente?.cnpj || '',
-          endereco: solicitacao.remetente?.endereco?.logradouro || '',
-          numero: solicitacao.remetente?.endereco?.numero || '',
-          bairro: solicitacao.remetente?.endereco?.bairro || '',
-          cidade: solicitacao.remetente?.endereco?.cidade || '',
-          uf: solicitacao.remetente?.endereco?.uf || '',
-          cep: solicitacao.remetente?.endereco?.cep || '',
-        },
-        destinatario: {
-          razaoSocial: solicitacao.destinatario?.razaoSocial || solicitacao.destino || '',
-          cnpj: solicitacao.destinatario?.cnpj || '',
-          endereco: solicitacao.destinatario?.endereco?.logradouro || '',
-          numero: solicitacao.destinatario?.endereco?.numero || '',
-          bairro: solicitacao.destinatario?.endereco?.bairro || '',
-          cidade: solicitacao.destinatario?.endereco?.cidade || '',
-          uf: solicitacao.destinatario?.endereco?.uf || '',
-          cep: solicitacao.destinatario?.endereco?.cep || '',
-        },
-        origem: solicitacao.origem || '',
-        destino: solicitacao.destino || '',
-        // Include any approval or inclusion dates if available
-        dataAprovacao: 'dataAprovacao' in solicitacao ? solicitacao.dataAprovacao : '',
-        horaAprovacao: '',
-        dataInclusao: solicitacao.dataSolicitacao || '',
-        horaInclusao: '',
-        // Add notas fiscais as empty array for now
-        // In a real implementation, we would convert solicitacao.notas to the format expected by NotasFiscaisStep
-      });
-    }
+  // Atualiza o formData quando a solicitação muda
+  React.useEffect(() => {
+    setFormData(solicitacao);
   }, [solicitacao]);
 
   if (!formData) return null;
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  const handleChange = (field: string, value: any) => {
+    setFormData(prev => {
+      if (!prev) return prev;
+      return { ...prev, [field]: value };
+    });
   };
 
-  const nextStep = () => {
-    setCurrentStep(curr => Math.min(curr + 1, 2));
+  const handleNotasChange = (notasString: string) => {
+    const notasArray = notasString.split(',').map(nota => nota.trim());
+    setFormData(prev => {
+      if (!prev) return prev;
+      return { ...prev, notas: notasArray };
+    });
   };
 
-  const prevStep = () => {
-    setCurrentStep(curr => Math.max(curr - 1, 1));
-  };
-
-  const handleSubmit = () => {
-    setIsLoading(true);
-    try {
-      // Convert formData back to SolicitacaoColeta format
-      const updatedSolicitacao = {
-        ...solicitacao,
-        cliente: formData.cliente,
-        data: formData.dataColeta,
-        origem: formData.origem || formData.remetente?.razaoSocial,
-        destino: formData.destino || formData.destinatario?.razaoSocial,
-        observacoes: formData.observacoes,
-        // Would need to handle notes conversion here
-      };
-      
-      onSave(updatedSolicitacao as SolicitacaoColeta);
-      
+  const handleSave = () => {
+    if (formData) {
+      onSave(formData);
       toast({
         title: "Solicitação atualizada",
-        description: `Solicitação ${updatedSolicitacao.id} foi atualizada com sucesso.`
+        description: `A solicitação ${formData.id} foi atualizada com sucesso.`
       });
-      
       onOpenChange(false);
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  // Verifica se o objeto possui a propriedade
+  const hasObservacoes = () => {
+    return 'observacoes' in formData || formData.status !== 'pending';
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="sm:max-w-[725px]">
         <DialogHeader>
-          <DialogTitle>Editar Solicitação de Coleta - {solicitacao?.id}</DialogTitle>
+          <DialogTitle>Editar Solicitação de Coleta - {formData.id}</DialogTitle>
+          <DialogDescription>
+            Edite os dados da solicitação de coleta.
+          </DialogDescription>
         </DialogHeader>
         
-        <SolicitacaoProgress currentStep={currentStep} onNext={nextStep} onPrev={prevStep} />
-        
-        <SolicitacaoFormHeader 
-          currentStep={currentStep}
-          isLoading={isLoading}
-          tipoFrete={formData.tipoFrete}
-          dataColeta={formData.dataColeta}
-          horaColeta={formData.horaColeta || ''}
-          dataAprovacao={formData.dataAprovacao || ''}
-          horaAprovacao={formData.horaAprovacao || ''}
-          dataInclusao={formData.dataInclusao || ''}
-          horaInclusao={formData.horaInclusao || ''}
-          onTipoFreteChange={(value) => handleInputChange('tipoFrete', value)}
-          onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
-          onHoraColetaChange={(value) => handleInputChange('horaColeta', value || '')}
-        />
-        
-        <div>
-          {currentStep === 1 && (
-            <NotasFiscaisStep 
-              formData={formData}
-              handleInputChange={handleInputChange}
-              handleImportSuccess={() => {}}
-              isImporting={false}
-            />
-          )}
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="cliente">Cliente</Label>
+              <Input 
+                id="cliente" 
+                value={formData.cliente || ''} 
+                onChange={(e) => handleChange('cliente', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="data">Data</Label>
+              <Input 
+                id="data" 
+                value={formData.data || ''} 
+                onChange={(e) => handleChange('data', e.target.value)}
+              />
+            </div>
+          </div>
           
-          {currentStep === 2 && (
-            <ConfirmationStep 
-              formData={formData}
-              handleInputChange={handleInputChange}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="origem">Origem</Label>
+              <Input 
+                id="origem" 
+                value={formData.origem || ''} 
+                onChange={(e) => handleChange('origem', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="destino">Destino</Label>
+              <Input 
+                id="destino" 
+                value={formData.destino || ''} 
+                onChange={(e) => handleChange('destino', e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="volumes">Volumes</Label>
+              <Input 
+                id="volumes" 
+                type="number" 
+                value={formData.volumes || 0} 
+                onChange={(e) => handleChange('volumes', parseInt(e.target.value))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="peso">Peso</Label>
+              <Input 
+                id="peso" 
+                value={formData.peso || ''} 
+                onChange={(e) => handleChange('peso', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select 
+                value={formData.status} 
+                onValueChange={(value) => handleChange('status', value)}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Selecionar status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="pending">Pendente</SelectItem>
+                    <SelectItem value="approved">Aprovado</SelectItem>
+                    <SelectItem value="rejected">Recusado</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="notas">Notas Fiscais (separadas por vírgula)</Label>
+            <Input 
+              id="notas" 
+              value={formData.notas?.join(', ') || ''} 
+              onChange={(e) => handleNotasChange(e.target.value)}
             />
+          </div>
+
+          {hasObservacoes() && (
+            <div className="space-y-2">
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea 
+                id="observacoes" 
+                value={'observacoes' in formData ? formData.observacoes || '' : ''} 
+                onChange={(e) => handleChange('observacoes', e.target.value)}
+              />
+            </div>
           )}
         </div>
         
-        <SolicitacaoFooter 
-          currentStep={currentStep}
-          onPrev={prevStep}
-          onNext={nextStep}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={handleSave} className="bg-cross-blue hover:bg-cross-blueDark">Salvar Alterações</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

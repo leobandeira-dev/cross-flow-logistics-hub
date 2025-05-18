@@ -7,8 +7,6 @@ import CargasSupportDialog from './CargasSupportDialog';
 import { useAlocacaoModal } from './useAlocacaoModal';
 import AlocacaoModal from '../AlocacaoModal';
 import SearchFilter from '@/components/common/SearchFilter';
-import CargaDetailDialog from './CargaDetailDialog';
-import { Carga } from '../../types/coleta.types';
 
 interface CargasPendentesProps {
   cargas: any[];
@@ -43,14 +41,6 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
   } = useAlocacaoModal();
   
   const [openSupportDialog, setOpenSupportDialog] = useState(false);
-  const [openDetailDialog, setOpenDetailDialog] = useState(false);
-  const [viewCarga, setViewCarga] = useState<Carga | null>(null);
-
-  // Handler for viewing cargo details
-  const handleViewCarga = (carga: Carga) => {
-    setViewCarga(carga);
-    setOpenDetailDialog(true);
-  };
 
   return (
     <>
@@ -70,7 +60,6 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
           setSelectedCarga(carga);
           setOpenSupportDialog(true);
         }}
-        onViewCarga={handleViewCarga}
         onAlocar={onAlocar}
         onPreAlocar={onPreAlocar}
         onGerarPreRomaneio={onGerarPreRomaneio}
@@ -94,13 +83,6 @@ const CargasPendentes: React.FC<CargasPendentesProps> = ({
         isOpen={openSupportDialog}
         onOpenChange={setOpenSupportDialog}
         selectedCarga={selectedCarga}
-      />
-
-      <CargaDetailDialog
-        isOpen={openDetailDialog}
-        onClose={() => setOpenDetailDialog(false)}
-        carga={viewCarga}
-        onAlocar={handleAlocarMotorista}
       />
     </>
   );

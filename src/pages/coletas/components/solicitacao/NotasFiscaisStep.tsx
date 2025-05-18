@@ -46,7 +46,7 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="bg-gray-50 p-3 rounded">
               <span className="block text-xs text-gray-500">Valor Total</span>
-              <span className="text-lg font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totais.valorTotal || 0)}</span>
+              <span className="text-lg font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totais.pesoTotal)}</span>
             </div>
             <div className="bg-gray-50 p-3 rounded">
               <span className="block text-xs text-gray-500">Peso Total</span>
