@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { NotaFiscalVolume } from '../utils/volumes/types';
 import { NovaSolicitacaoDialogProps } from './solicitacao/SolicitacaoTypes';
 import SolicitacaoForm from './solicitacao/form';
 import { useSolicitacaoForm } from './solicitacao/useSolicitacaoForm';

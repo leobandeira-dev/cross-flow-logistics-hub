@@ -8,6 +8,7 @@ import { SolicitacaoFormHeader } from './solicitacao/formHeader';
 import NotasFiscaisStep from './solicitacao/NotasFiscaisStep';
 import ConfirmationStep from './solicitacao/ConfirmationStep';
 import SolicitacaoFooter from './solicitacao/SolicitacaoFooter';
+import { InternalFormData } from './solicitacao/hooks/solicitacaoFormTypes';
 
 interface EditSolicitacaoDialogProps {
   solicitacao: SolicitacaoColeta | null;
@@ -24,7 +25,7 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
 }) => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<any>(null);
+  const [formData, setFormData] = useState<InternalFormData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Update formData when the solicitacao changes
@@ -72,8 +73,12 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
 
   if (!formData) return null;
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  // Updated to use the correct type for handleInputChange
+  const handleInputChange = <K extends keyof InternalFormData>(field: K, value: InternalFormData[K]) => {
+    setFormData((prev: InternalFormData | null) => {
+      if (!prev) return null;
+      return { ...prev, [field]: value };
+    });
   };
 
   const nextStep = () => {
@@ -90,7 +95,7 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
       // Convert formData back to SolicitacaoColeta format
       const updatedSolicitacao = {
         ...solicitacao,
-        cliente: formData.cliente,
+        cliente: formData.tipoFrete === 'FOB',
         data: formData.dataColeta,
         origem: formData.origem || formData.remetente?.razaoSocial,
         destino: formData.destino || formData.destinatario?.razaoSocial,
@@ -130,7 +135,7 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
           horaAprovacao={formData.horaAprovacao || ''}
           dataInclusao={formData.dataInclusao || ''}
           horaInclusao={formData.horaInclusao || ''}
-          onTipoFreteChange={(value) => handleInputChange('tipoFrete', value)}
+          onTipoFreteChange={(value) => handleInputChange('tipoFrete', value as 'FOB' | 'CIF')}
           onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
           onHoraColetaChange={(value) => handleInputChange('horaColeta', value || '')}
         />

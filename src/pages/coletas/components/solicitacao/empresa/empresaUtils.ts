@@ -1,5 +1,5 @@
 
-import { EmpresaInfo } from "../SolicitacaoTypes";
+import { EmpresaInfo, DadosEmpresa, EnderecoCompleto } from "../SolicitacaoTypes";
 
 /**
  * Extrai informações de empresa a partir dos dados XML
@@ -69,4 +69,48 @@ export const formatCNPJ = (cnpj: string): string => {
  */
 export const hasEmpresaInfo = (empresa: EmpresaInfo): boolean => {
   return !!(empresa && (empresa.razaoSocial || empresa.cnpj));
+};
+
+/**
+ * Converte DadosEmpresa para EmpresaInfo
+ */
+export const convertDadosToEmpresaInfo = (dados: DadosEmpresa): EmpresaInfo => {
+  return {
+    razaoSocial: dados.razaoSocial,
+    cnpj: dados.cnpj,
+    endereco: dados.endereco.logradouro,
+    numero: dados.endereco.numero,
+    complemento: dados.endereco.complemento,
+    bairro: dados.endereco.bairro,
+    cidade: dados.endereco.cidade,
+    uf: dados.endereco.uf,
+    cep: dados.endereco.cep,
+    telefone: dados.telefone,
+    email: dados.email
+  };
+};
+
+/**
+ * Converte EmpresaInfo para DadosEmpresa
+ */
+export const convertEmpresaInfoToDados = (info: EmpresaInfo): DadosEmpresa => {
+  const endereco: EnderecoCompleto = {
+    logradouro: info.endereco,
+    numero: info.numero,
+    complemento: info.complemento,
+    bairro: info.bairro,
+    cidade: info.cidade,
+    uf: info.uf,
+    cep: info.cep
+  };
+  
+  return {
+    cnpj: info.cnpj,
+    razaoSocial: info.razaoSocial,
+    nomeFantasia: info.razaoSocial,
+    endereco: endereco,
+    enderecoFormatado: formatEnderecoCompleto(info),
+    telefone: info.telefone,
+    email: info.email
+  };
 };

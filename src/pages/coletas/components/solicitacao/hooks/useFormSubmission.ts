@@ -82,7 +82,7 @@ export const useFormSubmission = (
         observacoes: formData.observacoes,
         origem: formData.origem || `${formData.remetente.cidade}-${formData.remetente.uf}`,
         destino: formData.destino || `${formData.destinatario.cidade}-${formData.destinatario.uf}`,
-        volumes: formData.quantidadeVolumes
+        volumes: formData.quantidadeVolumes || 0
       };
       
       // Update the solicitations list in localStorage

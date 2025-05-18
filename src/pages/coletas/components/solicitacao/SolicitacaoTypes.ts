@@ -30,6 +30,40 @@ export interface EmpresaInfo {
   email?: string;
 }
 
+// Adding missing types
+export interface EnderecoCompleto {
+  logradouro: string;
+  numero: string;
+  complemento?: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  cep: string;
+}
+
+export interface DadosEmpresa {
+  cnpj: string;
+  razaoSocial: string;
+  nomeFantasia: string;
+  endereco: EnderecoCompleto;
+  enderecoFormatado: string;
+  telefone?: string;
+  email?: string;
+}
+
+export interface SolicitacaoFormData {
+  remetente: EmpresaInfo;
+  destinatario: EmpresaInfo;
+  tipoFrete: 'FOB' | 'CIF';
+  dataColeta: string;
+  horaColeta: string;
+  observacoes: string;
+  notasFiscais: NotaFiscalVolume[];
+  origem: string;
+  destino: string;
+  quantidadeVolumes?: number;
+}
+
 export interface HeaderSectionProps {
   title: string;
   description?: string;
@@ -62,4 +96,18 @@ export interface FormHeaderProps {
   onTipoFreteChange: (value: string) => void;
   onDataColetaChange: (value: string) => void;
   onHoraColetaChange: (value: string | null) => void;
+}
+
+export interface SolicitacaoFooterProps {
+  currentStep: number;
+  onNext: () => void;
+  onPrev: () => void;
+  onSubmit: () => void;
+  isLoading: boolean;
+}
+
+export interface SolicitacaoProgressProps {
+  currentStep: number;
+  onNext: () => void;
+  onPrev: () => void;
 }

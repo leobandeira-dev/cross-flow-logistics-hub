@@ -2,13 +2,13 @@
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { SolicitacaoFormData } from './SolicitacaoTypes';
+import { InternalFormData } from './hooks/solicitacaoFormTypes';
 import { formatarNumero } from '../../utils/volumes/formatters';
 import { calcularTotaisColeta } from '../../utils/volumes/calculations';
 
 interface ObservacoesStepProps {
-  formData: SolicitacaoFormData;
-  handleInputChange: (field: keyof SolicitacaoFormData, value: any) => void;
+  formData: InternalFormData;
+  handleInputChange: <K extends keyof InternalFormData>(field: K, value: InternalFormData[K]) => void;
 }
 
 const ObservacoesStep: React.FC<ObservacoesStepProps> = ({ formData, handleInputChange }) => {
@@ -92,8 +92,6 @@ const ObservacoesStep: React.FC<ObservacoesStepProps> = ({ formData, handleInput
               </table>
             </div>
           </div>
-          
-          {/* Removed redundant remetente/destinatario section from here */}
         </CardContent>
       </Card>
     </div>
