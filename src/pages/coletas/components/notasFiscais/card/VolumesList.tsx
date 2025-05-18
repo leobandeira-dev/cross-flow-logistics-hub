@@ -2,7 +2,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash, Cube } from 'lucide-react';
+import { Trash, Box } from 'lucide-react';
 import { VolumeItem, calcularVolume, formatarNumero, calcularTotaisNota } from '../../../utils/volumeCalculations';
 
 interface VolumesListProps {
