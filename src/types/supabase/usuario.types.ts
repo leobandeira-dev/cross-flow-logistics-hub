@@ -33,7 +33,7 @@ export interface Perfil {
   ultimo_login?: string;
   created_at: string;
   updated_at: string;
-  permissoes?: Record<string, any>; // Adding the missing permissoes property
+  permissoes?: Record<string, any>;
 }
 
 // Modulo (System module)
