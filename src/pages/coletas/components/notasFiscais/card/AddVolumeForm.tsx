@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
-import { VolumeItem } from '../../../utils/volumeCalculations';
+import { VolumeItem, formatarNumero } from '../../../utils/volumeCalculations';
 
 interface AddVolumeFormProps {
   onAddVolume: (volume: Omit<VolumeItem, "id">) => void;
@@ -17,6 +17,13 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly =
     comprimento: 0,
     quantidade: 1
   });
+  const [volumeM3, setVolumeM3] = useState<number>(0);
+
+  // Calculate volume in m³ whenever dimensions or quantity changes
+  useEffect(() => {
+    const calculatedVolume = (novoVolume.altura * novoVolume.largura * novoVolume.comprimento * novoVolume.quantidade) / 1000000;
+    setVolumeM3(calculatedVolume);
+  }, [novoVolume.altura, novoVolume.largura, novoVolume.comprimento, novoVolume.quantidade]);
 
   const handleVolumeChange = (field: keyof Omit<VolumeItem, "id" | "peso">, value: any) => {
     setNovoVolume(prev => ({ ...prev, [field]: value }));
@@ -41,10 +48,11 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly =
       comprimento: 0,
       quantidade: 1
     });
+    setVolumeM3(0);
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end">
       <div>
         <span className="text-xs">Altura (cm)</span>
         <Input 
@@ -90,6 +98,15 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly =
           min="1"
           placeholder="1"
           disabled={isReadOnly}
+        />
+      </div>
+      <div>
+        <span className="text-xs">Volume (m³)</span>
+        <Input
+          type="text"
+          value={formatarNumero(volumeM3)}
+          readOnly
+          className="bg-gray-50"
         />
       </div>
       <div>

@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
-import { VolumeItem, generateVolumeId } from '../../utils/volumeCalculations';
+import { VolumeItem, generateVolumeId, calcularVolume, formatarNumero } from '../../utils/volumeCalculations';
 
 interface AddVolumeFormProps {
   onAddVolume: (volume: VolumeItem) => void;
@@ -16,6 +16,13 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
     comprimento: 0,
     quantidade: 1
   });
+  const [volumeM3, setVolumeM3] = useState<number>(0);
+
+  // Calculate volume in m³ whenever dimensions or quantity changes
+  useEffect(() => {
+    const calculatedVolume = (novoVolume.altura * novoVolume.largura * novoVolume.comprimento * novoVolume.quantidade) / 1000000;
+    setVolumeM3(calculatedVolume);
+  }, [novoVolume.altura, novoVolume.largura, novoVolume.comprimento, novoVolume.quantidade]);
 
   const handleVolumeChange = (field: keyof Omit<VolumeItem, "id" | "peso">, value: any) => {
     setNovoVolume(prev => ({ ...prev, [field]: value }));
@@ -43,10 +50,11 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
       comprimento: 0,
       quantidade: 1
     });
+    setVolumeM3(0);
   };
 
   return (
-    <div className="grid grid-cols-4 gap-2 items-end">
+    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 items-end">
       <div>
         <span className="text-xs">Altura (cm)</span>
         <Input 
@@ -90,7 +98,8 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
           placeholder="1"
         />
       </div>
-      <div>
+      <div className="flex flex-col gap-1">
+        <div className="text-xs text-gray-500">Volume: <span className="font-medium">{formatarNumero(volumeM3)} m³</span></div>
         <Button 
           type="button" 
           variant="outline"
