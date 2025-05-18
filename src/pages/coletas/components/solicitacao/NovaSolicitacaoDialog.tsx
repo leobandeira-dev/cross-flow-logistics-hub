@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useSolicitacaoForm } from './useSolicitacaoForm';
+import { useSolicitacaoForm } from './hooks/useSolicitacaoForm';
 import SolicitacaoProgress from './SolicitacaoProgress';
 import SolicitacaoFormHeader from './SolicitacaoFormHeader';
 import NotasFiscaisStep from './NotasFiscaisStep';
