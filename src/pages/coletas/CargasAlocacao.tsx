@@ -8,13 +8,14 @@ import CargasPreRomaneio from './components/CargasPreRomaneio';
 import { Carga } from './types/coleta.types';
 import { toast } from '@/hooks/use-toast';
 import { Archive } from 'lucide-react';
+import { converterParaUF } from '@/utils/estadoUtils';
 
 // This is mock data that would normally come from an API
 const mockCargas: Carga[] = [
   {
     id: 'CARGA-001',
-    destino: 'São Paulo',
-    origem: 'Rio de Janeiro',
+    destino: 'São Paulo - SP',
+    origem: 'Rio de Janeiro - RJ',
     dataPrevisao: '15/05/2025',
     volumes: 25,
     peso: '350kg',
@@ -27,8 +28,8 @@ const mockCargas: Carga[] = [
   },
   {
     id: 'CARGA-002',
-    destino: 'Rio de Janeiro',
-    origem: 'São Paulo',
+    destino: 'Rio de Janeiro - RJ',
+    origem: 'São Paulo - SP',
     dataPrevisao: '16/05/2025',
     volumes: 18,
     peso: '245kg',
@@ -43,8 +44,8 @@ const mockCargas: Carga[] = [
   },
   {
     id: 'CARGA-003',
-    destino: 'Belo Horizonte',
-    origem: 'São Paulo',
+    destino: 'Belo Horizonte - MG',
+    origem: 'São Paulo - SP',
     dataPrevisao: '17/05/2025',
     volumes: 32,
     peso: '410kg',
@@ -57,8 +58,8 @@ const mockCargas: Carga[] = [
   },
   {
     id: 'CARGA-004',
-    destino: 'Curitiba',
-    origem: 'São Paulo',
+    destino: 'Curitiba - PR',
+    origem: 'São Paulo - SP',
     dataPrevisao: '18/05/2025',
     volumes: 15,
     peso: '180kg',
@@ -71,8 +72,8 @@ const mockCargas: Carga[] = [
   },
   {
     id: 'CARGA-005',
-    destino: 'Campinas',
-    origem: 'São Paulo',
+    destino: 'Campinas - SP',
+    origem: 'São Paulo - SP',
     dataPrevisao: '15/05/2025',
     volumes: 22,
     peso: '290kg',
@@ -87,8 +88,8 @@ const mockCargas: Carga[] = [
   },
   {
     id: 'CARGA-006',
-    destino: 'Santos',
-    origem: 'São Paulo',
+    destino: 'Santos - SP',
+    origem: 'São Paulo - SP',
     dataPrevisao: '16/05/2025',
     volumes: 10,
     peso: '130kg',
@@ -103,8 +104,8 @@ const mockCargas: Carga[] = [
   },
   {
     id: 'CARGA-007',
-    destino: 'Sorocaba',
-    origem: 'São Paulo',
+    destino: 'Sorocaba - SP',
+    origem: 'São Paulo - SP',
     dataPrevisao: '17/05/2025',
     volumes: 18,
     peso: '210kg',
@@ -120,8 +121,8 @@ const mockCargas: Carga[] = [
   // Cargas adicionais para testar agrupamento por CEP
   {
     id: 'CARGA-008',
-    destino: 'São Bernardo do Campo',
-    origem: 'São Paulo',
+    destino: 'São Bernardo do Campo - SP',
+    origem: 'São Paulo - SP',
     dataPrevisao: '19/05/2025',
     volumes: 14,
     peso: '175kg',
@@ -134,8 +135,8 @@ const mockCargas: Carga[] = [
   },
   {
     id: 'CARGA-009',
-    destino: 'Guarulhos',
-    origem: 'São Paulo',
+    destino: 'Guarulhos - SP',
+    origem: 'São Paulo - SP',
     dataPrevisao: '19/05/2025',
     volumes: 8,
     peso: '120kg',
@@ -148,8 +149,8 @@ const mockCargas: Carga[] = [
   },
   {
     id: 'CARGA-010',
-    destino: 'Santo André',
-    origem: 'São Paulo',
+    destino: 'Santo André - SP',
+    origem: 'São Paulo - SP',
     dataPrevisao: '20/05/2025',
     volumes: 12,
     peso: '160kg',
@@ -162,15 +163,44 @@ const mockCargas: Carga[] = [
   }
 ];
 
+// Processar os dados mock para garantir que os estados sejam exibidos como UF
+const processedMockCargas: Carga[] = mockCargas.map(carga => {
+  // Extrair UF da origem e destino usando o padrão "Cidade - UF"
+  let origem = carga.origem || '';
+  let destino = carga.destino || '';
+  
+  // Processar origem
+  const origemParts = origem.split(' - ');
+  if (origemParts.length >= 2) {
+    const cidade = origemParts[0];
+    const estado = converterParaUF(origemParts[1]);
+    origem = `${cidade} - ${estado}`;
+  }
+  
+  // Processar destino
+  const destinoParts = destino.split(' - ');
+  if (destinoParts.length >= 2) {
+    const cidade = destinoParts[0];
+    const estado = converterParaUF(destinoParts[1]);
+    destino = `${cidade} - ${estado}`;
+  }
+  
+  return {
+    ...carga,
+    origem,
+    destino
+  };
+});
+
 const CargasAlocacao: React.FC = () => {
   const [cargasPendentes, setCargasPendentes] = useState<Carga[]>(
-    mockCargas.filter(carga => carga.status === 'pending')
+    processedMockCargas.filter(carga => carga.status === 'pending')
   );
   const [cargasEmRota, setCargasEmRota] = useState<Carga[]>(
-    mockCargas.filter(carga => carga.status === 'transit' || carga.status === 'scheduled' || carga.status === 'loading')
+    processedMockCargas.filter(carga => carga.status === 'transit' || carga.status === 'scheduled' || carga.status === 'loading')
   );
   const [cargasFinalizadas, setCargasFinalizadas] = useState<Carga[]>(
-    mockCargas.filter(carga => carga.status === 'delivered' || carga.status === 'problem')
+    processedMockCargas.filter(carga => carga.status === 'delivered' || carga.status === 'problem')
   );
   const [preRomaneioCargas, setPreRomaneioCargas] = useState<Carga[]>([]);
   

@@ -10,7 +10,7 @@ export interface Empresa {
   inscricao_estadual?: string;
   endereco?: string;
   cidade?: string;
-  estado?: string;
+  estado?: string; // Mantido como string, mas será exibido como UF
   cep?: string;
   telefone?: string;
   email?: string;
@@ -28,7 +28,7 @@ export interface Filial {
   empresa_id?: string;
   endereco?: string;
   cidade?: string;
-  estado?: string;
+  estado?: string; // Mantido como string, mas será exibido como UF
   cep?: string;
   telefone?: string;
   email?: string;

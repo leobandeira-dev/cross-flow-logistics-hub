@@ -2,6 +2,7 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { DadosEmpresa, EnderecoCompleto, EmpresaInfoFormProps } from './SolicitacaoTypes';
+import { converterParaUF } from '@/utils/estadoUtils';
 
 const EMPTY_ENDERECO: EnderecoCompleto = {
   logradouro: '',
@@ -42,7 +43,12 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
   };
   
   const handleEnderecoChange = (field: keyof EnderecoCompleto, value: string) => {
-    const newEndereco = { ...actualDados.endereco, [field]: value };
+    // Se for o campo UF, converter para maiúsculas e limitar a 2 caracteres
+    const processedValue = field === 'uf' 
+      ? value.toUpperCase().substring(0, 2)
+      : value;
+      
+    const newEndereco = { ...actualDados.endereco, [field]: processedValue };
     actualOnDadosChange({ 
       ...actualDados, 
       endereco: newEndereco,
@@ -193,7 +199,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
                 onChange={(e) => handleEnderecoChange('uf', e.target.value)}
                 readOnly={readOnly}
                 maxLength={2}
-                className={readOnly ? "bg-gray-100" : ""}
+                className={readOnly ? "bg-gray-100 uppercase" : "uppercase"}
               />
             </div>
           </div>

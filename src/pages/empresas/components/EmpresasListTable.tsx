@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye } from 'lucide-react';
+import { converterParaUF } from '@/utils/estadoUtils';
 
 interface EmpresasListTableProps {
   empresas: any[];
@@ -38,6 +39,11 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
     return cnpj || 'N/A';
   };
 
+  // Helper function to format the state as UF
+  const formatEstado = (estado: string) => {
+    return converterParaUF(estado);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -45,7 +51,7 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>CNPJ</TableHead>
-            <TableHead>Perfil</TableHead>
+            <TableHead>UF</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
@@ -62,7 +68,7 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
               <TableRow key={empresa.id}>
                 <TableCell className="font-medium">{empresa.nome || empresa.razaoSocial}</TableCell>
                 <TableCell>{formatCNPJ(empresa.cnpj)}</TableCell>
-                <TableCell>{empresa.perfil}</TableCell>
+                <TableCell>{formatEstado(empresa.estado)}</TableCell>
                 <TableCell>{renderStatus(empresa.status)}</TableCell>
                 <TableCell className="text-right">
                   <Button
