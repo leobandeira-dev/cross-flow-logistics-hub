@@ -7,7 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { NotaFiscalVolume } from '../utils/volumes/types';
 import NotasFiscaisManager from './NotasFiscaisManager';
 import { NovaSolicitacaoDialogProps } from './solicitacao/SolicitacaoTypes';
-import SolicitacaoForm from './solicitacao/SolicitacaoForm';
+import SolicitacaoForm from './solicitacao/form';
 import { useImportForm } from './importacao/useImportForm';
 
 const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({ 
