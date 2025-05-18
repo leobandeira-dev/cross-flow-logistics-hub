@@ -13,6 +13,23 @@ interface ImportarViaXMLProps {
   onImportarNotas: (notas: Partial<NotaFiscal>[]) => void;
 }
 
+// Define an interface for the extracted data to ensure TypeScript recognizes all properties
+interface ExtractedXmlData {
+  numeroNF?: string;
+  serieNF?: string;
+  dataHoraEmissao?: string;
+  valorTotal?: string;
+  numeroPedido?: string;
+  emitenteRazaoSocial?: string;
+  emitenteCNPJ?: string;
+  destinatarioRazaoSocial?: string;
+  destinatarioCNPJ?: string;
+  pesoTotalBruto?: string;
+  volumesTotal?: string;
+  informacoesComplementares?: string;
+  [key: string]: any; // Allow for other properties
+}
+
 const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -40,12 +57,14 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
       // Fallback to the simpler extractor if needed
       const extractedData = extractNotaFiscalData(xmlData);
       
-      // Merge data from both extractors, prioritizing the detailed extractor
-      const mergedData = {
+      // Merge data from both extractors, ensuring TypeScript recognizes all properties
+      const mergedData: ExtractedXmlData = {
         ...extractedData,
-        ...detailedData,
-        numeroPedido: detailedData.numeroPedido || extractedData.numeroPedido || '',
+        ...detailedData
       };
+      
+      // Ensure numeroPedido is prioritized properly
+      mergedData.numeroPedido = detailedData.numeroPedido || extractedData.numeroPedido || '';
       
       // Convert extracted data to NotaFiscal format
       const notaFiscal: Partial<NotaFiscal> = {
@@ -55,8 +74,8 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
         notaFiscal: mergedData.numeroNF || '',
         pedido: mergedData.numeroPedido || '', // Map pedido field correctly
         dataEmissao: mergedData.dataHoraEmissao ? new Date(mergedData.dataHoraEmissao) : new Date(),
-        pesoNota: parseFloat(mergedData.pesoTotalBruto) || 0,
-        valorNF: parseFloat(mergedData.valorTotal) || 0,
+        pesoNota: parseFloat(mergedData.pesoTotalBruto || '0') || 0,
+        valorNF: parseFloat(mergedData.valorTotal || '0') || 0,
         fretePorTonelada: 0,
         pesoMinimo: 0,
         aliquotaICMS: 0,
