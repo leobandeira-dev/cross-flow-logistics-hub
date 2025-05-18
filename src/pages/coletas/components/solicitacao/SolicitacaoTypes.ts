@@ -1,5 +1,5 @@
 
-import { NotaFiscalVolume } from '../../utils/volumeCalculations';
+import { NotaFiscalVolume } from '../../utils/volumes/types';
 
 export interface EmpresaInfo {
   razaoSocial: string;
@@ -70,6 +70,13 @@ export interface NovaSolicitacaoDialogProps {
   setActiveTab?: (tab: string) => void;
 }
 
+export interface SolicitacaoDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
+}
+
 export interface SolicitacaoFormProps {
   formData: SolicitacaoFormData;
   handleInputChange: <K extends keyof SolicitacaoFormData>(field: K, value: SolicitacaoFormData[K]) => void;
@@ -87,3 +94,25 @@ export interface SolicitacaoProgressProps {
   onNext: () => void;
   onPrev: () => void;
 }
+
+export interface SolicitacaoFooterProps {
+  currentStep: number;
+  onPrev: () => void;
+  onNext: () => void;
+  onSubmit: () => void;
+  isLoading?: boolean;
+}
+
+export const EMPTY_EMPRESA: EmpresaInfo = {
+  razaoSocial: '',
+  cnpj: '',
+  endereco: '',
+  numero: '',
+  complemento: '',
+  bairro: '',
+  cidade: '',
+  uf: '',
+  cep: '',
+  telefone: '',
+  email: ''
+};

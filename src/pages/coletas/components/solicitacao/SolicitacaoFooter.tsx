@@ -1,56 +1,55 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { DialogFooter } from '@/components/ui/dialog';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { SolicitacaoFooterProps } from './SolicitacaoTypes';
 
 const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
   currentStep,
-  isLoading,
-  onPrevStep,
-  onNextStep,
-  onSubmit,
-  onClose,
   onPrev,
-  onNext
+  onNext,
+  onSubmit,
+  isLoading = false
 }) => {
-  const handlePrev = onPrevStep || onPrev || (() => {});
-  const handleNext = onNextStep || onNext || (() => {});
-  const handleClose = onClose || (() => {});
-
-  if (currentStep === 1) {
-    return (
-      <DialogFooter>
-        <Button variant="outline" onClick={handleClose} disabled={isLoading}>Cancelar</Button>
-        <Button 
-          className="bg-cross-blue hover:bg-cross-blueDark"
-          onClick={handleNext}
-        >
-          Continuar
-        </Button>
-      </DialogFooter>
-    );
-  } else {
-    return (
-      <DialogFooter>
-        <Button variant="outline" onClick={handlePrev} disabled={isLoading}>Voltar</Button>
-        <Button 
-          className="bg-cross-blue hover:bg-cross-blueDark"
-          onClick={onSubmit}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...
-            </>
-          ) : (
-            'Solicitar Coleta'
-          )}
-        </Button>
-      </DialogFooter>
-    );
-  }
+  return (
+    <div className="flex justify-between pt-4 border-t">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onPrev}
+        disabled={currentStep === 1 || isLoading}
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" /> Anterior
+      </Button>
+      <div className="flex space-x-2">
+        {currentStep < 2 ? (
+          <Button
+            type="button"
+            onClick={onNext}
+            disabled={isLoading}
+            className="bg-cross-blue hover:bg-cross-blueDark"
+          >
+            Próximo <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            onClick={onSubmit}
+            disabled={isLoading}
+            className="bg-cross-blue hover:bg-cross-blueDark"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...
+              </>
+            ) : (
+              'Solicitar Coleta'
+            )}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default SolicitacaoFooter;

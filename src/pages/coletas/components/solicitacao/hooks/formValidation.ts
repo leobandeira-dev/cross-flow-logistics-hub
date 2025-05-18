@@ -1,33 +1,42 @@
 
-import { toast } from '@/hooks/use-toast';
 import { InternalFormData } from './solicitacaoFormTypes';
+import { toast } from '@/hooks/use-toast';
 
 export const validateStep = (step: number, formData: InternalFormData): boolean => {
   if (step === 1) {
+    // Validate first step (basic info and notas fiscais)
+    if (!formData.cliente) {
+      toast({ title: "Erro", description: "Selecione um cliente para continuar.", variant: "destructive" });
+      return false;
+    }
+    
+    if (!formData.dataColeta) {
+      toast({ title: "Erro", description: "Selecione uma data de coleta para continuar.", variant: "destructive" });
+      return false;
+    }
+    
     if (formData.notasFiscais.length === 0) {
-      toast({
-        title: "Nenhuma nota fiscal",
-        description: "Adicione pelo menos uma nota fiscal para continuar.",
-        variant: "destructive"
-      });
+      toast({ title: "Erro", description: "Adicione pelo menos uma nota fiscal para continuar.", variant: "destructive" });
       return false;
     }
     
-    if (!formData.remetente.cnpj && !formData.remetente.cpf) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Informe o CNPJ ou CPF do remetente.",
-        variant: "destructive"
-      });
+    if (!formData.remetente.razaoSocial) {
+      toast({ title: "Erro", description: "Preencha os dados do remetente para continuar.", variant: "destructive" });
       return false;
     }
     
-    if (!formData.destinatario.cnpj && !formData.destinatario.cpf) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Informe o CNPJ ou CPF do destinatário.",
-        variant: "destructive"
-      });
+    if (!formData.remetente.cnpj) {
+      toast({ title: "Erro", description: "Preencha o CNPJ do remetente para continuar.", variant: "destructive" });
+      return false;
+    }
+    
+    if (!formData.destinatario.razaoSocial) {
+      toast({ title: "Erro", description: "Preencha os dados do destinatário para continuar.", variant: "destructive" });
+      return false;
+    }
+    
+    if (!formData.destinatario.cnpj) {
+      toast({ title: "Erro", description: "Preencha o CNPJ do destinatário para continuar.", variant: "destructive" });
       return false;
     }
     

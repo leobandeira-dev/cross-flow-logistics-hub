@@ -1,35 +1,47 @@
 
 import { VolumeItem, generateVolumeId } from './types';
-import { NotaFiscalVolume } from './types';
 
-// Convert various volume formats to VolumeItem format
+// Convert volume objects with various formats to consistent VolumeItem objects
 export const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
-  if (!volumes || !Array.isArray(volumes)) return [];
-  
-  return volumes.map((vol: any) => {
-    // Generate a new ID for each volume
-    return {
-      id: vol.id || generateVolumeId(),
-      altura: typeof vol.altura === 'number' ? vol.altura : parseFloat(vol.altura) || 0,
-      largura: typeof vol.largura === 'number' ? vol.largura : parseFloat(vol.largura) || 0,
-      comprimento: typeof vol.comprimento === 'number' ? vol.comprimento : parseFloat(vol.comprimento) || 0,
-      peso: typeof vol.peso === 'number' ? vol.peso : parseFloat(vol.peso) || 0,
-      quantidade: typeof vol.quantidade === 'number' ? vol.quantidade : parseInt(vol.quantidade) || 1
+  return volumes.map((volume) => {
+    // Check if the volume is already a VolumeItem
+    if (volume.id) {
+      return volume;
+    }
+    
+    // Create a new VolumeItem with proper structure
+    const volumeItem: VolumeItem = {
+      id: generateVolumeId(),
+      altura: parseFloat(volume.altura || volume.height || 0),
+      largura: parseFloat(volume.largura || volume.width || 0),
+      comprimento: parseFloat(volume.comprimento || volume.length || 0),
+      peso: parseFloat(volume.peso || volume.weight || 0),
+      quantidade: parseInt(volume.quantidade || volume.quantity || 1)
     };
+    
+    return volumeItem;
   });
 };
 
-// Ensure a nota fiscal has all required properties
-export const ensureCompleteNotaFiscal = (nf: any): NotaFiscalVolume => {
+// Ensure a nota fiscal has all required fields
+export const ensureCompleteNotaFiscal = (nf: any) => {
   return {
-    numeroNF: nf.numeroNF || '',
+    numeroNF: nf.numeroNF || nf.numero || `NF${Date.now()}`,
     chaveNF: nf.chaveNF || '',
-    dataEmissao: nf.dataEmissao || '',
+    dataEmissao: nf.dataEmissao || new Date().toISOString(),
     volumes: Array.isArray(nf.volumes) ? convertVolumesToVolumeItems(nf.volumes) : [],
-    remetente: nf.remetente || '',
-    emitenteCNPJ: nf.emitenteCNPJ || '',
-    destinatario: nf.destinatario || '',
-    valorTotal: typeof nf.valorTotal === 'number' ? nf.valorTotal : parseFloat(nf.valorTotal) || 0,
-    pesoTotal: typeof nf.pesoTotal === 'number' ? nf.pesoTotal : parseFloat(nf.pesoTotal) || 0
+    remetente: nf.remetente || nf.emit?.xNome || '',
+    destinatario: nf.destinatario || nf.dest?.xNome || '',
+    valorTotal: parseFloat(nf.valorTotal || nf.vNF || 0),
+    pesoTotal: parseFloat(nf.pesoTotal || nf.pesoB || 0),
+    // Additional fields
+    enderecoRemetente: nf.enderecoRemetente || '',
+    cepRemetente: nf.cepRemetente || '',
+    cidadeRemetente: nf.cidadeRemetente || '',
+    ufRemetente: nf.ufRemetente || '',
+    enderecoDestinatario: nf.enderecoDestinatario || '',
+    cepDestinatario: nf.cepDestinatario || '',
+    cidadeDestinatario: nf.cidadeDestinatario || '',
+    ufDestinatario: nf.ufDestinatario || ''
   };
 };

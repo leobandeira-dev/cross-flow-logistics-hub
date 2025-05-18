@@ -39,17 +39,27 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
           <DialogTitle>Nova Solicitação de Coleta</DialogTitle>
         </DialogHeader>
         
-        <SolicitacaoProgress currentStep={currentStep} />
+        <SolicitacaoProgress currentStep={currentStep} onNext={nextStep} onPrev={prevStep} />
         
         <SolicitacaoFormHeader 
           currentStep={currentStep}
           isLoading={isLoading || isImporting}
           cliente={formData.cliente}
           dataColeta={formData.dataColeta}
+          horaColeta={formData.horaColeta}
+          dataAprovacao={formData.dataAprovacao}
+          horaAprovacao={formData.horaAprovacao}
+          dataInclusao={formData.dataInclusao}
+          horaInclusao={formData.horaInclusao}
           origem={formData.origem}
+          origemEndereco={formData.origemEndereco}
+          origemCEP={formData.origemCEP}
           destino={formData.destino}
+          destinoEndereco={formData.destinoEndereco}
+          destinoCEP={formData.destinoCEP}
           onClienteChange={(value) => handleInputChange('cliente', value)}
           onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
+          onHoraColetaChange={(value) => handleInputChange('horaColeta', value)}
           onOrigemChange={(value) => handleInputChange('origem', value)}
           onDestinoChange={(value) => handleInputChange('destino', value)}
           readOnlyAddresses={formData.remetenteInfo !== undefined || formData.destinatarioInfo !== undefined}
@@ -58,7 +68,7 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
         <div>
           {currentStep === 1 && (
             <NotasFiscaisStep 
-              formData={formData}
+              formData={formData as any}
               handleInputChange={handleInputChange}
               handleImportSuccess={handleImportSuccess}
               isImporting={isImporting}
@@ -67,7 +77,7 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
           
           {currentStep === 2 && (
             <ConfirmationStep 
-              formData={formData}
+              formData={formData as any}
               handleInputChange={handleInputChange}
             />
           )}

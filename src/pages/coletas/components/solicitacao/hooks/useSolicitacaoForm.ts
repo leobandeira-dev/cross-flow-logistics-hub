@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { EMPTY_EMPRESA } from '../EmpresaInfoForm';
+import { EMPTY_EMPRESA } from '../SolicitacaoTypes';
 import { validateStep } from './formValidation';
 import { useImportHandler } from './useImportHandler';
 import { useAddressUpdater } from './useAddressUpdater';
