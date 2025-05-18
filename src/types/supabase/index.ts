@@ -11,7 +11,7 @@ export * from './occurrence.types';
 export * from './database.types';
 
 // Export shipping types with proper naming to avoid conflicts
-export {
+export type {
   OrdemCarregamento,
   ItemCarregamento,
   Carregamento,

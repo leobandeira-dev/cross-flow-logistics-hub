@@ -82,4 +82,4 @@ export interface EnderecamentoCaminhaoShipping {
 }
 
 // Re-export with a different name to avoid conflict
-export { WarehouseEtiqueta as EtiquetaShipping };
+export type { WarehouseEtiqueta as EtiquetaShipping };
