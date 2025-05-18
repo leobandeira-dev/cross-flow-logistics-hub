@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { PackageOpen } from 'lucide-react';
-import { NotaFiscalVolume, VolumeItem, generateVolumeId } from '../../../utils/volumeCalculations';
+import { NotaFiscalVolume, VolumeItem, generateVolumeId, calcularVolume } from '../../../utils/volumes/index';
 import NotaFiscalHeader from './NotaFiscalHeader';
 import VolumesList from './VolumesList';
 import AddVolumeForm from './AddVolumeForm';
@@ -35,10 +35,17 @@ const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
   const handleUpdateVolume = (volumeId: string, field: keyof VolumeItem, value: string) => {
     const updatedVolumes = nf.volumes.map(v => {
       if (v.id === volumeId) {
-        return {
+        const updatedVolume = {
           ...v,
           [field]: parseFloat(value) || 0
         };
+        
+        // Recalculate cubic volume if needed
+        if (['altura', 'largura', 'comprimento', 'quantidade'].includes(field)) {
+          updatedVolume.cubicVolume = calcularVolume(updatedVolume);
+        }
+        
+        return updatedVolume;
       }
       return v;
     });
@@ -54,7 +61,12 @@ const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
   const handleAddVolume = (volume: Omit<VolumeItem, 'id'>) => {
     const newVolume: VolumeItem = {
       ...volume,
-      id: generateVolumeId()
+      id: generateVolumeId(),
+      // Calculate cubic volume for the new volume
+      cubicVolume: calcularVolume({
+        ...volume,
+        id: 'temp-id' // Temporary ID for calculation purposes only
+      })
     };
     
     onUpdateVolumes([...nf.volumes, newVolume]);
