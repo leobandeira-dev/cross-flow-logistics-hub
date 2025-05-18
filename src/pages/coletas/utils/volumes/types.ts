@@ -1,41 +1,31 @@
 
-import { v4 as uuidv4 } from 'uuid';
-
+// Define the basic volume item structure
 export interface VolumeItem {
   id: string;
-  altura: number; // height in cm
-  largura: number; // width in cm
-  comprimento: number; // length in cm
-  peso: number; // weight in kg
-  quantidade: number; // quantity
-  cubicVolume?: number; // cubic volume in m³
+  altura: number;
+  largura: number;
+  comprimento: number;
+  quantidade: number;
+  peso: number;
+  cubicVolume?: number; // Added to store calculated volume
 }
 
+// Define a note fiscal with volumes
 export interface NotaFiscalVolume {
   numeroNF: string;
-  chaveNF?: string; // Added for XML import
-  dataEmissao?: string; // Added for XML import
-  volumes: VolumeItem[];
+  chaveNF?: string;
+  dataEmissao?: string;
   remetente: string;
-  emitenteCNPJ?: string; // Added for sender consistency validation
   destinatario: string;
   valorTotal: number;
   pesoTotal: number;
-  totalCubicVolume?: number; // Total cubic volume for all volumes
-  // Additional fields to extract from XML
-  enderecoRemetente?: string;
-  cepRemetente?: string;
-  cidadeRemetente?: string;
-  ufRemetente?: string;
-  enderecoDestinatario?: string;
-  cepDestinatario?: string;
-  cidadeDestinatario?: string;
-  ufDestinatario?: string;
+  volumes: VolumeItem[];
 }
 
-export type NotaFiscalVolumeInput = Omit<NotaFiscalVolume, 'id'>;
-
-// Generate a unique ID for a volume
+// Function to generate a unique volume ID
 export const generateVolumeId = (): string => {
-  return uuidv4();
+  return Math.random().toString(36).substring(2, 10);
 };
+
+// FOB/CIF type
+export type TipoFrete = 'FOB' | 'CIF';

@@ -28,7 +28,7 @@ export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void): UseSolic
     horaColeta: '',
     observacoes: '',
     notasFiscais: [],
-    cliente: '',
+    tipoFrete: 'FOB', // Default to FOB
     origem: '',
     destino: '',
     origemEndereco: '',

@@ -2,12 +2,13 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SolicitacaoFormHeaderProps } from './types';
 
 const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   currentStep = 1,
   isLoading = false,
-  cliente = '',
+  tipoFrete = 'FOB',
   dataColeta = '',
   horaColeta = '',
   dataAprovacao,
@@ -20,7 +21,9 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   destino = '',
   destinoEndereco = '',
   destinoCEP = '',
-  onClienteChange,
+  remetente,
+  destinatario,
+  onTipoFreteChange,
   onDataColetaChange,
   onHoraColetaChange,
   onOrigemChange,
@@ -30,19 +33,24 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Cliente Field */}
+        {/* Tipo de Frete (FOB/CIF) */}
         <div>
-          <Label htmlFor="cliente" className="text-xs text-gray-600">
-            Cliente
+          <Label htmlFor="tipoFrete" className="text-xs text-gray-600">
+            Tipo de Frete
           </Label>
-          <Input 
-            id="cliente"
-            value={cliente} 
-            onChange={(e) => onClienteChange?.(e.target.value)}
-            className="mt-1"
-            placeholder="Nome do cliente"
+          <Select
+            value={tipoFrete}
+            onValueChange={(value) => onTipoFreteChange?.(value as 'FOB' | 'CIF')}
             disabled={isLoading}
-          />
+          >
+            <SelectTrigger id="tipoFrete" className="mt-1">
+              <SelectValue placeholder="Selecione o tipo de frete" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="FOB">FOB (Por conta do destinatário)</SelectItem>
+              <SelectItem value="CIF">CIF (Por conta do remetente)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Data Coleta Field */}
@@ -75,6 +83,27 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
           />
         </div>
       </div>
+
+      {/* Remetente/Destinatário Info */}
+      {(remetente || destinatario) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-md mb-3">
+          {remetente && (
+            <div>
+              <h4 className="text-sm font-medium mb-1">Remetente</h4>
+              <p className="text-sm">{remetente.razaoSocial}</p>
+              <p className="text-xs text-gray-500">CNPJ: {remetente.cnpj}</p>
+            </div>
+          )}
+          
+          {destinatario && (
+            <div>
+              <h4 className="text-sm font-medium mb-1">Destinatário</h4>
+              <p className="text-sm">{destinatario.razaoSocial}</p>
+              <p className="text-xs text-gray-500">CNPJ: {destinatario.cnpj}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Origem Fields */}

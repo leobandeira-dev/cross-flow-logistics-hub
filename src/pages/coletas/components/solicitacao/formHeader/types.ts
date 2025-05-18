@@ -2,8 +2,8 @@
 export interface SolicitacaoFormHeaderProps {
   currentStep?: number;
   isLoading?: boolean;
-  // Cliente information
-  cliente?: string;
+  // Frete type (FOB/CIF)
+  tipoFrete?: 'FOB' | 'CIF';
   // Collection date and time
   dataColeta?: string; 
   horaColeta?: string;
@@ -21,8 +21,17 @@ export interface SolicitacaoFormHeaderProps {
   destino?: string;
   destinoEndereco?: string;
   destinoCEP?: string;
+  // Companies information
+  remetente?: {
+    razaoSocial: string;
+    cnpj: string;
+  };
+  destinatario?: {
+    razaoSocial: string;
+    cnpj: string;
+  };
   // Event handlers
-  onClienteChange?: (cliente: string) => void;
+  onTipoFreteChange?: (tipo: 'FOB' | 'CIF') => void;
   onDataColetaChange?: (data: string) => void;
   onHoraColetaChange?: (hora: string) => void;
   onOrigemChange?: (origem: string) => void;

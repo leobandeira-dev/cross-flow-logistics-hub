@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
 import { useToast } from '@/hooks/use-toast';
@@ -14,11 +14,33 @@ const SolicitacoesColeta = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('unica');
   const [currentPage, setCurrentPage] = useState(1);
-  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoColeta[]>(solicitacoesIniciais);
+  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoColeta[]>([]);
   const [editingSolicitacao, setEditingSolicitacao] = useState<SolicitacaoColeta | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const itemsPerPage = 10;
+  
+  // Load solicitations from localStorage or use initial data
+  useEffect(() => {
+    setIsLoading(true);
+    try {
+      const storedSolicitations = localStorage.getItem('solicitacoesColeta');
+      if (storedSolicitations) {
+        const parsedSolicitations = JSON.parse(storedSolicitations);
+        setSolicitacoes(parsedSolicitations);
+      } else {
+        setSolicitacoes(solicitacoesIniciais);
+        // Initialize localStorage with mock data
+        localStorage.setItem('solicitacoesColeta', JSON.stringify(solicitacoesIniciais));
+      }
+    } catch (error) {
+      console.error("Error loading solicitations:", error);
+      setSolicitacoes(solicitacoesIniciais);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
   
   const filters = [
     {
@@ -43,12 +65,12 @@ const SolicitacoesColeta = () => {
   
   const handleSearch = (value: string) => {
     console.log('Search:', value);
-    // Implementar lógica de busca
+    // Implement search logic
   };
   
   const handleFilterChange = (filter: string, value: string) => {
     console.log(`Filter ${filter} changed to ${value}`);
-    // Implementar lógica de filtro
+    // Implement filter logic
   };
   
   const handleRowClick = (row: SolicitacaoColeta) => {
@@ -58,12 +80,15 @@ const SolicitacoesColeta = () => {
   };
   
   const handleSaveSolicitacao = (updatedSolicitacao: SolicitacaoColeta) => {
-    // Atualizar a solicitação na lista
-    setSolicitacoes(prev => 
-      prev.map(sol => 
-        sol.id === updatedSolicitacao.id ? updatedSolicitacao : sol
-      )
+    // Update the solicitation in the list
+    const updatedList = solicitacoes.map(sol => 
+      sol.id === updatedSolicitacao.id ? updatedSolicitacao : sol
     );
+    
+    setSolicitacoes(updatedList);
+    
+    // Update localStorage
+    localStorage.setItem('solicitacoesColeta', JSON.stringify(updatedList));
     
     toast({
       title: "Solicitação atualizada",
@@ -94,13 +119,19 @@ const SolicitacoesColeta = () => {
         onFilterChange={handleFilterChange}
       />
       
-      <TabelaSolicitacoes
-        solicitacoes={solicitacoes}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        handleRowClick={handleRowClick}
-        itemsPerPage={itemsPerPage}
-      />
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-cross-blue"></div>
+        </div>
+      ) : (
+        <TabelaSolicitacoes
+          solicitacoes={solicitacoes}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          handleRowClick={handleRowClick}
+          itemsPerPage={itemsPerPage}
+        />
+      )}
       
       {/* Diálogo de Edição de Solicitação */}
       <EditSolicitacaoDialog

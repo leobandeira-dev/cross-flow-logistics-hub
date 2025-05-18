@@ -40,7 +40,7 @@ export interface EmpresaInfo {
 
 // Form data
 export interface SolicitacaoFormData {
-  cliente: string;
+  tipoFrete: 'FOB' | 'CIF'; // Added FOB/CIF option to replace cliente
   origem: string;
   destino: string;
   remetente: EmpresaInfo;

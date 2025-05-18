@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
-import { VolumeItem, formatarNumero } from '../../../utils/volumes/index';
+import { VolumeItem, formatarNumero, calcularVolume } from '../../../utils/volumes/index';
 
 interface AddVolumeFormProps {
   onAddVolume: (volume: Omit<VolumeItem, "id">) => void;
@@ -11,7 +11,7 @@ interface AddVolumeFormProps {
 }
 
 const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly = false }) => {
-  const [novoVolume, setNovoVolume] = useState<Omit<VolumeItem, "id" | "peso">>({
+  const [novoVolume, setNovoVolume] = useState<Omit<VolumeItem, "id" | "peso" | "cubicVolume">>({
     altura: 0,
     largura: 0,
     comprimento: 0,
@@ -22,11 +22,15 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly =
   // Calculate volume in m³ whenever dimensions or quantity changes
   useEffect(() => {
     // Formula: altura * largura * comprimento * quantidade / 1000000 (convert cm³ to m³)
-    const calculatedVolume = (novoVolume.altura * novoVolume.largura * novoVolume.comprimento * novoVolume.quantidade) / 1000000;
-    setVolumeM3(calculatedVolume);
+    if (novoVolume.altura && novoVolume.largura && novoVolume.comprimento && novoVolume.quantidade) {
+      const calculatedVolume = (novoVolume.altura * novoVolume.largura * novoVolume.comprimento * novoVolume.quantidade) / 1000000;
+      setVolumeM3(calculatedVolume);
+    } else {
+      setVolumeM3(0);
+    }
   }, [novoVolume.altura, novoVolume.largura, novoVolume.comprimento, novoVolume.quantidade]);
 
-  const handleVolumeChange = (field: keyof Omit<VolumeItem, "id" | "peso">, value: any) => {
+  const handleVolumeChange = (field: keyof Omit<VolumeItem, "id" | "peso" | "cubicVolume">, value: any) => {
     const parsedValue = field === 'quantidade' 
       ? (parseInt(value) || 1)
       : (parseFloat(value) || 0);
@@ -40,10 +44,11 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly =
       return;
     }
     
-    // Add the volume with peso set to 0 (weight comes from the XML)
+    // Add the volume with peso and cubicVolume
     onAddVolume({
       ...novoVolume,
-      peso: 0 // Weight is handled at the nota fiscal level
+      peso: 0, // Weight is handled at the nota fiscal level
+      cubicVolume: volumeM3
     });
     
     // Reset form

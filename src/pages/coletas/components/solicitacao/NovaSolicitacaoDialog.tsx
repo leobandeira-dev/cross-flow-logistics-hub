@@ -44,7 +44,7 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
         <SolicitacaoFormHeader 
           currentStep={currentStep}
           isLoading={isLoading || isImporting}
-          cliente={formData.cliente}
+          tipoFrete={formData.tipoFrete}
           dataColeta={formData.dataColeta}
           horaColeta={formData.horaColeta || ''}
           dataAprovacao={formData.dataAprovacao || ''}
@@ -57,7 +57,15 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
           destino={formData.destino}
           destinoEndereco={formData.destinoEndereco || ''}
           destinoCEP={formData.destinoCEP || ''}
-          onClienteChange={(value) => handleInputChange('cliente', value)}
+          remetente={formData.remetente ? {
+            razaoSocial: formData.remetente.razaoSocial,
+            cnpj: formData.remetente.cnpj
+          } : undefined}
+          destinatario={formData.destinatario ? {
+            razaoSocial: formData.destinatario.razaoSocial,
+            cnpj: formData.destinatario.cnpj
+          } : undefined}
+          onTipoFreteChange={(value) => handleInputChange('tipoFrete', value)}
           onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
           onHoraColetaChange={(value) => handleInputChange('horaColeta', value || '')}
           onOrigemChange={(value) => handleInputChange('origem', value)}

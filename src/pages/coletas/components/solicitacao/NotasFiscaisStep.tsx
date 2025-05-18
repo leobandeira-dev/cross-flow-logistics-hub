@@ -35,7 +35,7 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
         <CardContent className="pt-6">
           <h3 className="font-semibold text-lg mb-4">Cabeçalho da Solicitação</h3>
           <SolicitacaoFormHeader 
-            cliente={formData.cliente}
+            tipoFrete={formData.tipoFrete}
             dataColeta={formData.dataColeta}
             horaColeta={formData.horaColeta}
             dataAprovacao={formData.dataAprovacao}
@@ -48,7 +48,15 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
             destino={formData.destino}
             destinoEndereco={formData.destinoEndereco}
             destinoCEP={formData.destinoCEP}
-            onClienteChange={(cliente) => handleInputChange('cliente', cliente)}
+            remetente={formData.remetente ? {
+              razaoSocial: formData.remetente.razaoSocial,
+              cnpj: formData.remetente.cnpj
+            } : undefined}
+            destinatario={formData.destinatario ? {
+              razaoSocial: formData.destinatario.razaoSocial,
+              cnpj: formData.destinatario.cnpj
+            } : undefined}
+            onTipoFreteChange={(tipo) => handleInputChange('tipoFrete', tipo)}
             onDataColetaChange={(data) => handleInputChange('dataColeta', data)}
             onHoraColetaChange={(hora) => handleInputChange('horaColeta', hora)}
             onOrigemChange={(origem) => handleInputChange('origem', origem)}

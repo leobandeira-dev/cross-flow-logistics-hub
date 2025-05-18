@@ -11,7 +11,7 @@ export interface InternalFormData extends Partial<SolicitacaoFormData> {
   observacoes: string;
   notasFiscais: NotaFiscalVolume[];
   // Required fields
-  cliente: string;
+  tipoFrete: 'FOB' | 'CIF'; // Updated from cliente to tipoFrete
   origem: string;
   destino: string;
   // Extended properties for XML import data
