@@ -45,7 +45,8 @@ const NotasTable: React.FC<NotasTableProps> = ({ notasLote, onUpdateNota, onRemo
           toast({
             title: "Aviso",
             description: "O bloqueador de pop-ups pode ter impedido a abertura do DANFE. Verifique as configurações do navegador.",
-            variant: "warning"
+            // Change "warning" to "default" since "warning" is not an allowed variant
+            variant: "default"
           });
         } else {
           toast({
