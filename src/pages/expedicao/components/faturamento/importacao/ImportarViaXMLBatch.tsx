@@ -76,8 +76,8 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
         notaFiscal: mergedData.numeroNF || '',
         pedido: mergedData.numeroPedido || '', // Map pedido field correctly
         dataEmissao: mergedData.dataHoraEmissao ? new Date(mergedData.dataHoraEmissao) : new Date(),
-        // Parse the weight exactly as it is in the XML, without any manipulation
-        pesoNota: mergedData.pesoTotalBruto ? Number(mergedData.pesoTotalBruto.replace(',', '.')) : 0,
+        // Preserve the exact string value from the XML for the weight
+        pesoNota: mergedData.pesoTotalBruto ? parseFloat(mergedData.pesoTotalBruto.replace(',', '.')) : 0,
         valorNF: parseFloat(mergedData.valorTotal || '0') || 0,
         fretePorTonelada: 0,
         pesoMinimo: 0,
