@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -108,6 +107,7 @@ const Sidebar: React.FC = () => {
             <SidebarItem icon={Box} label="Entre Filiais" href="/armazenagem/recebimento/filiais" />
             <SidebarItem icon={FileText} label="Notas Fiscais" href="/armazenagem/recebimento/notas" />
             <SidebarItem icon={FileText} label="Etiquetas" href="/armazenagem/recebimento/etiquetas" />
+            <SidebarItem icon={FileText} label="Rastreamento NF" href="/armazenagem/recebimento/rastreamento" />
           </SubMenu>
           
           {/* Movimentações (Internal Movements) */}

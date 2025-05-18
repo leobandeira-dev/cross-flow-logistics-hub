@@ -45,6 +45,14 @@ const ImportacaoTabs: React.FC<ImportacaoTabsProps> = ({
           onImportSuccess={onImportSuccess}
           isSingleFile={false}
         />
+        <div className="text-xs text-gray-500 mt-4">
+          <p>Dicas para importação em lote:</p>
+          <ul className="list-disc list-inside ml-2 mt-1">
+            <li>Selecione múltiplos arquivos XML (um por nota fiscal)</li>
+            <li>Arquivos devem estar no formato padrão SEFAZ</li>
+            <li>O sistema identificará automaticamente remetente e destinatário</li>
+          </ul>
+        </div>
       </TabsContent>
       
       <TabsContent value="manual" className="py-4">
@@ -71,6 +79,7 @@ const ImportacaoTabs: React.FC<ImportacaoTabsProps> = ({
           <XmlImportForm 
             onImportSuccess={onImportSuccess}
             isSingleFile={true}
+            acceptExcel={true}
           />
           
           <div className="text-xs text-gray-500">
@@ -78,6 +87,7 @@ const ImportacaoTabs: React.FC<ImportacaoTabsProps> = ({
             <ul className="list-disc list-inside mt-1">
               <li>Mantenha a estrutura do arquivo sem alterar as colunas</li>
               <li>Para volumes da mesma nota fiscal, repita o número da NF em linhas diferentes</li>
+              <li>Preencha as dimensões (altura, largura, comprimento) e peso de cada volume</li>
               <li>Salve o arquivo como Excel (.xlsx) ou CSV (.csv) antes de fazer o upload</li>
             </ul>
           </div>

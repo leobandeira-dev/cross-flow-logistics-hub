@@ -7,6 +7,9 @@ import { recebimentoColetaFilterConfig } from './filterConfig';
 import ColetaHeader from './components/ColetaHeader';
 import ColetaContent from './components/ColetaContent';
 import { recebimentosColetaMock } from './mockData';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { FileText } from 'lucide-react';
 
 const RecebimentoColeta: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('pendentes');
@@ -30,6 +33,14 @@ const RecebimentoColeta: React.FC = () => {
   return (
     <MainLayout title="Recebimento de Coleta">
       <ColetaHeader onWhatsAppSupport={handleWhatsAppSupport} />
+      
+      <div className="mb-4">
+        <Link to="/armazenagem/recebimento/rastreamento">
+          <Button variant="outline" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" /> Rastreamento de Notas Fiscais
+          </Button>
+        </Link>
+      </div>
       
       <Tabs defaultValue="pendentes" className="mb-6" value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList className="mb-4">

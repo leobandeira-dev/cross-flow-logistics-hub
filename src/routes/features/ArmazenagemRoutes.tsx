@@ -1,4 +1,3 @@
-
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../ProtectedRoute';
 
@@ -19,6 +18,7 @@ import GeracaoEtiquetas from '../../pages/armazenagem/recebimento/GeracaoEtiquet
 import RecebimentoFornecedor from '../../pages/armazenagem/recebimento/RecebimentoFornecedor';
 import RecebimentoColeta from '../../pages/armazenagem/recebimento/RecebimentoColeta';
 import RecebimentoFiliais from '../../pages/armazenagem/recebimento/RecebimentoFiliais';
+import RastreamentoNotasFiscais from '../../pages/armazenagem/recebimento/RastreamentoNotasFiscais';
 
 const ArmazenagemRoutes = () => {
   return [
@@ -61,6 +61,12 @@ const ArmazenagemRoutes = () => {
     <Route key="armazenagem-recebimento-filiais" path="/armazenagem/recebimento/filiais" element={
       <ProtectedRoute>
         <RecebimentoFiliais />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="armazenagem-recebimento-rastreamento" path="/armazenagem/recebimento/rastreamento" element={
+      <ProtectedRoute>
+        <RastreamentoNotasFiscais />
       </ProtectedRoute>
     } />,
     
