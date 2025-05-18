@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,7 +12,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 // Check the props interface for DetalhesAprovacaoDialog
 export interface DetalhesAprovacaoDialogProps {
-  isOpen: boolean;
+  open: boolean;  // Changed from isOpen to open to match component definition
   onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
   selectedRequest: SolicitacaoColeta | null;
   isRejecting: boolean;
@@ -185,7 +184,7 @@ const AprovacoesColeta = () => {
       </Tabs>
       
       <DetalhesAprovacaoDialog
-        isOpen={isDialogOpen}
+        open={isDialogOpen} // Changed from isOpen to open to match component definition
         onOpenChange={setIsDialogOpen}
         selectedRequest={selectedRequest}
         isRejecting={isRejecting}
