@@ -13,31 +13,12 @@ export interface SolicitacaoFormHeaderProps {
   // Inclusion date and time
   dataInclusao?: string;
   horaInclusao?: string;
-  // Origin information
-  origem?: string;
-  origemEndereco?: string;
-  origemCEP?: string;
-  // Destination information
-  destino?: string;
-  destinoEndereco?: string;
-  destinoCEP?: string;
-  // Companies information
-  remetente?: {
-    razaoSocial: string;
-    cnpj: string;
-  };
-  destinatario?: {
-    razaoSocial: string;
-    cnpj: string;
-  };
+  // Read-only mode
+  readOnly?: boolean;
   // Event handlers
   onTipoFreteChange?: (tipo: 'FOB' | 'CIF') => void;
   onDataColetaChange?: (data: string) => void;
   onHoraColetaChange?: (hora: string) => void;
-  onOrigemChange?: (origem: string) => void;
-  onDestinoChange?: (destino: string) => void;
-  // Additional props
-  readOnlyAddresses?: boolean;
 }
 
 // Add missing AddressSectionProps

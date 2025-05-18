@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -17,6 +16,7 @@ interface CargasPendentesCardProps {
   setCurrentPage: (page: number) => void;
   onAlocarMotorista: (carga: Carga) => void;
   setSelectedCarga: (carga: Carga) => void;
+  onViewCarga: (carga: Carga) => void;
   onPreAlocar?: (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => void;
   onGerarPreRomaneio?: (cargasIds: string[], tipoVeiculoId: string, tipoVeiculoNome: string) => void;
   onAlocar?: (cargasIds: string[], motoristaId: string, motoristaName: string, veiculoId: string, veiculoName: string) => void;
@@ -28,6 +28,7 @@ const CargasPendentesCard: React.FC<CargasPendentesCardProps> = ({
   setCurrentPage,
   onAlocarMotorista,
   setSelectedCarga,
+  onViewCarga,
   onPreAlocar,
   onGerarPreRomaneio,
   onAlocar
@@ -133,6 +134,7 @@ const CargasPendentesCard: React.FC<CargasPendentesCardProps> = ({
                         carga={carga}
                         onAlocar={onAlocarMotorista}
                         setSelectedCarga={setSelectedCarga}
+                        onViewCarga={() => onViewCarga(carga)}
                       />
                     </TableCell>
                   </TableRow>

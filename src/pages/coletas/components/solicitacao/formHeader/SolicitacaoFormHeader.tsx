@@ -15,20 +15,10 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   horaAprovacao,
   dataInclusao,
   horaInclusao,
-  origem = '',
-  origemEndereco = '',
-  origemCEP = '',
-  destino = '',
-  destinoEndereco = '',
-  destinoCEP = '',
-  remetente,
-  destinatario,
+  readOnly = false,
   onTipoFreteChange,
   onDataColetaChange,
   onHoraColetaChange,
-  onOrigemChange,
-  onDestinoChange,
-  readOnlyAddresses = false
 }) => {
   return (
     <div className="space-y-4">
@@ -41,7 +31,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
           <Select
             value={tipoFrete}
             onValueChange={(value) => onTipoFreteChange?.(value as 'FOB' | 'CIF')}
-            disabled={isLoading}
+            disabled={isLoading || readOnly}
           >
             <SelectTrigger id="tipoFrete" className="mt-1">
               <SelectValue placeholder="Selecione o tipo de frete" />
@@ -64,7 +54,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
             value={dataColeta} 
             onChange={(e) => onDataColetaChange?.(e.target.value)}
             className="mt-1"
-            disabled={isLoading}
+            disabled={isLoading || readOnly}
           />
         </div>
 
@@ -79,121 +69,8 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
             value={horaColeta || ''} 
             onChange={(e) => onHoraColetaChange?.(e.target.value)}
             className="mt-1"
-            disabled={isLoading}
+            disabled={isLoading || readOnly}
           />
-        </div>
-      </div>
-
-      {/* Remetente/Destinatário Info */}
-      {(remetente || destinatario) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-md mb-3">
-          {remetente && (
-            <div>
-              <h4 className="text-sm font-medium mb-1">Remetente</h4>
-              <p className="text-sm">{remetente.razaoSocial}</p>
-              <p className="text-xs text-gray-500">CNPJ: {remetente.cnpj}</p>
-            </div>
-          )}
-          
-          {destinatario && (
-            <div>
-              <h4 className="text-sm font-medium mb-1">Destinatário</h4>
-              <p className="text-sm">{destinatario.razaoSocial}</p>
-              <p className="text-xs text-gray-500">CNPJ: {destinatario.cnpj}</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Origem Fields */}
-        <div className="space-y-2">
-          <div>
-            <Label htmlFor="origem" className="text-xs text-gray-600">
-              Origem (Cidade - UF)
-            </Label>
-            <Input 
-              id="origem"
-              value={origem} 
-              onChange={(e) => onOrigemChange?.(e.target.value)}
-              className="mt-1"
-              placeholder="Cidade - UF"
-              disabled={isLoading || readOnlyAddresses}
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="origemEndereco" className="text-xs text-gray-600">
-              Endereço de Origem
-            </Label>
-            <Input 
-              id="origemEndereco"
-              value={origemEndereco} 
-              className="mt-1"
-              placeholder="Rua, número, bairro"
-              disabled={true} // Always read-only as it's populated from XML
-              readOnly
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="origemCEP" className="text-xs text-gray-600">
-              CEP de Origem
-            </Label>
-            <Input 
-              id="origemCEP"
-              value={origemCEP} 
-              className="mt-1"
-              placeholder="00000-000"
-              disabled={true} // Always read-only as it's populated from XML
-              readOnly
-            />
-          </div>
-        </div>
-
-        {/* Destino Fields */}
-        <div className="space-y-2">
-          <div>
-            <Label htmlFor="destino" className="text-xs text-gray-600">
-              Destino (Cidade - UF)
-            </Label>
-            <Input 
-              id="destino"
-              value={destino} 
-              onChange={(e) => onDestinoChange?.(e.target.value)}
-              className="mt-1"
-              placeholder="Cidade - UF"
-              disabled={isLoading || readOnlyAddresses}
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="destinoEndereco" className="text-xs text-gray-600">
-              Endereço de Destino
-            </Label>
-            <Input 
-              id="destinoEndereco"
-              value={destinoEndereco} 
-              className="mt-1"
-              placeholder="Rua, número, bairro"
-              disabled={true} // Always read-only as it's populated from XML
-              readOnly
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="destinoCEP" className="text-xs text-gray-600">
-              CEP de Destino
-            </Label>
-            <Input 
-              id="destinoCEP"
-              value={destinoCEP}
-              className="mt-1"
-              placeholder="00000-000"
-              disabled={true} // Always read-only as it's populated from XML
-              readOnly
-            />
-          </div>
         </div>
       </div>
 

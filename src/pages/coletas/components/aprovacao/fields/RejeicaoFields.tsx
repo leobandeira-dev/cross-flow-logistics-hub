@@ -9,9 +9,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
-import { FormData } from './formSchema';
+import { FormData } from '../formSchema';
 
-interface RejeicaoFieldsProps {
+export interface RejeicaoFieldsProps {
   isRejecting: boolean;
   form: UseFormReturn<FormData>;
 }

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { CheckCircle, X } from 'lucide-react';
 
-interface AprovacaoActionsProps {
+export interface AprovacaoActionsProps {
   isRejecting: boolean;
   setIsRejecting: (value: boolean) => void;
   onClose: () => void;

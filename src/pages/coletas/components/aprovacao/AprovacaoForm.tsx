@@ -1,33 +1,35 @@
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form } from '@/components/ui/form';
-import { SolicitacaoColeta } from '../../types/coleta.types';
-import { formSchema, FormData } from './formSchema';
-import { ObservacoesField } from './ObservacoesField';
-import { RejeicaoFields } from './RejeicaoFields';
-import { AprovacaoActions } from './AprovacaoActions';
-import { showApprovalNotification, showRejectionNotification } from './approvalNotifications';
+import { Button } from "@/components/ui/button";
+import { FormData, formSchema } from './formSchema';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { ObservacoesField } from './fields/ObservacoesField';
+import { RejeicaoFields } from './fields/RejeicaoFields';
+import { AprovacaoActions } from './actions/AprovacaoActions';
 
 interface AprovacaoFormProps {
-  selectedRequest: SolicitacaoColeta;
-  isRejecting: boolean;
-  setIsRejecting: (value: boolean) => void;
-  onClose: () => void;
-  onApprove: (solicitacaoId: string, observacoes?: string) => void;
-  onReject: (solicitacaoId: string, motivoRecusa: string) => void;
+  solicitacaoId: string;
+  onApprove: (id: string, observacoes?: string) => void;
+  onReject: (id: string, motivoRecusa: string, observacoes: string) => void;
 }
 
-const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
-  selectedRequest,
-  isRejecting,
-  setIsRejecting,
-  onClose,
+const AprovacaoForm: React.FC<AprovacaoFormProps> = ({ 
+  solicitacaoId,
   onApprove,
   onReject
 }) => {
-  // Initialize form with react-hook-form
+  const [isRejecting, setIsRejecting] = React.useState(false);
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,64 +37,38 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
       motivoRecusa: '',
     },
   });
-
-  // Define global variable for schema refine to work
-  (window as any).isRejecting = isRejecting;
   
-  const handleSubmit = async (data: FormData) => {
-    if (!selectedRequest) return;
-    
-    console.log("AprovacaoForm: Processando formulário. isRejecting:", isRejecting);
-    
+  const handleSubmit = (data: FormData) => {
     if (isRejecting) {
-      // Check if we have a valid rejection reason
-      if (!data.motivoRecusa || data.motivoRecusa.length < 10) {
-        form.setError('motivoRecusa', {
-          type: 'manual',
-          message: 'O motivo da recusa é obrigatório e deve ter pelo menos 10 caracteres',
-        });
-        return;
-      }
-      
-      // Log for debugging
-      console.log("AprovacaoForm: Recusando solicitação:", selectedRequest.id, data.motivoRecusa);
-      
-      // Call the onReject function from parent component with request ID and reason
-      onReject(selectedRequest.id, data.motivoRecusa);
-      
-      showRejectionNotification(selectedRequest.id);
+      onReject(solicitacaoId, data.motivoRecusa, data.observacoes);
     } else {
-      // Log for debugging
-      console.log("AprovacaoForm: Aprovando solicitação:", selectedRequest.id, data.observacoes);
-      
-      // Call the onApprove function from parent component with request ID and notes
-      onApprove(selectedRequest.id, data.observacoes);
-      
-      showApprovalNotification(selectedRequest.id);
+      onApprove(solicitacaoId, data.observacoes);
     }
   };
 
-  // Function to handle direct approval (avoiding form submission issues)
   const handleApproveClick = () => {
     const observacoes = form.getValues("observacoes");
-    console.log("AprovacaoForm: Clique direto no botão Aprovar, observações:", observacoes);
-    
-    // Call the onApprove function from parent component with request ID and notes
-    onApprove(selectedRequest.id, observacoes);
-    
-    showApprovalNotification(selectedRequest.id);
+    onApprove(solicitacaoId, observacoes);
   };
-
+  
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <ObservacoesField form={form} />
-        <RejeicaoFields isRejecting={isRejecting} form={form} />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <ObservacoesField 
+          form={form}
+        />
         
-        <AprovacaoActions
-          isRejecting={isRejecting}
+        {isRejecting && (
+          <RejeicaoFields 
+            form={form}
+            isRejecting={isRejecting}
+          />
+        )}
+        
+        <AprovacaoActions 
+          isRejecting={isRejecting} 
           setIsRejecting={setIsRejecting}
-          onClose={onClose}
+          onClose={() => {}}
           handleApproveClick={handleApproveClick}
         />
       </form>

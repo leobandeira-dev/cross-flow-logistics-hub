@@ -9,9 +9,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
-import { FormData } from './formSchema';
+import { FormData } from '../formSchema';
 
-interface ObservacoesFieldProps {
+export interface ObservacoesFieldProps {
   form: UseFormReturn<FormData>;
 }
 
