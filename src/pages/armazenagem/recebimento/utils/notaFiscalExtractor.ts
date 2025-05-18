@@ -1,21 +1,23 @@
 import { NotaFiscalSchemaType } from '../components/forms/notaFiscalSchema';
 
 /**
- * Extract data from an XML object to populate a NotaFiscal form
+ * Extrai dados da nota fiscal a partir de um XML
+ * @param xmlObj Objeto XML parseado
+ * @returns Objeto com os dados extraídos
  */
-export const extractDataFromXml = (xmlData: any): Partial<any> => {
+export const extractDataFromXml = (xmlObj: any): Record<string, any> => {
   try {
-    console.log("Tentando extrair dados do XML:", xmlData);
+    console.log("Tentando extrair dados do XML:", xmlObj);
     
     // Navigate through the XML structure using the new approach
-    const nfeProc = xmlData.nfeproc || xmlData.nfeProc || {};
+    const nfeProc = xmlObj.nfeproc || xmlObj.nfeProc || {};
     
     // Accessing the XML content in a more resilient way
     const nfe = nfeProc.nfe || nfeProc.NFe;
     const infNFe = nfe?.infnfe || nfe?.infNFe || nfe?.infNFe;
     
     if (!infNFe) {
-      console.error("Estrutura de XML não reconhecida:", xmlData);
+      console.error("Estrutura de XML não reconhecida:", xmlObj);
       return {};
     }
     
@@ -203,7 +205,7 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
     console.log("Volumes totais extraídos:", volumesTotal);
     
     // Extracting data with the helper function
-    return {
+    const result: Record<string, any> = {
       // Note data
       chaveNF: chaveNF,
       numeroNF: getValue(ide, ['nnf']) || getValue(ide, ['nNF']),
@@ -245,6 +247,14 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
       // Additional information
       informacoesComplementares: informacoesComplementares,
     };
+    
+    // Adiciona campos adicionais para preencher na interface
+    result.localArmazenagem = '';
+    result.tempoArmazenamento = '';
+    result.entregueAoFornecedor = 'nao';
+    result.observacoes = '';
+    
+    return result;
   } catch (error) {
     console.error("Erro ao extrair dados do XML:", error);
     return {};

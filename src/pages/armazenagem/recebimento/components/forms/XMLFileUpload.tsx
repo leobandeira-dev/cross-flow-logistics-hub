@@ -1,14 +1,19 @@
 
 import React from 'react';
 import { FormItem, FormLabel } from '@/components/ui/form';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Loader2, FileText } from 'lucide-react';
 
 interface XMLFileUploadProps {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isLoading: boolean;
+  multiple?: boolean;
 }
 
-const XMLFileUpload: React.FC<XMLFileUploadProps> = ({ onFileChange, isLoading }) => {
+const XMLFileUpload: React.FC<XMLFileUploadProps> = ({ 
+  onFileChange, 
+  isLoading, 
+  multiple = false 
+}) => {
   return (
     <FormItem>
       <FormLabel>Upload de Arquivo XML</FormLabel>
@@ -18,12 +23,16 @@ const XMLFileUpload: React.FC<XMLFileUploadProps> = ({ onFileChange, isLoading }
             {isLoading ? (
               <Loader2 className="w-10 h-10 mb-3 text-gray-400 animate-spin" />
             ) : (
-              <Upload className="w-10 h-10 mb-3 text-gray-400" />
+              <FileText className="w-10 h-10 mb-3 text-gray-400" />
             )}
             <p className="mb-2 text-sm text-gray-500">
               <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
             </p>
-            <p className="text-xs text-gray-500">XML (MAX. 10MB)</p>
+            <p className="text-xs text-gray-500">
+              {multiple 
+                ? 'XML (Múltiplos arquivos permitidos)' 
+                : 'XML (MAX. 10MB)'}
+            </p>
           </div>
           <input 
             id="dropzone-file" 
@@ -32,6 +41,7 @@ const XMLFileUpload: React.FC<XMLFileUploadProps> = ({ onFileChange, isLoading }
             accept=".xml"
             onChange={onFileChange}
             disabled={isLoading}
+            multiple={multiple}
           />
         </label>
       </div>

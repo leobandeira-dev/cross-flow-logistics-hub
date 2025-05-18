@@ -1,15 +1,13 @@
+import * as z from "zod"
 
-import { z } from 'zod';
-
+// Define a schema for Nota Fiscal
 export const notaFiscalSchema = z.object({
-  // Dados da Nota Fiscal
   chaveNF: z.string().optional(),
-  dataHoraEmissao: z.string().optional(),
   numeroNF: z.string().optional(),
   serieNF: z.string().optional(),
+  dataHoraEmissao: z.string().optional(),
   tipoOperacao: z.string().optional(),
   
-  // Dados do Emitente
   emitenteCNPJ: z.string().optional(),
   emitenteRazaoSocial: z.string().optional(),
   emitenteTelefone: z.string().optional(),
@@ -20,7 +18,6 @@ export const notaFiscalSchema = z.object({
   emitenteNumero: z.string().optional(),
   emitenteCEP: z.string().optional(),
   
-  // Dados do Destinatário
   destinatarioCNPJ: z.string().optional(),
   destinatarioRazaoSocial: z.string().optional(),
   destinatarioTelefone: z.string().optional(),
@@ -31,37 +28,33 @@ export const notaFiscalSchema = z.object({
   destinatarioNumero: z.string().optional(),
   destinatarioCEP: z.string().optional(),
   
-  // Totais da Nota
-  valorTotal: z.string().optional(),
   pesoTotalBruto: z.string().optional(),
-  volumesTotal: z.string().optional(),
-  numeroPedido: z.string().optional(),
-  informacoesComplementares: z.string().optional(),
+  volumesQuantidade: z.string().optional(),
+  valorTotal: z.string().optional(),
+  formaPagamento: z.string().optional(),
   
-  // Campos adicionais
+  transportadoraNome: z.string().optional(),
+  transportadoraCNPJ: z.string().optional(),
+  placaVeiculo: z.string().optional(),
+  ufVeiculo: z.string().optional(),
+  antt: z.string().optional(),
+  
   entregueAoFornecedor: z.string().optional(),
-  fobCif: z.string().optional(),
-  numeroColeta: z.string().optional(),
-  valorColeta: z.string().optional(),
-  numeroCTeColeta: z.string().optional(),
-  numeroCTeViagem: z.string().optional(),
-  dataHoraEntrada: z.string().optional(),
-  statusEmbarque: z.string().optional(),
-  quimico: z.string().optional(),
-  fracionado: z.string().optional(),
-  responsavelEntrega: z.string().optional(),
-  motorista: z.string().optional(),
-  dataEmbarque: z.string().optional(),
+  observacoes: z.string().optional(),
+  localArmazenagem: z.string().optional(),
+  tempoArmazenamento: z.string().optional(),
 });
 
 export type NotaFiscalSchemaType = z.infer<typeof notaFiscalSchema>;
 
+// Default values for the form
 export const defaultValues: NotaFiscalSchemaType = {
   chaveNF: '',
-  dataHoraEmissao: '',
   numeroNF: '',
   serieNF: '',
+  dataHoraEmissao: '',
   tipoOperacao: '',
+  
   emitenteCNPJ: '',
   emitenteRazaoSocial: '',
   emitenteTelefone: '',
@@ -71,6 +64,7 @@ export const defaultValues: NotaFiscalSchemaType = {
   emitenteEndereco: '',
   emitenteNumero: '',
   emitenteCEP: '',
+  
   destinatarioCNPJ: '',
   destinatarioRazaoSocial: '',
   destinatarioTelefone: '',
@@ -80,22 +74,20 @@ export const defaultValues: NotaFiscalSchemaType = {
   destinatarioEndereco: '',
   destinatarioNumero: '',
   destinatarioCEP: '',
-  valorTotal: '',
+  
   pesoTotalBruto: '',
-  volumesTotal: '',
-  numeroPedido: '',
-  informacoesComplementares: '',
-  entregueAoFornecedor: '',
-  fobCif: '',
-  numeroColeta: '',
-  valorColeta: '',
-  numeroCTeColeta: '',
-  numeroCTeViagem: '',
-  dataHoraEntrada: '',
-  statusEmbarque: '',
-  quimico: '',
-  fracionado: '',
-  responsavelEntrega: '',
-  motorista: '',
-  dataEmbarque: '',
+  volumesQuantidade: '',
+  valorTotal: '',
+  formaPagamento: '',
+  
+  transportadoraNome: '',
+  transportadoraCNPJ: '',
+  placaVeiculo: '',
+  ufVeiculo: '',
+  antt: '',
+  
+  entregueAoFornecedor: 'nao',
+  observacoes: '',
+  localArmazenagem: '',
+  tempoArmazenamento: '',
 };

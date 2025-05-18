@@ -57,6 +57,25 @@ const NotaFiscalForm: React.FC = () => {
     form.reset(defaultValues);
   };
 
+  // Handle file uploads for batch processing
+  const handleBatchFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Override handleFileUpload to handle multiple files
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      
+      // Process each file
+      files.forEach(file => {
+        const syntheticEvent = {
+          target: {
+            files: [file] as unknown as FileList
+          }
+        } as React.ChangeEvent<HTMLInputElement>;
+        
+        handleFileUpload(syntheticEvent, form.setValue);
+      });
+    }
+  };
+
   return (
     <>
       <Form {...form}>
@@ -77,7 +96,13 @@ const NotaFiscalForm: React.FC = () => {
             
             <TabsContent value="xml" className="space-y-4 py-4">
               <ImportarViaXML 
-                onFileUpload={(e) => handleFileUpload(e, form.setValue)} 
+                onFileUpload={(e) => {
+                  if (e.target.multiple) {
+                    handleBatchFileUpload(e);
+                  } else {
+                    handleFileUpload(e, form.setValue);
+                  }
+                }} 
                 isLoading={isLoading}
               />
             </TabsContent>
