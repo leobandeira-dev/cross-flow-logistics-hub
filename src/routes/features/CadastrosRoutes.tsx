@@ -9,9 +9,11 @@ import CadastroMotoristas from '../../pages/motoristas/CadastroMotoristas';
 import CargasMotoristas from '../../pages/motoristas/CargasMotoristas';
 import CadastroEnderecamento from '../../pages/cadastros/enderecamento/CadastroEnderecamento';
 import ConfiguracoesPage from '../../pages/configuracoes/ConfiguracoesPage';
+import PermissoesUsuario from '../../pages/usuarios/components/PermissoesUsuario';
 
 const CadastrosRoutes = () => {
   return [
+    // Original paths
     <Route key="cadastros-usuarios" path="/cadastros/usuarios" element={
       <ProtectedRoute>
         <CadastroUsuarios />
@@ -42,6 +44,7 @@ const CadastrosRoutes = () => {
       </ProtectedRoute>
     } />,
     
+    // Routes matching sidebar links for motoristas section
     <Route key="motoristas-cadastro" path="/motoristas/cadastro" element={
       <ProtectedRoute>
         <CadastroMotoristas />
@@ -51,6 +54,32 @@ const CadastrosRoutes = () => {
     <Route key="motoristas-cargas" path="/motoristas/cargas" element={
       <ProtectedRoute>
         <CargasMotoristas />
+      </ProtectedRoute>
+    } />,
+    
+    // Routes matching sidebar links for usuarios section
+    <Route key="usuarios-cadastro" path="/usuarios/cadastro" element={
+      <ProtectedRoute>
+        <CadastroUsuarios initialTab="cadastro" />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="usuarios-permissoes" path="/usuarios/permissoes" element={
+      <ProtectedRoute>
+        <CadastroUsuarios initialTab="permissoes" />
+      </ProtectedRoute>
+    } />,
+    
+    // Routes matching sidebar links for empresas section
+    <Route key="empresas-cadastro" path="/empresas/cadastro" element={
+      <ProtectedRoute>
+        <CadastroEmpresas initialTab="cadastro" />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="empresas-permissoes" path="/empresas/permissoes" element={
+      <ProtectedRoute>
+        <CadastroEmpresas initialTab="permissoes" />
       </ProtectedRoute>
     } />,
     
