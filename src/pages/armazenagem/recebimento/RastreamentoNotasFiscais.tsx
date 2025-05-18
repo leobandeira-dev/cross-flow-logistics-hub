@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -6,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Truck, Check, Box, Flag, FlagOff, Shield, Award, Search, list, kanban } from 'lucide-react';
+import { Clock, Truck, Check, Box, Flag, FlagOff, Shield, Award, Search, List, Kanban } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import { toast } from '@/hooks/use-toast';
 import SearchFilter from '@/components/common/SearchFilter';
@@ -311,7 +312,7 @@ const RastreamentoNotasFiscais: React.FC = () => {
               onClick={() => setViewMode('list')}
               className="flex items-center gap-1"
             >
-              <list className="h-4 w-4" />
+              <List className="h-4 w-4" />
               Lista
             </Button>
             <Button 
@@ -320,7 +321,7 @@ const RastreamentoNotasFiscais: React.FC = () => {
               onClick={() => setViewMode('kanban')}
               className="flex items-center gap-1"
             >
-              <kanban className="h-4 w-4" />
+              <Kanban className="h-4 w-4" />
               Kanban
             </Button>
           </div>

@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
   Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
-  Calculator, BarChart, PieChart, Table, Download, Printer, Search, Filter, list, kanban
+  Calculator, BarChart, PieChart, Table, Download, Printer, Search, Filter, List, Kanban
 } from 'lucide-react';
 
 interface SidebarItemProps {
