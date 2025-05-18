@@ -1,13 +1,13 @@
 
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { NotaFiscalVolume } from '../../../utils/volumeCalculations';
+import { NotaFiscalVolume } from '../../../utils/volumes/types';
 import { VolumeItem, generateVolumeId } from '../../../utils/volumes/types';
 import { InternalFormData } from './solicitacaoFormTypes';
 
 // Utility function to ensure volumes have id property
 const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
-  return volumes.map((volume, index) => ({
+  return volumes.map((volume) => ({
     id: volume.id || generateVolumeId(),
     quantidade: volume.quantidade || 1,
     altura: volume.altura || 0,
@@ -44,6 +44,7 @@ export const useImportHandler = (
         description: `${validatedNotasFiscais.length} notas fiscais importadas com sucesso.`
       });
       
+      // Update form data with both notasFiscais and info about remetente/destinatário
       setFormData(prev => ({
         ...prev,
         notasFiscais: validatedNotasFiscais,

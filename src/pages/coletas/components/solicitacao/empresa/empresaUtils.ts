@@ -1,5 +1,5 @@
 
-import { EnderecoCompleto, DadosEmpresa } from '../../../types/coleta.types';
+import { EnderecoCompleto, DadosEmpresa } from '../SolicitacaoTypes';
 import { EmpresaInfo } from '../SolicitacaoTypes';
 
 // Convert from EmpresaInfo to DadosEmpresa

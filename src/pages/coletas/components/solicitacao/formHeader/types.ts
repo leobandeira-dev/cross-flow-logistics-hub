@@ -1,49 +1,32 @@
 
-import { ChangeEvent } from 'react';
-
 export interface SolicitacaoFormHeaderProps {
+  currentStep?: number;
+  isLoading?: boolean;
+  // Cliente information
   cliente?: string;
-  dataColeta?: string;
+  // Collection date and time
+  dataColeta?: string; 
   horaColeta?: string;
+  // Approval date and time
   dataAprovacao?: string;
   horaAprovacao?: string;
+  // Inclusion date and time
   dataInclusao?: string;
   horaInclusao?: string;
+  // Origin information
   origem?: string;
   origemEndereco?: string;
   origemCEP?: string;
+  // Destination information
   destino?: string;
   destinoEndereco?: string;
   destinoCEP?: string;
-  onClienteChange?: (value: string) => void;
-  onDataColetaChange?: (value: string) => void;
-  onHoraColetaChange?: (value: string) => void;
-  onOrigemChange?: (value: string) => void;
-  onDestinoChange?: (value: string) => void;
+  // Event handlers
+  onClienteChange?: (cliente: string) => void;
+  onDataColetaChange?: (data: string) => void;
+  onHoraColetaChange?: (hora: string) => void;
+  onOrigemChange?: (origem: string) => void;
+  onDestinoChange?: (destino: string) => void;
+  // Additional props
   readOnlyAddresses?: boolean;
-  currentStep?: number;
-  isLoading?: boolean;
-}
-
-export interface AddressSectionProps {
-  label: string;
-  cidade: string;
-  uf: string;
-  endereco: string;
-  cep: string;
-  readOnly: boolean;
-  onCidadeChange?: (value: string) => void;
-  onUFChange?: (value: string) => void;
-  id: string;
-}
-
-export interface DateSectionProps {
-  dataLabel: string;
-  horaLabel: string;
-  data: string;
-  hora: string;
-  readonly?: boolean;
-  onDataChange?: (value: string) => void;
-  onHoraChange?: (value: string) => void;
-  id: string;
 }

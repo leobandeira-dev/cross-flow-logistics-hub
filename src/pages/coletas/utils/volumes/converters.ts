@@ -1,47 +1,40 @@
 
-import { VolumeItem, generateVolumeId } from './types';
+import { NotaFiscalVolume, VolumeItem, generateVolumeId } from './types';
 
-// Convert volume objects with various formats to consistent VolumeItem objects
+// Convert volumes to standard VolumeItem format
 export const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
-  return volumes.map((volume) => {
-    // Check if the volume is already a VolumeItem
-    if (volume.id) {
-      return volume;
-    }
-    
-    // Create a new VolumeItem with proper structure
-    const volumeItem: VolumeItem = {
-      id: generateVolumeId(),
-      altura: parseFloat(volume.altura || volume.height || 0),
-      largura: parseFloat(volume.largura || volume.width || 0),
-      comprimento: parseFloat(volume.comprimento || volume.length || 0),
-      peso: parseFloat(volume.peso || volume.weight || 0),
-      quantidade: parseInt(volume.quantidade || volume.quantity || 1)
-    };
-    
-    return volumeItem;
-  });
+  return volumes.map((volume) => ({
+    id: volume.id || generateVolumeId(),
+    quantidade: volume.quantidade || 1,
+    altura: volume.altura || 0,
+    largura: volume.largura || 0,
+    comprimento: volume.comprimento || 0,
+    peso: volume.peso || 0
+  }));
 };
 
 // Ensure a nota fiscal has all required fields
-export const ensureCompleteNotaFiscal = (nf: any) => {
+export const ensureCompleteNotaFiscal = (notaFiscal: any): NotaFiscalVolume => {
   return {
-    numeroNF: nf.numeroNF || nf.numero || `NF${Date.now()}`,
-    chaveNF: nf.chaveNF || '',
-    dataEmissao: nf.dataEmissao || new Date().toISOString(),
-    volumes: Array.isArray(nf.volumes) ? convertVolumesToVolumeItems(nf.volumes) : [],
-    remetente: nf.remetente || nf.emit?.xNome || '',
-    destinatario: nf.destinatario || nf.dest?.xNome || '',
-    valorTotal: parseFloat(nf.valorTotal || nf.vNF || 0),
-    pesoTotal: parseFloat(nf.pesoTotal || nf.pesoB || 0),
-    // Additional fields
-    enderecoRemetente: nf.enderecoRemetente || '',
-    cepRemetente: nf.cepRemetente || '',
-    cidadeRemetente: nf.cidadeRemetente || '',
-    ufRemetente: nf.ufRemetente || '',
-    enderecoDestinatario: nf.enderecoDestinatario || '',
-    cepDestinatario: nf.cepDestinatario || '',
-    cidadeDestinatario: nf.cidadeDestinatario || '',
-    ufDestinatario: nf.ufDestinatario || ''
+    numeroNF: notaFiscal.numeroNF || '',
+    chaveNF: notaFiscal.chaveNF || '',
+    dataEmissao: notaFiscal.dataEmissao || '',
+    volumes: Array.isArray(notaFiscal.volumes) 
+      ? convertVolumesToVolumeItems(notaFiscal.volumes) 
+      : [],
+    remetente: notaFiscal.remetente || '',
+    destinatario: notaFiscal.destinatario || '',
+    valorTotal: notaFiscal.valorTotal || 0,
+    pesoTotal: notaFiscal.pesoTotal || 0
   };
+};
+
+// Calculate cubic volume (m³)
+export const calculateCubicVolume = (volume: VolumeItem): number => {
+  return (volume.altura * volume.largura * volume.comprimento * volume.quantidade) / 1000000;
+};
+
+// Calculate total cubic volume for a set of volumes
+export const calculateTotalCubicVolume = (volumes: VolumeItem[]): number => {
+  return volumes.reduce((total, vol) => total + calculateCubicVolume(vol), 0);
 };

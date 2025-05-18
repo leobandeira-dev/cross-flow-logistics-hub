@@ -4,8 +4,7 @@ import { toast } from '@/hooks/use-toast';
 import { InternalFormData } from '../solicitacao/hooks/solicitacaoFormTypes';
 import { EMPTY_EMPRESA } from '../solicitacao/SolicitacaoTypes';
 import { NotaFiscalVolume, VolumeItem, generateVolumeId } from '../../utils/volumes/types';
-import { convertVolumesToVolumeItems } from '../../utils/volumes/converters';
-import { ensureCompleteNotaFiscal } from '../../utils/volumes/converters';
+import { convertVolumesToVolumeItems, ensureCompleteNotaFiscal } from '../../utils/volumes/converters';
 
 export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +75,7 @@ export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
         pesoTotal: 5
       };
       
+      // Update with properly formatted data
       setFormData(prev => ({
         ...prev,
         notasFiscais: [...prev.notasFiscais, dummyNF]
@@ -130,6 +130,7 @@ export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
         pesoTotal: 5 + i
       }));
       
+      // Update with properly formatted data
       setFormData(prev => ({
         ...prev,
         notasFiscais: [...prev.notasFiscais, ...dummyNFs]
@@ -184,6 +185,7 @@ export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
         pesoTotal: 7 + (i * 2)
       }));
       
+      // Update with properly formatted data
       setFormData(prev => ({
         ...prev,
         notasFiscais: [...prev.notasFiscais, ...dummyNFs]

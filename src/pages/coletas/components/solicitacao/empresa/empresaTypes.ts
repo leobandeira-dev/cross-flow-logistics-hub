@@ -1,6 +1,10 @@
 
-import { EnderecoCompleto, DadosEmpresa } from '../../../types/coleta.types';
+import { EnderecoCompleto, DadosEmpresa } from '../SolicitacaoTypes';
 
+// Using types from SolicitacaoTypes.ts
+export { EnderecoCompleto, DadosEmpresa };
+
+// Empty empresa data objects
 export const EMPTY_ENDERECO: EnderecoCompleto = {
   logradouro: '',
   numero: '',
@@ -18,20 +22,3 @@ export const EMPTY_EMPRESA: DadosEmpresa = {
   endereco: EMPTY_ENDERECO,
   enderecoFormatado: ''
 };
-
-export interface EmpresaInfoFormProps {
-  tipo: 'remetente' | 'destinatario';
-  dados?: DadosEmpresa;
-  onDadosChange?: (dados: DadosEmpresa) => void;
-  readOnly?: boolean;
-  empresa?: DadosEmpresa; // For backward compatibility
-  onChange?: (empresa: DadosEmpresa) => void; // For backward compatibility
-  label?: string;
-}
-
-export interface EnderecoFormProps {
-  endereco: EnderecoCompleto;
-  readOnly: boolean;
-  tipo: string;
-  onEnderecoChange: (field: keyof EnderecoCompleto, value: string) => void;
-}
