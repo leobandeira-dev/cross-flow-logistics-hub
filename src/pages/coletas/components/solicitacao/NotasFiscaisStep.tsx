@@ -38,30 +38,9 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
             tipoFrete={formData.tipoFrete}
             dataColeta={formData.dataColeta}
             horaColeta={formData.horaColeta}
-            dataAprovacao={formData.dataAprovacao}
-            horaAprovacao={formData.horaAprovacao}
-            dataInclusao={formData.dataInclusao}
-            horaInclusao={formData.horaInclusao}
-            origem={formData.origem}
-            origemEndereco={formData.origemEndereco}
-            origemCEP={formData.origemCEP}
-            destino={formData.destino}
-            destinoEndereco={formData.destinoEndereco}
-            destinoCEP={formData.destinoCEP}
-            remetente={formData.remetente ? {
-              razaoSocial: formData.remetente.razaoSocial,
-              cnpj: formData.remetente.cnpj
-            } : undefined}
-            destinatario={formData.destinatario ? {
-              razaoSocial: formData.destinatario.razaoSocial,
-              cnpj: formData.destinatario.cnpj
-            } : undefined}
             onTipoFreteChange={(tipo) => handleInputChange('tipoFrete', tipo)}
             onDataColetaChange={(data) => handleInputChange('dataColeta', data)}
             onHoraColetaChange={(hora) => handleInputChange('horaColeta', hora)}
-            onOrigemChange={(origem) => handleInputChange('origem', origem)}
-            onDestinoChange={(destino) => handleInputChange('destino', destino)}
-            readOnlyAddresses={formData.notasFiscais.length > 0}
           />
           
           <div className="grid grid-cols-3 gap-4 mt-4">
