@@ -45,6 +45,69 @@ export const formatarNumero = (numero: number, decimais: number = 3): string => 
   });
 };
 
+// Format currency in Brazilian Real (R$)
+export const formatarMoeda = (valor: number): string => {
+  return valor.toLocaleString('pt-BR', { 
+    style: 'currency', 
+    currency: 'BRL' 
+  });
+};
+
+// Calculate totals for a single invoice
+export const calcularTotaisNota = (volumes: VolumeItem[], pesoTotal?: number): { 
+  qtdVolumes: number; 
+  volumeTotal: number; 
+  pesoTotal: number;
+  pesoCubadoTotal: number;
+} => {
+  let totalVolumes = 0;
+  let totalVolumeM3 = 0;
+  
+  volumes.forEach(volume => {
+    totalVolumes += volume.quantidade;
+    totalVolumeM3 += calcularVolume(volume);
+  });
+  
+  // Calculate cubic weight (300kg per cubic meter)
+  const pesoCubado = totalVolumeM3 * 300;
+  
+  return {
+    qtdVolumes: totalVolumes,
+    volumeTotal: totalVolumeM3,
+    pesoTotal: pesoTotal || volumes.reduce((sum, vol) => sum + (vol.peso * vol.quantidade), 0),
+    pesoCubadoTotal: pesoCubado
+  };
+};
+
+// Calculate totals for a collection of invoices
+export const calcularTotaisColeta = (notasFiscais: NotaFiscalVolume[]): {
+  qtdVolumes: number;
+  volumeTotal: number;
+  pesoTotal: number;
+  pesoCubadoTotal: number;
+} => {
+  let totalVolumes = 0;
+  let totalVolumeM3 = 0;
+  let totalPeso = 0;
+  
+  notasFiscais.forEach(nf => {
+    const totaisNota = calcularTotaisNota(nf.volumes, nf.pesoTotal);
+    totalVolumes += totaisNota.qtdVolumes;
+    totalVolumeM3 += totaisNota.volumeTotal;
+    totalPeso += nf.pesoTotal || totaisNota.pesoTotal;
+  });
+  
+  // Calculate cubic weight (300kg per cubic meter)
+  const pesoCubado = totalVolumeM3 * 300;
+  
+  return {
+    qtdVolumes: totalVolumes,
+    volumeTotal: totalVolumeM3,
+    pesoTotal: totalPeso,
+    pesoCubadoTotal: pesoCubado
+  };
+};
+
 // Convert various volume formats to VolumeItem format
 export const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
   if (!volumes || !Array.isArray(volumes)) return [];

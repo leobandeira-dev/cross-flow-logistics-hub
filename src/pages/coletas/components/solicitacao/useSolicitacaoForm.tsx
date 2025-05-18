@@ -162,10 +162,13 @@ export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void) => {
       const validatedNotasFiscais = notasFiscais.map(nf => {
         return {
           numeroNF: nf.numeroNF,
+          chaveNF: nf.chaveNF || '',
+          dataEmissao: nf.dataEmissao || '',
           volumes: Array.isArray(nf.volumes) ? convertVolumesToVolumeItems(nf.volumes) : [],
           remetente: nf.remetente || '',
           destinatario: nf.destinatario || '',
-          valorTotal: nf.valorTotal || 0
+          valorTotal: nf.valorTotal || 0,
+          pesoTotal: nf.pesoTotal || 0 // Ensure pesoTotal is always included
         };
       });
       
