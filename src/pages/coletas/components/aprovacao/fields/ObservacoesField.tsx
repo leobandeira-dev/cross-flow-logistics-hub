@@ -11,7 +11,7 @@ import {
 import { UseFormReturn } from 'react-hook-form';
 import { FormData } from '../formSchema';
 
-interface ObservacoesFieldProps {
+export interface ObservacoesFieldProps {
   form: UseFormReturn<FormData>;
 }
 

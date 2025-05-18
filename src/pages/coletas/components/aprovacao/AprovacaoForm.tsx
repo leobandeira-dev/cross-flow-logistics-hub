@@ -45,23 +45,31 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
       onApprove(solicitacaoId, data.observacoes);
     }
   };
+
+  const handleApproveClick = () => {
+    const observacoes = form.getValues("observacoes");
+    onApprove(solicitacaoId, observacoes);
+  };
   
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <ObservacoesField 
-          control={form.control}
+          form={form}
         />
         
         {isRejecting && (
           <RejeicaoFields 
-            control={form.control}
+            form={form}
+            isRejecting={isRejecting}
           />
         )}
         
         <AprovacaoActions 
           isRejecting={isRejecting} 
           setIsRejecting={setIsRejecting}
+          onClose={() => {}}
+          handleApproveClick={handleApproveClick}
         />
       </form>
     </Form>
