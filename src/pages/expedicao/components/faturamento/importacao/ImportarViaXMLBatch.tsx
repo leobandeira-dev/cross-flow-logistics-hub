@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,7 +73,8 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
         notaFiscal: mergedData.numeroNF || '',
         pedido: mergedData.numeroPedido || '', // Map pedido field correctly
         dataEmissao: mergedData.dataHoraEmissao ? new Date(mergedData.dataHoraEmissao) : new Date(),
-        pesoNota: parseFloat(mergedData.pesoTotalBruto || '0') || 0,
+        // Parse the weight directly without any division - FIX: Keep the original weight value
+        pesoNota: parseFloat(mergedData.pesoTotalBruto || '0'),
         valorNF: parseFloat(mergedData.valorTotal || '0') || 0,
         fretePorTonelada: 0,
         pesoMinimo: 0,
