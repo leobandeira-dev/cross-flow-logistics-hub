@@ -11,8 +11,8 @@ export const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
     const comprimento = volume.comprimento || 0;
     const peso = volume.peso || 0;
     
-    // Calculate cubic volume (m³)
-    const cubicVolume = (altura * largura * comprimento * quantidade) / 1000000; // Convert from cm³ to m³
+    // Calculate cubic volume (m³) - no division by 1,000,000
+    const cubicVolume = altura * largura * comprimento * quantidade;
     
     return {
       id: volume.id || generateVolumeId(),

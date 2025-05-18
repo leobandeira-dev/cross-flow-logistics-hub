@@ -3,8 +3,8 @@ import { VolumeItem } from './types';
 
 // Calculate total volume (m³) for a single volume item
 export const calcularVolume = (volume: VolumeItem): number => {
-  // Convert from cm³ to m³ (divide by 1,000,000)
-  const volumeTotal = (volume.altura * volume.largura * volume.comprimento * volume.quantidade) / 1000000;
+  // Formula: altura * largura * comprimento * quantidade (no longer dividing by 1,000,000)
+  const volumeTotal = volume.altura * volume.largura * volume.comprimento * volume.quantidade;
   return volumeTotal;
 };
 

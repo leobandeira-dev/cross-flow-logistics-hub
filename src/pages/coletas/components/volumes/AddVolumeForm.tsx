@@ -18,10 +18,10 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
   });
   const [volumeM3, setVolumeM3] = useState<number>(0);
 
-  // Calculate volume in m³ whenever dimensions or quantity changes
+  // Calculate volume whenever dimensions or quantity changes
   useEffect(() => {
-    // Formula: altura * largura * comprimento * quantidade / 1000000 (convert cm³ to m³)
-    const calculatedVolume = (novoVolume.altura * novoVolume.largura * novoVolume.comprimento * novoVolume.quantidade) / 1000000;
+    // Formula: altura * largura * comprimento * quantidade (no division by 1000000)
+    const calculatedVolume = novoVolume.altura * novoVolume.largura * novoVolume.comprimento * novoVolume.quantidade;
     setVolumeM3(calculatedVolume);
   }, [novoVolume.altura, novoVolume.largura, novoVolume.comprimento, novoVolume.quantidade]);
 

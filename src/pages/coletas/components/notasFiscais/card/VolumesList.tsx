@@ -22,7 +22,7 @@ const VolumesList: React.FC<VolumesListProps> = ({
 }) => {
   // Calculate total volume in m³
   const totalVolumeM3 = volumes.reduce((sum, v) => {
-    return sum + (v.cubicVolume || ((v.altura * v.largura * v.comprimento * v.quantidade) / 1000000));
+    return sum + (v.cubicVolume || (v.altura * v.largura * v.comprimento * v.quantidade));
   }, 0);
   
   // Calculate distribution of weight across volumes
@@ -35,7 +35,7 @@ const VolumesList: React.FC<VolumesListProps> = ({
     if (totalVolumeCubic <= 0) return;
     
     volumes.forEach(volume => {
-      const volumeCubic = (volume.cubicVolume || ((volume.altura * volume.largura * volume.comprimento * volume.quantidade) / 1000000));
+      const volumeCubic = (volume.cubicVolume || (volume.altura * volume.largura * volume.comprimento * volume.quantidade));
       const volumeRatio = volumeCubic / totalVolumeCubic;
       const distributedPeso = (pesoTotal * volumeRatio).toFixed(2);
       
@@ -76,7 +76,7 @@ const VolumesList: React.FC<VolumesListProps> = ({
           <tbody>
             {volumes.map((volume) => {
               // Calculate cubic volume for this specific volume
-              const cubicVolume = volume.cubicVolume || ((volume.altura * volume.largura * volume.comprimento * volume.quantidade) / 1000000);
+              const cubicVolume = volume.cubicVolume || (volume.altura * volume.largura * volume.comprimento * volume.quantidade);
               
               return (
                 <tr key={volume.id} className="border-b">
