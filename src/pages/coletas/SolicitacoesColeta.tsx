@@ -28,8 +28,17 @@ const SolicitacoesColeta = () => {
       const storedSolicitations = localStorage.getItem('solicitacoesColeta');
       if (storedSolicitations) {
         const parsedSolicitations = JSON.parse(storedSolicitations);
-        setSolicitacoes(parsedSolicitations);
+        // Garantir que é um array válido
+        if (Array.isArray(parsedSolicitations)) {
+          setSolicitacoes(parsedSolicitations);
+          console.log("Solicitações carregadas do localStorage:", parsedSolicitations);
+        } else {
+          console.error("Dados armazenados não são um array válido:", parsedSolicitations);
+          setSolicitacoes(solicitacoesIniciais);
+          localStorage.setItem('solicitacoesColeta', JSON.stringify(solicitacoesIniciais));
+        }
       } else {
+        console.log("Nenhuma solicitação encontrada no localStorage, usando dados iniciais");
         setSolicitacoes(solicitacoesIniciais);
         // Initialize localStorage with mock data
         localStorage.setItem('solicitacoesColeta', JSON.stringify(solicitacoesIniciais));

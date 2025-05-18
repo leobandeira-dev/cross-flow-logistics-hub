@@ -34,7 +34,7 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
           <Plus className="mr-2 h-4 w-4" /> Nova Solicitação
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nova Solicitação de Coleta</DialogTitle>
           <DialogDescription>
