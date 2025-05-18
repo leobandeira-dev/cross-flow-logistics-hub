@@ -1,5 +1,5 @@
 
-import { Route } from 'react-router-dom';
+import { Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '../ProtectedRoute';
 
 // Pages Import
@@ -9,6 +9,12 @@ import EmissaoDocumentos from '../../pages/expedicao/EmissaoDocumentos';
 const ExpedicaoRoutes = () => {
   return [
     <Route key="expedicao" path="/expedicao" element={
+      <ProtectedRoute>
+        <Navigate to="/expedicao/faturamento" replace />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="expedicao-faturamento" path="/expedicao/faturamento" element={
       <ProtectedRoute>
         <Faturamento />
       </ProtectedRoute>
