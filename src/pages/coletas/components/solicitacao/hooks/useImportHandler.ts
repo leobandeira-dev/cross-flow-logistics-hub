@@ -5,6 +5,7 @@ import { NotaFiscalVolume } from '../../../utils/volumes/types';
 import { VolumeItem, generateVolumeId } from '../../../utils/volumes/types';
 import { InternalFormData } from './solicitacaoFormTypes';
 import { convertVolumesToVolumeItems } from '../../../utils/volumes/converters';
+import { extractEmpresaInfoFromXML } from '../empresa/empresaUtils';
 
 export const useImportHandler = (
   setFormData: React.Dispatch<React.SetStateAction<InternalFormData>>
@@ -46,6 +47,11 @@ export const useImportHandler = (
         if (remetenteInfo) {
           updatedData.remetenteInfo = remetenteInfo;
           
+          // Convert to proper EmpresaInfo format if needed
+          if (remetenteInfo.endereco) {
+            updatedData.remetente = extractEmpresaInfoFromXML(remetenteInfo);
+          }
+          
           // Set origin address fields
           updatedData.origem = `${remetenteInfo.endereco?.cidade || ''} - ${remetenteInfo.endereco?.uf || ''}`;
           updatedData.origemEndereco = remetenteInfo.endereco?.logradouro 
@@ -54,11 +60,16 @@ export const useImportHandler = (
           updatedData.origemCEP = remetenteInfo.endereco?.cep || '';
           
           // Set cliente field with sender's name
-          updatedData.cliente = remetenteInfo.nome || '';
+          updatedData.cliente = remetenteInfo.nome || remetenteInfo.razaoSocial || '';
         }
         
         if (destinatarioInfo) {
           updatedData.destinatarioInfo = destinatarioInfo;
+          
+          // Convert to proper EmpresaInfo format if needed
+          if (destinatarioInfo.endereco) {
+            updatedData.destinatario = extractEmpresaInfoFromXML(destinatarioInfo);
+          }
           
           // Set destination address fields
           updatedData.destino = `${destinatarioInfo.endereco?.cidade || ''} - ${destinatarioInfo.endereco?.uf || ''}`;

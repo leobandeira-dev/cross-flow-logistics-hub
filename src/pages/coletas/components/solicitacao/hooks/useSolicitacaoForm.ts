@@ -1,23 +1,40 @@
 
 import { useState } from 'react';
-import { EMPTY_EMPRESA } from '../SolicitacaoTypes';
 import { validateStep } from './formValidation';
 import { useImportHandler } from './useImportHandler';
 import { useAddressUpdater } from './useAddressUpdater';
 import { useFormSubmission } from './useFormSubmission';
 import { InternalFormData, UseSolicitacaoFormReturn } from './solicitacaoFormTypes';
+import { EmpresaInfo } from '../SolicitacaoTypes';
+
+// Empty empresa info for initialization
+const EMPTY_EMPRESA_INFO: EmpresaInfo = {
+  razaoSocial: '',
+  cnpj: '',
+  endereco: '',
+  numero: '',
+  bairro: '',
+  cidade: '',
+  uf: '',
+  cep: ''
+};
 
 export const useSolicitacaoForm = (setIsOpen: (open: boolean) => void): UseSolicitacaoFormReturn => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<InternalFormData>({
-    remetente: EMPTY_EMPRESA,
-    destinatario: EMPTY_EMPRESA,
+    remetente: EMPTY_EMPRESA_INFO,
+    destinatario: EMPTY_EMPRESA_INFO,
     dataColeta: '',
+    horaColeta: '',
     observacoes: '',
     notasFiscais: [],
     cliente: '',
     origem: '',
-    destino: ''
+    destino: '',
+    origemEndereco: '',
+    origemCEP: '',
+    destinoEndereco: '',
+    destinoCEP: ''
   });
 
   // Use our custom hooks

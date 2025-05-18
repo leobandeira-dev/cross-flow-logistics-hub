@@ -46,17 +46,34 @@ export interface SolicitacaoFormData {
   remetente: EmpresaInfo;
   destinatario: EmpresaInfo;
   dataColeta: string;
+  horaColeta?: string;
   observacoes: string;
   notasFiscais: any[];
   dataInclusao?: string;
   horaInclusao?: string;
   quantidadeVolumes?: number;
+  // Extended properties for address display
+  origemEndereco?: string;
+  origemCEP?: string;
+  destinoEndereco?: string;
+  destinoCEP?: string;
+  // Extended properties for approval flow
+  dataAprovacao?: string;
+  horaAprovacao?: string;
 }
 
 // Dialog props
 export interface NovaSolicitacaoDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}
+
+// Dialog props for new dialog component
+export interface SolicitacaoDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }

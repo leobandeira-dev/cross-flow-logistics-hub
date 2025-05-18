@@ -1,5 +1,5 @@
 
-import { SolicitacaoFormData, EmpresaInfo } from '../SolicitacaoTypes';
+import { SolicitacaoFormData, EmpresaInfo, DadosEmpresa } from '../SolicitacaoTypes';
 import { NotaFiscalVolume } from '../../../utils/volumes/types';
 
 // Internal form data with some fields optional for initial state
@@ -7,15 +7,26 @@ export interface InternalFormData extends Partial<SolicitacaoFormData> {
   remetente: EmpresaInfo;
   destinatario: EmpresaInfo;
   dataColeta: string;
+  horaColeta?: string;
   observacoes: string;
   notasFiscais: NotaFiscalVolume[];
-  // These are required in SolicitacaoFormData but can be empty initially
+  // Required fields
   cliente: string;
   origem: string;
   destino: string;
-  // Additional properties for handling XML import data
+  // Extended properties for XML import data
   remetenteInfo?: any;
   destinatarioInfo?: any;
+  // Extended properties for address display
+  origemEndereco?: string;
+  origemCEP?: string;
+  destinoEndereco?: string;
+  destinoCEP?: string;
+  // Extended properties for approval flow
+  dataAprovacao?: string;
+  horaAprovacao?: string;
+  dataInclusao?: string;
+  horaInclusao?: string;
 }
 
 // Return type for the useSolicitacaoForm hook

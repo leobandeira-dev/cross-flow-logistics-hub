@@ -2,21 +2,38 @@
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { InternalFormData } from '../solicitacao/hooks/solicitacaoFormTypes';
-import { EMPTY_EMPRESA } from '../solicitacao/SolicitacaoTypes';
+import { EmpresaInfo } from '../solicitacao/SolicitacaoTypes';
 import { NotaFiscalVolume, VolumeItem, generateVolumeId } from '../../utils/volumes/types';
 import { convertVolumesToVolumeItems, ensureCompleteNotaFiscal } from '../../utils/volumes/converters';
+
+// Empty empresa info for initialization
+const EMPTY_EMPRESA_INFO: EmpresaInfo = {
+  razaoSocial: '',
+  cnpj: '',
+  endereco: '',
+  numero: '',
+  bairro: '',
+  cidade: '',
+  uf: '',
+  cep: ''
+};
 
 export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<InternalFormData>({
-    remetente: EMPTY_EMPRESA,
-    destinatario: EMPTY_EMPRESA,
+    remetente: EMPTY_EMPRESA_INFO,
+    destinatario: EMPTY_EMPRESA_INFO,
     dataColeta: '',
+    horaColeta: '',
     observacoes: '',
     notasFiscais: [],
     cliente: '',
     origem: '',
-    destino: ''
+    destino: '',
+    origemEndereco: '',
+    origemCEP: '',
+    destinoEndereco: '',
+    destinoCEP: ''
   });
 
   // Handle form input changes

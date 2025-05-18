@@ -46,20 +46,20 @@ const NovaSolicitacaoDialog: React.FC<SolicitacaoDialogProps> = ({
           isLoading={isLoading || isImporting}
           cliente={formData.cliente}
           dataColeta={formData.dataColeta}
-          horaColeta={formData.horaColeta}
-          dataAprovacao={formData.dataAprovacao}
-          horaAprovacao={formData.horaAprovacao}
-          dataInclusao={formData.dataInclusao}
-          horaInclusao={formData.horaInclusao}
+          horaColeta={formData.horaColeta || ''}
+          dataAprovacao={formData.dataAprovacao || ''}
+          horaAprovacao={formData.horaAprovacao || ''}
+          dataInclusao={formData.dataInclusao || ''}
+          horaInclusao={formData.horaInclusao || ''}
           origem={formData.origem}
-          origemEndereco={formData.origemEndereco}
-          origemCEP={formData.origemCEP}
+          origemEndereco={formData.origemEndereco || ''}
+          origemCEP={formData.origemCEP || ''}
           destino={formData.destino}
-          destinoEndereco={formData.destinoEndereco}
-          destinoCEP={formData.destinoCEP}
+          destinoEndereco={formData.destinoEndereco || ''}
+          destinoCEP={formData.destinoCEP || ''}
           onClienteChange={(value) => handleInputChange('cliente', value)}
           onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
-          onHoraColetaChange={(value) => handleInputChange('horaColeta', value)}
+          onHoraColetaChange={(value) => handleInputChange('horaColeta', value || '')}
           onOrigemChange={(value) => handleInputChange('origem', value)}
           onDestinoChange={(value) => handleInputChange('destino', value)}
           readOnlyAddresses={formData.remetenteInfo !== undefined || formData.destinatarioInfo !== undefined}

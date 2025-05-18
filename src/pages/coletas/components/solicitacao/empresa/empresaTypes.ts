@@ -1,8 +1,8 @@
 
-import { EnderecoCompleto, DadosEmpresa } from '../SolicitacaoTypes';
+import { EnderecoCompleto, DadosEmpresa, EmpresaInfo } from '../SolicitacaoTypes';
 
 // Using types from SolicitacaoTypes.ts
-export type { EnderecoCompleto, DadosEmpresa };
+export type { EnderecoCompleto, DadosEmpresa, EmpresaInfo };
 
 // Empty empresa data objects
 export const EMPTY_ENDERECO: EnderecoCompleto = {

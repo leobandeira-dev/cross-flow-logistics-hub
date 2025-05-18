@@ -1,7 +1,7 @@
 
-import { EnderecoCompleto, DadosEmpresa, EmpresaInfo } from '../SolicitacaoTypes';
+import { DadosEmpresa, EmpresaInfo } from './empresaTypes';
 
-// Convert DadosEmpresa to EmpresaInfo
+// Convert DadosEmpresa to EmpresaInfo format
 export const convertDadosToEmpresaInfo = (dados: DadosEmpresa): EmpresaInfo => {
   return {
     razaoSocial: dados.razaoSocial,
@@ -13,19 +13,17 @@ export const convertDadosToEmpresaInfo = (dados: DadosEmpresa): EmpresaInfo => {
     cidade: dados.endereco.cidade,
     uf: dados.endereco.uf,
     cep: dados.endereco.cep,
-    telefone: dados.telefone || '', // Add telefone if available
-    email: dados.email || '' // Add email if available
+    telefone: dados.telefone || '',
+    email: dados.email || ''
   };
 };
 
-// Convert EmpresaInfo to DadosEmpresa
+// Convert EmpresaInfo to DadosEmpresa format
 export const convertEmpresaInfoToDados = (info: EmpresaInfo): DadosEmpresa => {
   return {
     razaoSocial: info.razaoSocial,
     cnpj: info.cnpj,
-    nomeFantasia: '',  // Not available in EmpresaInfo
-    telefone: info.telefone || '',
-    email: info.email || '',
+    nomeFantasia: info.razaoSocial, // Use razaoSocial as fallback for nomeFantasia
     endereco: {
       logradouro: info.endereco,
       numero: info.numero,
@@ -35,46 +33,32 @@ export const convertEmpresaInfoToDados = (info: EmpresaInfo): DadosEmpresa => {
       uf: info.uf,
       cep: info.cep
     },
-    enderecoFormatado: formatEnderecoDisplay({
-      logradouro: info.endereco,
-      numero: info.numero,
-      complemento: info.complemento || '',
-      bairro: info.bairro,
-      cidade: info.cidade,
-      uf: info.uf,
-      cep: info.cep
-    })
+    enderecoFormatado: `${info.endereco}, ${info.numero} - ${info.bairro}, ${info.cidade}/${info.uf}`,
+    telefone: info.telefone || '',
+    email: info.email || ''
+  };
+};
+
+// Extract empresa info from XML data
+export const extractEmpresaInfoFromXML = (xmlData: any): EmpresaInfo => {
+  if (!xmlData) return {} as EmpresaInfo;
+  
+  return {
+    razaoSocial: xmlData.razaoSocial || xmlData.nome || '',
+    cnpj: xmlData.cnpj || '',
+    endereco: xmlData.endereco?.logradouro || '',
+    numero: xmlData.endereco?.numero || '',
+    complemento: xmlData.endereco?.complemento || '',
+    bairro: xmlData.endereco?.bairro || '',
+    cidade: xmlData.endereco?.cidade || '',
+    uf: xmlData.endereco?.uf || '',
+    cep: xmlData.endereco?.cep || '',
+    telefone: xmlData.telefone || '',
+    email: xmlData.email || ''
   };
 };
 
 // Format address for display
-export const formatEnderecoDisplay = (endereco: EnderecoCompleto): string => {
-  return `${endereco.logradouro}, ${endereco.numero}${endereco.complemento ? ` - ${endereco.complemento}` : ''}, ${endereco.bairro}, ${endereco.cidade} - ${endereco.uf}, ${endereco.cep}`;
-};
-
-// Extract address data from XML data
-export const extractAddressFromXml = (xmlData: any, type: 'emitente' | 'destinatario') => {
-  const prefix = type === 'emitente' ? 'emitente' : 'destinatario';
-  
-  const endereco: EnderecoCompleto = {
-    logradouro: xmlData[`${prefix}Endereco`] || '',
-    numero: xmlData[`${prefix}Numero`] || '',
-    complemento: xmlData[`${prefix}Complemento`] || '',
-    bairro: xmlData[`${prefix}Bairro`] || '',
-    cidade: xmlData[`${prefix}Cidade`] || '',
-    uf: xmlData[`${prefix}UF`] || '',
-    cep: xmlData[`${prefix}CEP`] || ''
-  };
-  
-  const dadosEmpresa: DadosEmpresa = {
-    razaoSocial: xmlData[`${prefix}RazaoSocial`] || '',
-    cnpj: xmlData[`${prefix}CNPJ`] || '',
-    nomeFantasia: '',  // Not typically available in XML
-    telefone: xmlData[`${prefix}Telefone`] || '',
-    email: '',  // Not typically available in XML
-    endereco: endereco,
-    enderecoFormatado: formatEnderecoDisplay(endereco)
-  };
-  
-  return dadosEmpresa;
+export const formatEnderecoCompleto = (info: EmpresaInfo): string => {
+  return `${info.endereco}, ${info.numero}${info.complemento ? ' - ' + info.complemento : ''}, ${info.bairro}, ${info.cidade}/${info.uf}`;
 };
