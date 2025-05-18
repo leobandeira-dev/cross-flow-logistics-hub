@@ -152,8 +152,9 @@ const Sidebar: React.FC = () => {
         
         {/* Expedição submenu */}
         <SubMenu icon={FileText} label="Expedição" defaultOpen={false}>
-          <SidebarItem icon={FileText} label="Documentos" href="/expedicao" />
+          <SidebarItem icon={FileText} label="Documentos" href="/expedicao/documentos" />
           <SidebarItem icon={Calculator} label="Faturamento" href="/expedicao/faturamento" />
+          <SidebarItem icon={Truck} label="Remessas" href="/expedicao/remessas" />
         </SubMenu>
         
         {/* Novo menu de Relatórios */}
