@@ -4,6 +4,7 @@ import DataTable from '../../../../components/common/DataTable';
 import StatusBadge from '../../../../components/common/StatusBadge';
 import ActionButtons from './ActionButtons';
 import { Carga } from '../../types/coleta.types';
+import { extrairApenasUF } from '@/utils/estadoUtils';
 
 interface CargasTableProps {
   cargas: Carga[];
@@ -20,11 +21,29 @@ const CargasTable: React.FC<CargasTableProps> = ({
   onAlocarMotorista,
   setSelectedCarga
 }) => {
+  // Função para formatar o destino para exibir apenas cidade e UF
+  const formatDestino = (destino: string): string => {
+    if (!destino) return '';
+    
+    const match = destino.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
+    if (match) {
+      const cidade = match[1];
+      const uf = extrairApenasUF(match[2]);
+      return `${cidade} - ${uf}`;
+    }
+    
+    return destino;
+  };
+
   return (
     <DataTable
       columns={[
         { header: 'ID', accessor: 'id' },
-        { header: 'Destino', accessor: 'destino' },
+        { 
+          header: 'Destino', 
+          accessor: 'destino',
+          cell: (row) => formatDestino(row.destino)
+        },
         { header: 'Data Prevista', accessor: 'dataPrevisao' },
         { header: 'Volumes', accessor: 'volumes' },
         { header: 'Peso', accessor: 'peso' },

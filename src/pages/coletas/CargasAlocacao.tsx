@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,7 +9,7 @@ import CargasPreRomaneio from './components/CargasPreRomaneio';
 import { Carga } from './types/coleta.types';
 import { toast } from '@/hooks/use-toast';
 import { Archive } from 'lucide-react';
-import { converterParaUF } from '@/utils/estadoUtils';
+import { extrairApenasUF } from '@/utils/estadoUtils';
 
 // This is mock data that would normally come from an API
 const mockCargas: Carga[] = [
@@ -163,9 +164,9 @@ const mockCargas: Carga[] = [
   }
 ];
 
-// Processar os dados mock para garantir que os estados sejam exibidos como UF
+// Processar os dados mock para garantir que apenas as siglas UF sejam exibidas
 const processedMockCargas: Carga[] = mockCargas.map(carga => {
-  // Extrair UF da origem e destino usando o padrão "Cidade - UF"
+  // Extrair cidade e UF da origem e destino usando o padrão "Cidade - UF"
   let origem = carga.origem || '';
   let destino = carga.destino || '';
   
@@ -173,16 +174,16 @@ const processedMockCargas: Carga[] = mockCargas.map(carga => {
   const origemParts = origem.split(' - ');
   if (origemParts.length >= 2) {
     const cidade = origemParts[0];
-    const estado = converterParaUF(origemParts[1]);
-    origem = `${cidade} - ${estado}`;
+    const uf = extrairApenasUF(origemParts[1]);
+    origem = `${cidade} - ${uf}`;
   }
   
   // Processar destino
   const destinoParts = destino.split(' - ');
   if (destinoParts.length >= 2) {
     const cidade = destinoParts[0];
-    const estado = converterParaUF(destinoParts[1]);
-    destino = `${cidade} - ${estado}`;
+    const uf = extrairApenasUF(destinoParts[1]);
+    destino = `${cidade} - ${uf}`;
   }
   
   return {

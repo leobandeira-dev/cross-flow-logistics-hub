@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SolicitacaoFormHeaderProps } from './SolicitacaoTypes';
+import { extrairApenasUF } from '@/utils/estadoUtils';
 
 const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   cliente = '',
@@ -18,7 +19,25 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   currentStep,
   isLoading
 }) => {
-  // You can use currentStep and isLoading to show different content
+  // Função para formatar endereço para exibir apenas cidade e UF
+  const formatarEnderecoParaExibicao = (endereco: string): string => {
+    if (!endereco) return '';
+    
+    // Verifica se o texto tem o formato "Cidade - UF"
+    const match = endereco.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
+    if (match) {
+      const cidade = match[1];
+      const uf = extrairApenasUF(match[2]);
+      return `${cidade} - ${uf}`;
+    }
+    
+    return endereco;
+  };
+  
+  // Formatar origem e destino para exibição
+  const origemExibicao = formatarEnderecoParaExibicao(origem);
+  const destinoExibicao = formatarEnderecoParaExibicao(destino);
+  
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
@@ -57,7 +76,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
           <Input 
             id="origem" 
             placeholder="Endereço de origem" 
-            value={origem}
+            value={origemExibicao}
             onChange={(e) => onOrigemChange(e.target.value)}
             readOnly={readOnlyAddresses}
             className={readOnlyAddresses ? "bg-gray-50" : ""}
@@ -71,7 +90,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
           <Input 
             id="destino" 
             placeholder="Endereço de destino" 
-            value={destino}
+            value={destinoExibicao}
             onChange={(e) => onDestinoChange(e.target.value)}
             readOnly={readOnlyAddresses}
             className={readOnlyAddresses ? "bg-gray-50" : ""}

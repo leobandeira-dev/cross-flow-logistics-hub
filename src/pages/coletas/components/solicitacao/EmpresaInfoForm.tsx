@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -45,7 +46,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
   const handleEnderecoChange = (field: keyof EnderecoCompleto, value: string) => {
     // Se for o campo UF, converter para maiúsculas e limitar a 2 caracteres
     const processedValue = field === 'uf' 
-      ? value.toUpperCase().substring(0, 2)
+      ? converterParaUF(value.toUpperCase()).substring(0, 2)
       : value;
       
     const newEndereco = { ...actualDados.endereco, [field]: processedValue };
@@ -62,7 +63,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
       endereco.numero ? `nº ${endereco.numero}` : '',
       endereco.complemento,
       endereco.bairro ? `${endereco.bairro},` : '',
-      `${endereco.cidade}/${endereco.uf}`,
+      `${endereco.cidade}/${converterParaUF(endereco.uf)}`,
       endereco.cep ? `CEP: ${endereco.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2')}` : ''
     ].filter(Boolean);
     
@@ -195,7 +196,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
               <Input 
                 id={`${tipo}-uf`}
                 placeholder="UF" 
-                value={actualDados.endereco.uf || ''}
+                value={converterParaUF(actualDados.endereco.uf) || ''}
                 onChange={(e) => handleEnderecoChange('uf', e.target.value)}
                 readOnly={readOnly}
                 maxLength={2}

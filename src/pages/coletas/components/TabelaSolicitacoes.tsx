@@ -4,7 +4,7 @@ import DataTable from '@/components/common/DataTable';
 import { formatDate } from '@/pages/armazenagem/utils/formatters';
 import { SolicitacaoColeta } from '../types/coleta.types';
 import { Badge } from '@/components/ui/badge';
-import { converterParaUF } from '@/utils/estadoUtils';
+import { extrairApenasUF } from '@/utils/estadoUtils';
 
 interface TabelaSolicitacoesProps {
   solicitacoes: SolicitacaoColeta[];
@@ -27,7 +27,7 @@ const TabelaSolicitacoes: React.FC<TabelaSolicitacoesProps> = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = solicitacoes.slice(startIndex, startIndex + itemsPerPage);
   
-  // Function to format address with UF
+  // Function to format address to show city and UF only
   const formatarEndereco = (endereco: string): string => {
     if (!endereco) return '';
     
@@ -35,8 +35,8 @@ const TabelaSolicitacoes: React.FC<TabelaSolicitacoesProps> = ({
     const match = endereco.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
     if (match) {
       const cidade = match[1];
-      const estado = converterParaUF(match[2]);
-      return `${cidade} - ${estado}`;
+      const uf = extrairApenasUF(match[2]);
+      return `${cidade} - ${uf}`;
     }
     
     return endereco;

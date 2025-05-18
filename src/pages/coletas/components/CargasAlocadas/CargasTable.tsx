@@ -5,6 +5,7 @@ import StatusBadge from '@/components/common/StatusBadge';
 import ActionButtons from './ActionButtons';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from "sonner";
+import { extrairApenasUF } from '@/utils/estadoUtils';
 
 interface CargasTableProps {
   cargas: any[];
@@ -18,6 +19,20 @@ interface CargasTableProps {
 const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
   const [selectedCarga, setSelectedCarga] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  
+  // Função para garantir que o destino esteja no formato "Cidade - UF" com UF de 2 letras
+  const formatDestino = (destino: string): string => {
+    if (!destino) return '';
+    
+    const match = destino.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
+    if (match) {
+      const cidade = match[1];
+      const uf = extrairApenasUF(match[2]);
+      return `${cidade} - ${uf}`;
+    }
+    
+    return destino;
+  };
   
   const handleDesalocar = (cargaId: string, motorista: string) => {
     toast.success(`Carga ${cargaId} desalocada do motorista ${motorista}`);
@@ -36,7 +51,11 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
       <DataTable
         columns={[
           { header: 'ID', accessor: 'id' },
-          { header: 'Destino', accessor: 'destino' },
+          { 
+            header: 'Destino', 
+            accessor: 'destino',
+            cell: (row) => formatDestino(row.destino)
+          },
           { header: 'Motorista', accessor: 'motorista' },
           { header: 'Veículo', accessor: 'veiculo' },
           { header: 'Data Previsão', accessor: 'dataPrevisao' },

@@ -68,3 +68,26 @@ export const isUFValida = (uf?: string): boolean => {
   if (!uf || uf.length !== 2) return false;
   return Object.values(estadosMap).includes(uf.toUpperCase());
 };
+
+/**
+ * Extrai apenas a sigla UF de um texto que pode ter formato "Cidade - UF" ou outro
+ * Esta função garante que apenas a sigla seja retornada, removendo qualquer texto adicional
+ * 
+ * @param texto - Texto que pode conter cidade e UF
+ * @returns Apenas a sigla UF
+ */
+export const extrairApenasUF = (texto?: string): string => {
+  if (!texto) return '';
+  
+  // Verifica se o texto tem o formato "Cidade - UF"
+  const match = texto.match(/.*\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
+  if (match) {
+    // Extrai a parte após o último "-"
+    const estadoParte = match[1].trim();
+    // Converte para UF
+    return converterParaUF(estadoParte);
+  }
+  
+  // Se não encontrar o padrão, tenta converter o texto todo
+  return converterParaUF(texto);
+};

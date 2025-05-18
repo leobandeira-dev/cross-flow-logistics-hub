@@ -6,6 +6,7 @@ import ActionButtons from './ActionButtons';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { problemosComuns, handleWhatsAppSupport } from '../../../motoristas/utils/supportHelpers';
+import { extrairApenasUF } from '@/utils/estadoUtils';
 
 interface CargasTableProps {
   cargas: any[];
@@ -20,12 +21,26 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
   const [selectedCarga, setSelectedCarga] = React.useState<any>(null);
   const [openSupportDialog, setOpenSupportDialog] = React.useState(false);
 
+  // Função para garantir que o destino esteja no formato "Cidade - UF" com UF de 2 letras
+  const formatDestino = (destino: string): string => {
+    if (!destino) return '';
+    
+    const match = destino.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
+    if (match) {
+      const cidade = match[1];
+      const uf = extrairApenasUF(match[2]);
+      return `${cidade} - ${uf}`;
+    }
+    
+    return destino;
+  };
+
   const handleSupportRequest = (problem: string, description: string) => {
     if (!selectedCarga) return;
     
     const cargaInfo = {
       id: selectedCarga.id,
-      destino: selectedCarga.destino,
+      destino: formatDestino(selectedCarga.destino),
       motorista: selectedCarga.motorista || 'Não alocado',
       veiculo: selectedCarga.veiculo || 'Não alocado',
     };
@@ -45,7 +60,11 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
       <DataTable
         columns={[
           { header: 'ID', accessor: 'id' },
-          { header: 'Destino', accessor: 'destino' },
+          { 
+            header: 'Destino', 
+            accessor: 'destino',
+            cell: (row) => formatDestino(row.destino)
+          },
           { header: 'Motorista', accessor: 'motorista' },
           { header: 'Veículo', accessor: 'veiculo' },
           { header: 'Data Entrega', accessor: 'dataEntrega', cell: (row) => row.dataEntrega || row.dataPrevisao },
@@ -111,7 +130,7 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
                 className="justify-start text-left px-4 py-3 h-auto"
                 onClick={() => handleWhatsAppSupport({
                   id: selectedCarga.id,
-                  destino: selectedCarga.destino,
+                  destino: formatDestino(selectedCarga.destino),
                   motorista: selectedCarga.motorista,
                   veiculo: selectedCarga.veiculo
                 })}

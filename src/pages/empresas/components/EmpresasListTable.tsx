@@ -39,11 +39,6 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
     return cnpj || 'N/A';
   };
 
-  // Helper function to format the state as UF
-  const formatEstado = (estado: string) => {
-    return converterParaUF(estado);
-  };
-
   return (
     <div className="rounded-md border">
       <Table>
@@ -68,7 +63,7 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
               <TableRow key={empresa.id}>
                 <TableCell className="font-medium">{empresa.nome || empresa.razaoSocial}</TableCell>
                 <TableCell>{formatCNPJ(empresa.cnpj)}</TableCell>
-                <TableCell>{formatEstado(empresa.estado)}</TableCell>
+                <TableCell>{converterParaUF(empresa.estado)}</TableCell>
                 <TableCell>{renderStatus(empresa.status)}</TableCell>
                 <TableCell className="text-right">
                   <Button
