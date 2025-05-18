@@ -9,7 +9,7 @@ import NotasTable from './importacao/NotasTable';
 import TableActions from './importacao/TableActions';
 import ImportarNotasExistentes from './importacao/ImportarNotasExistentes';
 import ImportarOrdemCarregamento from './ImportarOrdemCarregamento';
-import ImportarViaXML from '@/pages/armazenagem/recebimento/components/forms/ImportarViaXML';
+import ImportarViaXML from './importacao/ImportarViaXMLBatch';
 
 interface ImportacaoLoteNotasProps {
   onImportarLote: (notas: Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'>[]) => void;
@@ -70,13 +70,10 @@ const ImportacaoLoteNotas: React.FC<ImportacaoLoteNotasProps> = ({ onImportarLot
   };
   
   // Função para processar notas importadas via XML
-  const handleXMLUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Em uma implementação real, isso processaria o XML
-    // Por enquanto, vamos apenas adicionar uma linha em branco
-    adicionarLinha();
-    
-    // Idealmente, você processaria os dados do XML aqui
-    console.log("XML importado:", e.target.files);
+  const handleBatchXMLUpload = (notasFromXML: Partial<NotaFiscal>[]) => {
+    if (notasFromXML && notasFromXML.length > 0) {
+      handleImportarNotasExistentes(notasFromXML);
+    }
   };
   
   return (
@@ -115,7 +112,7 @@ const ImportacaoLoteNotas: React.FC<ImportacaoLoteNotasProps> = ({ onImportarLot
           
           <TabsContent value="xml">
             <div className="mb-6">
-              <ImportarViaXML onFileUpload={handleXMLUpload} />
+              <ImportarViaXML onImportarNotas={handleBatchXMLUpload} />
             </div>
           </TabsContent>
           
