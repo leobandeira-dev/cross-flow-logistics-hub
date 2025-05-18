@@ -8,6 +8,7 @@ import { convertVolumesToVolumeItems } from '../../../utils/volumes/converters';
 import { extractEmpresaInfoFromXML } from '../empresa/empresaUtils';
 import { parseXmlFile } from '@/pages/armazenagem/recebimento/utils/xmlParser';
 import { extractDataFromXml } from '@/pages/armazenagem/recebimento/utils/notaFiscalExtractor';
+import { processMultipleXMLFiles } from '../../../utils/xmlImportHelper';
 
 export const useImportHandler = (
   setFormData: React.Dispatch<React.SetStateAction<InternalFormData>>
