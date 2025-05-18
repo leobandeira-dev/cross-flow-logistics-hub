@@ -35,7 +35,8 @@ export const useAddressUpdater = (
         origemEndereco: formData.remetenteInfo.endereco?.logradouro 
           ? `${formData.remetenteInfo.endereco.logradouro}, ${formData.remetenteInfo.endereco.numero || ''}`
           : '',
-        origemCEP: formData.remetenteInfo.endereco?.cep || ''
+        origemCEP: formData.remetenteInfo.endereco?.cep || '',
+        cliente: formData.remetenteInfo.nome || prev.cliente // Update cliente with sender's name if not already set
       }));
     }
     

@@ -1,12 +1,13 @@
-
 import React, { useCallback, useState } from 'react';
 import { Upload, Loader2, FileText } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from '@/hooks/use-toast';
 import { extractNFInfoFromXML, processMultipleXMLFiles, processExcelFile } from '../../utils/xmlImportHelper';
-import { NotaFiscalVolume, convertVolumesToVolumeItems } from '../../utils/volumeCalculations';
+import { NotaFiscalVolume } from '../../utils/volumes/types';
+import { convertVolumesToVolumeItems } from '../../utils/volumes/converters';
 import { parseXmlFile } from '../../../armazenagem/recebimento/utils/xmlParser';
 import { extractDataFromXml } from '../../../armazenagem/recebimento/utils/notaFiscalExtractor';
+import { generateVolumeId } from '../../utils/volumes/types';
 
 interface XmlImportFormProps {
   onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
@@ -56,6 +57,8 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
           // Convert to the expected format
           const completeNotasFiscais: NotaFiscalVolume[] = result.notasFiscais.map((nf: any) => ({
             numeroNF: nf.numeroNF || '',
+            chaveNF: nf.chaveNF || '',
+            dataEmissao: nf.dataEmissao || new Date().toISOString().split('T')[0],
             volumes: convertVolumesToVolumeItems(nf.volumes || []),
             remetente: nf.remetente || result.remetente?.razaoSocial || '',
             destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
@@ -83,7 +86,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             const notaFiscal: NotaFiscalVolume = {
               numeroNF: extractedData.numeroNF || '',
               chaveNF: extractedData.chaveNF || '',
-              dataEmissao: extractedData.dataHoraEmissao || new Date().toISOString(),
+              dataEmissao: extractedData.dataHoraEmissao || new Date().toISOString().split('T')[0],
               volumes: [],
               remetente: extractedData.emitenteRazaoSocial || '',
               emitenteCNPJ: extractedData.emitenteCNPJ || '',
@@ -98,12 +101,22 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
               
               // Create a default volume with quantity from XML
               notaFiscal.volumes = [{
-                id: `vol-${Date.now()}`,
-                altura: 0,
-                largura: 0,
-                comprimento: 0,
+                id: generateVolumeId(),
+                altura: 30, // Default height
+                largura: 30, // Default width
+                comprimento: 30, // Default length
                 quantidade: quantidade,
-                peso: 0,
+                peso: parseFloat(extractedData.pesoTotalBruto || '0') / quantidade, // Divide total weight by quantity
+              }];
+            } else {
+              // Create at least one default volume if no volume information
+              notaFiscal.volumes = [{
+                id: generateVolumeId(),
+                altura: 30,
+                largura: 30,
+                comprimento: 30,
+                quantidade: 1,
+                peso: parseFloat(extractedData.pesoTotalBruto || '0'),
               }];
             }
             
@@ -115,7 +128,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
               endereco: {
                 logradouro: extractedData.emitenteEndereco || '',
                 numero: extractedData.emitenteNumero || '',
-                complemento: '',
+                complemento: extractedData.emitenteComplemento || '',
                 bairro: extractedData.emitenteBairro || '',
                 cidade: extractedData.emitenteCidade || '',
                 uf: extractedData.emitenteUF || '',
@@ -131,7 +144,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
               endereco: {
                 logradouro: extractedData.destinatarioEndereco || '',
                 numero: extractedData.destinatarioNumero || '',
-                complemento: '',
+                complemento: extractedData.destinatarioComplemento || '',
                 bairro: extractedData.destinatarioBairro || '',
                 cidade: extractedData.destinatarioCidade || '',
                 uf: extractedData.destinatarioUF || '',
@@ -151,9 +164,11 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
           // Try with the old method as fallback
           const result = await extractNFInfoFromXML(file);
           
-          if (result && result.nfInfo && result.nfInfo.numeroNF) {
+          if (result && result.nfInfo) {
             const notaFiscal: NotaFiscalVolume = {
               numeroNF: result.nfInfo.numeroNF || '',
+              chaveNF: result.nfInfo.chaveNF || '',
+              dataEmissao: result.nfInfo.dataEmissao || new Date().toISOString().split('T')[0],
               volumes: convertVolumesToVolumeItems(result.nfInfo.volumes || []),
               remetente: result.remetente?.razaoSocial || '',
               destinatario: result.destinatario?.razaoSocial || '',
@@ -204,7 +219,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             const nf: NotaFiscalVolume = {
               numeroNF: data.numeroNF || '',
               chaveNF: data.chaveNF || '',
-              dataEmissao: data.dataHoraEmissao || new Date().toISOString(),
+              dataEmissao: data.dataHoraEmissao || new Date().toISOString().split('T')[0],
               volumes: [],
               remetente: data.emitenteRazaoSocial || '',
               emitenteCNPJ: data.emitenteCNPJ || '',
@@ -219,12 +234,22 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
               
               // Create a default volume with quantity from XML
               nf.volumes = [{
-                id: `vol-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                altura: 0,
-                largura: 0,
-                comprimento: 0,
+                id: generateVolumeId(),
+                altura: 30, // Default height
+                largura: 30, // Default width
+                comprimento: 30, // Default length
                 quantidade: quantidade,
-                peso: 0,
+                peso: parseFloat(data.pesoTotalBruto || '0') / quantidade, // Divide total weight by quantity
+              }];
+            } else {
+              // Create at least one default volume if no volume information
+              nf.volumes = [{
+                id: generateVolumeId(),
+                altura: 30,
+                largura: 30,
+                comprimento: 30,
+                quantidade: 1,
+                peso: parseFloat(data.pesoTotalBruto || '0'),
               }];
             }
             
@@ -242,7 +267,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             endereco: {
               logradouro: firstData.emitenteEndereco || '',
               numero: firstData.emitenteNumero || '',
-              complemento: '',
+              complemento: firstData.emitenteComplemento || '',
               bairro: firstData.emitenteBairro || '',
               cidade: firstData.emitenteCidade || '',
               uf: firstData.emitenteUF || '',
@@ -258,7 +283,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             endereco: {
               logradouro: firstData.destinatarioEndereco || '',
               numero: firstData.destinatarioNumero || '',
-              complemento: '',
+              complemento: firstData.destinatarioComplemento || '',
               bairro: firstData.destinatarioBairro || '',
               cidade: firstData.destinatarioCidade || '',
               uf: firstData.destinatarioUF || '',
@@ -279,6 +304,8 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
           if (result.notasFiscais.length > 0) {
             const completeNotasFiscais: NotaFiscalVolume[] = result.notasFiscais.map((nf: any) => ({
               numeroNF: nf.numeroNF || '',
+              chaveNF: nf.chaveNF || '',
+              dataEmissao: nf.dataEmissao || new Date().toISOString().split('T')[0],
               volumes: convertVolumesToVolumeItems(nf.volumes || []),
               remetente: nf.remetente || result.remetente?.razaoSocial || '',
               destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',

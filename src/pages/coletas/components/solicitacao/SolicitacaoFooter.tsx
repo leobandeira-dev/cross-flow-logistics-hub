@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Loader2 } from 'lucide-react';
 import { SolicitacaoFooterProps } from './SolicitacaoTypes';
 
 const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
@@ -11,29 +11,29 @@ const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
   onSubmit,
   isLoading = false
 }) => {
+  const isFirstStep = currentStep === 1;
+  const isLastStep = currentStep === 2;
+  
   return (
-    <div className="flex justify-between pt-4 border-t">
-      <Button
-        type="button"
-        variant="outline"
+    <div className="flex justify-between mt-6">
+      <Button 
+        variant="outline" 
         onClick={onPrev}
-        disabled={currentStep === 1 || isLoading}
+        disabled={isFirstStep || isLoading}
       >
-        <ArrowLeft className="mr-2 h-4 w-4" /> Anterior
+        <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
       </Button>
-      <div className="flex space-x-2">
-        {currentStep < 2 ? (
-          <Button
-            type="button"
+      
+      <div className="flex gap-2">
+        {!isLastStep ? (
+          <Button 
             onClick={onNext}
             disabled={isLoading}
-            className="bg-cross-blue hover:bg-cross-blueDark"
           >
-            Próximo <ArrowRight className="ml-2 h-4 w-4" />
+            Avançar <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (
-          <Button
-            type="button"
+          <Button 
             onClick={onSubmit}
             disabled={isLoading}
             className="bg-cross-blue hover:bg-cross-blueDark"
@@ -43,7 +43,9 @@ const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...
               </>
             ) : (
-              'Solicitar Coleta'
+              <>
+                <Save className="mr-2 h-4 w-4" /> Finalizar
+              </>
             )}
           </Button>
         )}

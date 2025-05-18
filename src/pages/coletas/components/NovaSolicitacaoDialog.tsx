@@ -5,10 +5,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { NotaFiscalVolume } from '../utils/volumes/types';
-import NotasFiscaisManager from './NotasFiscaisManager';
 import { NovaSolicitacaoDialogProps } from './solicitacao/SolicitacaoTypes';
 import SolicitacaoForm from './solicitacao/form';
-import { useImportForm } from './importacao/useImportForm';
+import { useSolicitacaoForm } from './solicitacao/useSolicitacaoForm';
 
 const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({ 
   isOpen, 
@@ -18,14 +17,15 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
 }) => {
   const { 
     isLoading, 
+    isImporting,
+    currentStep,
     formData, 
     handleInputChange,
+    nextStep,
+    prevStep,
     handleSubmit,
-    handleSingleXmlUpload,
-    handleBatchXmlUpload,
-    handleExcelUpload,
-    handleDownloadTemplate
-  } = useImportForm(setIsOpen);
+    handleImportSuccess
+  } = useSolicitacaoForm(setIsOpen);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -47,11 +47,12 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
           handleInputChange={handleInputChange}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          isLoading={isLoading}
-          handleSingleXmlUpload={handleSingleXmlUpload}
-          handleBatchXmlUpload={handleBatchXmlUpload}
-          handleExcelUpload={handleExcelUpload}
-          handleDownloadTemplate={handleDownloadTemplate}
+          isLoading={isLoading || isImporting}
+          currentStep={currentStep}
+          onNext={nextStep}
+          onPrev={prevStep}
+          onSubmit={handleSubmit}
+          handleImportSuccess={handleImportSuccess}
         />
         
         <DialogFooter>
@@ -59,9 +60,9 @@ const NovaSolicitacaoDialog: React.FC<NovaSolicitacaoDialogProps> = ({
           <Button 
             className="bg-cross-blue hover:bg-cross-blueDark"
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isLoading || isImporting}
           >
-            {isLoading ? (
+            {isLoading || isImporting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...
               </>

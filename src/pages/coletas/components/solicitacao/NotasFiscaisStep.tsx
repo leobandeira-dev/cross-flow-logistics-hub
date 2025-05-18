@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { SolicitacaoFormData } from './SolicitacaoTypes';
 import { Card, CardContent } from '@/components/ui/card';
 import NotasFiscaisManager from '../NotasFiscaisManager';
@@ -7,6 +7,7 @@ import ImportacaoTabs from './ImportacaoTabs';
 import EmpresaInfoForm from './EmpresaInfoForm';
 import { SolicitacaoFormHeader } from './formHeader';
 import { convertDadosToEmpresaInfo, convertEmpresaInfoToDados } from './empresa/empresaUtils';
+import { calcularTotaisColeta } from '../../utils/volumes/calculations';
 
 interface NotasFiscaisStepProps {
   formData: SolicitacaoFormData;
@@ -23,34 +24,10 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('unica');
 
-  // Calculate totals from all invoices for header display
-  const calcularTotais = () => {
-    let valorTotal = 0;
-    let pesoTotal = 0;
-    let volumeTotal = 0;
-    let quantidadeVolumes = 0;
-    
-    formData.notasFiscais.forEach(nf => {
-      valorTotal += nf.valorTotal || 0;
-      pesoTotal += nf.pesoTotal || 0;
-      
-      // Calculate volumes
-      nf.volumes.forEach(vol => {
-        quantidadeVolumes += vol.quantidade || 0;
-        volumeTotal += (vol.altura * vol.largura * vol.comprimento * vol.quantidade) / 1000000;
-      });
-    });
-    
-    return {
-      valorTotal,
-      pesoTotal,
-      volumeTotal,
-      quantidadeVolumes
-    };
-  };
-  
-  // Get calculated totals
-  const totais = calcularTotais();
+  // Calculate totals from all invoices for header display using the proper calculation function
+  const totais = useMemo(() => {
+    return calcularTotaisColeta(formData.notasFiscais);
+  }, [formData.notasFiscais]);
   
   return (
     <div className="space-y-6">
@@ -82,7 +59,7 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="bg-gray-50 p-3 rounded">
               <span className="block text-xs text-gray-500">Valor Total</span>
-              <span className="text-lg font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totais.valorTotal)}</span>
+              <span className="text-lg font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totais.pesoTotal)}</span>
             </div>
             <div className="bg-gray-50 p-3 rounded">
               <span className="block text-xs text-gray-500">Peso Total</span>
@@ -90,7 +67,7 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
             </div>
             <div className="bg-gray-50 p-3 rounded">
               <span className="block text-xs text-gray-500">Volume Total</span>
-              <span className="text-lg font-semibold">{totais.volumeTotal.toFixed(3)} m³ ({totais.quantidadeVolumes} volumes)</span>
+              <span className="text-lg font-semibold">{totais.volumeTotal.toFixed(3)} m³ ({totais.qtdVolumes} volumes)</span>
             </div>
           </div>
         </CardContent>

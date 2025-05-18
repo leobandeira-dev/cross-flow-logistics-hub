@@ -4,18 +4,7 @@ import { toast } from '@/hooks/use-toast';
 import { NotaFiscalVolume } from '../../../utils/volumes/types';
 import { VolumeItem, generateVolumeId } from '../../../utils/volumes/types';
 import { InternalFormData } from './solicitacaoFormTypes';
-
-// Utility function to ensure volumes have id property
-const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
-  return volumes.map((volume) => ({
-    id: volume.id || generateVolumeId(),
-    quantidade: volume.quantidade || 1,
-    altura: volume.altura || 0,
-    largura: volume.largura || 0,
-    comprimento: volume.comprimento || 0,
-    peso: volume.peso || 0
-  }));
-};
+import { convertVolumesToVolumeItems } from '../../../utils/volumes/converters';
 
 export const useImportHandler = (
   setFormData: React.Dispatch<React.SetStateAction<InternalFormData>>
@@ -25,17 +14,18 @@ export const useImportHandler = (
   const handleImportSuccess = (notasFiscais: NotaFiscalVolume[] | any[], remetenteInfo?: any, destinatarioInfo?: any) => {
     setIsImporting(true);
     try {
-      // Ensure all notasFiscais have the required properties and proper volume format
+      // Ensure all notasFiscais have the required properties
       const validatedNotasFiscais: NotaFiscalVolume[] = notasFiscais.map(nf => {
         return {
-          numeroNF: nf.numeroNF,
+          numeroNF: nf.numeroNF || '',
           chaveNF: nf.chaveNF || '',
           dataEmissao: nf.dataEmissao || '',
           volumes: Array.isArray(nf.volumes) ? convertVolumesToVolumeItems(nf.volumes) : [],
-          remetente: nf.remetente || '',
-          destinatario: nf.destinatario || '',
+          remetente: nf.remetente || (remetenteInfo?.nome || ''),
+          destinatario: nf.destinatario || (destinatarioInfo?.nome || ''),
           valorTotal: nf.valorTotal || 0,
-          pesoTotal: nf.pesoTotal || 0
+          pesoTotal: nf.pesoTotal || 0,
+          emitenteCNPJ: nf.emitenteCNPJ || (remetenteInfo?.cnpj || '')
         };
       });
       
@@ -44,13 +34,42 @@ export const useImportHandler = (
         description: `${validatedNotasFiscais.length} notas fiscais importadas com sucesso.`
       });
       
-      // Update form data with both notasFiscais and info about remetente/destinatário
-      setFormData(prev => ({
-        ...prev,
-        notasFiscais: validatedNotasFiscais,
-        remetenteInfo,
-        destinatarioInfo
-      }));
+      // Update all form fields with XML data
+      setFormData(prev => {
+        // First, update the notasFiscais array
+        const updatedData = {
+          ...prev,
+          notasFiscais: validatedNotasFiscais
+        };
+        
+        // If there's info about the sender/recipient, populate the header fields too
+        if (remetenteInfo) {
+          updatedData.remetenteInfo = remetenteInfo;
+          
+          // Set origin address fields
+          updatedData.origem = `${remetenteInfo.endereco?.cidade || ''} - ${remetenteInfo.endereco?.uf || ''}`;
+          updatedData.origemEndereco = remetenteInfo.endereco?.logradouro 
+            ? `${remetenteInfo.endereco.logradouro}, ${remetenteInfo.endereco.numero || ''}`
+            : '';
+          updatedData.origemCEP = remetenteInfo.endereco?.cep || '';
+          
+          // Set cliente field with sender's name
+          updatedData.cliente = remetenteInfo.nome || '';
+        }
+        
+        if (destinatarioInfo) {
+          updatedData.destinatarioInfo = destinatarioInfo;
+          
+          // Set destination address fields
+          updatedData.destino = `${destinatarioInfo.endereco?.cidade || ''} - ${destinatarioInfo.endereco?.uf || ''}`;
+          updatedData.destinoEndereco = destinatarioInfo.endereco?.logradouro 
+            ? `${destinatarioInfo.endereco.logradouro}, ${destinatarioInfo.endereco.numero || ''}`
+            : '';
+          updatedData.destinoCEP = destinatarioInfo.endereco?.cep || '';
+        }
+        
+        return updatedData;
+      });
     } catch (error) {
       console.error("Erro ao processar notas fiscais importadas:", error);
       toast({

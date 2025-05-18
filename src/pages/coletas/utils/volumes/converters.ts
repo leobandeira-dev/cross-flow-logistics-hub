@@ -1,7 +1,8 @@
 
-import { NotaFiscalVolume, VolumeItem, generateVolumeId } from './types';
+import { NotaFiscalVolume, VolumeItem } from './types';
+import { generateVolumeId } from './types';
 
-// Convert volumes to standard VolumeItem format
+// Utility function to ensure volumes have id property
 export const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
   return volumes.map((volume) => ({
     id: volume.id || generateVolumeId(),
@@ -13,28 +14,17 @@ export const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
   }));
 };
 
-// Ensure a nota fiscal has all required fields
-export const ensureCompleteNotaFiscal = (notaFiscal: any): NotaFiscalVolume => {
+// Ensure all required fields are present in a nota fiscal
+export const ensureCompleteNotaFiscal = (nf: any): NotaFiscalVolume => {
   return {
-    numeroNF: notaFiscal.numeroNF || '',
-    chaveNF: notaFiscal.chaveNF || '',
-    dataEmissao: notaFiscal.dataEmissao || '',
-    volumes: Array.isArray(notaFiscal.volumes) 
-      ? convertVolumesToVolumeItems(notaFiscal.volumes) 
-      : [],
-    remetente: notaFiscal.remetente || '',
-    destinatario: notaFiscal.destinatario || '',
-    valorTotal: notaFiscal.valorTotal || 0,
-    pesoTotal: notaFiscal.pesoTotal || 0
+    numeroNF: nf.numeroNF || '',
+    chaveNF: nf.chaveNF || '',
+    dataEmissao: nf.dataEmissao || new Date().toISOString().split('T')[0],
+    volumes: Array.isArray(nf.volumes) ? convertVolumesToVolumeItems(nf.volumes) : [],
+    remetente: nf.remetente || '',
+    destinatario: nf.destinatario || '',
+    valorTotal: nf.valorTotal || 0,
+    pesoTotal: nf.pesoTotal || 0,
+    emitenteCNPJ: nf.emitenteCNPJ || ''
   };
-};
-
-// Calculate cubic volume (m³)
-export const calculateCubicVolume = (volume: VolumeItem): number => {
-  return (volume.altura * volume.largura * volume.comprimento * volume.quantidade) / 1000000;
-};
-
-// Calculate total cubic volume for a set of volumes
-export const calculateTotalCubicVolume = (volumes: VolumeItem[]): number => {
-  return volumes.reduce((total, vol) => total + calculateCubicVolume(vol), 0);
 };

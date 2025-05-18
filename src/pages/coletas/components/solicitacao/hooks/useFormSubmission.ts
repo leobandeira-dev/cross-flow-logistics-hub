@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { InternalFormData } from './solicitacaoFormTypes';
-import { EmpresaInfo } from '../SolicitacaoTypes';
+import { calcularTotaisColeta } from '../../../utils/volumes/calculations';
 
 export const useFormSubmission = (
   setFormData: React.Dispatch<React.SetStateAction<InternalFormData>>,
@@ -11,46 +11,49 @@ export const useFormSubmission = (
 ) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsLoading(true);
     
-    // Submit form
-    setTimeout(() => {
+    try {
+      // Get form data to submit
+      setFormData(prev => {
+        // Calculate totals
+        const totais = calcularTotaisColeta(prev.notasFiscais);
+        
+        // Add calculated values and date/timestamp
+        const now = new Date();
+        const dataInclusao = now.toISOString().split('T')[0];
+        const horaInclusao = now.toTimeString().slice(0, 5);
+        
+        return {
+          ...prev,
+          quantidadeVolumes: totais.qtdVolumes,
+          dataInclusao,
+          horaInclusao,
+        };
+      });
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       toast({
         title: "Solicitação enviada",
-        description: "Sua solicitação de coleta foi registrada com sucesso."
-      });
-      setIsLoading(false);
-      
-      // Reset form with empty values
-      const emptyEmpresa: EmpresaInfo = {
-        razaoSocial: '',
-        cnpj: '',
-        endereco: '',
-        numero: '',
-        complemento: '',
-        bairro: '',
-        cidade: '',
-        uf: '',
-        cep: '',
-        telefone: '',
-        email: ''
-      };
-      
-      setFormData({
-        remetente: emptyEmpresa,
-        destinatario: emptyEmpresa,
-        dataColeta: '',
-        observacoes: '',
-        notasFiscais: [],
-        cliente: '',
-        origem: '',
-        destino: ''
+        description: "Sua solicitação de coleta foi enviada com sucesso."
       });
       
+      // Reset the form and close dialog
       setCurrentStep(1);
       setIsOpen(false);
-    }, 1500);
+    } catch (error) {
+      console.error("Erro ao submeter formulário:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar sua solicitação. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return {

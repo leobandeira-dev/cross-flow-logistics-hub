@@ -1,29 +1,7 @@
 
-import { EnderecoCompleto, DadosEmpresa } from '../SolicitacaoTypes';
-import { EmpresaInfo } from '../SolicitacaoTypes';
+import { EnderecoCompleto, DadosEmpresa, EmpresaInfo } from '../SolicitacaoTypes';
 
-// Convert from EmpresaInfo to DadosEmpresa
-export const convertEmpresaInfoToDados = (info: EmpresaInfo): DadosEmpresa => {
-  const endereco: EnderecoCompleto = {
-    logradouro: info.endereco,
-    numero: info.numero,
-    complemento: info.complemento || '',
-    bairro: info.bairro,
-    cidade: info.cidade,
-    uf: info.uf,
-    cep: info.cep
-  };
-
-  return {
-    cnpj: info.cnpj,
-    razaoSocial: info.razaoSocial,
-    nomeFantasia: info.razaoSocial, // Using razaoSocial as fallback
-    endereco,
-    enderecoFormatado: `${endereco.logradouro}, ${endereco.numero}${endereco.complemento ? ', ' + endereco.complemento : ''}, ${endereco.bairro}, ${endereco.cidade}/${endereco.uf}, CEP: ${endereco.cep}`
-  };
-};
-
-// Convert from DadosEmpresa to EmpresaInfo
+// Convert DadosEmpresa to EmpresaInfo
 export const convertDadosToEmpresaInfo = (dados: DadosEmpresa): EmpresaInfo => {
   return {
     razaoSocial: dados.razaoSocial,
@@ -35,7 +13,31 @@ export const convertDadosToEmpresaInfo = (dados: DadosEmpresa): EmpresaInfo => {
     cidade: dados.endereco.cidade,
     uf: dados.endereco.uf,
     cep: dados.endereco.cep,
-    telefone: '', // Default values for fields not in DadosEmpresa
-    email: ''     // Default values for fields not in DadosEmpresa
+    telefone: '', // Not available in DadosEmpresa
+    email: '' // Not available in DadosEmpresa
   };
+};
+
+// Convert EmpresaInfo to DadosEmpresa
+export const convertEmpresaInfoToDados = (info: EmpresaInfo): DadosEmpresa => {
+  return {
+    razaoSocial: info.razaoSocial,
+    cnpj: info.cnpj,
+    nomeFantasia: '',  // Not available in EmpresaInfo
+    endereco: {
+      logradouro: info.endereco,
+      numero: info.numero,
+      complemento: info.complemento,
+      bairro: info.bairro,
+      cidade: info.cidade,
+      uf: info.uf,
+      cep: info.cep
+    },
+    enderecoFormatado: `${info.endereco}, ${info.numero} - ${info.bairro}, ${info.cidade} - ${info.uf}, ${info.cep}`
+  };
+};
+
+// Format address for display
+export const formatEnderecoDisplay = (endereco: EnderecoCompleto): string => {
+  return `${endereco.logradouro}, ${endereco.numero}${endereco.complemento ? ` - ${endereco.complemento}` : ''}, ${endereco.bairro}, ${endereco.cidade} - ${endereco.uf}, ${endereco.cep}`;
 };

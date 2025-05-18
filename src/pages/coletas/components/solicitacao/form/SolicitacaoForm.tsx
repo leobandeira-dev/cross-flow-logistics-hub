@@ -1,29 +1,23 @@
 
 import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { NotaFiscalVolume } from '../../../utils/volumeCalculations';
-import NotasFiscaisManager from '../../NotasFiscaisManager';
-import ClienteDataSection from './ClienteDataSection';
-import ImportTabs from './ImportTabs';
+import { NotaFiscalVolume } from '../../../utils/volumes/types';
+import NotasFiscaisStep from '../NotasFiscaisStep';
+import ObservacoesStep from '../ObservacoesStep';
+import SolicitacaoProgress from '../SolicitacaoProgress';
+import SolicitacaoFooter from '../SolicitacaoFooter';
+import { InternalFormData } from '../hooks/solicitacaoFormTypes';
 
 interface SolicitacaoFormProps {
-  formData: {
-    cliente: string;
-    origem: string;
-    destino: string;
-    dataColeta: string;
-    observacoes: string;
-    notasFiscais: NotaFiscalVolume[];
-    [key: string]: any;
-  };
-  handleInputChange: (field: string, value: any) => void;
+  formData: InternalFormData;
+  handleInputChange: <K extends keyof InternalFormData>(field: K, value: InternalFormData[K]) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isLoading: boolean;
-  handleSingleXmlUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
-  handleBatchXmlUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
-  handleExcelUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
-  handleDownloadTemplate: () => void;
+  currentStep: number;
+  onNext: () => void;
+  onPrev: () => void;
+  onSubmit: () => void;
+  handleImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
 }
 
 const SolicitacaoForm: React.FC<SolicitacaoFormProps> = ({
@@ -32,32 +26,39 @@ const SolicitacaoForm: React.FC<SolicitacaoFormProps> = ({
   activeTab,
   setActiveTab,
   isLoading,
-  handleSingleXmlUpload,
-  handleBatchXmlUpload,
-  handleExcelUpload,
-  handleDownloadTemplate
+  currentStep,
+  onNext,
+  onPrev,
+  onSubmit,
+  handleImportSuccess
 }) => {
   return (
     <div className="grid gap-6 py-4">
-      <ClienteDataSection 
-        formData={formData} 
-        handleInputChange={handleInputChange} 
+      <SolicitacaoProgress 
+        currentStep={currentStep}
+        onNext={onNext}
+        onPrev={onPrev}
       />
       
-      <ImportTabs 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        isLoading={isLoading}
-        handleSingleXmlUpload={handleSingleXmlUpload}
-        handleBatchXmlUpload={handleBatchXmlUpload}
-        handleExcelUpload={handleExcelUpload}
-        handleDownloadTemplate={handleDownloadTemplate}
-      />
-
-      {/* Gerenciamento de Notas Fiscais e Volumes */}
-      <NotasFiscaisManager 
-        notasFiscais={formData.notasFiscais}
-        onChangeNotasFiscais={(notasFiscais) => handleInputChange('notasFiscais', notasFiscais)}
+      {currentStep === 1 ? (
+        <NotasFiscaisStep
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleImportSuccess={handleImportSuccess}
+          isImporting={isLoading}
+        />
+      ) : (
+        <ObservacoesStep 
+          formData={formData}
+          handleInputChange={handleInputChange}
+        />
+      )}
+      
+      <SolicitacaoFooter
+        currentStep={currentStep}
+        onNext={onNext}
+        onPrev={onPrev}
+        onSubmit={onSubmit}
         isLoading={isLoading}
       />
     </div>
