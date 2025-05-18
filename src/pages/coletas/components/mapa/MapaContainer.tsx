@@ -1,8 +1,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { Carga } from '../../types/coleta.types';
-import { initializeMarkers } from './utils/markerManager'; // Updated import path
+import { initializeMarkers } from './utils/markerManager';
+import MapLoading from './components/MapLoading';
+import useGoogleMaps from './hooks/useGoogleMaps';
+import { cleanupMapResources, initializeGoogleMap } from './utils/mapUtils';
 
 interface MapaContainerProps {
   cargas: Carga[];
@@ -18,12 +20,11 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const scriptRef = useRef<HTMLScriptElement | null>(null);
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
-  const mapsLoadedRef = useRef<boolean>(false);
-  const isMountedRef = useRef(true);
   const mapInitializedRef = useRef(false);
+
+  // Use the custom hook for Google Maps loading
+  const { isLoading, mapLoaded, mapsLoadedRef, isMountedRef } = useGoogleMaps();
 
   // Function to initialize map after script is loaded
   const initMap = () => {
@@ -34,128 +35,42 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       if (mapInitializedRef.current) return;
       mapInitializedRef.current = true;
       
-      console.log("Initializing Google Map");
+      const newMap = initializeGoogleMap(mapRef.current, isMountedRef);
       
-      // Create map
-      const newMap = new google.maps.Map(mapRef.current, {
-        center: { lat: -23.5505, lng: -46.6333 }, // São Paulo como centro inicial
-        zoom: 10,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      });
-      
-      googleMapRef.current = newMap;
-      
-      // Add markers for each cargo
-      if (cargas.length > 0) {
-        initializeMarkers(newMap, cargas, markersRef, directionsRendererRef, setSelectedCardId);
-      }
-      
-      if (isMountedRef.current) {
-        setIsLoading(false);
-        mapsLoadedRef.current = true;
+      if (newMap) {
+        googleMapRef.current = newMap;
+        
+        // Add markers for each cargo
+        if (cargas.length > 0) {
+          initializeMarkers(newMap, cargas, markersRef, directionsRendererRef, setSelectedCardId);
+        }
       }
     } catch (error) {
-      console.error("Error initializing map:", error);
-      if (isMountedRef.current) {
-        setIsLoading(false);
-      }
+      console.error("Error in initMap:", error);
     }
   };
 
-  // Function to load Google Maps script safely
-  const loadGoogleMapsScript = () => {
-    // Check if the script is already loaded
-    if (window.google && window.google.maps) {
-      initMap();
-      return;
-    }
-    
-    // Check if the script is already in the document
-    const existingScript = document.getElementById('google-maps-script');
-    
-    if (!existingScript) {
-      const googleMapsScript = document.createElement('script');
-      googleMapsScript.id = 'google-maps-script';
-      googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBpywkIjAfeo7YKzS85lcLxJFCAEfcQPmg&libraries=places&callback=initMap`;
-      googleMapsScript.async = true;
-      googleMapsScript.defer = true;
-      
-      // Add global callback
-      window.initMap = initMap;
-      
-      document.head.appendChild(googleMapsScript);
-      scriptRef.current = googleMapsScript;
-    } else if (window.google && window.google.maps) {
-      // Script exists and Google Maps is loaded
-      initMap();
-    }
-  };
-  
-  // Cleanup function to safely remove elements and listeners
-  const cleanup = () => {
-    // Clear markers
-    if (markersRef.current && markersRef.current.length > 0) {
-      markersRef.current.forEach(marker => {
-        if (marker) {
-          try {
-            google.maps.event.clearInstanceListeners(marker);
-            marker.setMap(null);
-          } catch (e) {
-            console.error("Error cleaning up marker:", e);
-          }
-        }
-      });
-      markersRef.current = [];
-    }
-    
-    // Clear directions renderer
-    if (directionsRendererRef.current) {
-      try {
-        directionsRendererRef.current.setMap(null);
-      } catch (e) {
-        console.error("Error cleaning directions renderer:", e);
-      }
-      directionsRendererRef.current = null;
-    }
-    
-    // Clear map
-    if (googleMapRef.current) {
-      try {
-        google.maps.event.clearInstanceListeners(googleMapRef.current);
-      } catch (e) {
-        console.error("Error cleaning map listeners:", e);
-      }
-    }
-    
-    // Reset initialization flag
-    mapInitializedRef.current = false;
-    
-    // Clean up global callback but don't remove the script
-    if (window.initMap) {
-      window.initMap = () => {};
-    }
-  };
-
-  // On mount
+  // Effect to initialize the map when Google Maps script is loaded
   useEffect(() => {
-    console.log("MapaContainer mounting");
-    isMountedRef.current = true;
-    
-    // Load the Google Maps script when the component mounts
-    loadGoogleMapsScript();
-    
-    // Cleanup function for component unmount
+    if (mapLoaded && mapRef.current) {
+      initMap();
+    }
+  }, [mapLoaded]);
+
+  // Cleanup function for component unmount
+  useEffect(() => {
     return () => {
       console.log("MapaContainer unmounting");
       isMountedRef.current = false;
       
       // Make sure we run cleanup synchronously before component is fully unmounted
       if (window.google && window.google.maps) {
-        cleanup();
+        cleanupMapResources(markersRef, directionsRendererRef, googleMapRef);
       }
       
       // Clear map ref without manipulating DOM
       googleMapRef.current = null;
+      mapInitializedRef.current = false;
     };
   }, []);
 
@@ -167,29 +82,7 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
       console.log("Updating markers");
       
       // Clear existing markers before adding new ones
-      if (markersRef.current.length > 0) {
-        markersRef.current.forEach(marker => {
-          if (marker) {
-            try {
-              google.maps.event.clearInstanceListeners(marker);
-              marker.setMap(null);
-            } catch (e) {
-              console.error("Error cleaning marker during update:", e);
-            }
-          }
-        });
-        markersRef.current = [];
-      }
-      
-      // Clear directions renderer
-      if (directionsRendererRef.current) {
-        try {
-          directionsRendererRef.current.setMap(null);
-        } catch (e) {
-          console.error("Error cleaning directions renderer during update:", e);
-        }
-        directionsRendererRef.current = null;
-      }
+      cleanupMapResources(markersRef, directionsRendererRef, googleMapRef);
       
       // Add new markers
       try {
@@ -202,23 +95,9 @@ const MapaContainer: React.FC<MapaContainerProps> = ({
 
   return (
     <div ref={mapRef} className="h-[400px] rounded-md border bg-muted/20 relative">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="mt-2 text-sm text-muted-foreground">Carregando mapa...</span>
-          </div>
-        </div>
-      )}
+      {isLoading && <MapLoading />}
     </div>
   );
 };
-
-// Add typing for the global window object
-declare global {
-  interface Window {
-    initMap: () => void;
-  }
-}
 
 export default MapaContainer;
