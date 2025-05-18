@@ -20,6 +20,6 @@ export interface AprovacoesHandlers {
   handleFilterChange: (filter: string, value: string) => void;
   openDetailDialog: (row: SolicitacaoColeta) => void;
   handleApprove: (solicitacaoId: string, observacoes?: string) => void;
-  handleReject: (solicitacaoId: string, motivoRecusa: string) => void;
+  handleReject: (solicitacaoId: string, motivoRecusa: string, observacoes: string) => void;
   renderAprovacaoDocument: (documentId: string) => SolicitacaoColeta | null;
 }
