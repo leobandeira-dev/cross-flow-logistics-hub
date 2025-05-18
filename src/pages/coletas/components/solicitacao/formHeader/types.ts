@@ -13,6 +13,8 @@ export interface SolicitacaoFormHeaderProps {
   // Inclusion date and time
   dataInclusao?: string;
   horaInclusao?: string;
+  // Read-only mode
+  readOnly?: boolean;
   // Event handlers
   onTipoFreteChange?: (tipo: 'FOB' | 'CIF') => void;
   onDataColetaChange?: (data: string) => void;

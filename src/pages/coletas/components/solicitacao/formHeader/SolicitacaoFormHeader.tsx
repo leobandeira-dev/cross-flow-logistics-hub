@@ -15,6 +15,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   horaAprovacao,
   dataInclusao,
   horaInclusao,
+  readOnly = false,
   onTipoFreteChange,
   onDataColetaChange,
   onHoraColetaChange,
@@ -30,7 +31,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
           <Select
             value={tipoFrete}
             onValueChange={(value) => onTipoFreteChange?.(value as 'FOB' | 'CIF')}
-            disabled={isLoading}
+            disabled={isLoading || readOnly}
           >
             <SelectTrigger id="tipoFrete" className="mt-1">
               <SelectValue placeholder="Selecione o tipo de frete" />
@@ -53,7 +54,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
             value={dataColeta} 
             onChange={(e) => onDataColetaChange?.(e.target.value)}
             className="mt-1"
-            disabled={isLoading}
+            disabled={isLoading || readOnly}
           />
         </div>
 
@@ -68,7 +69,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
             value={horaColeta || ''} 
             onChange={(e) => onHoraColetaChange?.(e.target.value)}
             className="mt-1"
-            disabled={isLoading}
+            disabled={isLoading || readOnly}
           />
         </div>
       </div>

@@ -22,8 +22,26 @@ interface DetalhesAprovacaoDialogProps {
 
 const mapSolicitacaoToFormData = (solicitacao: SolicitacaoColeta): InternalFormData => {
   return {
-    remetente: solicitacao.remetente || { razaoSocial: '', cnpj: '' },
-    destinatario: solicitacao.destinatario || { razaoSocial: '', cnpj: '' },
+    remetente: {
+      razaoSocial: solicitacao.remetente?.razaoSocial || '',
+      cnpj: solicitacao.remetente?.cnpj || '',
+      endereco: solicitacao.remetente?.endereco?.logradouro || '',
+      numero: solicitacao.remetente?.endereco?.numero || '',
+      bairro: solicitacao.remetente?.endereco?.bairro || '',
+      cidade: solicitacao.remetente?.endereco?.cidade || '',
+      uf: solicitacao.remetente?.endereco?.uf || '',
+      cep: solicitacao.remetente?.endereco?.cep || ''
+    },
+    destinatario: {
+      razaoSocial: solicitacao.destinatario?.razaoSocial || '',
+      cnpj: solicitacao.destinatario?.cnpj || '',
+      endereco: solicitacao.destinatario?.endereco?.logradouro || '',
+      numero: solicitacao.destinatario?.endereco?.numero || '',
+      bairro: solicitacao.destinatario?.endereco?.bairro || '',
+      cidade: solicitacao.destinatario?.endereco?.cidade || '',
+      uf: solicitacao.destinatario?.endereco?.uf || '',
+      cep: solicitacao.destinatario?.endereco?.cep || ''
+    },
     dataColeta: solicitacao.dataColeta || '',
     notasFiscais: solicitacao.notasFiscais || [],
     observacoes: solicitacao.observacoes || '',

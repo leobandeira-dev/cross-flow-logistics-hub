@@ -8,7 +8,7 @@ import { calcularTotaisNota } from '../utils/volumes/calculations';
 
 interface NotasFiscaisManagerProps {
   notasFiscais: NotaFiscalVolume[];
-  onChangeNotasFiscais?: (notasFiscais: NotasFiscalVolume[]) => void;
+  onChangeNotasFiscais?: (notasFiscais: NotaFiscalVolume[]) => void;
   isLoading?: boolean;
   readOnly?: boolean;
 }
@@ -57,17 +57,17 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
         const totalInfo = calcularTotaisNota(notaFiscal.volumes || [], notaFiscal.pesoTotal);
         
         return (
-          <Card key={notaFiscal.numero || index} className="overflow-hidden">
+          <Card key={notaFiscal.numeroNF || index} className="overflow-hidden">
             <div className="bg-gray-50 p-4 border-b">
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
                   <h4 className="font-medium">
-                    NF {notaFiscal.numero} 
-                    {notaFiscal.serie && <span className="text-gray-500 ml-1">Série {notaFiscal.serie}</span>}
+                    NF {notaFiscal.numeroNF} 
+                    {notaFiscal.numeroNF && <span className="text-gray-500 ml-1">Série {index + 1}</span>}
                   </h4>
                   <p className="text-sm text-gray-600">
-                    {notaFiscal.chave && (
-                      <span className="block">Chave: {notaFiscal.chave}</span>
+                    {notaFiscal.chaveNF && (
+                      <span className="block">Chave: {notaFiscal.chaveNF}</span>
                     )}
                   </p>
                 </div>

@@ -46,11 +46,9 @@ const AprovacoesColeta = () => {
       />
       
       <DetalhesAprovacaoDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        selectedRequest={selectedRequest}
-        isRejecting={isRejecting}
-        setIsRejecting={setIsRejecting}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        solicitacao={selectedRequest}
         onApprove={handleApprove}
         onReject={handleReject}
       />

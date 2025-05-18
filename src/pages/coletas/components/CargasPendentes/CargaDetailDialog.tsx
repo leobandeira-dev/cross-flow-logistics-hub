@@ -29,10 +29,22 @@ const mapCargaToFormData = (carga: Carga): InternalFormData => {
     remetente: {
       razaoSocial: carga.origem?.split(' - ')[0] || '',
       cnpj: '',
+      endereco: carga.origem || '',
+      numero: '',
+      bairro: '',
+      cidade: carga.origem?.split(' - ')[0] || '',
+      uf: '',
+      cep: ''
     },
     destinatario: {
       razaoSocial: cidade,
       cnpj: '',
+      endereco: carga.destino || '',
+      numero: '',
+      bairro: '',
+      cidade: cidade,
+      uf: uf,
+      cep: carga.cep || ''
     },
     dataColeta: carga.dataPrevisao || '',
     observacoes: carga.observacoes || '',
