@@ -20,6 +20,8 @@ export interface NotaFiscalVolume {
   valorTotal: number;
   pesoTotal: number;
   volumes: VolumeItem[];
+  emitenteCNPJ?: string; // Add missing property
+  totalCubicVolume?: number; // Add for explicit cubic volume storage
 }
 
 // Function to generate a unique volume ID

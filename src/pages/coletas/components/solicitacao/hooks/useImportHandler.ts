@@ -59,8 +59,8 @@ export const useImportHandler = (
             : '';
           updatedData.origemCEP = remetenteInfo.endereco?.cep || '';
           
-          // Set cliente field with sender's name
-          updatedData.cliente = remetenteInfo.nome || remetenteInfo.razaoSocial || '';
+          // Set tipoFrete field (default to FOB) instead of cliente
+          updatedData.tipoFrete = updatedData.tipoFrete || 'FOB';
         }
         
         if (destinatarioInfo) {

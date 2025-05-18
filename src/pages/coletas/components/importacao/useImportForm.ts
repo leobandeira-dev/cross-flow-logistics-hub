@@ -27,7 +27,7 @@ export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
     horaColeta: '',
     observacoes: '',
     notasFiscais: [],
-    cliente: '',
+    tipoFrete: 'FOB', // Changed from cliente to tipoFrete with default FOB
     origem: '',
     destino: '',
     origemEndereco: '',

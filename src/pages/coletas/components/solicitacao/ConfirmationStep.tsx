@@ -23,8 +23,8 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ formData, handleInp
           
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <span className="block text-xs text-gray-500">Cliente</span>
-              <span className="font-medium">{formData.cliente}</span>
+              <span className="block text-xs text-gray-500">Tipo de Frete</span>
+              <span className="font-medium">{formData.tipoFrete}</span>
             </div>
             <div>
               <span className="block text-xs text-gray-500">Data da Coleta</span>

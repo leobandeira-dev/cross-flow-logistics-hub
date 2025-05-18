@@ -38,8 +38,8 @@ const ObservacoesStep: React.FC<ObservacoesStepProps> = ({ formData, handleInput
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-3 rounded">
-              <span className="block text-xs text-gray-500">Cliente</span>
-              <span className="text-base font-medium">{formData.cliente || 'Não informado'}</span>
+              <span className="block text-xs text-gray-500">Tipo de Frete</span>
+              <span className="text-base font-medium">{formData.tipoFrete}</span>
             </div>
             
             <div className="bg-gray-50 p-3 rounded">
