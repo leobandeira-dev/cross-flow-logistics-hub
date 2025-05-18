@@ -118,22 +118,37 @@ export const useImportHandler = (
         const file = files[i];
         
         try {
+          console.log(`Processando arquivo XML: ${file.name}`);
+          
           // Parse XML file
           const xmlData = await parseXmlFile(file);
-          if (!xmlData) continue;
+          if (!xmlData) {
+            console.log(`Arquivo ${file.name} não pôde ser parseado`);
+            continue;
+          }
+          
+          console.log(`XML parseado com sucesso: ${file.name}`);
           
           // Extract data from XML
           const extractedData = extractDataFromXml(xmlData);
+          console.log('Dados extraídos:', extractedData);
           
-          // Create volume with extracted data
+          if (!extractedData.numeroNF) {
+            console.log(`Não foi possível extrair o número da NF do arquivo ${file.name}`);
+            continue;
+          }
+          
+          // Create volume with extracted data and default dimensions
           const volume: VolumeItem = {
             id: generateVolumeId(),
-            altura: 30, // Default height
-            largura: 30, // Default width
-            comprimento: 30, // Default length
+            altura: 30, // Default height in cm
+            largura: 30, // Default width in cm
+            comprimento: 30, // Default length in cm
             quantidade: parseInt(extractedData.volumesTotal) || 1,
-            peso: parseFloat(extractedData.pesoTotalBruto || '0'),
+            peso: parseFloat(extractedData.pesoTotalBruto?.replace(',', '.') || '0'),
           };
+          
+          console.log('Volume criado:', volume);
           
           // Create nota fiscal object
           const notaFiscal: NotaFiscalVolume = {
@@ -143,10 +158,12 @@ export const useImportHandler = (
             volumes: [volume],
             remetente: extractedData.emitenteRazaoSocial || '',
             destinatario: extractedData.destinatarioRazaoSocial || '',
-            valorTotal: parseFloat(extractedData.valorTotal || '0'),
-            pesoTotal: parseFloat(extractedData.pesoTotalBruto || '0'),
+            valorTotal: parseFloat(extractedData.valorTotal?.replace(',', '.') || '0'),
+            pesoTotal: parseFloat(extractedData.pesoTotalBruto?.replace(',', '.') || '0'),
             emitenteCNPJ: extractedData.emitenteCNPJ || ''
           };
+          
+          console.log('Nota fiscal criada:', notaFiscal);
           
           // Add to notasFiscais array
           notasFiscais.push(notaFiscal);
@@ -197,6 +214,10 @@ export const useImportHandler = (
         });
         return;
       }
+
+      console.log(`Processamento concluído. ${notasFiscais.length} notas fiscais encontradas.`);
+      console.log('Remetente info:', remetenteInfo);
+      console.log('Destinatario info:', destinatarioInfo);
 
       // Process imported notas fiscais
       handleImportSuccess(notasFiscais, remetenteInfo, destinatarioInfo);

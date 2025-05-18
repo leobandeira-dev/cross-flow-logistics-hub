@@ -36,6 +36,14 @@ const BatchImportTabContent: React.FC<BatchImportTabContentProps> = ({ isLoading
           />
         </label>
       </div>
+      <div className="text-xs text-gray-500 mt-4">
+        <p>Dicas para importação em lote:</p>
+        <ul className="list-disc list-inside ml-2 mt-1">
+          <li>Selecione múltiplos arquivos XML (um por nota fiscal)</li>
+          <li>Arquivos devem estar no formato padrão SEFAZ</li>
+          <li>O sistema extrairá automaticamente dados do remetente e destinatário</li>
+        </ul>
+      </div>
     </div>
   );
 };
