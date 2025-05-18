@@ -45,11 +45,22 @@ export const calcularTotaisColeta = (notasFiscais: any[]): {
   let totalVolumeM3 = 0;
   let totalPeso = 0;
   
+  if (!notasFiscais || notasFiscais.length === 0) {
+    return {
+      qtdVolumes: 0,
+      volumeTotal: 0,
+      pesoTotal: 0,
+      pesoCubadoTotal: 0
+    };
+  }
+  
   notasFiscais.forEach(nf => {
-    const totaisNota = calcularTotaisNota(nf.volumes, nf.pesoTotal);
-    totalVolumes += totaisNota.qtdVolumes;
-    totalVolumeM3 += totaisNota.volumeTotal;
-    totalPeso += nf.pesoTotal || totaisNota.pesoTotal;
+    if (nf && nf.volumes && Array.isArray(nf.volumes)) {
+      const totaisNota = calcularTotaisNota(nf.volumes, nf.pesoTotal);
+      totalVolumes += totaisNota.qtdVolumes;
+      totalVolumeM3 += totaisNota.volumeTotal;
+      totalPeso += nf.pesoTotal || totaisNota.pesoTotal;
+    }
   });
   
   // Calculate cubic weight (300kg per cubic meter)

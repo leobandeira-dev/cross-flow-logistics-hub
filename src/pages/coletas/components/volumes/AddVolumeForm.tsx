@@ -25,7 +25,11 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
   }, [novoVolume.altura, novoVolume.largura, novoVolume.comprimento, novoVolume.quantidade]);
 
   const handleVolumeChange = (field: keyof Omit<VolumeItem, "id" | "peso">, value: any) => {
-    setNovoVolume(prev => ({ ...prev, [field]: value }));
+    const parsedValue = field === 'quantidade' 
+      ? (parseInt(value) || 1)
+      : (parseFloat(value) || 0);
+      
+    setNovoVolume(prev => ({ ...prev, [field]: parsedValue }));
   };
 
   const adicionarVolume = () => {
@@ -60,7 +64,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
         <Input 
           type="number" 
           value={novoVolume.altura || ''} 
-          onChange={(e) => handleVolumeChange('altura', parseFloat(e.target.value) || 0)}
+          onChange={(e) => handleVolumeChange('altura', e.target.value)}
           step="0.01"
           min="0"
           placeholder="0.00"
@@ -71,7 +75,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
         <Input 
           type="number" 
           value={novoVolume.largura || ''} 
-          onChange={(e) => handleVolumeChange('largura', parseFloat(e.target.value) || 0)}
+          onChange={(e) => handleVolumeChange('largura', e.target.value)}
           step="0.01"
           min="0"
           placeholder="0.00"
@@ -82,7 +86,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
         <Input 
           type="number" 
           value={novoVolume.comprimento || ''} 
-          onChange={(e) => handleVolumeChange('comprimento', parseFloat(e.target.value) || 0)}
+          onChange={(e) => handleVolumeChange('comprimento', e.target.value)}
           step="0.01"
           min="0"
           placeholder="0.00"
@@ -93,7 +97,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
         <Input 
           type="number" 
           value={novoVolume.quantidade || ''} 
-          onChange={(e) => handleVolumeChange('quantidade', parseInt(e.target.value) || 1)}
+          onChange={(e) => handleVolumeChange('quantidade', e.target.value)}
           min="1"
           placeholder="1"
         />

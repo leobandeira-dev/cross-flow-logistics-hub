@@ -2,8 +2,8 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash, Box } from 'lucide-react';
-import { VolumeItem, calcularVolume, formatarNumero, calcularTotaisNota } from '../../../utils/volumeCalculations';
+import { Trash } from 'lucide-react';
+import { VolumeItem, calcularVolume, formatarNumero, calcularTotaisNota } from '../../../utils/volumes/index';
 
 interface VolumesListProps {
   volumes: VolumeItem[];

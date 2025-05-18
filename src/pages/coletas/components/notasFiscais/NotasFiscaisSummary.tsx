@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { NotaFiscalVolume, calcularTotaisColeta, formatarNumero, formatarMoeda } from '../../utils/volumeCalculations';
+import { calcularTotaisColeta, formatarNumero, formatarMoeda } from '../../utils/volumes/index';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Table,
@@ -9,6 +10,7 @@ import {
   TableHeader,
   TableRow 
 } from '@/components/ui/table';
+import { NotaFiscalVolume } from '../../utils/volumes/types';
 
 interface NotasFiscaisSummaryProps {
   notasFiscais: NotaFiscalVolume[];
@@ -52,7 +54,7 @@ const NotasFiscaisSummary: React.FC<NotasFiscaisSummaryProps> = ({ notasFiscais 
             </TableHeader>
             <TableBody>
               {notasFiscais.map((nf, index) => {
-                const nfTotais = calcularTotaisColeta([nf]);
+                const nfTotais = calcularTotaisNota(nf.volumes);
                 return (
                   <TableRow key={index}>
                     <TableCell className="font-medium">{nf.numeroNF || `NF ${index + 1}`}</TableCell>
