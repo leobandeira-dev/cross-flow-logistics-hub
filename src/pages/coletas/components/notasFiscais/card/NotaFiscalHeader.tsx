@@ -3,7 +3,7 @@ import React from 'react';
 import { NotaFiscalVolume } from '../../../utils/volumeCalculations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash } from 'lucide-react';
+import { Trash, Weight } from 'lucide-react';
 
 interface NotaFiscalHeaderProps {
   nf: NotaFiscalVolume;
@@ -12,6 +12,7 @@ interface NotaFiscalHeaderProps {
   onUpdateRemetente: (remetente: string) => void;
   onUpdateDestinatario: (destinatario: string) => void;
   onUpdateValorTotal: (valorTotal: string) => void;
+  onUpdatePesoTotal: (pesoTotal: string) => void;
   isReadOnly?: boolean;
 }
 
@@ -22,6 +23,7 @@ const NotaFiscalHeader: React.FC<NotaFiscalHeaderProps> = ({
   onUpdateRemetente,
   onUpdateDestinatario,
   onUpdateValorTotal,
+  onUpdatePesoTotal,
   isReadOnly = false
 }) => {
   return (
@@ -72,21 +74,22 @@ const NotaFiscalHeader: React.FC<NotaFiscalHeaderProps> = ({
                 disabled={isReadOnly}
               />
             </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Peso Total (kg)</label>
+              <Input
+                value={(nf.pesoTotal || 0).toString()}
+                onChange={(e) => onUpdatePesoTotal(e.target.value)}
+                className="mt-1"
+                placeholder="Peso total"
+                type="number"
+                disabled={isReadOnly}
+              />
+            </div>
             {nf.dataEmissao && (
               <div>
                 <label className="text-xs text-muted-foreground">Data de Emissão</label>
                 <Input
                   value={new Date(nf.dataEmissao).toLocaleDateString()}
-                  className="mt-1"
-                  readOnly
-                />
-              </div>
-            )}
-            {nf.chaveNF && (
-              <div>
-                <label className="text-xs text-muted-foreground">Chave NF</label>
-                <Input
-                  value={nf.chaveNF}
                   className="mt-1"
                   readOnly
                 />

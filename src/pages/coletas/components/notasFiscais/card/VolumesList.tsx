@@ -2,7 +2,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash } from 'lucide-react';
+import { Trash, Cube } from 'lucide-react';
 import { VolumeItem, calcularVolume, formatarNumero, calcularTotaisNota } from '../../../utils/volumeCalculations';
 
 interface VolumesListProps {
@@ -10,15 +10,17 @@ interface VolumesListProps {
   isReadOnly: boolean;
   onUpdateVolume: (volumeId: string, field: keyof VolumeItem, value: string) => void;
   onRemoveVolume: (volumeId: string) => void;
+  pesoTotal?: number;
 }
 
 const VolumesList: React.FC<VolumesListProps> = ({
   volumes,
   isReadOnly,
   onUpdateVolume,
-  onRemoveVolume
+  onRemoveVolume,
+  pesoTotal
 }) => {
-  const totais = calcularTotaisNota(volumes);
+  const totais = calcularTotaisNota(volumes, pesoTotal);
   
   if (volumes.length === 0) {
     return (
@@ -28,12 +30,11 @@ const VolumesList: React.FC<VolumesListProps> = ({
 
   return (
     <div className="mb-3">
-      <div className="grid grid-cols-8 gap-2 text-xs font-medium text-gray-500 mb-2">
+      <div className="grid grid-cols-7 gap-2 text-xs font-medium text-gray-500 mb-2">
         <div className="col-span-1">Seq</div>
         <div className="col-span-1">Alt. (cm)</div>
         <div className="col-span-1">Larg. (cm)</div>
         <div className="col-span-1">Comp. (cm)</div>
-        <div className="col-span-1">Peso (kg)</div>
         <div className="col-span-1">Qtde</div>
         <div className="col-span-1">Vol. (m³)</div>
         <div className="col-span-1"></div>
@@ -43,7 +44,7 @@ const VolumesList: React.FC<VolumesListProps> = ({
         const volumeCalculado = calcularVolume(volume);
         
         return (
-          <div key={volume.id} className="grid grid-cols-8 gap-2 mb-2">
+          <div key={volume.id} className="grid grid-cols-7 gap-2 mb-2">
             <div className="col-span-1">
               <Input
                 value={idx + 1}
@@ -71,14 +72,6 @@ const VolumesList: React.FC<VolumesListProps> = ({
               <Input
                 value={volume.comprimento}
                 onChange={(e) => onUpdateVolume(volume.id, 'comprimento', e.target.value)}
-                className="h-8 text-xs"
-                disabled={isReadOnly}
-              />
-            </div>
-            <div className="col-span-1">
-              <Input
-                value={volume.peso}
-                onChange={(e) => onUpdateVolume(volume.id, 'peso', e.target.value)}
                 className="h-8 text-xs"
                 disabled={isReadOnly}
               />
@@ -114,8 +107,8 @@ const VolumesList: React.FC<VolumesListProps> = ({
       })}
       
       {/* Totals */}
-      <div className="grid grid-cols-8 gap-2 mt-4 pt-2 border-t border-gray-200">
-        <div className="col-span-5 text-right pr-2 text-sm font-medium">Totais:</div>
+      <div className="grid grid-cols-7 gap-2 mt-4 pt-2 border-t border-gray-200">
+        <div className="col-span-4 text-right pr-2 text-sm font-medium">Totais:</div>
         <div className="col-span-1 text-center">
           <span className="text-sm font-semibold">{totais.qtdVolumes}</span>
         </div>

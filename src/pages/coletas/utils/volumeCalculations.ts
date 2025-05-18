@@ -1,4 +1,3 @@
-
 export interface VolumeItem {
   id: string;
   altura: number;
@@ -14,6 +13,8 @@ export interface NotaFiscalVolume {
   remetente: string;
   destinatario: string;
   valorTotal: number;
+  // New field for total weight from XML
+  pesoTotal?: number;
   // New optional fields for tracking
   status?: string;
   prioridade?: string;
@@ -115,7 +116,7 @@ export const formatarMoeda = (valor: number): string => {
 };
 
 // Função para calcular totais de uma nota fiscal
-export const calcularTotaisNota = (volumes: VolumeItem[]): { 
+export const calcularTotaisNota = (volumes: VolumeItem[], pesoTotalFixo?: number): { 
   volumeTotal: number; 
   pesoTotal: number; 
   pesoCubadoTotal: number;
@@ -128,9 +129,19 @@ export const calcularTotaisNota = (volumes: VolumeItem[]): {
   volumes.forEach(vol => {
     const volume = calcularVolume(vol);
     volumeTotal += volume;
-    pesoTotal += vol.peso * vol.quantidade;
+    
+    // Only calculate peso from volumes if no fixed total is provided
+    if (pesoTotalFixo === undefined) {
+      pesoTotal += vol.peso * vol.quantidade;
+    }
+    
     qtdVolumes += vol.quantidade;
   });
+
+  // Use the fixed peso total if provided, otherwise use calculated value
+  if (pesoTotalFixo !== undefined) {
+    pesoTotal = pesoTotalFixo;
+  }
 
   const pesoCubadoTotal = calcularPesoCubado(volumeTotal);
 
@@ -155,7 +166,7 @@ export const calcularTotaisColeta = (notasFiscais: NotaFiscalVolume[]): {
   let qtdVolumes = 0;
 
   notasFiscais.forEach(nf => {
-    const totaisNota = calcularTotaisNota(nf.volumes);
+    const totaisNota = calcularTotaisNota(nf.volumes, nf.pesoTotal);
     volumeTotal += totaisNota.volumeTotal;
     pesoTotal += totaisNota.pesoTotal;
     pesoCubadoTotal += totaisNota.pesoCubadoTotal;

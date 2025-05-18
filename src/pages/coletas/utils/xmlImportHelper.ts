@@ -24,6 +24,7 @@ export const extractNFInfoFromXML = async (file: File): Promise<any> => {
           const largura = Math.floor(Math.random() * 50) + 20;
           const comprimento = Math.floor(Math.random() * 50) + 30;
           const peso = Math.floor(Math.random() * 20) + 1;
+          const pesoTotal = Math.floor(Math.random() * 100) + 10; // Total weight from XML
           
           resolve({
             nfInfo: {
@@ -31,9 +32,10 @@ export const extractNFInfoFromXML = async (file: File): Promise<any> => {
               chaveNF: `${Math.floor(Math.random() * 10000000000000)}`,
               dataEmissao: new Date().toISOString(),
               volumes: [
-                { altura: altura, largura: largura, comprimento: comprimento, peso: peso, quantidade: 1 }
+                { altura: altura, largura: largura, comprimento: comprimento, peso: 0, quantidade: 1 }
               ],
-              valorTotal: Math.floor(Math.random() * 10000) + 500
+              valorTotal: Math.floor(Math.random() * 10000) + 500,
+              pesoTotal: pesoTotal // Add the total weight
             },
             remetente: {
               razaoSocial: 'Empresa Teste',

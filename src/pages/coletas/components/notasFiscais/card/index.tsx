@@ -16,6 +16,7 @@ interface NotaFiscalCardProps {
   onUpdateDestinatario: (destinatario: string) => void;
   onUpdateValorTotal: (valorTotal: string) => void;
   onUpdateVolumes: (volumes: VolumeItem[]) => void;
+  onUpdatePesoTotal: (pesoTotal: string) => void;
   isReadOnly?: boolean;
 }
 
@@ -28,6 +29,7 @@ const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
   onUpdateDestinatario,
   onUpdateValorTotal,
   onUpdateVolumes,
+  onUpdatePesoTotal,
   isReadOnly = false
 }) => {
   const handleUpdateVolume = (volumeId: string, field: keyof VolumeItem, value: string) => {
@@ -68,6 +70,7 @@ const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
           onUpdateRemetente={onUpdateRemetente}
           onUpdateDestinatario={onUpdateDestinatario}
           onUpdateValorTotal={onUpdateValorTotal}
+          onUpdatePesoTotal={onUpdatePesoTotal}
           isReadOnly={isReadOnly}
         />
       </CardHeader>
@@ -83,6 +86,7 @@ const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
             isReadOnly={isReadOnly}
             onUpdateVolume={handleUpdateVolume}
             onRemoveVolume={handleRemoveVolume}
+            pesoTotal={nf.pesoTotal}
           />
         </div>
         

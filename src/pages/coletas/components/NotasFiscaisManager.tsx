@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { NotaFiscalVolume } from '../utils/volumeCalculations';
 import NotasFiscaisHeader from './notasFiscais/NotasFiscaisHeader';
 import EmptyNotasFiscais from './notasFiscais/EmptyNotasFiscais';
@@ -23,7 +23,8 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
       volumes: [],
       remetente: '',
       destinatario: '',
-      valorTotal: 0
+      valorTotal: 0,
+      pesoTotal: 0
     }]);
   };
 
@@ -58,6 +59,13 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
     onChangeNotasFiscais(novasNFs);
   };
 
+  const atualizarPesoTotal = (index: number, pesoTotalStr: string) => {
+    const novasNFs = [...notasFiscais];
+    const pesoTotal = parseFloat(pesoTotalStr) || 0;
+    novasNFs[index] = { ...novasNFs[index], pesoTotal };
+    onChangeNotasFiscais(novasNFs);
+  };
+
   const atualizarVolumes = (index: number, volumes: any[]) => {
     const novasNFs = [...notasFiscais];
     novasNFs[index] = { ...novasNFs[index], volumes };
@@ -82,6 +90,7 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
               onUpdateRemetente={(remetente) => atualizarRemetente(index, remetente)}
               onUpdateDestinatario={(destinatario) => atualizarDestinatario(index, destinatario)}
               onUpdateValorTotal={(valorTotal) => atualizarValorTotal(index, valorTotal)}
+              onUpdatePesoTotal={(pesoTotal) => atualizarPesoTotal(index, pesoTotal)}
               onUpdateVolumes={(volumes) => atualizarVolumes(index, volumes)}
               isReadOnly={isLoading}
             />

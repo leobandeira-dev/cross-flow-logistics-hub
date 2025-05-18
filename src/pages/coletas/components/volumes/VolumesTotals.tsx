@@ -1,12 +1,12 @@
-
 import React from 'react';
 import { VolumeItem, calcularVolume, formatarNumero } from '../../utils/volumeCalculations';
 
 interface VolumesTotalsProps {
   volumes: VolumeItem[];
+  pesoTotal?: number;
 }
 
-const VolumesTotals: React.FC<VolumesTotalsProps> = ({ volumes }) => {
+const VolumesTotals: React.FC<VolumesTotalsProps> = ({ volumes, pesoTotal }) => {
   // Calculate totals
   let totalVolumes = 0;
   let totalPeso = 0;
@@ -15,9 +15,18 @@ const VolumesTotals: React.FC<VolumesTotalsProps> = ({ volumes }) => {
   volumes.forEach(vol => {
     const volumeCalculado = calcularVolume(vol);
     totalVolumes += vol.quantidade;
-    totalPeso += vol.peso * vol.quantidade;
     totalM3 += volumeCalculado;
   });
+
+  // Use the provided fixed weight if available
+  if (pesoTotal !== undefined) {
+    totalPeso = pesoTotal;
+  } else {
+    // Otherwise calculate from volumes
+    volumes.forEach(vol => {
+      totalPeso += vol.peso * vol.quantidade;
+    });
+  }
 
   return (
     <>

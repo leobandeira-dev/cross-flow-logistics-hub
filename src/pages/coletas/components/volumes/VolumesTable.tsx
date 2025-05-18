@@ -13,12 +13,14 @@ interface VolumesTableProps {
   volumes: VolumeItem[];
   onRemoveVolume: (index: number) => void;
   readOnly?: boolean;
+  pesoTotal?: number;
 }
 
 const VolumesTable: React.FC<VolumesTableProps> = ({ 
   volumes, 
   onRemoveVolume,
-  readOnly = false 
+  readOnly = false,
+  pesoTotal
 }) => {
   if (volumes.length === 0) {
     return null;
@@ -66,7 +68,7 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
             );
           })}
           
-          {volumes.length > 0 && <VolumesTotals volumes={volumes} />}
+          {volumes.length > 0 && <VolumesTotals volumes={volumes} pesoTotal={pesoTotal} />}
         </tbody>
       </table>
     </div>
