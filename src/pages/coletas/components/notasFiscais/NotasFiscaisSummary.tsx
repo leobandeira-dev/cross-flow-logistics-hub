@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { calcularTotaisColeta, formatarNumero, formatarMoeda } from '../../utils/volumes/index';
+import { calcularTotaisColeta, calcularTotaisNota, formatarNumero, formatarMoeda } from '../../utils/volumes/index';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Table,
