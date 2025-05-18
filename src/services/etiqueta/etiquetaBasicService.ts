@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Etiqueta } from "@/types/supabase/warehouse.types"; // Import directly from warehouse.types
+import { Etiqueta } from "@/types/supabase/armazem.types";
 
 /**
  * Service for basic etiqueta operations

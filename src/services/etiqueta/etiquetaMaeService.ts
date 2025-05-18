@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Etiqueta } from "@/types/supabase.types";
+import { Etiqueta } from "@/types/supabase/armazem.types";
 
 /**
  * Service for etiqueta mãe (master label) operations

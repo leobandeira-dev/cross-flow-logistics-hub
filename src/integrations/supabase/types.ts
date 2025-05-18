@@ -9,13 +9,1105 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      carregamentos: {
+        Row: {
+          conferente_id: string | null
+          created_at: string | null
+          data_fim_carregamento: string | null
+          data_inicio_carregamento: string | null
+          id: string
+          observacoes: string | null
+          ordem_carregamento_id: string | null
+          peso_total: number | null
+          quantidade_volumes: number
+          responsavel_carregamento_id: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          conferente_id?: string | null
+          created_at?: string | null
+          data_fim_carregamento?: string | null
+          data_inicio_carregamento?: string | null
+          id?: string
+          observacoes?: string | null
+          ordem_carregamento_id?: string | null
+          peso_total?: number | null
+          quantidade_volumes?: number
+          responsavel_carregamento_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          conferente_id?: string | null
+          created_at?: string | null
+          data_fim_carregamento?: string | null
+          data_inicio_carregamento?: string | null
+          id?: string
+          observacoes?: string | null
+          ordem_carregamento_id?: string | null
+          peso_total?: number | null
+          quantidade_volumes?: number
+          responsavel_carregamento_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carregamentos_conferente_id_fkey"
+            columns: ["conferente_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carregamentos_ordem_carregamento_id_fkey"
+            columns: ["ordem_carregamento_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_carregamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carregamentos_responsavel_carregamento_id_fkey"
+            columns: ["responsavel_carregamento_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coletas: {
+        Row: {
+          cidade_coleta: string
+          created_at: string | null
+          data_programada: string | null
+          data_solicitacao: string
+          empresa_cliente_id: string
+          endereco_coleta: string
+          estado_coleta: string
+          horario_fim: string | null
+          horario_inicio: string | null
+          id: string
+          motorista_id: string | null
+          numero_coleta: string
+          observacoes: string | null
+          status: string
+          tipo_coleta: string
+          updated_at: string | null
+          usuario_solicitante_id: string | null
+          veiculo_id: string | null
+        }
+        Insert: {
+          cidade_coleta: string
+          created_at?: string | null
+          data_programada?: string | null
+          data_solicitacao?: string
+          empresa_cliente_id: string
+          endereco_coleta: string
+          estado_coleta: string
+          horario_fim?: string | null
+          horario_inicio?: string | null
+          id?: string
+          motorista_id?: string | null
+          numero_coleta: string
+          observacoes?: string | null
+          status?: string
+          tipo_coleta?: string
+          updated_at?: string | null
+          usuario_solicitante_id?: string | null
+          veiculo_id?: string | null
+        }
+        Update: {
+          cidade_coleta?: string
+          created_at?: string | null
+          data_programada?: string | null
+          data_solicitacao?: string
+          empresa_cliente_id?: string
+          endereco_coleta?: string
+          estado_coleta?: string
+          horario_fim?: string | null
+          horario_inicio?: string | null
+          id?: string
+          motorista_id?: string | null
+          numero_coleta?: string
+          observacoes?: string | null
+          status?: string
+          tipo_coleta?: string
+          updated_at?: string | null
+          usuario_solicitante_id?: string | null
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coletas_empresa_cliente_id_fkey"
+            columns: ["empresa_cliente_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coletas_motorista_id_fkey"
+            columns: ["motorista_id"]
+            isOneToOne: false
+            referencedRelation: "motoristas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coletas_usuario_solicitante_id_fkey"
+            columns: ["usuario_solicitante_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coletas_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comentarios_ocorrencia: {
+        Row: {
+          comentario: string
+          created_at: string | null
+          data_comentario: string
+          id: string
+          ocorrencia_id: string
+          usuario_id: string
+        }
+        Insert: {
+          comentario: string
+          created_at?: string | null
+          data_comentario?: string
+          id?: string
+          ocorrencia_id: string
+          usuario_id: string
+        }
+        Update: {
+          comentario?: string
+          created_at?: string | null
+          data_comentario?: string
+          id?: string
+          ocorrencia_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comentarios_ocorrencia_ocorrencia_id_fkey"
+            columns: ["ocorrencia_id"]
+            isOneToOne: false
+            referencedRelation: "ocorrencias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comentarios_ocorrencia_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      empresas: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          cnpj: string | null
+          created_at: string | null
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          nome_fantasia: string | null
+          razao_social: string
+          status: string
+          telefone: string | null
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome_fantasia?: string | null
+          razao_social: string
+          status?: string
+          telefone?: string | null
+          tipo: string
+          updated_at?: string | null
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome_fantasia?: string | null
+          razao_social?: string
+          status?: string
+          telefone?: string | null
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      enderecamento_caminhao: {
+        Row: {
+          carregamento_id: string
+          created_at: string | null
+          etiqueta_id: string
+          id: string
+          ordem: number | null
+          posicao: string
+          updated_at: string | null
+        }
+        Insert: {
+          carregamento_id: string
+          created_at?: string | null
+          etiqueta_id: string
+          id?: string
+          ordem?: number | null
+          posicao: string
+          updated_at?: string | null
+        }
+        Update: {
+          carregamento_id?: string
+          created_at?: string | null
+          etiqueta_id?: string
+          id?: string
+          ordem?: number | null
+          posicao?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enderecamento_caminhao_carregamento_id_fkey"
+            columns: ["carregamento_id"]
+            isOneToOne: false
+            referencedRelation: "carregamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enderecamento_caminhao_etiqueta_id_fkey"
+            columns: ["etiqueta_id"]
+            isOneToOne: false
+            referencedRelation: "etiquetas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      etiquetas: {
+        Row: {
+          altura: number | null
+          classificacao_quimica: string | null
+          codigo: string
+          codigo_onu: string | null
+          codigo_risco: string | null
+          comprimento: number | null
+          created_at: string | null
+          data_geracao: string
+          etiqueta_mae_id: string | null
+          fragil: boolean | null
+          id: string
+          largura: number | null
+          nota_fiscal_id: string | null
+          peso: number | null
+          status: string
+          tipo: string
+          total_volumes: number | null
+          updated_at: string | null
+          volume_numero: number | null
+        }
+        Insert: {
+          altura?: number | null
+          classificacao_quimica?: string | null
+          codigo: string
+          codigo_onu?: string | null
+          codigo_risco?: string | null
+          comprimento?: number | null
+          created_at?: string | null
+          data_geracao?: string
+          etiqueta_mae_id?: string | null
+          fragil?: boolean | null
+          id?: string
+          largura?: number | null
+          nota_fiscal_id?: string | null
+          peso?: number | null
+          status?: string
+          tipo: string
+          total_volumes?: number | null
+          updated_at?: string | null
+          volume_numero?: number | null
+        }
+        Update: {
+          altura?: number | null
+          classificacao_quimica?: string | null
+          codigo?: string
+          codigo_onu?: string | null
+          codigo_risco?: string | null
+          comprimento?: number | null
+          created_at?: string | null
+          data_geracao?: string
+          etiqueta_mae_id?: string | null
+          fragil?: boolean | null
+          id?: string
+          largura?: number | null
+          nota_fiscal_id?: string | null
+          peso?: number | null
+          status?: string
+          tipo?: string
+          total_volumes?: number | null
+          updated_at?: string | null
+          volume_numero?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etiquetas_etiqueta_mae_id_fkey"
+            columns: ["etiqueta_mae_id"]
+            isOneToOne: false
+            referencedRelation: "etiquetas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "etiquetas_nota_fiscal_id_fkey"
+            columns: ["nota_fiscal_id"]
+            isOneToOne: false
+            referencedRelation: "notas_fiscais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      etiquetas_unitizacao: {
+        Row: {
+          data_inclusao: string
+          etiqueta_id: string
+          unitizacao_id: string
+        }
+        Insert: {
+          data_inclusao?: string
+          etiqueta_id: string
+          unitizacao_id: string
+        }
+        Update: {
+          data_inclusao?: string
+          etiqueta_id?: string
+          unitizacao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etiquetas_unitizacao_etiqueta_id_fkey"
+            columns: ["etiqueta_id"]
+            isOneToOne: false
+            referencedRelation: "etiquetas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "etiquetas_unitizacao_unitizacao_id_fkey"
+            columns: ["unitizacao_id"]
+            isOneToOne: false
+            referencedRelation: "unitizacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itens_carregamento: {
+        Row: {
+          created_at: string | null
+          nota_fiscal_id: string
+          ordem_carregamento_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          nota_fiscal_id: string
+          ordem_carregamento_id: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          nota_fiscal_id?: string
+          ordem_carregamento_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_carregamento_nota_fiscal_id_fkey"
+            columns: ["nota_fiscal_id"]
+            isOneToOne: false
+            referencedRelation: "notas_fiscais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itens_carregamento_ordem_carregamento_id_fkey"
+            columns: ["ordem_carregamento_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_carregamento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      localizacoes: {
+        Row: {
+          area: string | null
+          capacidade_peso: number | null
+          capacidade_volume: number | null
+          codigo: string
+          corredor: string | null
+          created_at: string | null
+          descricao: string | null
+          estante: string | null
+          filial_id: string | null
+          id: string
+          nivel: string | null
+          ocupado: boolean | null
+          posicao: string | null
+          status: string
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          area?: string | null
+          capacidade_peso?: number | null
+          capacidade_volume?: number | null
+          codigo: string
+          corredor?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          estante?: string | null
+          filial_id?: string | null
+          id?: string
+          nivel?: string | null
+          ocupado?: boolean | null
+          posicao?: string | null
+          status?: string
+          tipo: string
+          updated_at?: string | null
+        }
+        Update: {
+          area?: string | null
+          capacidade_peso?: number | null
+          capacidade_volume?: number | null
+          codigo?: string
+          corredor?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          estante?: string | null
+          filial_id?: string | null
+          id?: string
+          nivel?: string | null
+          ocupado?: boolean | null
+          posicao?: string | null
+          status?: string
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "localizacoes_filial_id_fkey"
+            columns: ["filial_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      motoristas: {
+        Row: {
+          categoria_cnh: string | null
+          cnh: string | null
+          cpf: string | null
+          created_at: string | null
+          empresa_id: string | null
+          id: string
+          nome: string
+          status: string
+          telefone: string | null
+          updated_at: string | null
+          validade_cnh: string | null
+        }
+        Insert: {
+          categoria_cnh?: string | null
+          cnh?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          empresa_id?: string | null
+          id?: string
+          nome: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string | null
+          validade_cnh?: string | null
+        }
+        Update: {
+          categoria_cnh?: string | null
+          cnh?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          empresa_id?: string | null
+          id?: string
+          nome?: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string | null
+          validade_cnh?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "motoristas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movimentacoes: {
+        Row: {
+          created_at: string | null
+          data_movimentacao: string
+          etiqueta_id: string
+          id: string
+          localizacao_destino_id: string | null
+          localizacao_origem_id: string | null
+          observacoes: string | null
+          tipo_movimentacao: string
+          usuario_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_movimentacao?: string
+          etiqueta_id: string
+          id?: string
+          localizacao_destino_id?: string | null
+          localizacao_origem_id?: string | null
+          observacoes?: string | null
+          tipo_movimentacao: string
+          usuario_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_movimentacao?: string
+          etiqueta_id?: string
+          id?: string
+          localizacao_destino_id?: string | null
+          localizacao_origem_id?: string | null
+          observacoes?: string | null
+          tipo_movimentacao?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimentacoes_etiqueta_id_fkey"
+            columns: ["etiqueta_id"]
+            isOneToOne: false
+            referencedRelation: "etiquetas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_localizacao_destino_id_fkey"
+            columns: ["localizacao_destino_id"]
+            isOneToOne: false
+            referencedRelation: "localizacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_localizacao_origem_id_fkey"
+            columns: ["localizacao_origem_id"]
+            isOneToOne: false
+            referencedRelation: "localizacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notas_fiscais: {
+        Row: {
+          chave_acesso: string | null
+          created_at: string | null
+          data_emissao: string
+          data_entrada: string | null
+          data_saida: string | null
+          destinatario_id: string | null
+          id: string
+          numero: string
+          ordem_carregamento_id: string | null
+          peso_bruto: number | null
+          quantidade_volumes: number | null
+          remetente_id: string | null
+          serie: string | null
+          status: string
+          transportadora_id: string | null
+          updated_at: string | null
+          valor_total: number
+        }
+        Insert: {
+          chave_acesso?: string | null
+          created_at?: string | null
+          data_emissao: string
+          data_entrada?: string | null
+          data_saida?: string | null
+          destinatario_id?: string | null
+          id?: string
+          numero: string
+          ordem_carregamento_id?: string | null
+          peso_bruto?: number | null
+          quantidade_volumes?: number | null
+          remetente_id?: string | null
+          serie?: string | null
+          status?: string
+          transportadora_id?: string | null
+          updated_at?: string | null
+          valor_total?: number
+        }
+        Update: {
+          chave_acesso?: string | null
+          created_at?: string | null
+          data_emissao?: string
+          data_entrada?: string | null
+          data_saida?: string | null
+          destinatario_id?: string | null
+          id?: string
+          numero?: string
+          ordem_carregamento_id?: string | null
+          peso_bruto?: number | null
+          quantidade_volumes?: number | null
+          remetente_id?: string | null
+          serie?: string | null
+          status?: string
+          transportadora_id?: string | null
+          updated_at?: string | null
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_notas_fiscais_ordem_carregamento"
+            columns: ["ordem_carregamento_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_carregamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notas_fiscais_destinatario_id_fkey"
+            columns: ["destinatario_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notas_fiscais_remetente_id_fkey"
+            columns: ["remetente_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notas_fiscais_transportadora_id_fkey"
+            columns: ["transportadora_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ocorrencias: {
+        Row: {
+          coleta_id: string | null
+          created_at: string | null
+          data_ocorrencia: string
+          descricao: string
+          id: string
+          nota_fiscal_id: string | null
+          ordem_carregamento_id: string | null
+          prioridade: string
+          status: string
+          tipo: string
+          updated_at: string | null
+          usuario_reportou_id: string
+          usuario_responsavel_id: string | null
+        }
+        Insert: {
+          coleta_id?: string | null
+          created_at?: string | null
+          data_ocorrencia?: string
+          descricao: string
+          id?: string
+          nota_fiscal_id?: string | null
+          ordem_carregamento_id?: string | null
+          prioridade?: string
+          status?: string
+          tipo: string
+          updated_at?: string | null
+          usuario_reportou_id: string
+          usuario_responsavel_id?: string | null
+        }
+        Update: {
+          coleta_id?: string | null
+          created_at?: string | null
+          data_ocorrencia?: string
+          descricao?: string
+          id?: string
+          nota_fiscal_id?: string | null
+          ordem_carregamento_id?: string | null
+          prioridade?: string
+          status?: string
+          tipo?: string
+          updated_at?: string | null
+          usuario_reportou_id?: string
+          usuario_responsavel_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocorrencias_coleta_id_fkey"
+            columns: ["coleta_id"]
+            isOneToOne: false
+            referencedRelation: "coletas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ocorrencias_nota_fiscal_id_fkey"
+            columns: ["nota_fiscal_id"]
+            isOneToOne: false
+            referencedRelation: "notas_fiscais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ocorrencias_ordem_carregamento_id_fkey"
+            columns: ["ordem_carregamento_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_carregamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ocorrencias_usuario_reportou_id_fkey"
+            columns: ["usuario_reportou_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ocorrencias_usuario_responsavel_id_fkey"
+            columns: ["usuario_responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ordens_carregamento: {
+        Row: {
+          created_at: string | null
+          data_criacao: string
+          data_finalizacao: string | null
+          data_inicio: string | null
+          data_programada: string | null
+          empresa_cliente_id: string | null
+          filial_id: string | null
+          id: string
+          motorista_id: string | null
+          numero_ordem: string
+          observacoes: string | null
+          status: string
+          tipo_carregamento: string
+          updated_at: string | null
+          veiculo_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_criacao?: string
+          data_finalizacao?: string | null
+          data_inicio?: string | null
+          data_programada?: string | null
+          empresa_cliente_id?: string | null
+          filial_id?: string | null
+          id?: string
+          motorista_id?: string | null
+          numero_ordem: string
+          observacoes?: string | null
+          status?: string
+          tipo_carregamento?: string
+          updated_at?: string | null
+          veiculo_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_criacao?: string
+          data_finalizacao?: string | null
+          data_inicio?: string | null
+          data_programada?: string | null
+          empresa_cliente_id?: string | null
+          filial_id?: string | null
+          id?: string
+          motorista_id?: string | null
+          numero_ordem?: string
+          observacoes?: string | null
+          status?: string
+          tipo_carregamento?: string
+          updated_at?: string | null
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ordens_carregamento_empresa_cliente_id_fkey"
+            columns: ["empresa_cliente_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordens_carregamento_filial_id_fkey"
+            columns: ["filial_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordens_carregamento_motorista_id_fkey"
+            columns: ["motorista_id"]
+            isOneToOne: false
+            referencedRelation: "motoristas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordens_carregamento_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      perfis: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          empresa_id: string | null
+          funcao: string
+          id: string
+          nome: string
+          ultimo_login: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          empresa_id?: string | null
+          funcao?: string
+          id: string
+          nome: string
+          ultimo_login?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          empresa_id?: string | null
+          funcao?: string
+          id?: string
+          nome?: string
+          ultimo_login?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perfis_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unitizacoes: {
+        Row: {
+          codigo: string
+          created_at: string | null
+          data_unitizacao: string
+          id: string
+          localizacao_id: string | null
+          observacoes: string | null
+          status: string
+          tipo_unitizacao: string
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          codigo: string
+          created_at?: string | null
+          data_unitizacao?: string
+          id?: string
+          localizacao_id?: string | null
+          observacoes?: string | null
+          status?: string
+          tipo_unitizacao?: string
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          codigo?: string
+          created_at?: string | null
+          data_unitizacao?: string
+          id?: string
+          localizacao_id?: string | null
+          observacoes?: string | null
+          status?: string
+          tipo_unitizacao?: string
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unitizacoes_localizacao_id_fkey"
+            columns: ["localizacao_id"]
+            isOneToOne: false
+            referencedRelation: "localizacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unitizacoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      veiculos: {
+        Row: {
+          ano: number | null
+          capacidade_peso: number | null
+          capacidade_volume: number | null
+          created_at: string | null
+          empresa_id: string | null
+          id: string
+          marca: string | null
+          modelo: string | null
+          placa: string
+          renavam: string | null
+          status: string
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          ano?: number | null
+          capacidade_peso?: number | null
+          capacidade_volume?: number | null
+          created_at?: string | null
+          empresa_id?: string | null
+          id?: string
+          marca?: string | null
+          modelo?: string | null
+          placa: string
+          renavam?: string | null
+          status?: string
+          tipo: string
+          updated_at?: string | null
+        }
+        Update: {
+          ano?: number | null
+          capacidade_peso?: number | null
+          capacidade_volume?: number | null
+          created_at?: string | null
+          empresa_id?: string | null
+          id?: string
+          marca?: string | null
+          modelo?: string | null
+          placa?: string
+          renavam?: string | null
+          status?: string
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "veiculos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volumes_coleta: {
+        Row: {
+          altura: number | null
+          coleta_id: string
+          comprimento: number | null
+          created_at: string | null
+          id: string
+          largura: number | null
+          nota_fiscal_numero: string | null
+          peso: number | null
+          quantidade: number
+          tipo_volume: string
+          updated_at: string | null
+        }
+        Insert: {
+          altura?: number | null
+          coleta_id: string
+          comprimento?: number | null
+          created_at?: string | null
+          id?: string
+          largura?: number | null
+          nota_fiscal_numero?: string | null
+          peso?: number | null
+          quantidade?: number
+          tipo_volume?: string
+          updated_at?: string | null
+        }
+        Update: {
+          altura?: number | null
+          coleta_id?: string
+          comprimento?: number | null
+          created_at?: string | null
+          id?: string
+          largura?: number | null
+          nota_fiscal_numero?: string | null
+          peso?: number | null
+          quantidade?: number
+          tipo_volume?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volumes_coleta_coleta_id_fkey"
+            columns: ["coleta_id"]
+            isOneToOne: false
+            referencedRelation: "coletas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      obter_funcao_usuario: {
+        Args: { user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Localizacao, Movimentacao } from "@/types/supabase.types";
+import { Localizacao, Movimentacao } from "@/types/supabase/armazem.types";
 
 /**
  * Service for etiqueta movements operations
