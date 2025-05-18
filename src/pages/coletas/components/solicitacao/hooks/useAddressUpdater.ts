@@ -36,7 +36,8 @@ export const useAddressUpdater = (
           ? `${formData.remetenteInfo.endereco.logradouro}, ${formData.remetenteInfo.endereco.numero || ''}`
           : '',
         origemCEP: formData.remetenteInfo.endereco?.cep || '',
-        cliente: formData.remetenteInfo.nome || prev.cliente // Update cliente with sender's name if not already set
+        // Remove reference to cliente and maintain tipoFrete as is
+        tipoFrete: prev.tipoFrete // Maintain existing tipoFrete value
       }));
     }
     
