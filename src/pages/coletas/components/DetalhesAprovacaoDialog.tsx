@@ -16,7 +16,7 @@ interface DetalhesAprovacaoDialogProps {
   isOpen: boolean;
   onClose: () => void;
   solicitacao: SolicitacaoColeta | null;
-  onApprove: (id: string, observacoes: string) => void;
+  onApprove: (id: string, observacoes?: string) => void;
   onReject: (id: string, motivoRecusa: string, observacoes: string) => void;
 }
 

@@ -91,7 +91,7 @@ export function useAprovacoes() {
   };
   
   // Função para lidar com a rejeição de uma solicitação
-  const handleReject = (solicitacaoId: string, motivoRecusa: string) => {
+  const handleReject = (solicitacaoId: string, motivoRecusa: string, observacoes: string) => {
     console.log("AprovacoesColeta: Recusando solicitação:", solicitacaoId);
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()} às ${currentDate.toLocaleTimeString()}`;
@@ -110,7 +110,8 @@ export function useAprovacoes() {
         status: 'rejected' as const,
         aprovador: approverName,
         dataAprovacao: formattedDate,
-        motivoRecusa
+        motivoRecusa,
+        observacoes
       };
       
       setHistoricoAprovacoes(prev => [rejectedSolicitation, ...prev]);
