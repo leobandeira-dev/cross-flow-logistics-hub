@@ -1,3 +1,4 @@
+
 import { NotaFiscalSchemaType } from '../components/forms/notaFiscalSchema';
 
 /**
@@ -253,6 +254,10 @@ export const extractDataFromXml = (xmlObj: any): Record<string, any> => {
     result.tempoArmazenamento = '';
     result.entregueAoFornecedor = 'nao';
     result.observacoes = '';
+    result.fobCif = '';
+    result.quimico = 'nao';
+    result.fracionado = 'nao';
+    result.statusEmbarque = 'pendente';
     
     return result;
   } catch (error) {
@@ -278,6 +283,9 @@ export const searchNotaFiscalByChave = async (chaveNF: string): Promise<Partial<
         valorTotal: '1850.75',
         emitenteRazaoSocial: 'Fornecedor ABC Ltda',
         emitenteCNPJ: '12.345.678/0001-90',
+        numeroPedido: 'PED-12345',
+        fobCif: 'fob',
+        informacoesComplementares: 'Nota fiscal de exemplo',
       });
     }, 1500);
   });

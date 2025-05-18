@@ -1,3 +1,4 @@
+
 import * as z from "zod"
 
 // Define a schema for Nota Fiscal
@@ -30,6 +31,7 @@ export const notaFiscalSchema = z.object({
   
   pesoTotalBruto: z.string().optional(),
   volumesQuantidade: z.string().optional(),
+  volumesTotal: z.string().optional(), // Added to support component usage
   valorTotal: z.string().optional(),
   formaPagamento: z.string().optional(),
   
@@ -43,6 +45,22 @@ export const notaFiscalSchema = z.object({
   observacoes: z.string().optional(),
   localArmazenagem: z.string().optional(),
   tempoArmazenamento: z.string().optional(),
+  
+  // Additional fields to support form components
+  fobCif: z.string().optional(),
+  numeroPedido: z.string().optional(),
+  informacoesComplementares: z.string().optional(),
+  dataHoraEntrada: z.string().optional(),
+  statusEmbarque: z.string().optional(),
+  responsavelEntrega: z.string().optional(),
+  quimico: z.string().optional(),
+  fracionado: z.string().optional(),
+  motorista: z.string().optional(),
+  numeroColeta: z.string().optional(),
+  valorColeta: z.string().optional(),
+  numeroCTeColeta: z.string().optional(),
+  numeroCTeViagem: z.string().optional(),
+  dataEmbarque: z.string().optional(),
 });
 
 export type NotaFiscalSchemaType = z.infer<typeof notaFiscalSchema>;
@@ -77,6 +95,7 @@ export const defaultValues: NotaFiscalSchemaType = {
   
   pesoTotalBruto: '',
   volumesQuantidade: '',
+  volumesTotal: '',
   valorTotal: '',
   formaPagamento: '',
   
@@ -90,4 +109,20 @@ export const defaultValues: NotaFiscalSchemaType = {
   observacoes: '',
   localArmazenagem: '',
   tempoArmazenamento: '',
+  
+  // Initialize additional fields
+  fobCif: '',
+  numeroPedido: '',
+  informacoesComplementares: '',
+  dataHoraEntrada: '',
+  statusEmbarque: '',
+  responsavelEntrega: '',
+  quimico: 'nao',
+  fracionado: 'nao',
+  motorista: '',
+  numeroColeta: '',
+  valorColeta: '',
+  numeroCTeColeta: '',
+  numeroCTeViagem: '',
+  dataEmbarque: '',
 };
