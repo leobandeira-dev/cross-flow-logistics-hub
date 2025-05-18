@@ -4,9 +4,7 @@ import { SolicitacaoFormData } from './SolicitacaoTypes';
 import { Card, CardContent } from '@/components/ui/card';
 import NotasFiscaisManager from '../NotasFiscaisManager';
 import ImportacaoTabs from './ImportacaoTabs';
-import EmpresaInfoForm from './EmpresaInfoForm';
 import { SolicitacaoFormHeader } from './formHeader';
-import { convertDadosToEmpresaInfo, convertEmpresaInfoToDados } from './empresa/empresaUtils';
 import { calcularTotaisColeta } from '../../utils/volumes/calculations';
 
 interface NotasFiscaisStepProps {
@@ -80,32 +78,6 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
           </div>
         </CardContent>
       </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold text-lg mb-4">Dados do Remetente</h3>
-            <EmpresaInfoForm
-              tipo="remetente"
-              dados={formData.remetente ? convertEmpresaInfoToDados(formData.remetente) : undefined}
-              onDadosChange={(dados) => handleInputChange('remetente', convertDadosToEmpresaInfo(dados))}
-              label="Remetente"
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold text-lg mb-4">Dados do Destinatário</h3>
-            <EmpresaInfoForm
-              tipo="destinatario"
-              dados={formData.destinatario ? convertEmpresaInfoToDados(formData.destinatario) : undefined}
-              onDadosChange={(dados) => handleInputChange('destinatario', convertDadosToEmpresaInfo(dados))}
-              label="Destinatário"
-            />
-          </CardContent>
-        </Card>
-      </div>
       
       <Card>
         <CardContent className="pt-6">
