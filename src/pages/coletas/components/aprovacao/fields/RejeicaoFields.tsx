@@ -9,24 +9,28 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
-import { FormData } from './formSchema';
+import { FormData } from '../formSchema';
 
-interface ObservacoesFieldProps {
+interface RejeicaoFieldsProps {
+  isRejecting: boolean;
   form: UseFormReturn<FormData>;
 }
 
-export const ObservacoesField: React.FC<ObservacoesFieldProps> = ({ form }) => {
+export const RejeicaoFields: React.FC<RejeicaoFieldsProps> = ({ isRejecting, form }) => {
+  if (!isRejecting) return null;
+  
   return (
     <FormField
       control={form.control}
-      name="observacoes"
+      name="motivoRecusa"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Observações (opcional)</FormLabel>
+          <FormLabel className="text-destructive font-bold">Motivo da Recusa (obrigatório)</FormLabel>
           <FormControl>
             <Textarea 
-              placeholder="Adicione observações sobre esta aprovação" 
+              placeholder="Informe o motivo detalhado da recusa" 
               {...field}
+              className="border-destructive focus:border-destructive"
             />
           </FormControl>
           <FormMessage />

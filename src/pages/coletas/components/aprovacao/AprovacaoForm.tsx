@@ -1,14 +1,12 @@
 
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { SolicitacaoColeta } from '../../types/coleta.types';
-import { formSchema, FormData } from './formSchema';
-import { ObservacoesField } from './ObservacoesField';
-import { RejeicaoFields } from './RejeicaoFields';
-import { AprovacaoActions } from './AprovacaoActions';
-import { showApprovalNotification, showRejectionNotification } from './approvalNotifications';
+import { FormData } from './formSchema';
+import { ObservacoesField } from './fields/ObservacoesField';
+import { RejeicaoFields } from './fields/RejeicaoFields';
+import { AprovacaoActions } from './actions/AprovacaoActions';
+import { useAprovacaoForm } from './hooks/useAprovacaoForm';
 
 interface AprovacaoFormProps {
   selectedRequest: SolicitacaoColeta;
@@ -27,65 +25,22 @@ const AprovacaoForm: React.FC<AprovacaoFormProps> = ({
   onApprove,
   onReject
 }) => {
-  // Initialize form with react-hook-form
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      observacoes: '',
-      motivoRecusa: '',
-    },
+  const { 
+    form, 
+    handleSubmit, 
+    handleApproveClick 
+  } = useAprovacaoForm({
+    selectedRequest,
+    isRejecting,
+    setIsRejecting,
+    onClose,
+    onApprove,
+    onReject
   });
-
-  // Define global variable for schema refine to work
-  (window as any).isRejecting = isRejecting;
-  
-  const handleSubmit = async (data: FormData) => {
-    if (!selectedRequest) return;
-    
-    console.log("AprovacaoForm: Processando formulário. isRejecting:", isRejecting);
-    
-    if (isRejecting) {
-      // Check if we have a valid rejection reason
-      if (!data.motivoRecusa || data.motivoRecusa.length < 10) {
-        form.setError('motivoRecusa', {
-          type: 'manual',
-          message: 'O motivo da recusa é obrigatório e deve ter pelo menos 10 caracteres',
-        });
-        return;
-      }
-      
-      // Log for debugging
-      console.log("AprovacaoForm: Recusando solicitação:", selectedRequest.id, data.motivoRecusa);
-      
-      // Call the onReject function from parent component with request ID and reason
-      onReject(selectedRequest.id, data.motivoRecusa);
-      
-      showRejectionNotification(selectedRequest.id);
-    } else {
-      // Log for debugging
-      console.log("AprovacaoForm: Aprovando solicitação:", selectedRequest.id, data.observacoes);
-      
-      // Call the onApprove function from parent component with request ID and notes
-      onApprove(selectedRequest.id, data.observacoes);
-      
-      showApprovalNotification(selectedRequest.id);
-    }
-  };
-
-  // Function to handle direct approval (avoiding form submission issues)
-  const handleApproveClick = () => {
-    const observacoes = form.getValues("observacoes");
-    console.log("AprovacaoForm: Clique direto no botão Aprovar, observações:", observacoes);
-    
-    // Call the onApprove function from parent component with request ID and notes
-    onApprove(selectedRequest.id, observacoes);
-    
-    showApprovalNotification(selectedRequest.id);
-  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <ObservacoesField form={form} />
         <RejeicaoFields isRejecting={isRejecting} form={form} />
         
