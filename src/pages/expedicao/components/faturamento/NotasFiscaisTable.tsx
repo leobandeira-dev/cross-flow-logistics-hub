@@ -83,7 +83,7 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
                   <TableCell>{nota.notaFiscal || '-'}</TableCell>
                   <TableCell>{nota.pedido || '-'}</TableCell>
                   <TableCell className="text-right">{nota.valorNF ? formatCurrency(nota.valorNF) : '-'}</TableCell>
-                  <TableCell className="text-right">{formatNumber(nota.pesoNota)}</TableCell>
+                  <TableCell className="text-right">{formatNumber(nota.pesoNota, true)}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(nota.fretePeso || 0)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.valorExpresso || 0)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(nota.pedagio || 0)}</TableCell>
@@ -103,7 +103,7 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
               ))}
               <TableRow className="bg-muted/30 font-semibold">
                 <TableCell colSpan={6} className="text-right">Totais:</TableCell>
-                <TableCell className="text-right">{formatNumber(totalPeso)} kg</TableCell>
+                <TableCell className="text-right">{formatNumber(totalPeso, true)} kg</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalFretePeso)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalValorExpresso)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalPedagio)}</TableCell>
@@ -121,7 +121,7 @@ const NotasFiscaisTable: React.FC<NotasFiscaisTableProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <p className="text-muted-foreground">Peso Total:</p>
-              <p className="font-medium">{formatNumber(totalPeso)} kg</p>
+              <p className="font-medium">{formatNumber(totalPeso, true)} kg</p>
             </div>
             <div>
               <p className="text-muted-foreground">Total Rateio Frete:</p>

@@ -61,11 +61,24 @@ export const formatCurrency = (value: string | number): string => {
  * Format number with Brazilian formatting (X.XXX,XX)
  * Used for quantity and value formatting in DANFE
  */
-export const formatNumber = (value: string | number): string => {
+export const formatNumber = (value: string | number, preserveDecimals: boolean = false): string => {
   if (value === undefined || value === null) return '0,00';
   
   try {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    
+    // If preserveDecimals is true, use maximumFractionDigits of 6 to show all decimals
+    if (preserveDecimals) {
+      // Create formatted string first
+      const formatted = numValue.toString().replace('.', ',');
+      
+      // Check if we need to add trailing zeros to preserve format
+      const decimalPart = formatted.split(',')[1] || '';
+      if (decimalPart.length < 3 && decimalPart.length > 0) {
+        return formatted.padEnd(formatted.length + (3 - decimalPart.length), '0');
+      }
+      return formatted;
+    }
     
     return new Intl.NumberFormat('pt-BR', { 
       minimumFractionDigits: 2,

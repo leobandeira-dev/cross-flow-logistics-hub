@@ -7,6 +7,7 @@ import { Trash2, Printer } from 'lucide-react';
 import { NotaFiscal } from '../../../Faturamento';
 import { toast } from '@/hooks/use-toast';
 import { generateDANFEFromXML, createPDFDataUrl } from '@/pages/armazenagem/recebimento/utils/danfeAPI';
+import { formatNumber } from '@/pages/armazenagem/utils/formatters';
 
 interface NotasTableProps {
   notasLote: Partial<NotaFiscal>[];
@@ -118,10 +119,12 @@ const NotasTable: React.FC<NotasTableProps> = ({ notasLote, onUpdateNota, onRemo
               </TableCell>
               <TableCell>
                 <Input 
-                  type="number" 
-                  step="0.01"
-                  value={nota.pesoNota || 0}
-                  onChange={(e) => onUpdateNota(index, 'pesoNota', parseFloat(e.target.value))}
+                  type="text" 
+                  value={formatNumber(nota.pesoNota || 0, true)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(',', '.');
+                    onUpdateNota(index, 'pesoNota', parseFloat(value) || 0);
+                  }}
                 />
               </TableCell>
               <TableCell>
