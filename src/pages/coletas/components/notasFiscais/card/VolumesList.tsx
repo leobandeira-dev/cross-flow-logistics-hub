@@ -30,14 +30,13 @@ const VolumesList: React.FC<VolumesListProps> = ({
 
   return (
     <div className="mb-3">
-      <div className="grid grid-cols-7 gap-2 text-xs font-medium text-gray-500 mb-2">
+      <div className="grid grid-cols-6 gap-2 text-xs font-medium text-gray-500 mb-2">
         <div className="col-span-1">Seq</div>
         <div className="col-span-1">Alt. (cm)</div>
         <div className="col-span-1">Larg. (cm)</div>
         <div className="col-span-1">Comp. (cm)</div>
         <div className="col-span-1">Qtde</div>
         <div className="col-span-1">Vol. (m³)</div>
-        <div className="col-span-1"></div>
       </div>
       
       {volumes.map((volume, idx) => {

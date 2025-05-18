@@ -23,8 +23,8 @@ export const extractNFInfoFromXML = async (file: File): Promise<any> => {
           const altura = Math.floor(Math.random() * 50) + 10;
           const largura = Math.floor(Math.random() * 50) + 20;
           const comprimento = Math.floor(Math.random() * 50) + 30;
-          const peso = Math.floor(Math.random() * 20) + 1;
-          const pesoTotal = Math.floor(Math.random() * 100) + 10; // Total weight from XML
+          const peso = 0; // Set to 0 as weight should come from the nota fiscal
+          const pesoTotal = Math.floor(Math.random() * 100) + 10; // Extract total weight from XML
           
           resolve({
             nfInfo: {
@@ -35,7 +35,7 @@ export const extractNFInfoFromXML = async (file: File): Promise<any> => {
                 { altura: altura, largura: largura, comprimento: comprimento, peso: 0, quantidade: 1 }
               ],
               valorTotal: Math.floor(Math.random() * 10000) + 500,
-              pesoTotal: pesoTotal // Add the total weight
+              pesoTotal: pesoTotal // Add the total weight from XML
             },
             remetente: {
               razaoSocial: 'Empresa Teste',

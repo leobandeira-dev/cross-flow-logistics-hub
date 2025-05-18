@@ -15,7 +15,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly }
     altura: 0,
     largura: 0,
     comprimento: 0,
-    peso: 0,
+    peso: 0, // We'll keep this in the state but use the value from the nota fiscal
     quantidade: 1
   });
 
@@ -27,12 +27,12 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly }
   };
 
   const handleAddVolume = () => {
-    if (newVolume.altura && newVolume.largura && newVolume.comprimento && newVolume.peso) {
+    if (newVolume.altura && newVolume.largura && newVolume.comprimento) {
       onAddVolume({
         altura: newVolume.altura || 0,
         largura: newVolume.largura || 0,
         comprimento: newVolume.comprimento || 0,
-        peso: newVolume.peso || 0,
+        peso: newVolume.peso || 0, // We'll keep this in the volume object
         quantidade: newVolume.quantidade || 1
       });
       
@@ -52,7 +52,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly }
   }
 
   return (
-    <div className="grid grid-cols-8 gap-2">
+    <div className="grid grid-cols-7 gap-2">
       <div className="col-span-1">
         <label className="text-xs text-muted-foreground">Alt. (cm)</label>
         <Input
@@ -84,16 +84,6 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly }
         />
       </div>
       <div className="col-span-1">
-        <label className="text-xs text-muted-foreground">Peso (kg)</label>
-        <Input
-          value={newVolume.peso || ''}
-          onChange={(e) => handleVolumeChange('peso', e.target.value)}
-          className="h-8 text-xs"
-          placeholder="0"
-          type="number"
-        />
-      </div>
-      <div className="col-span-1">
         <label className="text-xs text-muted-foreground">Qtde</label>
         <Input
           value={newVolume.quantidade || 1}
@@ -108,7 +98,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly }
         <Button 
           onClick={handleAddVolume}
           className="h-8"
-          disabled={!newVolume.altura || !newVolume.largura || !newVolume.comprimento || !newVolume.peso}
+          disabled={!newVolume.altura || !newVolume.largura || !newVolume.comprimento}
         >
           <Plus className="h-4 w-4 mr-1" /> Adicionar Volume
         </Button>

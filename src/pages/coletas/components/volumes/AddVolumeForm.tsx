@@ -14,7 +14,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
     altura: 0,
     largura: 0,
     comprimento: 0,
-    peso: 0,
+    peso: 0, // We'll keep this in the state but not show it in the form
     quantidade: 1
   });
 
@@ -47,7 +47,7 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
   };
 
   return (
-    <div className="grid grid-cols-6 gap-2 items-end">
+    <div className="grid grid-cols-5 gap-2 items-end">
       <div>
         <span className="text-xs">Altura (cm)</span>
         <Input 
@@ -76,17 +76,6 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
           type="number" 
           value={novoVolume.comprimento || ''} 
           onChange={(e) => handleVolumeChange('comprimento', parseFloat(e.target.value) || 0)}
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-        />
-      </div>
-      <div>
-        <span className="text-xs">Peso (kg)</span>
-        <Input 
-          type="number" 
-          value={novoVolume.peso || ''} 
-          onChange={(e) => handleVolumeChange('peso', parseFloat(e.target.value) || 0)}
           step="0.01"
           min="0"
           placeholder="0.00"
