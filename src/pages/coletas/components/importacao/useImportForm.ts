@@ -9,6 +9,15 @@ interface SolicitacaoForm {
   origem: string;
   destino: string;
   dataColeta: string;
+  horaColeta: string;
+  dataAprovacao: string;
+  horaAprovacao: string;
+  dataInclusao: string;
+  horaInclusao: string;
+  origemEndereco: string;
+  origemCEP: string;
+  destinoEndereco: string;
+  destinoCEP: string;
   observacoes: string;
   notasFiscais: NotaFiscalVolume[];
   remetente_cnpj?: string;
@@ -24,6 +33,15 @@ export const useImportForm = (setIsOpen: (open: boolean) => void) => {
     origem: '',
     destino: '',
     dataColeta: '',
+    horaColeta: '',
+    dataAprovacao: '',
+    horaAprovacao: '',
+    dataInclusao: new Date().toISOString().split('T')[0], // Current date
+    horaInclusao: new Date().toTimeString().split(' ')[0].slice(0, 5), // Current time
+    origemEndereco: '',
+    origemCEP: '',
+    destinoEndereco: '',
+    destinoCEP: '',
     observacoes: '',
     notasFiscais: []
   });
@@ -88,6 +106,15 @@ export const useImportForm = (setIsOpen: (open: boolean) => void) => {
         origem: '',
         destino: '',
         dataColeta: '',
+        horaColeta: '',
+        dataAprovacao: '',
+        horaAprovacao: '',
+        dataInclusao: new Date().toISOString().split('T')[0],
+        horaInclusao: new Date().toTimeString().split(' ')[0].slice(0, 5),
+        origemEndereco: '',
+        origemCEP: '',
+        destinoEndereco: '',
+        destinoCEP: '',
         observacoes: '',
         notasFiscais: []
       });
@@ -111,7 +138,17 @@ export const useImportForm = (setIsOpen: (open: boolean) => void) => {
           volumes: result.nfInfo.volumes || [],
           remetente: result.remetente?.razaoSocial || '',
           destinatario: result.destinatario?.razaoSocial || '',
-          valorTotal: result.nfInfo.valorTotal || 0
+          valorTotal: result.nfInfo.valorTotal || 0,
+          pesoTotal: result.nfInfo.pesoTotal || 0,
+          // Add address fields
+          enderecoRemetente: result.remetente?.endereco?.logradouro,
+          cepRemetente: result.remetente?.endereco?.cep,
+          cidadeRemetente: result.remetente?.endereco?.cidade,
+          ufRemetente: result.remetente?.endereco?.uf,
+          enderecoDestinatario: result.destinatario?.endereco?.logradouro,
+          cepDestinatario: result.destinatario?.endereco?.cep,
+          cidadeDestinatario: result.destinatario?.endereco?.cidade,
+          ufDestinatario: result.destinatario?.endereco?.uf
         });
         
         // Update form data with XML results
@@ -120,8 +157,12 @@ export const useImportForm = (setIsOpen: (open: boolean) => void) => {
           notasFiscais: [completeNotaFiscal],
           remetenteInfo: result.remetente,
           destinatarioInfo: result.destinatario,
-          origem: result.remetente?.enderecoFormatado || prev.origem,
-          destino: result.destinatario?.enderecoFormatado || prev.destino,
+          origem: `${result.remetente?.endereco?.cidade} - ${result.remetente?.endereco?.uf}` || prev.origem,
+          destino: `${result.destinatario?.endereco?.cidade} - ${result.destinatario?.endereco?.uf}` || prev.destino,
+          origemEndereco: result.remetente?.endereco?.logradouro || '',
+          origemCEP: result.remetente?.endereco?.cep || '',
+          destinoEndereco: result.destinatario?.endereco?.logradouro || '',
+          destinoCEP: result.destinatario?.endereco?.cep || '',
           remetente_cnpj: result.remetente?.cnpj,
           destinatario_cnpj: result.destinatario?.cnpj || result.destinatario?.cpf
         }));
@@ -161,7 +202,17 @@ export const useImportForm = (setIsOpen: (open: boolean) => void) => {
             volumes: nf.volumes || [],
             remetente: nf.remetente || result.remetente?.razaoSocial || '',
             destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
-            valorTotal: nf.valorTotal || 0
+            valorTotal: nf.valorTotal || 0,
+            pesoTotal: nf.pesoTotal || 0,
+            // Add address fields
+            enderecoRemetente: nf.enderecoRemetente || result.remetente?.endereco?.logradouro,
+            cepRemetente: nf.cepRemetente || result.remetente?.endereco?.cep,
+            cidadeRemetente: nf.cidadeRemetente || result.remetente?.endereco?.cidade,
+            ufRemetente: nf.ufRemetente || result.remetente?.endereco?.uf,
+            enderecoDestinatario: nf.enderecoDestinatario || result.destinatario?.endereco?.logradouro,
+            cepDestinatario: nf.cepDestinatario || result.destinatario?.endereco?.cep,
+            cidadeDestinatario: nf.cidadeDestinatario || result.destinatario?.endereco?.cidade,
+            ufDestinatario: nf.ufDestinatario || result.destinatario?.endereco?.uf
           })
         );
         
@@ -171,8 +222,12 @@ export const useImportForm = (setIsOpen: (open: boolean) => void) => {
           notasFiscais: completeNotasFiscais,
           remetenteInfo: result.remetente,
           destinatarioInfo: result.destinatario,
-          origem: result.remetente?.enderecoFormatado || prev.origem,
-          destino: result.destinatario?.enderecoFormatado || prev.destino,
+          origem: `${result.remetente?.endereco?.cidade} - ${result.remetente?.endereco?.uf}` || prev.origem,
+          destino: `${result.destinatario?.endereco?.cidade} - ${result.destinatario?.endereco?.uf}` || prev.destino,
+          origemEndereco: result.remetente?.endereco?.logradouro || '',
+          origemCEP: result.remetente?.endereco?.cep || '',
+          destinoEndereco: result.destinatario?.endereco?.logradouro || '',
+          destinoCEP: result.destinatario?.endereco?.cep || '',
           remetente_cnpj: result.remetente?.cnpj,
           destinatario_cnpj: result.destinatario?.cnpj || result.destinatario?.cpf
         }));
@@ -264,7 +319,7 @@ export const useImportForm = (setIsOpen: (open: boolean) => void) => {
     handleSubmit,
     handleSingleXmlUpload,
     handleBatchXmlUpload,
-    handleExcelUpload,
-    handleDownloadTemplate
+    handleExcelUpload: processExcelFile,  // Re-export the existing function
+    handleDownloadTemplate: generateExcelTemplate  // Re-export the existing function
   };
 };

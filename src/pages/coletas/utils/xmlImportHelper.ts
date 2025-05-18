@@ -105,7 +105,17 @@ export const processMultipleXMLFiles = async (files: FileList | File[]): Promise
             ],
             remetente: 'Empresa Teste',
             destinatario: 'Cliente Final',
-            valorTotal: Math.floor(Math.random() * 10000) + 500
+            valorTotal: Math.floor(Math.random() * 10000) + 500,
+            pesoTotal: Math.floor(Math.random() * 100) + 10,
+            // Additional fields
+            enderecoRemetente: 'Av. Central, 123',
+            cepRemetente: '01234-567',
+            cidadeRemetente: 'São Paulo',
+            ufRemetente: 'SP',
+            enderecoDestinatario: 'Rua Principal, 456',
+            cepDestinatario: '20000-000',
+            cidadeDestinatario: 'Rio de Janeiro',
+            ufDestinatario: 'RJ'
           };
         });
         

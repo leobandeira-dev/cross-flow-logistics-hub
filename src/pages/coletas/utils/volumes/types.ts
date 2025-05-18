@@ -20,6 +20,15 @@ export interface NotaFiscalVolume {
   destinatario: string;
   valorTotal: number;
   pesoTotal: number;
+  // Additional fields to extract from XML
+  enderecoRemetente?: string;
+  cepRemetente?: string;
+  cidadeRemetente?: string;
+  ufRemetente?: string;
+  enderecoDestinatario?: string;
+  cepDestinatario?: string;
+  cidadeDestinatario?: string;
+  ufDestinatario?: string;
 }
 
 export type NotaFiscalVolumeInput = Omit<NotaFiscalVolume, 'id'>;

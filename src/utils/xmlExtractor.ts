@@ -62,6 +62,7 @@ export const extractNotaFiscalData = (xmlObj: any): Record<string, any> => {
     emitenteEndereco: "NFe:infNFe:emit:enderEmit:xLgr",
     emitenteNumero: "NFe:infNFe:emit:enderEmit:nro",
     emitenteCEP: "NFe:infNFe:emit:enderEmit:CEP",
+    emitenteComplemento: "NFe:infNFe:emit:enderEmit:xCpl",
     
     // Dados do Destinatário
     destinatarioCNPJ: "NFe:infNFe:dest:CNPJ",
@@ -73,6 +74,7 @@ export const extractNotaFiscalData = (xmlObj: any): Record<string, any> => {
     destinatarioEndereco: "NFe:infNFe:dest:enderDest:xLgr",
     destinatarioNumero: "NFe:infNFe:dest:enderDest:nro",
     destinatarioCEP: "NFe:infNFe:dest:enderDest:CEP",
+    destinatarioComplemento: "NFe:infNFe:dest:enderDest:xCpl",
     
     // Totais da Nota
     valorTotal: "NFe:infNFe:total:ICMSTot:vNF",
@@ -87,6 +89,10 @@ export const extractNotaFiscalData = (xmlObj: any): Record<string, any> => {
   for (const [key, path] of Object.entries(paths)) {
     result[key] = extractValueFromXml(xmlObj, path);
   }
+
+  // Format and combine address fields
+  result.enderecoRemetenteCompleto = `${result.emitenteEndereco || ''}, ${result.emitenteNumero || ''} ${result.emitenteComplemento ? '- ' + result.emitenteComplemento : ''}`;
+  result.enderecoDestinatarioCompleto = `${result.destinatarioEndereco || ''}, ${result.destinatarioNumero || ''} ${result.destinatarioComplemento ? '- ' + result.destinatarioComplemento : ''}`;
   
   // Tenta extrair o número do pedido das informações complementares usando regex
   if (result.informacoesComplementares) {
