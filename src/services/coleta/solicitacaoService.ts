@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { SolicitacaoColeta } from "@/types/supabase.types";
+import { SolicitacaoColeta } from "@/types/supabase/coleta.types"; // Updated import path
 
 /**
  * Lista todas as solicitações de coleta

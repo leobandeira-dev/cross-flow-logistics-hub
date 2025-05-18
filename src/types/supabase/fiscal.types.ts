@@ -25,6 +25,14 @@ export interface NotaFiscal {
   created_at: string;
   updated_at: string;
   
+  // Additional properties for createNotaFiscalService
+  valor?: number;
+  tipo?: string;
+  empresa_emitente_id?: string;
+  empresa_destinatario_id?: string;
+  filial_id?: string;
+  tempo_armazenamento_horas?: number;
+  
   // Relacionamentos
   remetente?: Empresa;
   destinatario?: Empresa;

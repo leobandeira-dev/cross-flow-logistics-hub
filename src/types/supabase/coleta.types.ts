@@ -26,6 +26,12 @@ export interface Coleta {
   created_at: string;
   updated_at: string;
   
+  // Additional properties for coletaRegistroService
+  solicitacao_id?: string;
+  data_realizada?: string;
+  quantidade_volumes?: number;
+  peso_total?: number;
+  
   // Relacionamentos
   empresa_cliente?: Empresa;
   motorista?: Motorista;
@@ -49,4 +55,28 @@ export interface VolumeColeta {
   
   // Relacionamentos
   coleta?: Coleta;
+}
+
+// SolicitacaoColeta type for solicitacaoService
+export interface SolicitacaoColeta {
+  id: string;
+  numero_solicitacao: string;
+  data_solicitacao: string;
+  empresa_solicitante_id: string;
+  tipo_coleta: string;
+  status: string;
+  endereco_coleta: string;
+  cidade_coleta: string;
+  estado_coleta: string;
+  cep_coleta?: string;
+  contato_nome?: string;
+  contato_telefone?: string;
+  observacoes?: string;
+  data_aprovacao?: string;
+  data_coleta?: string;
+  created_at: string;
+  updated_at: string;
+  
+  // Relacionamentos
+  empresa_solicitante?: Empresa;
 }

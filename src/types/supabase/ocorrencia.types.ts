@@ -23,6 +23,16 @@ export interface Ocorrencia {
   created_at: string;
   updated_at: string;
   
+  // Additional properties for ocorrenciaService
+  titulo?: string;
+  data_abertura?: string;
+  data_resolucao?: string;
+  usuario_abertura_id?: string;
+  empresa_cliente_id?: string;
+  carregamento_id?: string;
+  etiqueta_id?: string;
+  solucao?: string;
+  
   // Relacionamentos
   nota_fiscal?: NotaFiscal;
   coleta?: Coleta;
