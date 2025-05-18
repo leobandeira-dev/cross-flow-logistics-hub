@@ -84,27 +84,6 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
         </div>
       </div>
 
-      {/* Remetente/Destinatário Info */}
-      {(remetente || destinatario) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-md mb-3">
-          {remetente && (
-            <div>
-              <h4 className="text-sm font-medium mb-1">Remetente</h4>
-              <p className="text-sm">{remetente.razaoSocial}</p>
-              <p className="text-xs text-gray-500">CNPJ: {remetente.cnpj}</p>
-            </div>
-          )}
-          
-          {destinatario && (
-            <div>
-              <h4 className="text-sm font-medium mb-1">Destinatário</h4>
-              <p className="text-sm">{destinatario.razaoSocial}</p>
-              <p className="text-xs text-gray-500">CNPJ: {destinatario.cnpj}</p>
-            </div>
-          )}
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Origem Fields */}
         <div className="space-y-2">
@@ -131,7 +110,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
               value={origemEndereco} 
               className="mt-1"
               placeholder="Rua, número, bairro"
-              disabled={true} // Always read-only as it's populated from XML
+              disabled={true}
               readOnly
             />
           </div>
@@ -145,7 +124,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
               value={origemCEP} 
               className="mt-1"
               placeholder="00000-000"
-              disabled={true} // Always read-only as it's populated from XML
+              disabled={true}
               readOnly
             />
           </div>
@@ -176,7 +155,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
               value={destinoEndereco} 
               className="mt-1"
               placeholder="Rua, número, bairro"
-              disabled={true} // Always read-only as it's populated from XML
+              disabled={true}
               readOnly
             />
           </div>
@@ -190,7 +169,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
               value={destinoCEP}
               className="mt-1"
               placeholder="00000-000"
-              disabled={true} // Always read-only as it's populated from XML
+              disabled={true}
               readOnly
             />
           </div>

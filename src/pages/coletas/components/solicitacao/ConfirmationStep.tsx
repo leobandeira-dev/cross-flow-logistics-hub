@@ -92,8 +92,6 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ formData, handleInp
               </table>
             </div>
           </div>
-          
-          {/* Removed redundant remetente/destinatario section from here */}
         </CardContent>
       </Card>
     </div>
