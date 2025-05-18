@@ -20,7 +20,9 @@ export const EMPTY_EMPRESA: DadosEmpresa = {
   razaoSocial: '',
   nomeFantasia: '',
   endereco: EMPTY_ENDERECO,
-  enderecoFormatado: ''
+  enderecoFormatado: '',
+  telefone: '',
+  email: ''
 };
 
 // Add missing EnderecoFormProps type

@@ -2,14 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Save, Loader2 } from 'lucide-react';
-
-export interface SolicitacaoFooterProps {
-  currentStep: number;
-  onPrev: () => void;
-  onNext: () => void;
-  onSubmit: () => void;
-  isLoading?: boolean;
-}
+import { SolicitacaoFooterProps } from './SolicitacaoTypes';
 
 const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
   currentStep,

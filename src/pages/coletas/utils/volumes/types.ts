@@ -8,6 +8,7 @@ export interface VolumeItem {
   comprimento: number; // length in cm
   peso: number; // weight in kg
   quantidade: number; // quantity
+  cubicVolume?: number; // cubic volume in m³
 }
 
 export interface NotaFiscalVolume {
@@ -20,6 +21,7 @@ export interface NotaFiscalVolume {
   destinatario: string;
   valorTotal: number;
   pesoTotal: number;
+  totalCubicVolume?: number; // Total cubic volume for all volumes
   // Additional fields to extract from XML
   enderecoRemetente?: string;
   cepRemetente?: string;
