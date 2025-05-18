@@ -4,9 +4,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Upload, Download, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { NotaFiscalVolume } from '../../utils/volumeCalculations';
+import { NotaFiscalVolume } from '../../utils/volumes/types';
 import { generateExcelTemplate, processExcelFile } from '../../utils/xmlImportHelper';
-import { DadosEmpresa } from '../../components/solicitacao/SolicitacaoTypes';
+import { DadosEmpresa } from '../solicitacao/SolicitacaoTypes';
 
 interface ExcelImportFormProps {
   onImportSuccess: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: DadosEmpresa, destinatarioInfo?: DadosEmpresa) => void;

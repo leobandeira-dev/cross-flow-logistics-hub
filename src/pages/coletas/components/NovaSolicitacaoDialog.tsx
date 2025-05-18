@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { NotaFiscalVolume, ensureCompleteNotaFiscal } from '../utils/volumeCalculations';
+import { NotaFiscalVolume } from '../utils/volumes/types';
 import NotasFiscaisManager from './NotasFiscaisManager';
 import { NovaSolicitacaoDialogProps } from './solicitacao/SolicitacaoTypes';
 import SolicitacaoForm from './solicitacao/SolicitacaoForm';

@@ -1,5 +1,5 @@
 
-import { NotaFiscalVolume } from '../utils/volumeCalculations';
+import { NotaFiscalVolume } from '../utils/volumes/types';
 import { DadosEmpresa } from '../components/solicitacao/SolicitacaoTypes';
 
 export interface SolicitacaoColeta {

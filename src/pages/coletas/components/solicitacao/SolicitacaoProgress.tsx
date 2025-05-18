@@ -1,11 +1,12 @@
 
 import React from 'react';
+import { SolicitacaoProgressProps } from './SolicitacaoTypes';
 
-interface SolicitacaoProgressProps {
-  currentStep: number;
-}
-
-const SolicitacaoProgress: React.FC<SolicitacaoProgressProps> = ({ currentStep }) => {
+const SolicitacaoProgress: React.FC<SolicitacaoProgressProps> = ({ 
+  currentStep,
+  onNext,
+  onPrev 
+}) => {
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between">

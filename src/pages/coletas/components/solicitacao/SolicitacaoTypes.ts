@@ -1,6 +1,35 @@
 
 import { NotaFiscalVolume } from '../../utils/volumes/types';
 
+export interface EnderecoCompleto {
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  cep: string;
+}
+
+export interface DadosEmpresa {
+  cnpj: string;
+  cpf?: string;
+  razaoSocial: string;
+  nomeFantasia: string;
+  endereco: EnderecoCompleto;
+  enderecoFormatado: string;
+}
+
+export interface EmpresaInfoFormProps {
+  tipo: 'remetente' | 'destinatario';
+  dados?: DadosEmpresa;
+  onDadosChange?: (dados: DadosEmpresa) => void;
+  readOnly?: boolean;
+  empresa?: DadosEmpresa; // For backward compatibility
+  onChange?: (empresa: DadosEmpresa) => void; // For backward compatibility
+  label?: string;
+}
+
 export interface EmpresaInfo {
   razaoSocial: string;
   cnpj: string;
@@ -91,8 +120,8 @@ export interface SolicitacaoFormProps {
 
 export interface SolicitacaoProgressProps {
   currentStep: number;
-  onNext: () => void;
-  onPrev: () => void;
+  onNext?: () => void;
+  onPrev?: () => void;
 }
 
 export interface SolicitacaoFooterProps {
