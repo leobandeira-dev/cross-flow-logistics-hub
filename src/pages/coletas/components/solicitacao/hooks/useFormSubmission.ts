@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { EMPTY_EMPRESA } from '../EmpresaInfoForm';
 import { InternalFormData } from './solicitacaoFormTypes';
+import { EmpresaInfo } from '../SolicitacaoTypes';
 
 export const useFormSubmission = (
   setFormData: React.Dispatch<React.SetStateAction<InternalFormData>>,
@@ -21,9 +21,25 @@ export const useFormSubmission = (
         description: "Sua solicitação de coleta foi registrada com sucesso."
       });
       setIsLoading(false);
+      
+      // Reset form with empty values
+      const emptyEmpresa: EmpresaInfo = {
+        razaoSocial: '',
+        cnpj: '',
+        endereco: '',
+        numero: '',
+        complemento: '',
+        bairro: '',
+        cidade: '',
+        uf: '',
+        cep: '',
+        telefone: '',
+        email: ''
+      };
+      
       setFormData({
-        remetente: EMPTY_EMPRESA,
-        destinatario: EMPTY_EMPRESA,
+        remetente: emptyEmpresa,
+        destinatario: emptyEmpresa,
         dataColeta: '',
         observacoes: '',
         notasFiscais: [],
@@ -31,6 +47,7 @@ export const useFormSubmission = (
         origem: '',
         destino: ''
       });
+      
       setCurrentStep(1);
       setIsOpen(false);
     }, 1500);

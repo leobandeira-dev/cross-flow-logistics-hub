@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { useSolicitacaoForm } from './hooks/useSolicitacaoForm';
 import SolicitacaoProgress from './SolicitacaoProgress';
-import SolicitacaoFormHeader from './formHeader/SolicitacaoFormHeader';
+import { SolicitacaoFormHeader } from './formHeader';
 import NotasFiscaisStep from './NotasFiscaisStep';
 import ConfirmationStep from './ConfirmationStep';
 import SolicitacaoFooter from './SolicitacaoFooter';

@@ -1,6 +1,5 @@
 
 import SolicitacaoFormHeader from './SolicitacaoFormHeader';
-import { SolicitacaoFormHeaderProps } from './types';
 
-export { SolicitacaoFormHeaderProps };
-export default SolicitacaoFormHeader;
+export { SolicitacaoFormHeader };
+export type { SolicitacaoFormHeaderProps } from './types';

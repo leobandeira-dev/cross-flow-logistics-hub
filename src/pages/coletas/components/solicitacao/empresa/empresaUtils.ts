@@ -1,22 +1,41 @@
 
-import { EnderecoCompleto, DadosEmpresa } from '../../types/coleta.types';
-import { converterParaUF } from '@/utils/estadoUtils';
+import { EnderecoCompleto, DadosEmpresa } from '../../../types/coleta.types';
+import { EmpresaInfo } from '../SolicitacaoTypes';
 
-// Formats an address object into a readable string
-export const formatarEndereco = (endereco: EnderecoCompleto): string => {
-  const parts = [
-    endereco.logradouro,
-    endereco.numero ? `nº ${endereco.numero}` : '',
-    endereco.complemento,
-    endereco.bairro ? `${endereco.bairro},` : '',
-    `${endereco.cidade}/${converterParaUF(endereco.uf)}`,
-    endereco.cep ? `CEP: ${endereco.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2')}` : ''
-  ].filter(Boolean);
-  
-  return parts.join(' ');
+// Convert from EmpresaInfo to DadosEmpresa
+export const convertEmpresaInfoToDados = (info: EmpresaInfo): DadosEmpresa => {
+  const endereco: EnderecoCompleto = {
+    logradouro: info.endereco,
+    numero: info.numero,
+    complemento: info.complemento || '',
+    bairro: info.bairro,
+    cidade: info.cidade,
+    uf: info.uf,
+    cep: info.cep
+  };
+
+  return {
+    cnpj: info.cnpj,
+    razaoSocial: info.razaoSocial,
+    nomeFantasia: info.razaoSocial, // Using razaoSocial as fallback
+    endereco,
+    enderecoFormatado: `${endereco.logradouro}, ${endereco.numero}${endereco.complemento ? ', ' + endereco.complemento : ''}, ${endereco.bairro}, ${endereco.cidade}/${endereco.uf}, CEP: ${endereco.cep}`
+  };
 };
 
-// Processes UF input, converting to uppercase and limiting to 2 characters
-export const processUFValue = (value: string): string => {
-  return converterParaUF(value.toUpperCase()).substring(0, 2);
+// Convert from DadosEmpresa to EmpresaInfo
+export const convertDadosToEmpresaInfo = (dados: DadosEmpresa): EmpresaInfo => {
+  return {
+    razaoSocial: dados.razaoSocial,
+    cnpj: dados.cnpj,
+    endereco: dados.endereco.logradouro,
+    numero: dados.endereco.numero,
+    complemento: dados.endereco.complemento,
+    bairro: dados.endereco.bairro,
+    cidade: dados.endereco.cidade,
+    uf: dados.endereco.uf,
+    cep: dados.endereco.cep,
+    telefone: '', // Default values for fields not in DadosEmpresa
+    email: ''     // Default values for fields not in DadosEmpresa
+  };
 };
