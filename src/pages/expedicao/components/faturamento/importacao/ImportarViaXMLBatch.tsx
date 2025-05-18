@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { NotaFiscal } from '../../../Faturamento';
 import { parseXmlFile } from '@/pages/armazenagem/recebimento/utils/xmlParser';
 import { extractNotaFiscalData } from '@/utils/xmlExtractor';
+import { extractDataFromXml } from '@/pages/armazenagem/recebimento/utils/notaFiscalExtractor';
 
 interface ImportarViaXMLProps {
   onImportarNotas: (notas: Partial<NotaFiscal>[]) => void;
@@ -29,27 +30,40 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
 
   const processXmlFile = async (file: File): Promise<Partial<NotaFiscal> | null> => {
     try {
+      // Parse the XML file
       const xmlData = await parseXmlFile(file);
       if (!xmlData) return null;
 
+      // Use the more advanced extractor from the recebimento module first
+      const detailedData = extractDataFromXml(xmlData);
+      
+      // Fallback to the simpler extractor if needed
       const extractedData = extractNotaFiscalData(xmlData);
+      
+      // Merge data from both extractors, prioritizing the detailed extractor
+      const mergedData = {
+        ...extractedData,
+        ...detailedData,
+        numeroPedido: detailedData.numeroPedido || extractedData.numeroPedido || '',
+      };
       
       // Convert extracted data to NotaFiscal format
       const notaFiscal: Partial<NotaFiscal> = {
         data: new Date(),
-        cliente: extractedData.destinatarioRazaoSocial || '',
-        remetente: extractedData.emitenteRazaoSocial || '',
-        notaFiscal: extractedData.numeroNF || '',
-        pedido: extractedData.numeroPedido || '',
-        dataEmissao: extractedData.dataHoraEmissao ? new Date(extractedData.dataHoraEmissao) : new Date(),
-        pesoNota: parseFloat(extractedData.pesoTotalBruto) || 0,
-        valorNF: parseFloat(extractedData.valorTotal) || 0,
+        cliente: mergedData.destinatarioRazaoSocial || '',
+        remetente: mergedData.emitenteRazaoSocial || '',
+        notaFiscal: mergedData.numeroNF || '',
+        pedido: mergedData.numeroPedido || '', // Map pedido field correctly
+        dataEmissao: mergedData.dataHoraEmissao ? new Date(mergedData.dataHoraEmissao) : new Date(),
+        pesoNota: parseFloat(mergedData.pesoTotalBruto) || 0,
+        valorNF: parseFloat(mergedData.valorTotal) || 0,
         fretePorTonelada: 0,
         pesoMinimo: 0,
         aliquotaICMS: 0,
         aliquotaExpresso: 0
       };
 
+      console.log('Nota fiscal extraída do XML:', notaFiscal);
       return notaFiscal;
     } catch (error) {
       console.error(`Erro ao processar arquivo XML ${file.name}:`, error);
