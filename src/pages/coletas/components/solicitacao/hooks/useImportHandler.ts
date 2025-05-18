@@ -2,14 +2,13 @@
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { NotaFiscalVolume } from '../../../utils/volumeCalculations';
-import { VolumeItem } from '../../../utils/volumes/types';
+import { VolumeItem, generateVolumeId } from '../../../utils/volumes/types';
 import { InternalFormData } from './solicitacaoFormTypes';
 
 // Utility function to ensure volumes have id property
 const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
   return volumes.map((volume, index) => ({
-    id: `vol-${Date.now()}-${index}`,
-    tipo: volume.tipo || 'Caixa',
+    id: volume.id || generateVolumeId(),
     quantidade: volume.quantidade || 1,
     altura: volume.altura || 0,
     largura: volume.largura || 0,

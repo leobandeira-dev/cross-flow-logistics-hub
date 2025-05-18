@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { InternalFormData } from '../solicitacao/hooks/solicitacaoFormTypes';
 import { EMPTY_EMPRESA } from '../solicitacao/SolicitacaoTypes';
+import { NotaFiscalVolume, VolumeItem, generateVolumeId } from '../../utils/volumes/types';
+import { convertVolumesToVolumeItems } from '../../utils/volumes/converters';
+import { ensureCompleteNotaFiscal } from '../../utils/volumes/converters';
 
 export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,19 +55,19 @@ export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
         description: "Nota fiscal importada com sucesso."
       });
       
-      // Add dummy data for demonstration
-      const dummyNF = {
+      // Add dummy data for demonstration with proper volume item structure
+      const dummyNF: NotaFiscalVolume = {
         numeroNF: '12345',
         chaveNF: '12345678901234567890123456789012345678901234',
         dataEmissao: new Date().toISOString().split('T')[0],
         volumes: [
           { 
-            tipo: 'Caixa', 
-            quantidade: 2, 
+            id: generateVolumeId(),
             altura: 10, 
             largura: 20, 
             comprimento: 30, 
-            peso: 5 
+            peso: 5,
+            quantidade: 2
           }
         ],
         remetente: 'Empresa Remetente',
@@ -106,19 +109,19 @@ export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
         description: `${files.length} notas fiscais importadas com sucesso.`
       });
       
-      // Add dummy data for each file
-      const dummyNFs = Array.from({ length: files.length }, (_, i) => ({
+      // Add dummy data for each file with proper volume item structure
+      const dummyNFs: NotaFiscalVolume[] = Array.from({ length: files.length }, (_, i) => ({
         numeroNF: `${10000 + i}`,
         chaveNF: `000000000000000000000000000000000000000${i}`,
         dataEmissao: new Date().toISOString().split('T')[0],
         volumes: [
           { 
-            tipo: 'Caixa', 
-            quantidade: 1, 
+            id: generateVolumeId(),
             altura: 10, 
             largura: 20, 
             comprimento: 30, 
-            peso: 5 
+            peso: 5,
+            quantidade: 1
           }
         ],
         remetente: 'Empresa Remetente',
@@ -160,19 +163,19 @@ export const useImportForm = (setIsOpen: (isOpen: boolean) => void) => {
         description: "Planilha importada com sucesso."
       });
       
-      // Add dummy data
-      const dummyNFs = Array.from({ length: 3 }, (_, i) => ({
+      // Add dummy data with proper volume item structure
+      const dummyNFs: NotaFiscalVolume[] = Array.from({ length: 3 }, (_, i) => ({
         numeroNF: `${20000 + i}`,
         chaveNF: `111111111111111111111111111111111111111${i}`,
         dataEmissao: new Date().toISOString().split('T')[0],
         volumes: [
           { 
-            tipo: 'Caixa', 
-            quantidade: 2, 
+            id: generateVolumeId(),
             altura: 15, 
             largura: 25, 
             comprimento: 35, 
-            peso: 7 
+            peso: 7,
+            quantidade: 2
           }
         ],
         remetente: 'Empresa Excel Remetente',

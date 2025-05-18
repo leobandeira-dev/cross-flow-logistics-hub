@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import NotasFiscaisManager from '../NotasFiscaisManager';
 import ImportacaoTabs from './ImportacaoTabs';
 import EmpresaInfoForm from './EmpresaInfoForm';
-import SolicitacaoFormHeader from './SolicitacaoFormHeader';
+import SolicitacaoFormHeader from './formHeader/SolicitacaoFormHeader';
 
 interface NotasFiscaisStepProps {
   formData: SolicitacaoFormData;

@@ -1,5 +1,5 @@
 
-import { EnderecoCompleto, DadosEmpresa } from '../../types/coleta.types';
+import { EnderecoCompleto, DadosEmpresa } from '../../../types/coleta.types';
 
 export const EMPTY_ENDERECO: EnderecoCompleto = {
   logradouro: '',
