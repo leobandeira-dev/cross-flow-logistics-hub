@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NotaFiscalVolume, calcularTotaisColeta, formatarNumero, formatarMoeda } from '../../utils/volumeCalculations';
 import { Card, CardContent } from '@/components/ui/card';
