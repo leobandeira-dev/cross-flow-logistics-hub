@@ -1,6 +1,26 @@
 
 import { NotaFiscalVolume } from '../utils/volumes/types';
-import { DadosEmpresa } from '../components/solicitacao/SolicitacaoTypes';
+
+// Endereco data structure
+export interface EnderecoCompleto {
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  cep: string;
+}
+
+// Empresa data structure
+export interface DadosEmpresa {
+  cnpj: string;
+  cpf?: string;
+  razaoSocial: string;
+  nomeFantasia: string;
+  endereco: EnderecoCompleto;
+  enderecoFormatado: string;
+}
 
 export interface SolicitacaoColeta {
   id: string;

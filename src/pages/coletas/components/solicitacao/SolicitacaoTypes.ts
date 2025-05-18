@@ -1,34 +1,6 @@
 
+import { DadosEmpresa, EnderecoCompleto } from '../../types/coleta.types';
 import { NotaFiscalVolume } from '../../utils/volumes/types';
-
-export interface EnderecoCompleto {
-  logradouro: string;
-  numero: string;
-  complemento: string;
-  bairro: string;
-  cidade: string;
-  uf: string;
-  cep: string;
-}
-
-export interface DadosEmpresa {
-  cnpj: string;
-  cpf?: string;
-  razaoSocial: string;
-  nomeFantasia: string;
-  endereco: EnderecoCompleto;
-  enderecoFormatado: string;
-}
-
-export interface EmpresaInfoFormProps {
-  tipo: 'remetente' | 'destinatario';
-  dados?: DadosEmpresa;
-  onDadosChange?: (dados: DadosEmpresa) => void;
-  readOnly?: boolean;
-  empresa?: DadosEmpresa; // For backward compatibility
-  onChange?: (empresa: DadosEmpresa) => void; // For backward compatibility
-  label?: string;
-}
 
 export interface EmpresaInfo {
   razaoSocial: string;
@@ -145,3 +117,41 @@ export const EMPTY_EMPRESA: EmpresaInfo = {
   telefone: '',
   email: ''
 };
+
+// Helper function to convert DadosEmpresa to EmpresaInfo
+export function convertDadosEmpresaToEmpresaInfo(dados: DadosEmpresa): EmpresaInfo {
+  return {
+    razaoSocial: dados.razaoSocial,
+    cnpj: dados.cnpj,
+    endereco: dados.endereco.logradouro,
+    numero: dados.endereco.numero,
+    complemento: dados.endereco.complemento,
+    bairro: dados.endereco.bairro,
+    cidade: dados.endereco.cidade,
+    uf: dados.endereco.uf,
+    cep: dados.endereco.cep,
+    telefone: '',
+    email: ''
+  };
+}
+
+// Helper function to convert EmpresaInfo to DadosEmpresa
+export function convertEmpresaInfoToDadosEmpresa(info: EmpresaInfo): DadosEmpresa {
+  const endereco: EnderecoCompleto = {
+    logradouro: info.endereco,
+    numero: info.numero,
+    complemento: info.complemento,
+    bairro: info.bairro,
+    cidade: info.cidade,
+    uf: info.uf,
+    cep: info.cep
+  };
+  
+  return {
+    cnpj: info.cnpj,
+    razaoSocial: info.razaoSocial,
+    nomeFantasia: info.razaoSocial,
+    endereco,
+    enderecoFormatado: `${endereco.logradouro}, ${endereco.numero} ${endereco.complemento ? endereco.complemento + ', ' : ''}${endereco.bairro}, ${endereco.cidade}/${endereco.uf}, CEP: ${endereco.cep}`
+  };
+}
