@@ -5,10 +5,11 @@ import { SolicitacaoColeta } from '../types/coleta.types';
 import DocumentoColetaViewer from './solicitacao/DocumentoColetaViewer';
 import AprovacaoForm from './aprovacao/AprovacaoForm';
 
+// Update the interface to match the one in AprovacoesColeta.tsx
 interface DetalhesAprovacaoDialogProps {
-  solicitacao: SolicitacaoColeta | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  selectedRequest: SolicitacaoColeta | null;
   isRejecting: boolean;
   setIsRejecting: (value: boolean) => void;
   onApprove: (solicitacaoId: string, observacoes?: string) => void;
@@ -16,7 +17,7 @@ interface DetalhesAprovacaoDialogProps {
 }
 
 const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
-  solicitacao,
+  selectedRequest,
   open,
   onOpenChange,
   isRejecting,
@@ -24,7 +25,7 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
   onApprove,
   onReject
 }) => {
-  if (!solicitacao) return null;
+  if (!selectedRequest) return null;
 
   const handleClose = () => {
     onOpenChange(false);
@@ -36,12 +37,12 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            Detalhes da Solicitação - {solicitacao.id}
+            Detalhes da Solicitação - {selectedRequest.id}
           </DialogTitle>
         </DialogHeader>
 
         <div className="py-4">
-          <DocumentoColetaViewer solicitacao={solicitacao} />
+          <DocumentoColetaViewer solicitacao={selectedRequest} />
           
           <div className="mt-8 pt-4 border-t">
             <h3 className="font-semibold text-lg mb-4">
@@ -49,7 +50,7 @@ const DetalhesAprovacaoDialog: React.FC<DetalhesAprovacaoDialogProps> = ({
             </h3>
             
             <AprovacaoForm
-              selectedRequest={solicitacao}
+              selectedRequest={selectedRequest}
               isRejecting={isRejecting}
               setIsRejecting={setIsRejecting}
               onClose={handleClose}

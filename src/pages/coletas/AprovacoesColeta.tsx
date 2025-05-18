@@ -184,7 +184,7 @@ const AprovacoesColeta = () => {
       </Tabs>
       
       <DetalhesAprovacaoDialog
-        open={isDialogOpen} // Changed from isOpen to open to match component definition
+        open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         selectedRequest={selectedRequest}
         isRejecting={isRejecting}
