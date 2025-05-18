@@ -76,9 +76,9 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
           <table className="w-full table-auto">
             <thead className="bg-gray-50 text-xs">
               <tr>
-                <th className="p-2 text-left">Altura (m)</th>
-                <th className="p-2 text-left">Largura (m)</th>
-                <th className="p-2 text-left">Comprimento (m)</th>
+                <th className="p-2 text-left">Altura (cm)</th>
+                <th className="p-2 text-left">Largura (cm)</th>
+                <th className="p-2 text-left">Comprimento (cm)</th>
                 <th className="p-2 text-left">Peso (kg)</th>
                 <th className="p-2 text-left">Qtd</th>
                 <th className="p-2 text-left">Volume (m³)</th>
@@ -123,7 +123,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
       {!readOnly && (
         <div className="grid grid-cols-6 gap-2 items-end">
           <div>
-            <span className="text-xs">Altura (m)</span>
+            <span className="text-xs">Altura (cm)</span>
             <Input 
               type="number" 
               value={novoVolume.altura || ''} 
@@ -134,7 +134,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
             />
           </div>
           <div>
-            <span className="text-xs">Largura (m)</span>
+            <span className="text-xs">Largura (cm)</span>
             <Input 
               type="number" 
               value={novoVolume.largura || ''} 
@@ -145,7 +145,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
             />
           </div>
           <div>
-            <span className="text-xs">Comprimento (m)</span>
+            <span className="text-xs">Comprimento (cm)</span>
             <Input 
               type="number" 
               value={novoVolume.comprimento || ''} 

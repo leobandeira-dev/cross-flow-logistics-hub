@@ -92,7 +92,9 @@ export const createNotaFiscal = (
 
 // Função para calcular o volume de um item
 export const calcularVolume = (volume: VolumeItem | Volume): number => {
-  return (volume.altura * volume.largura * volume.comprimento * volume.quantidade) / 1000000; // Convert to cubic meters
+  // Medidas são em centímetros, então convertemos para metros ao dividir por 100 para cada dimensão
+  // Multiplicamos pela quantidade para obter o volume total de todos os itens iguais
+  return (volume.altura / 100) * (volume.largura / 100) * (volume.comprimento / 100) * volume.quantidade;
 };
 
 // Função para calcular o peso cubado de um volume

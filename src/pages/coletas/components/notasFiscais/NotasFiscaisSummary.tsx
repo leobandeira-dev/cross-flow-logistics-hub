@@ -43,6 +43,10 @@ const NotasFiscaisSummary: React.FC<NotasFiscaisSummaryProps> = ({ notasFiscais 
               label="Volume Total (m³)" 
               value={formatarNumero(totais.volumeTotal)}
             />
+            <NotasFiscaisSummaryItem 
+              label="Valor Total das NFs" 
+              value={formatarMoeda(notasFiscais.reduce((sum, nf) => sum + (nf.valorTotal || 0), 0))}
+            />
           </div>
           
           <div className="space-y-2">
@@ -58,6 +62,9 @@ const NotasFiscaisSummary: React.FC<NotasFiscaisSummaryProps> = ({ notasFiscais 
               label="Peso Considerado (kg)" 
               value={formatarNumero(Math.max(totais.pesoTotal, totais.pesoCubadoTotal))}
             />
+            <div className="pt-1 text-sm text-gray-500 italic">
+              <p>O peso considerado é o maior entre o peso real e o peso cubado</p>
+            </div>
           </div>
         </div>
       </CardContent>
