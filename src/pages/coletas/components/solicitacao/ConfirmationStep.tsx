@@ -1,96 +1,109 @@
 
 import React from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import { InternalFormData } from './hooks/solicitacaoFormTypes';
-import { formatarNumero } from '../../utils/volumes/formatters';
-import { calcularTotaisColeta } from '../../utils/volumes/calculations';
+import { Card, CardContent } from '@/components/ui/card';
+import { calcularTotaisColeta, formatarNumero, formatarMoeda } from '../../utils/volumes/index';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 interface ConfirmationStepProps {
   formData: InternalFormData;
-  handleInputChange: (field: keyof InternalFormData, value: any) => void;
+  handleInputChange: <K extends keyof InternalFormData>(field: K, value: InternalFormData[K]) => void;
 }
 
 const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ formData, handleInputChange }) => {
+  // Calculate totals
   const totais = calcularTotaisColeta(formData.notasFiscais);
   
   return (
     <div className="space-y-6">
       <Card>
         <CardContent className="pt-6">
-          <h3 className="font-semibold text-lg mb-4">Observações</h3>
-          <p className="text-sm text-gray-600 mb-3">
-            Adicione informações importantes sobre esta solicitação de coleta
-          </p>
-          <Textarea
-            placeholder="Observações sobre a coleta..."
-            value={formData.observacoes}
-            onChange={(e) => handleInputChange('observacoes', e.target.value)}
-            rows={5}
-            className="w-full"
-          />
+          <h3 className="font-semibold text-lg mb-4">Resumo da Solicitação</h3>
+          
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <span className="block text-xs text-gray-500">Tipo de Frete</span>
+              <span className="font-medium">{formData.tipoFrete}</span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-500">Data da Coleta</span>
+              <span className="font-medium">
+                {new Date(formData.dataColeta).toLocaleDateString('pt-BR')}
+                {formData.horaColeta && ` às ${formData.horaColeta}`}
+              </span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <span className="block text-xs text-gray-500">Remetente</span>
+              <span className="font-medium">{formData.remetente.razaoSocial}</span>
+              <span className="block text-xs">CNPJ: {formData.remetente.cnpj}</span>
+              <span className="block text-xs text-gray-500">
+                {formData.remetente.endereco}, {formData.remetente.numero} - {formData.remetente.bairro}, {formData.remetente.cidade} - {formData.remetente.uf}
+              </span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-500">Destinatário</span>
+              <span className="font-medium">{formData.destinatario.razaoSocial}</span>
+              <span className="block text-xs">CNPJ: {formData.destinatario.cnpj}</span>
+              <span className="block text-xs text-gray-500">
+                {formData.destinatario.endereco}, {formData.destinatario.numero} - {formData.destinatario.bairro}, {formData.destinatario.cidade} - {formData.destinatario.uf}
+              </span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="bg-gray-50 p-3 rounded">
+              <span className="block text-xs text-gray-500">Valor Total</span>
+              <span className="font-semibold">{formatarMoeda(formData.notasFiscais.reduce((sum, nf) => sum + nf.valorTotal, 0))}</span>
+            </div>
+            <div className="bg-gray-50 p-3 rounded">
+              <span className="block text-xs text-gray-500">Peso Total</span>
+              <span className="font-semibold">{formatarNumero(totais.pesoTotal)} kg</span>
+            </div>
+            <div className="bg-gray-50 p-3 rounded">
+              <span className="block text-xs text-gray-500">Volume Total</span>
+              <span className="font-semibold">{formatarNumero(totais.volumeTotal)} m³</span>
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <Label htmlFor="observacoes">Observações</Label>
+            <Textarea
+              id="observacoes"
+              value={formData.observacoes || ''}
+              onChange={(e) => handleInputChange('observacoes', e.target.value)}
+              placeholder="Observações adicionais para a coleta..."
+              className="resize-none h-24"
+            />
+          </div>
         </CardContent>
       </Card>
       
       <Card>
         <CardContent className="pt-6">
-          <h3 className="font-semibold text-lg mb-4">Resumo da Solicitação</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-medium text-md mb-2">Informações da Coleta</h4>
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Tipo de Frete:</td>
-                    <td className="py-2 font-medium">{formData.tipoFrete}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Origem:</td>
-                    <td className="py-2 font-medium">{formData.origem}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Destino:</td>
-                    <td className="py-2 font-medium">{formData.destino}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Data da Coleta:</td>
-                    <td className="py-2 font-medium">
-                      {formData.dataColeta}
-                      {formData.horaColeta ? ` às ${formData.horaColeta}` : ''}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-md mb-2">Volumes e Notas Fiscais</h4>
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Notas Fiscais:</td>
-                    <td className="py-2 font-medium">{formData.notasFiscais.length}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Total de Volumes:</td>
-                    <td className="py-2 font-medium">{totais.qtdVolumes}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Peso Total:</td>
-                    <td className="py-2 font-medium">{formatarNumero(totais.pesoTotal)} kg</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Volume Total:</td>
-                    <td className="py-2 font-medium">{formatarNumero(totais.volumeTotal)} m³</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-2 text-gray-600">Peso Cubado:</td>
-                    <td className="py-2 font-medium">{formatarNumero(totais.pesoCubadoTotal)} kg</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <h3 className="font-semibold text-lg mb-2">Notas Fiscais ({formData.notasFiscais.length})</h3>
+          <div className="space-y-3">
+            {formData.notasFiscais.map((nf, index) => (
+              <div key={index} className="p-3 border rounded-md">
+                <div className="flex justify-between">
+                  <div>
+                    <span className="font-medium">NF {nf.numeroNF}</span>
+                    {nf.chaveNF && <span className="block text-xs text-gray-500">Chave: {nf.chaveNF}</span>}
+                  </div>
+                  <div className="text-right">
+                    <span className="font-medium">{formatarMoeda(nf.valorTotal)}</span>
+                    <span className="block text-xs text-gray-500">{formatarNumero(nf.pesoTotal)} kg</span>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-gray-500">
+                  <span>{nf.volumes.reduce((sum, vol) => sum + vol.quantidade, 0)} volumes • </span>
+                  <span>{formatarNumero(nf.volumes.reduce((sum, vol) => sum + ((vol.altura * vol.largura * vol.comprimento * vol.quantidade) / 1000000), 0))} m³</span>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

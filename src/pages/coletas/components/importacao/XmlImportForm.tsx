@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { Upload, Loader2, FileText } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
@@ -27,7 +26,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
   const loading = isLoading || externalLoading;
   const [fileCount, setFileCount] = useState(0);
 
-  // Check if all XMLs have the same sender (remetente)
+  // Check if all XMLs have the same sender
   const validateSenderConsistency = (notasFiscais: any[]): boolean => {
     if (notasFiscais.length <= 1) return true;
     
@@ -55,25 +54,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
         const result = await processExcelFile(acceptedFiles[0]);
         
         if (result && result.notasFiscais && result.notasFiscais.length > 0) {
-          // Validate that all senders are the same
-          const notasWithSenderInfo = result.notasFiscais.filter((nf: any) => nf.emitenteCNPJ);
-          
-          if (notasWithSenderInfo.length > 1) {
-            // Check if all have the same emitenteCNPJ
-            const firstCNPJ = notasWithSenderInfo[0].emitenteCNPJ;
-            const allSameSender = notasWithSenderInfo.every((nf: any) => nf.emitenteCNPJ === firstCNPJ);
-            
-            if (!allSameSender) {
-              toast({
-                title: "Erro na importação",
-                description: "Você deve cadastrar uma coleta por remetente",
-                variant: "destructive"
-              });
-              setIsLoading(false);
-              return;
-            }
-          }
-          
           // Convert to the expected format
           const completeNotasFiscais: NotaFiscalVolume[] = result.notasFiscais.map((nf: any) => ({
             numeroNF: nf.numeroNF || '',
@@ -81,7 +61,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             dataEmissao: nf.dataEmissao || new Date().toISOString().split('T')[0],
             volumes: convertVolumesToVolumeItems(nf.volumes || []),
             remetente: nf.remetente || result.remetente?.razaoSocial || '',
-            emitenteCNPJ: nf.emitenteCNPJ || result.remetente?.cnpj || '',
             destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
             valorTotal: nf.valorTotal || 0,
             pesoTotal: nf.pesoTotal || 0
@@ -144,7 +123,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             // Create remetente info
             const remetenteInfo = {
               cnpj: extractedData.emitenteCNPJ || '',
-              razaoSocial: extractedData.emitenteRazaoSocial || '',
               nome: extractedData.emitenteRazaoSocial || '',
               enderecoFormatado: `${extractedData.emitenteEndereco || ''}, ${extractedData.emitenteNumero || ''} - ${extractedData.emitenteBairro || ''}, ${extractedData.emitenteCidade || ''} - ${extractedData.emitenteUF || ''}`,
               endereco: {
@@ -161,7 +139,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             // Create destinatario info
             const destinatarioInfo = {
               cnpj: extractedData.destinatarioCNPJ || '',
-              razaoSocial: extractedData.destinatarioRazaoSocial || '',
               nome: extractedData.destinatarioRazaoSocial || '',
               enderecoFormatado: `${extractedData.destinatarioEndereco || ''}, ${extractedData.destinatarioNumero || ''} - ${extractedData.destinatarioBairro || ''}, ${extractedData.destinatarioCidade || ''} - ${extractedData.destinatarioUF || ''}`,
               endereco: {
@@ -194,7 +171,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
               dataEmissao: result.nfInfo.dataEmissao || new Date().toISOString().split('T')[0],
               volumes: convertVolumesToVolumeItems(result.nfInfo.volumes || []),
               remetente: result.remetente?.razaoSocial || '',
-              emitenteCNPJ: result.remetente?.cnpj || '',
               destinatario: result.destinatario?.razaoSocial || '',
               valorTotal: result.nfInfo.valorTotal || 0,
               pesoTotal: result.nfInfo.pesoTotal || 0
@@ -211,8 +187,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
       } else {
         // Handle multiple XML files
         const extractedDataList = [];
-        let firstEmitenteCNPJ = "";
-        let hasMultipleRemetentes = false;
         
         // Process each XML file with the extractor from armazenagem/recebimento
         for (const file of acceptedFiles) {
@@ -220,16 +194,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             const xmlData = await parseXmlFile(file);
             if (xmlData) {
               const extractedData = extractDataFromXml(xmlData);
-              
-              // Check if we already have a sender to compare
-              if (firstEmitenteCNPJ === "") {
-                firstEmitenteCNPJ = extractedData.emitenteCNPJ || "";
-              } else if (extractedData.emitenteCNPJ && extractedData.emitenteCNPJ !== firstEmitenteCNPJ) {
-                // Found different sender
-                hasMultipleRemetentes = true;
-                break;
-              }
-              
               extractedDataList.push(extractedData);
             }
           } catch (error) {
@@ -237,19 +201,19 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
           }
         }
         
-        // Check if multiple remetentes were found
-        if (hasMultipleRemetentes) {
-          toast({
-            title: "Erro na importação",
-            description: "Você deve cadastrar uma coleta por remetente",
-            variant: "destructive"
-          });
-          setIsLoading(false);
-          return;
-        }
-        
         // Check if any data was extracted
         if (extractedDataList.length > 0) {
+          // Check if all senders are the same
+          if (!validateSenderConsistency(extractedDataList)) {
+            toast({
+              title: "Erro na importação",
+              description: "Todas as notas fiscais devem ter o mesmo remetente.",
+              variant: "destructive"
+            });
+            setIsLoading(false);
+            return;
+          }
+          
           // Create notasFiscais
           const notasFiscais: NotaFiscalVolume[] = extractedDataList.map(data => {
             const nf: NotaFiscalVolume = {
@@ -276,7 +240,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
                 comprimento: 30, // Default length
                 quantidade: quantidade,
                 peso: parseFloat(data.pesoTotalBruto || '0') / quantidade, // Divide total weight by quantity
-                cubicVolume: 30 * 30 * 30 * quantidade // Calculate cubic volume
               }];
             } else {
               // Create at least one default volume if no volume information
@@ -287,7 +250,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
                 comprimento: 30,
                 quantidade: 1,
                 peso: parseFloat(data.pesoTotalBruto || '0'),
-                cubicVolume: 30 * 30 * 30 // Calculate cubic volume
               }];
             }
             
@@ -300,7 +262,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
           // Create remetente info
           const remetenteInfo = {
             cnpj: firstData.emitenteCNPJ || '',
-            razaoSocial: firstData.emitenteRazaoSocial || '',
             nome: firstData.emitenteRazaoSocial || '',
             enderecoFormatado: `${firstData.emitenteEndereco || ''}, ${firstData.emitenteNumero || ''} - ${firstData.emitenteBairro || ''}, ${firstData.emitenteCidade || ''} - ${firstData.emitenteUF || ''}`,
             endereco: {
@@ -317,7 +278,6 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
           // Create destinatario info - this can vary
           const destinatarioInfo = {
             cnpj: firstData.destinatarioCNPJ || '',
-            razaoSocial: firstData.destinatarioRazaoSocial || '',
             nome: firstData.destinatarioRazaoSocial || '',
             enderecoFormatado: `${firstData.destinatarioEndereco || ''}, ${firstData.destinatarioNumero || ''} - ${firstData.destinatarioBairro || ''}, ${firstData.destinatarioCidade || ''} - ${firstData.destinatarioUF || ''}`,
             endereco: {
@@ -342,31 +302,12 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
           const result = await processMultipleXMLFiles(acceptedFiles);
           
           if (result.notasFiscais.length > 0) {
-            // Check for multiple remetentes
-            const senderCNPJs = new Set();
-            result.notasFiscais.forEach((nf: any) => {
-              if (nf.emitenteCNPJ) {
-                senderCNPJs.add(nf.emitenteCNPJ);
-              }
-            });
-            
-            if (senderCNPJs.size > 1) {
-              toast({
-                title: "Erro na importação",
-                description: "Você deve cadastrar uma coleta por remetente",
-                variant: "destructive"
-              });
-              setIsLoading(false);
-              return;
-            }
-            
             const completeNotasFiscais: NotaFiscalVolume[] = result.notasFiscais.map((nf: any) => ({
               numeroNF: nf.numeroNF || '',
               chaveNF: nf.chaveNF || '',
               dataEmissao: nf.dataEmissao || new Date().toISOString().split('T')[0],
               volumes: convertVolumesToVolumeItems(nf.volumes || []),
               remetente: nf.remetente || result.remetente?.razaoSocial || '',
-              emitenteCNPJ: nf.emitenteCNPJ || result.remetente?.cnpj || '',
               destinatario: nf.destinatario || result.destinatario?.razaoSocial || '',
               valorTotal: nf.valorTotal || 0,
               pesoTotal: nf.pesoTotal || 0
@@ -402,74 +343,59 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
   const getAcceptTypes = () => {
     if (acceptExcel) {
       return {
-        'text/xml': ['.xml'],
         'application/xml': ['.xml'],
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-        'application/vnd.ms-excel': ['.xls', '.xlsx', '.csv'],
+        'application/vnd.ms-excel': ['.xls', '.xlsx'],
         'text/csv': ['.csv']
       };
+    } else {
+      return {
+        'application/xml': ['.xml'],
+      };
     }
-    return {
-      'text/xml': ['.xml'],
-      'application/xml': ['.xml']
-    };
   };
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragReject
-  } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: getAcceptTypes(),
-    disabled: loading,
-    maxFiles: isSingleFile ? 1 : undefined
+    maxFiles: isSingleFile ? 1 : undefined,
+    disabled: loading
   });
 
   return (
-    <div className="space-y-4">
-      <div 
+    <div className="flex flex-col items-center justify-center w-full">
+      <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
-          ${isDragActive ? 'border-cross-blue bg-blue-50' : 'border-gray-300'}
-          ${isDragReject ? 'border-red-500 bg-red-50' : ''}
-          ${loading ? 'opacity-50 cursor-not-allowed' : ''}
-        `}
+        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer 
+          ${isDragActive ? 'border-cross-blue bg-cross-blue/10' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'}
+          ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        <input {...getInputProps()} />
-        
-        <div className="flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center justify-center pt-5 pb-6">
           {loading ? (
-            <Loader2 className="h-10 w-10 text-gray-400 animate-spin mb-2" />
+            <>
+              <Loader2 className="w-10 h-10 mb-3 text-gray-400 animate-spin" />
+              <p className="text-sm text-gray-500">Processando {fileCount} arquivo(s)...</p>
+            </>
           ) : (
-            <Upload className="h-10 w-10 text-gray-400 mb-2" />
+            <>
+              {acceptExcel ? 
+                <FileText className="w-10 h-10 mb-3 text-gray-400" /> :
+                <Upload className="w-10 h-10 mb-3 text-gray-400" />
+              }
+              <p className="mb-2 text-sm text-gray-500">
+                <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
+              </p>
+              <p className="text-xs text-gray-500">
+                {acceptExcel 
+                  ? 'Arquivos XML, Excel (.xlsx) ou CSV' 
+                  : (isSingleFile 
+                    ? 'Arquivo XML da nota fiscal' 
+                    : 'Múltiplos arquivos XML (um por nota fiscal)')
+                }
+              </p>
+            </>
           )}
-          
-          <p className="text-sm font-medium">
-            {loading ? `Processando ${fileCount} arquivo(s)...` : 
-              isDragActive ? "Solte os arquivos aqui..." : 
-              `Clique ou arraste ${isSingleFile ? 'um arquivo' : 'arquivos'} ${acceptExcel ? 'XML ou Excel' : 'XML'}`
-            }
-          </p>
-          
-          <p className="text-xs text-gray-500 mt-1">
-            {isSingleFile ? 
-              `Arquivos ${acceptExcel ? 'XML, Excel (.xlsx, .xls) ou CSV' : 'XML'} apenas` :
-              `Múltiplos arquivos ${acceptExcel ? 'XML, Excel (.xlsx, .xls) ou CSV' : 'XML'}`
-            }
-          </p>
         </div>
-      </div>
-      
-      <div className="text-xs text-gray-500 flex items-center">
-        <FileText className="h-3 w-3 mr-1" />
-        <span>
-          {acceptExcel ? 
-            "Importação de notas fiscais via arquivos XML, Excel (.xlsx, .xls) ou CSV" : 
-            "Importação de notas fiscais via arquivo XML"
-          }
-        </span>
+        <input {...getInputProps()} />
       </div>
     </div>
   );

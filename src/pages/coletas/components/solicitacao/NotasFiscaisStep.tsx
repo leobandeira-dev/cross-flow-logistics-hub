@@ -38,9 +38,30 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
             tipoFrete={formData.tipoFrete}
             dataColeta={formData.dataColeta}
             horaColeta={formData.horaColeta}
+            dataAprovacao={formData.dataAprovacao}
+            horaAprovacao={formData.horaAprovacao}
+            dataInclusao={formData.dataInclusao}
+            horaInclusao={formData.horaInclusao}
+            origem={formData.origem}
+            origemEndereco={formData.origemEndereco}
+            origemCEP={formData.origemCEP}
+            destino={formData.destino}
+            destinoEndereco={formData.destinoEndereco}
+            destinoCEP={formData.destinoCEP}
+            remetente={formData.remetente ? {
+              razaoSocial: formData.remetente.razaoSocial,
+              cnpj: formData.remetente.cnpj
+            } : undefined}
+            destinatario={formData.destinatario ? {
+              razaoSocial: formData.destinatario.razaoSocial,
+              cnpj: formData.destinatario.cnpj
+            } : undefined}
             onTipoFreteChange={(tipo) => handleInputChange('tipoFrete', tipo)}
             onDataColetaChange={(data) => handleInputChange('dataColeta', data)}
             onHoraColetaChange={(hora) => handleInputChange('horaColeta', hora)}
+            onOrigemChange={(origem) => handleInputChange('origem', origem)}
+            onDestinoChange={(destino) => handleInputChange('destino', destino)}
+            readOnlyAddresses={formData.notasFiscais.length > 0}
           />
           
           <div className="grid grid-cols-3 gap-4 mt-4">
@@ -57,6 +78,28 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
               <span className="text-lg font-semibold">{totais.volumeTotal.toFixed(3)} m³ ({totais.qtdVolumes} volumes)</span>
             </div>
           </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardContent className="pt-6">
+          <h3 className="font-semibold text-lg mb-4">Importação de Notas Fiscais</h3>
+          <ImportacaoTabs 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            onImportSuccess={handleImportSuccess}
+            isLoading={isImporting}
+          />
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardContent className="pt-6">
+          <NotasFiscaisManager 
+            notasFiscais={formData.notasFiscais}
+            onChangeNotasFiscais={(notasFiscais) => handleInputChange('notasFiscais', notasFiscais)}
+            isLoading={isImporting}
+          />
         </CardContent>
       </Card>
       
@@ -85,28 +128,6 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
           </CardContent>
         </Card>
       </div>
-      
-      <Card>
-        <CardContent className="pt-6">
-          <h3 className="font-semibold text-lg mb-4">Importação de Notas Fiscais</h3>
-          <ImportacaoTabs 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            onImportSuccess={handleImportSuccess}
-            isLoading={isImporting}
-          />
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardContent className="pt-6">
-          <NotasFiscaisManager 
-            notasFiscais={formData.notasFiscais}
-            onChangeNotasFiscais={(notasFiscais) => handleInputChange('notasFiscais', notasFiscais)}
-            isLoading={isImporting}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
 };
