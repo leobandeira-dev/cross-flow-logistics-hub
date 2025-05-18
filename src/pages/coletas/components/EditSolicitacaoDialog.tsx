@@ -65,6 +65,7 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
         horaAprovacao: '',
         dataInclusao: solicitacao.dataSolicitacao || '',
         horaInclusao: '',
+        quantidadeVolumes: solicitacao.volumes || 0
         // Add notas fiscais as empty array for now
         // In a real implementation, we would convert solicitacao.notas to the format expected by NotasFiscaisStep
       });
@@ -92,18 +93,22 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
   const handleSubmit = () => {
     setIsLoading(true);
     try {
+      if (!solicitacao) return;
+      
       // Convert formData back to SolicitacaoColeta format
-      const updatedSolicitacao = {
+      const updatedSolicitacao: SolicitacaoColeta = {
         ...solicitacao,
-        cliente: formData.tipoFrete === 'FOB',
+        // When we save a client as a string in SolicitacaoColeta, we need to make sure it's a string
+        cliente: formData.tipoFrete === 'FOB' ? 'Cliente FOB' : 'Cliente CIF',
         data: formData.dataColeta,
-        origem: formData.origem || formData.remetente?.razaoSocial,
-        destino: formData.destino || formData.destinatario?.razaoSocial,
+        origem: formData.origem || formData.remetente?.razaoSocial || '',
+        destino: formData.destino || formData.destinatario?.razaoSocial || '',
         observacoes: formData.observacoes,
+        volumes: formData.quantidadeVolumes || 0
         // Would need to handle notes conversion here
       };
       
-      onSave(updatedSolicitacao as SolicitacaoColeta);
+      onSave(updatedSolicitacao);
       
       toast({
         title: "Solicitação atualizada",
