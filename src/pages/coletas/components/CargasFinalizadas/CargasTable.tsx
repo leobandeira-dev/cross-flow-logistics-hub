@@ -6,7 +6,7 @@ import ActionButtons from './ActionButtons';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { problemosComuns, handleWhatsAppSupport } from '../../../motoristas/utils/supportHelpers';
-import { extrairApenasUF } from '@/utils/estadoUtils';
+import { separarCidadeEstado } from '@/utils/estadoUtils';
 
 interface CargasTableProps {
   cargas: any[];
@@ -21,26 +21,16 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
   const [selectedCarga, setSelectedCarga] = React.useState<any>(null);
   const [openSupportDialog, setOpenSupportDialog] = React.useState(false);
 
-  // Função para garantir que o destino esteja no formato "Cidade - UF" com UF de 2 letras
-  const formatDestino = (destino: string): string => {
-    if (!destino) return '';
-    
-    const match = destino.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
-    if (match) {
-      const cidade = match[1];
-      const uf = extrairApenasUF(match[2]);
-      return `${cidade} - ${uf}`;
-    }
-    
-    return destino;
-  };
-
   const handleSupportRequest = (problem: string, description: string) => {
     if (!selectedCarga) return;
     
+    const localInfo = separarCidadeEstado(selectedCarga.destino);
+    const cidade = localInfo?.cidade || '';
+    const estado = localInfo?.estado || '';
+    
     const cargaInfo = {
       id: selectedCarga.id,
-      destino: formatDestino(selectedCarga.destino),
+      destino: `${cidade} - ${estado}`,
       motorista: selectedCarga.motorista || 'Não alocado',
       veiculo: selectedCarga.veiculo || 'Não alocado',
     };
@@ -61,9 +51,20 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
         columns={[
           { header: 'ID', accessor: 'id' },
           { 
-            header: 'Destino', 
-            accessor: 'destino',
-            cell: (row) => formatDestino(row.destino)
+            header: 'Cidade', 
+            accessor: 'cidade',
+            cell: (row) => {
+              const localInfo = separarCidadeEstado(row.destino);
+              return localInfo?.cidade || '';
+            }
+          },
+          {
+            header: 'UF',
+            accessor: 'uf',
+            cell: (row) => {
+              const localInfo = separarCidadeEstado(row.destino);
+              return localInfo?.estado || '';
+            }
           },
           { header: 'Motorista', accessor: 'motorista' },
           { header: 'Veículo', accessor: 'veiculo' },
@@ -128,12 +129,18 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
               <Button 
                 variant="outline" 
                 className="justify-start text-left px-4 py-3 h-auto"
-                onClick={() => handleWhatsAppSupport({
-                  id: selectedCarga.id,
-                  destino: formatDestino(selectedCarga.destino),
-                  motorista: selectedCarga.motorista,
-                  veiculo: selectedCarga.veiculo
-                })}
+                onClick={() => {
+                  const localInfo = separarCidadeEstado(selectedCarga.destino);
+                  const cidade = localInfo?.cidade || '';
+                  const estado = localInfo?.estado || '';
+                  
+                  handleWhatsAppSupport({
+                    id: selectedCarga.id,
+                    destino: `${cidade} - ${estado}`,
+                    motorista: selectedCarga.motorista,
+                    veiculo: selectedCarga.veiculo
+                  });
+                }}
               >
                 <div>
                   <div className="font-bold">Outro Problema</div>

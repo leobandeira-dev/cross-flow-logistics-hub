@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SolicitacaoFormHeaderProps } from './SolicitacaoTypes';
-import { extrairApenasUF } from '@/utils/estadoUtils';
+import { separarCidadeEstado } from '@/utils/estadoUtils';
 
 const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   cliente = '',
@@ -19,24 +19,15 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
   currentStep,
   isLoading
 }) => {
-  // Função para formatar endereço para exibir apenas cidade e UF
-  const formatarEnderecoParaExibicao = (endereco: string): string => {
-    if (!endereco) return '';
-    
-    // Verifica se o texto tem o formato "Cidade - UF"
-    const match = endereco.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
-    if (match) {
-      const cidade = match[1];
-      const uf = extrairApenasUF(match[2]);
-      return `${cidade} - ${uf}`;
-    }
-    
-    return endereco;
-  };
+  // Extrair cidade e UF da origem
+  const origemInfo = separarCidadeEstado(origem);
+  const origemCidade = origemInfo?.cidade || '';
+  const origemUF = origemInfo?.estado || '';
   
-  // Formatar origem e destino para exibição
-  const origemExibicao = formatarEnderecoParaExibicao(origem);
-  const destinoExibicao = formatarEnderecoParaExibicao(destino);
+  // Extrair cidade e UF do destino
+  const destinoInfo = separarCidadeEstado(destino);
+  const destinoCidade = destinoInfo?.cidade || '';
+  const destinoUF = destinoInfo?.estado || '';
   
   return (
     <>
@@ -70,33 +61,74 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="origem">Origem</Label>
-          <Input 
-            id="origem" 
-            placeholder="Endereço de origem" 
-            value={origemExibicao}
-            onChange={(e) => onOrigemChange(e.target.value)}
-            readOnly={readOnlyAddresses}
-            className={readOnlyAddresses ? "bg-gray-50" : ""}
-          />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-4 gap-2">
+          <div className="col-span-3 space-y-2">
+            <Label htmlFor="origem-cidade">Cidade Origem</Label>
+            <Input 
+              id="origem-cidade" 
+              placeholder="Cidade de origem" 
+              value={origemCidade}
+              onChange={(e) => {
+                // Atualiza manualmente o formato "Cidade - UF"
+                onOrigemChange(`${e.target.value} - ${origemUF}`);
+              }}
+              readOnly={readOnlyAddresses}
+              className={readOnlyAddresses ? "bg-gray-50" : ""}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="origem-uf">UF</Label>
+            <Input 
+              id="origem-uf" 
+              placeholder="UF" 
+              value={origemUF}
+              onChange={(e) => {
+                // Atualiza manualmente o formato "Cidade - UF"
+                onOrigemChange(`${origemCidade} - ${e.target.value}`);
+              }}
+              readOnly={readOnlyAddresses}
+              className={readOnlyAddresses ? "bg-gray-50 uppercase" : "uppercase"}
+              maxLength={2}
+            />
+          </div>
           {readOnlyAddresses && (
-            <p className="text-xs text-gray-500 mt-1">Endereço obtido do XML da nota fiscal</p>
+            <p className="text-xs text-gray-500 mt-1 col-span-4">Endereço obtido do XML da nota fiscal</p>
           )}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="destino">Destino</Label>
-          <Input 
-            id="destino" 
-            placeholder="Endereço de destino" 
-            value={destinoExibicao}
-            onChange={(e) => onDestinoChange(e.target.value)}
-            readOnly={readOnlyAddresses}
-            className={readOnlyAddresses ? "bg-gray-50" : ""}
-          />
+
+        <div className="grid grid-cols-4 gap-2">
+          <div className="col-span-3 space-y-2">
+            <Label htmlFor="destino-cidade">Cidade Destino</Label>
+            <Input 
+              id="destino-cidade" 
+              placeholder="Cidade de destino" 
+              value={destinoCidade}
+              onChange={(e) => {
+                // Atualiza manualmente o formato "Cidade - UF"
+                onDestinoChange(`${e.target.value} - ${destinoUF}`);
+              }}
+              readOnly={readOnlyAddresses}
+              className={readOnlyAddresses ? "bg-gray-50" : ""}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="destino-uf">UF</Label>
+            <Input 
+              id="destino-uf" 
+              placeholder="UF" 
+              value={destinoUF}
+              onChange={(e) => {
+                // Atualiza manualmente o formato "Cidade - UF"
+                onDestinoChange(`${destinoCidade} - ${e.target.value}`);
+              }}
+              readOnly={readOnlyAddresses}
+              className={readOnlyAddresses ? "bg-gray-50 uppercase" : "uppercase"}
+              maxLength={2}
+            />
+          </div>
           {readOnlyAddresses && (
-            <p className="text-xs text-gray-500 mt-1">Endereço obtido do XML da nota fiscal</p>
+            <p className="text-xs text-gray-500 mt-1 col-span-4">Endereço obtido do XML da nota fiscal</p>
           )}
         </div>
       </div>

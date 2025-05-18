@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye } from 'lucide-react';
-import { converterParaUF } from '@/utils/estadoUtils';
+import { converterParaUF, separarCidadeEstado } from '@/utils/estadoUtils';
 
 interface EmpresasListTableProps {
   empresas: any[];
@@ -39,6 +39,16 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
     return cnpj || 'N/A';
   };
 
+  // Helper function to get city from address
+  const getCidade = (empresa: any) => {
+    if (empresa.cidade) return empresa.cidade;
+    if (empresa.endereco) {
+      const localInfo = separarCidadeEstado(empresa.endereco);
+      return localInfo?.cidade || '';
+    }
+    return '';
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -46,6 +56,7 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>CNPJ</TableHead>
+            <TableHead>Cidade</TableHead>
             <TableHead>UF</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Ações</TableHead>
@@ -54,7 +65,7 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
         <TableBody>
           {empresas.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
                 Nenhuma empresa encontrada
               </TableCell>
             </TableRow>
@@ -63,6 +74,7 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
               <TableRow key={empresa.id}>
                 <TableCell className="font-medium">{empresa.nome || empresa.razaoSocial}</TableCell>
                 <TableCell>{formatCNPJ(empresa.cnpj)}</TableCell>
+                <TableCell>{getCidade(empresa)}</TableCell>
                 <TableCell>{converterParaUF(empresa.estado)}</TableCell>
                 <TableCell>{renderStatus(empresa.status)}</TableCell>
                 <TableCell className="text-right">

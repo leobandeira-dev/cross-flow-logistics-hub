@@ -4,7 +4,7 @@ import DataTable from '@/components/common/DataTable';
 import { formatDate } from '@/pages/armazenagem/utils/formatters';
 import { SolicitacaoColeta } from '../types/coleta.types';
 import { Badge } from '@/components/ui/badge';
-import { extrairApenasUF } from '@/utils/estadoUtils';
+import { separarCidadeEstado } from '@/utils/estadoUtils';
 
 interface TabelaSolicitacoesProps {
   solicitacoes: SolicitacaoColeta[];
@@ -27,21 +27,6 @@ const TabelaSolicitacoes: React.FC<TabelaSolicitacoesProps> = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = solicitacoes.slice(startIndex, startIndex + itemsPerPage);
   
-  // Function to format address to show city and UF only
-  const formatarEndereco = (endereco: string): string => {
-    if (!endereco) return '';
-    
-    // Se a string já contém um padrão com UF, como "Cidade - UF"
-    const match = endereco.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
-    if (match) {
-      const cidade = match[1];
-      const uf = extrairApenasUF(match[2]);
-      return `${cidade} - ${uf}`;
-    }
-    
-    return endereco;
-  };
-  
   const columns = [
     {
       header: 'ID',
@@ -54,14 +39,36 @@ const TabelaSolicitacoes: React.FC<TabelaSolicitacoesProps> = ({
       cell: (row: SolicitacaoColeta) => formatDate(row.dataSolicitacao)
     },
     {
-      header: 'Origem',
-      accessor: 'origem',
-      cell: (row: SolicitacaoColeta) => formatarEndereco(row.origem || '')
+      header: 'Cidade Origem',
+      accessor: 'cidadeOrigem',
+      cell: (row: SolicitacaoColeta) => {
+        const localInfo = separarCidadeEstado(row.origem || '');
+        return localInfo?.cidade || '';
+      }
     },
     {
-      header: 'Destino',
-      accessor: 'destino',
-      cell: (row: SolicitacaoColeta) => formatarEndereco(row.destino || '')
+      header: 'UF Origem',
+      accessor: 'ufOrigem',
+      cell: (row: SolicitacaoColeta) => {
+        const localInfo = separarCidadeEstado(row.origem || '');
+        return localInfo?.estado || '';
+      }
+    },
+    {
+      header: 'Cidade Destino',
+      accessor: 'cidadeDestino',
+      cell: (row: SolicitacaoColeta) => {
+        const localInfo = separarCidadeEstado(row.destino || '');
+        return localInfo?.cidade || '';
+      }
+    },
+    {
+      header: 'UF Destino',
+      accessor: 'ufDestino',
+      cell: (row: SolicitacaoColeta) => {
+        const localInfo = separarCidadeEstado(row.destino || '');
+        return localInfo?.estado || '';
+      }
     },
     {
       header: 'Notas Fiscais',

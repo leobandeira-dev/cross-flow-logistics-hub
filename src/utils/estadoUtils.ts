@@ -91,3 +91,23 @@ export const extrairApenasUF = (texto?: string): string => {
   // Se não encontrar o padrão, tenta converter o texto todo
   return converterParaUF(texto);
 };
+
+/**
+ * Separa cidade e estado de um texto no formato "Cidade - UF"
+ * 
+ * @param texto - Texto no formato "Cidade - UF"
+ * @returns Objeto com cidade e estado separados ou null se formato inválido
+ */
+export const separarCidadeEstado = (texto?: string): { cidade: string; estado: string } | null => {
+  if (!texto) return null;
+  
+  // Verifica se o texto tem o formato "Cidade - UF"
+  const match = texto.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
+  if (match) {
+    const cidade = match[1].trim();
+    const estado = extrairApenasUF(match[2].trim());
+    return { cidade, estado };
+  }
+  
+  return null;
+};

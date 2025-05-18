@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Carga } from '../../types/coleta.types';
 import { MapPin, CircleCheck, Circle } from 'lucide-react';
-import { extrairApenasUF } from '@/utils/estadoUtils';
+import { separarCidadeEstado } from '@/utils/estadoUtils';
 
 interface CargaCardsProps {
   cargas: Carga[];
@@ -12,18 +12,21 @@ interface CargaCardsProps {
 }
 
 const CargaCards: React.FC<CargaCardsProps> = ({ cargas, selectedCardId, onCardSelect }) => {
-  // Função para formatar o destino para exibir apenas cidade e UF
-  const formatDestino = (destino: string): string => {
-    if (!destino) return '';
+  // Função para formatar o destino para exibir cidade e UF separadamente
+  const formatDestino = (destino: string): JSX.Element => {
+    if (!destino) return <></>;
     
-    const match = destino.match(/(.+)\s+-\s+([A-Za-z]{2}|[A-Za-z\s]+)$/);
-    if (match) {
-      const cidade = match[1];
-      const uf = extrairApenasUF(match[2]);
-      return `${cidade} - ${uf}`;
+    const localInfo = separarCidadeEstado(destino);
+    if (localInfo) {
+      return (
+        <>
+          <span className="font-medium">{localInfo.cidade}</span>
+          <span className="ml-1 text-muted-foreground">{localInfo.estado}</span>
+        </>
+      );
     }
     
-    return destino;
+    return <span>{destino}</span>;
   };
 
   return (
@@ -51,7 +54,7 @@ const CargaCards: React.FC<CargaCardsProps> = ({ cargas, selectedCardId, onCardS
             <MapPin className="mr-2 h-4 w-4 text-red-500" />
           )}
           <div className="truncate">
-            <div className="font-medium truncate">{formatDestino(carga.destino)}</div>
+            <div className="truncate">{formatDestino(carga.destino)}</div>
             <div className="text-xs text-muted-foreground truncate">{carga.id} • {carga.cep}</div>
           </div>
         </Button>
