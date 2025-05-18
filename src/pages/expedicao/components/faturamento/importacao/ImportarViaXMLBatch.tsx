@@ -65,6 +65,9 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
       // Ensure numeroPedido is prioritized properly
       mergedData.numeroPedido = detailedData.numeroPedido || extractedData.numeroPedido || '';
       
+      // Debug the raw weight value from XML
+      console.log('Peso bruto no XML:', mergedData.pesoTotalBruto);
+      
       // Convert extracted data to NotaFiscal format
       const notaFiscal: Partial<NotaFiscal> = {
         data: new Date(),
@@ -73,8 +76,8 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
         notaFiscal: mergedData.numeroNF || '',
         pedido: mergedData.numeroPedido || '', // Map pedido field correctly
         dataEmissao: mergedData.dataHoraEmissao ? new Date(mergedData.dataHoraEmissao) : new Date(),
-        // Parse the weight directly without any division - FIX: Keep the original weight value
-        pesoNota: parseFloat(mergedData.pesoTotalBruto || '0'),
+        // Parse the weight exactly as it is in the XML, without any manipulation
+        pesoNota: mergedData.pesoTotalBruto ? Number(mergedData.pesoTotalBruto.replace(',', '.')) : 0,
         valorNF: parseFloat(mergedData.valorTotal || '0') || 0,
         fretePorTonelada: 0,
         pesoMinimo: 0,
