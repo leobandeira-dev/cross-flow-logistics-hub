@@ -5,6 +5,7 @@ import { ProtectedRoute } from '../ProtectedRoute';
 // Pages Import
 import Faturamento from '../../pages/expedicao/Faturamento';
 import EmissaoDocumentos from '../../pages/expedicao/EmissaoDocumentos';
+import Remessas from '../../pages/expedicao/Remessas';
 
 const ExpedicaoRoutes = () => {
   return [
@@ -23,6 +24,12 @@ const ExpedicaoRoutes = () => {
     <Route key="expedicao-documentos" path="/expedicao/documentos" element={
       <ProtectedRoute>
         <EmissaoDocumentos />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="expedicao-remessas" path="/expedicao/remessas" element={
+      <ProtectedRoute>
+        <Remessas />
       </ProtectedRoute>
     } />
   ];
