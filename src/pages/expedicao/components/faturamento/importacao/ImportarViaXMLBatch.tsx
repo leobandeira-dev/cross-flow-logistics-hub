@@ -50,6 +50,17 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
       const xmlData = await parseXmlFile(file);
       if (!xmlData) return null;
 
+      // Store the raw XML content for printing DANFE later
+      const reader = new FileReader();
+      const xmlContentPromise = new Promise<string>((resolve) => {
+        reader.onload = (e) => {
+          resolve(e.target?.result as string || '');
+        };
+        reader.readAsText(file);
+      });
+      
+      const xmlContent = await xmlContentPromise;
+      
       // Use the more advanced extractor from the recebimento module first
       const detailedData = extractDataFromXml(xmlData);
       
@@ -82,7 +93,9 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
         fretePorTonelada: 0,
         pesoMinimo: 0,
         aliquotaICMS: 0,
-        aliquotaExpresso: 0
+        aliquotaExpresso: 0,
+        // Store the raw XML content
+        xmlContent: xmlContent
       };
 
       console.log('Nota fiscal extraída do XML:', notaFiscal);

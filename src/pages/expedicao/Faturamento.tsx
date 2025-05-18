@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { 
@@ -49,6 +48,8 @@ export interface NotaFiscal {
   // Campos para documento
   documentoId?: string;
   documentoNumero?: string;
+  // Campo para armazenar o conteúdo XML original
+  xmlContent?: string;
 }
 
 const Faturamento: React.FC = () => {
