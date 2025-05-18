@@ -1,15 +1,19 @@
 
-import { z } from 'zod';
+import { z } from "zod";
 
+// Define the schema using zod
 export const notaFiscalSchema = z.object({
-  // Dados da Nota Fiscal
+  // Current tab
+  currentTab: z.enum(['chave', 'xml', 'lote', 'manual']).default('chave'),
+  
+  // Nota Fiscal dados
   chaveNF: z.string().optional(),
-  dataHoraEmissao: z.string().optional(),
   numeroNF: z.string().optional(),
   serieNF: z.string().optional(),
+  dataHoraEmissao: z.string().optional(),
   tipoOperacao: z.string().optional(),
   
-  // Dados do Emitente
+  // Emitente
   emitenteCNPJ: z.string().optional(),
   emitenteRazaoSocial: z.string().optional(),
   emitenteTelefone: z.string().optional(),
@@ -20,7 +24,7 @@ export const notaFiscalSchema = z.object({
   emitenteNumero: z.string().optional(),
   emitenteCEP: z.string().optional(),
   
-  // Dados do Destinatário
+  // Destinatário
   destinatarioCNPJ: z.string().optional(),
   destinatarioRazaoSocial: z.string().optional(),
   destinatarioTelefone: z.string().optional(),
@@ -31,36 +35,43 @@ export const notaFiscalSchema = z.object({
   destinatarioNumero: z.string().optional(),
   destinatarioCEP: z.string().optional(),
   
-  // Totais da Nota
+  // Valores
   valorTotal: z.string().optional(),
   pesoTotalBruto: z.string().optional(),
-  volumesTotal: z.string().optional(),
-  numeroPedido: z.string().optional(),
-  informacoesComplementares: z.string().optional(),
   
-  // Campos adicionais
-  entregueAoFornecedor: z.string().optional(),
+  // Informações adicionais
+  informacoesComplementares: z.string().optional(),
+  numeroPedido: z.string().optional(),
+  volumesTotal: z.string().optional(),
   fobCif: z.string().optional(),
+  
+  // Informações transporte
   numeroColeta: z.string().optional(),
   valorColeta: z.string().optional(),
   numeroCTeColeta: z.string().optional(),
   numeroCTeViagem: z.string().optional(),
+  dataEmbarque: z.string().optional(),
+  
+  // Informações complementares
   dataHoraEntrada: z.string().optional(),
   statusEmbarque: z.string().optional(),
-  quimico: z.string().optional(),
-  fracionado: z.string().optional(),
   responsavelEntrega: z.string().optional(),
+  quimico: z.boolean().default(false),
+  fracionado: z.boolean().default(false),
   motorista: z.string().optional(),
-  dataEmbarque: z.string().optional(),
+  tempoArmazenamento: z.string().optional(),
 });
 
+// Create a type from the schema
 export type NotaFiscalSchemaType = z.infer<typeof notaFiscalSchema>;
 
+// Define default values
 export const defaultValues: NotaFiscalSchemaType = {
+  currentTab: 'chave',
   chaveNF: '',
-  dataHoraEmissao: '',
   numeroNF: '',
   serieNF: '',
+  dataHoraEmissao: '',
   tipoOperacao: '',
   emitenteCNPJ: '',
   emitenteRazaoSocial: '',
@@ -82,20 +93,20 @@ export const defaultValues: NotaFiscalSchemaType = {
   destinatarioCEP: '',
   valorTotal: '',
   pesoTotalBruto: '',
-  volumesTotal: '',
-  numeroPedido: '',
   informacoesComplementares: '',
-  entregueAoFornecedor: '',
+  numeroPedido: '',
+  volumesTotal: '',
   fobCif: '',
   numeroColeta: '',
   valorColeta: '',
   numeroCTeColeta: '',
   numeroCTeViagem: '',
+  dataEmbarque: '',
   dataHoraEntrada: '',
   statusEmbarque: '',
-  quimico: '',
-  fracionado: '',
   responsavelEntrega: '',
+  quimico: false,
+  fracionado: false,
   motorista: '',
-  dataEmbarque: '',
+  tempoArmazenamento: '',
 };

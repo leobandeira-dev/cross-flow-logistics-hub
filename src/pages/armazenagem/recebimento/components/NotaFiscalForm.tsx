@@ -14,6 +14,7 @@ import { notaFiscalSchema, defaultValues, NotaFiscalSchemaType } from './forms/n
 // Import form sections
 import ImportarPorChave from './forms/ImportarPorChave';
 import ImportarViaXML from './forms/ImportarViaXML';
+import ImportarXMLEmLote from './forms/ImportarXMLEmLote';
 import CadastroManual from './forms/CadastroManual';
 import DadosNotaFiscal from './forms/DadosNotaFiscal';
 import DadosEmitente from './forms/DadosEmitente';
@@ -31,7 +32,7 @@ const NotaFiscalForm: React.FC = () => {
     defaultValues,
   });
   
-  const { handleSubmit, handleFileUpload, handleKeySearch, isLoading } = useNotaFiscalForm();
+  const { handleSubmit, handleFileUpload, handleKeySearch, handleBatchImport, isLoading } = useNotaFiscalForm();
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   
@@ -62,9 +63,10 @@ const NotaFiscalForm: React.FC = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Tabs defaultValue="chave" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="chave">Importar por Chave de Acesso</TabsTrigger>
-              <TabsTrigger value="xml">Importar via XML</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="chave">Importar por Chave</TabsTrigger>
+              <TabsTrigger value="xml">Importar XML</TabsTrigger>
+              <TabsTrigger value="lote">Importar XML em Lote</TabsTrigger>
               <TabsTrigger value="manual">Cadastro Manual</TabsTrigger>
             </TabsList>
             
@@ -82,18 +84,29 @@ const NotaFiscalForm: React.FC = () => {
               />
             </TabsContent>
             
+            <TabsContent value="lote" className="space-y-4 py-4">
+              <ImportarXMLEmLote 
+                onBatchImport={(files) => handleBatchImport(files, form.setValue)}
+                isLoading={isLoading}
+              />
+            </TabsContent>
+            
             <TabsContent value="manual" className="py-4">
               <CadastroManual />
             </TabsContent>
           </Tabs>
 
-          {/* Formulário de dados da nota fiscal */}
-          <DadosNotaFiscal />
-          <DadosEmitente />
-          <DadosDestinatario />
-          <InformacoesAdicionais />
-          <InformacoesTransporte />
-          <InformacoesComplementares />
+          {/* Formulário de dados da nota fiscal - only shown for non-batch tabs */}
+          {form.watch('currentTab') !== 'lote' && (
+            <>
+              <DadosNotaFiscal />
+              <DadosEmitente />
+              <DadosDestinatario />
+              <InformacoesAdicionais />
+              <InformacoesTransporte />
+              <InformacoesComplementares />
+            </>
+          )}
 
           <div className="flex justify-end gap-2">
             <Button 
