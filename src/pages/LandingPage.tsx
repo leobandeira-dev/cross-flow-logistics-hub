@@ -1,111 +1,68 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  LogIn, 
-  Truck, 
-  Package, 
-  ClipboardList, 
-  BarChart4, 
-  Users, 
-  ShieldCheck, 
-  Warehouse,
-  FileCheck,
-  Headphones,
-  BadgeCheck,
-  Headset
-} from 'lucide-react';
+import { LogIn, Truck, Package, ClipboardList, BarChart4, Users, ShieldCheck, Warehouse, FileCheck, Headphones, BadgeCheck, Headset } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
 const LandingPage = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
 
   // Define the sales packages
-  const salesPackages = [
-    {
-      name: "Básico",
-      price: "R$ 599/mês",
-      description: "Para pequenas operações logísticas",
-      features: [
-        "Gestão de Coletas",
-        "Cadastros Básicos",
-        "Relatórios Essenciais",
-        "1 Usuário"
-      ],
-      highlighted: false
-    },
-    {
-      name: "Profissional",
-      price: "R$ 1.299/mês",
-      description: "Para operações em crescimento",
-      features: [
-        "Tudo do Básico",
-        "Armazenagem Completa",
-        "Carregamento",
-        "SAC",
-        "5 Usuários"
-      ],
-      highlighted: true
-    },
-    {
-      name: "Empresarial",
-      price: "R$ 2.499/mês",
-      description: "Para operações complexas",
-      features: [
-        "Tudo do Profissional",
-        "Expedição Completa",
-        "Faturamento Automático",
-        "API de Integração",
-        "Usuários Ilimitados"
-      ],
-      highlighted: false
-    }
-  ];
+  const salesPackages = [{
+    name: "Básico",
+    price: "R$ 599/mês",
+    description: "Para pequenas operações logísticas",
+    features: ["Gestão de Coletas", "Cadastros Básicos", "Relatórios Essenciais", "1 Usuário"],
+    highlighted: false
+  }, {
+    name: "Profissional",
+    price: "R$ 1.299/mês",
+    description: "Para operações em crescimento",
+    features: ["Tudo do Básico", "Armazenagem Completa", "Carregamento", "SAC", "5 Usuários"],
+    highlighted: true
+  }, {
+    name: "Empresarial",
+    price: "R$ 2.499/mês",
+    description: "Para operações complexas",
+    features: ["Tudo do Profissional", "Expedição Completa", "Faturamento Automático", "API de Integração", "Usuários Ilimitados"],
+    highlighted: false
+  }];
 
   // Define the module features
-  const moduleFeatures = [
-    {
-      title: "Gestão de Armazenagem",
-      description: "Controle completo do estoque, movimentação interna e rastreamento de volumes",
-      icon: Warehouse,
-      features: ["Recebimento de Fornecedores", "Movimentações Internas", "Endereçamento Inteligente", "Unitização de Paletes"]
-    },
-    {
-      title: "Controle de Carregamento",
-      description: "Planejamento e execução de carregamentos com rastreabilidade total",
-      icon: Truck,
-      features: ["Ordens de Carregamento", "Conferência de Carga", "Checklist de Veículos", "Endereçamento em Caminhão"]
-    },
-    {
-      title: "Gestão de Coletas",
-      description: "Controle de solicitações de coleta e alocação de cargas e motoristas",
-      icon: ClipboardList,
-      features: ["Solicitações de Coleta", "Aprovações e Workflow", "Alocação de Cargas", "Roteirização Inteligente"]
-    },
-    {
-      title: "Expedição e Faturamento",
-      description: "Emissão de documentos e gestão de faturamento integrado",
-      icon: FileCheck,
-      features: ["Emissão de Documentos", "Faturamento Automático", "Controle de Remessas", "Gestão de Notas Fiscais"]
-    },
-    {
-      title: "Relatórios Gerenciais",
-      description: "Insights e análises para tomada de decisão estratégica",
-      icon: BarChart4,
-      features: ["Dashboards Personalizados", "Performance de Motoristas", "Volume por Período", "Análise de Ocorrências"]
-    },
-    {
-      title: "Suporte ao Cliente",
-      description: "Gestão completa de ocorrências e atendimentos",
-      icon: Headset,
-      features: ["Registro de Ocorrências", "Tratamento de Chamados", "Notificações Automáticas", "Histórico de Atendimentos"]
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+  const moduleFeatures = [{
+    title: "Gestão de Armazenagem",
+    description: "Controle completo do estoque, movimentação interna e rastreamento de volumes",
+    icon: Warehouse,
+    features: ["Recebimento de Fornecedores", "Movimentações Internas", "Endereçamento Inteligente", "Unitização de Paletes"]
+  }, {
+    title: "Controle de Carregamento",
+    description: "Planejamento e execução de carregamentos com rastreabilidade total",
+    icon: Truck,
+    features: ["Ordens de Carregamento", "Conferência de Carga", "Checklist de Veículos", "Endereçamento em Caminhão"]
+  }, {
+    title: "Gestão de Coletas",
+    description: "Controle de solicitações de coleta e alocação de cargas e motoristas",
+    icon: ClipboardList,
+    features: ["Solicitações de Coleta", "Aprovações e Workflow", "Alocação de Cargas", "Roteirização Inteligente"]
+  }, {
+    title: "Expedição e Faturamento",
+    description: "Emissão de documentos e gestão de faturamento integrado",
+    icon: FileCheck,
+    features: ["Emissão de Documentos", "Faturamento Automático", "Controle de Remessas", "Gestão de Notas Fiscais"]
+  }, {
+    title: "Relatórios Gerenciais",
+    description: "Insights e análises para tomada de decisão estratégica",
+    icon: BarChart4,
+    features: ["Dashboards Personalizados", "Performance de Motoristas", "Volume por Período", "Análise de Ocorrências"]
+  }, {
+    title: "Suporte ao Cliente",
+    description: "Gestão completa de ocorrências e atendimentos",
+    icon: Headset,
+    features: ["Registro de Ocorrências", "Tratamento de Chamados", "Notificações Automáticas", "Histórico de Atendimentos"]
+  }];
+  return <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,19 +76,15 @@ const LandingPage = () => {
                 <Link to="#modules" className="text-gray-600 hover:text-primary">Módulos</Link>
                 <Link to="#pricing" className="text-gray-600 hover:text-primary">Planos</Link>
               </div>
-              {user ? (
-                <Button asChild>
+              {user ? <Button asChild>
                   <Link to="/dashboard">
                     Acessar Sistema <LogIn className="ml-2 h-4 w-4" />
                   </Link>
-                </Button>
-              ) : (
-                <Button asChild>
+                </Button> : <Button asChild>
                   <Link to="/auth">
                     Login / Cadastro <LogIn className="ml-2 h-4 w-4" />
                   </Link>
-                </Button>
-              )}
+                </Button>}
             </div>
           </div>
         </div>
@@ -158,11 +111,7 @@ const LandingPage = () => {
             <div className="mt-12 lg:mt-0 lg:col-span-6">
               <div className="flex justify-center items-center h-full">
                 <div className="bg-gray-100 p-8 rounded-xl shadow-lg">
-                  <img
-                    className="w-full object-cover rounded-lg"
-                    src="/placeholder.svg"
-                    alt="Dashboard illustration"
-                  />
+                  <img className="w-full object-cover rounded-lg" alt="Dashboard illustration" src="/lovable-uploads/2720fc5f-47f0-48b5-9b76-972ae900cd75.png" />
                 </div>
               </div>
             </div>
@@ -225,8 +174,7 @@ const LandingPage = () => {
 
           <div className="mt-16">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {moduleFeatures.map((feature) => (
-                <div key={feature.title} className="bg-white p-6 rounded-lg shadow-md">
+              {moduleFeatures.map(feature => <div key={feature.title} className="bg-white p-6 rounded-lg shadow-md">
                   <div className="p-3 inline-flex items-center justify-center rounded-md bg-primary-100">
                     <feature.icon className="h-6 w-6 text-primary" />
                   </div>
@@ -235,15 +183,12 @@ const LandingPage = () => {
                     {feature.description}
                   </p>
                   <ul className="mt-4 space-y-2">
-                    {feature.features.map((item, index) => (
-                      <li key={index} className="flex items-center text-sm text-gray-500">
+                    {feature.features.map((item, index) => <li key={index} className="flex items-center text-sm text-gray-500">
                         <span className="mr-2 h-1.5 w-1.5 rounded-full bg-primary"></span>
                         {item}
-                      </li>
-                    ))}
+                      </li>)}
                   </ul>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </div>
@@ -457,16 +402,10 @@ const LandingPage = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {salesPackages.map((pkg, index) => (
-              <Card 
-                key={index} 
-                className={`relative overflow-hidden ${pkg.highlighted ? 'border-primary shadow-lg ring-2 ring-primary' : ''}`}
-              >
-                {pkg.highlighted && (
-                  <div className="absolute top-0 right-0 -mt-2 -mr-2 bg-primary text-white text-xs font-bold py-1 px-3 rounded-bl-lg">
+            {salesPackages.map((pkg, index) => <Card key={index} className={`relative overflow-hidden ${pkg.highlighted ? 'border-primary shadow-lg ring-2 ring-primary' : ''}`}>
+                {pkg.highlighted && <div className="absolute top-0 right-0 -mt-2 -mr-2 bg-primary text-white text-xs font-bold py-1 px-3 rounded-bl-lg">
                     Mais popular
-                  </div>
-                )}
+                  </div>}
                 <CardHeader>
                   <CardTitle className="text-2xl">{pkg.name}</CardTitle>
                   <CardDescription>{pkg.description}</CardDescription>
@@ -476,21 +415,16 @@ const LandingPage = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
-                    {pkg.features.map((feature, i) => (
-                      <li key={i} className="flex items-center">
+                    {pkg.features.map((feature, i) => <li key={i} className="flex items-center">
                         <BadgeCheck className="h-5 w-5 text-green-500 mr-2" />
                         <span>{feature}</span>
-                      </li>
-                    ))}
+                      </li>)}
                   </ul>
-                  <Button 
-                    className={`w-full mt-6 ${pkg.highlighted ? 'bg-primary hover:bg-primary/90' : 'bg-gray-800 hover:bg-gray-700'}`}
-                  >
+                  <Button className={`w-full mt-6 ${pkg.highlighted ? 'bg-primary hover:bg-primary/90' : 'bg-gray-800 hover:bg-gray-700'}`}>
                     Escolher Plano
                   </Button>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </div>
@@ -555,8 +489,6 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default LandingPage;
