@@ -1,5 +1,7 @@
 
-// Base/common types used across the system
+// Base common types used across the system
+
+// JSON type for database compatibility
 export type Json =
   | string
   | number

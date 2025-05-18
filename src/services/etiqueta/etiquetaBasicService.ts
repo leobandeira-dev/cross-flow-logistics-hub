@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Etiqueta } from "@/types/supabase.types";
+import { Etiqueta } from "@/types/supabase/warehouse.types"; // Import directly from warehouse.types
 
 /**
  * Service for basic etiqueta operations
@@ -77,11 +77,12 @@ const etiquetaBasicService = {
         codigo,
         tipo: etiqueta.tipo || 'volume',
         data_geracao: new Date().toISOString(),
+        // Use type-safe optional properties
         altura: etiqueta.altura,
         largura: etiqueta.largura,
         comprimento: etiqueta.comprimento,
         peso: etiqueta.peso,
-        fragil: etiqueta.fragil || false,
+        fragil: etiqueta.fragil ?? false,
         nota_fiscal_id: etiqueta.nota_fiscal_id,
         etiqueta_mae_id: etiqueta.etiqueta_mae_id,
         status: 'gerada'

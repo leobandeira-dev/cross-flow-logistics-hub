@@ -17,6 +17,8 @@ export interface Etiqueta {
   nota_fiscal_id?: string;
   etiqueta_mae_id?: string;
   status: string;
+  volume_numero?: number;
+  total_volumes?: number;
   created_at: string;
   updated_at: string;
   
@@ -103,6 +105,7 @@ export interface EnderecamentoCaminhao {
   posicao: string;
   ordem?: number;
   created_at: string;
+  updated_at?: string; // Made it optional to match shipping.types
   
   // Relationships
   etiqueta?: Etiqueta;

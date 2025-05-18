@@ -6,7 +6,15 @@ export * from './user.types';
 export * from './transport.types';
 export * from './coleta.types';
 export * from './fiscal.types';
-export * from './shipping.types';
 export * from './warehouse.types';
 export * from './occurrence.types';
 export * from './database.types';
+
+// Export shipping types with proper naming to avoid conflicts
+export {
+  OrdemCarregamento,
+  ItemCarregamento,
+  Carregamento,
+  EnderecamentoCaminhaoShipping as EnderecamentoCaminhao,
+  EtiquetaShipping as Etiqueta
+} from './shipping.types';
