@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, X } from 'lucide-react';
-import { VolumeItem, calcularVolume, calcularPesoCubado, generateVolumeId } from '../utils/volumeCalculations';
+import { VolumeItem, calcularVolume, calcularPesoCubado, generateVolumeId, formatarNumero } from '../utils/volumeCalculations';
 
 interface VolumesInputFormProps {
   volumes: VolumeItem[];
@@ -26,18 +26,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
   });
 
   const handleVolumeChange = (field: keyof VolumeItem, value: any) => {
-    setNovoVolume(prev => {
-      const updated = { ...prev, [field]: value };
-      
-      // Recalcular o volume e peso cubado
-      if (['altura', 'largura', 'comprimento'].includes(field)) {
-        const volume = calcularVolume(updated);
-        const pesoCubado = calcularPesoCubado(volume);
-        return { ...updated };
-      }
-      
-      return updated;
-    });
+    setNovoVolume(prev => ({ ...prev, [field]: value }));
   };
 
   const adicionarVolume = () => {
@@ -69,6 +58,18 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
     onChange(volumes.filter((_, i) => i !== indexToRemove));
   };
 
+  // Calcular totais
+  let totalVolumes = 0;
+  let totalPeso = 0;
+  let totalM3 = 0;
+
+  volumes.forEach(vol => {
+    const volumeCalculado = calcularVolume(vol);
+    totalVolumes += vol.quantidade;
+    totalPeso += vol.peso * vol.quantidade;
+    totalM3 += volumeCalculado;
+  });
+
   return (
     <div className="space-y-4">
       {volumes.length > 0 && (
@@ -82,14 +83,12 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
                 <th className="p-2 text-left">Peso (kg)</th>
                 <th className="p-2 text-left">Qtd</th>
                 <th className="p-2 text-left">Volume (m³)</th>
-                <th className="p-2 text-left">Peso Cubado (kg)</th>
                 <th className="p-2"></th>
               </tr>
             </thead>
             <tbody>
               {volumes.map((volume, index) => {
                 const volumeCalculado = calcularVolume(volume);
-                const pesoCubado = calcularPesoCubado(volumeCalculado);
                 
                 return (
                   <tr key={volume.id || index} className="border-t">
@@ -98,8 +97,7 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
                     <td className="p-2">{volume.comprimento.toFixed(2)}</td>
                     <td className="p-2">{volume.peso.toFixed(2)}</td>
                     <td className="p-2">{volume.quantidade}</td>
-                    <td className="p-2">{volumeCalculado.toFixed(3)}</td>
-                    <td className="p-2">{pesoCubado.toFixed(2)}</td>
+                    <td className="p-2">{formatarNumero(volumeCalculado)}</td>
                     <td className="p-2">
                       <Button 
                         type="button" 
@@ -115,6 +113,16 @@ const VolumesInputForm: React.FC<VolumesInputFormProps> = ({
                   </tr>
                 );
               })}
+              
+              {/* Totals row */}
+              {volumes.length > 0 && (
+                <tr className="border-t bg-gray-50">
+                  <td colSpan={4} className="p-2 text-right font-medium">Totais:</td>
+                  <td className="p-2 font-semibold">{totalVolumes}</td>
+                  <td className="p-2 font-semibold">{formatarNumero(totalM3)}</td>
+                  <td className="p-2"></td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -189,75 +189,79 @@ const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
                 <div className="col-span-1"></div>
               </div>
               
-              {nf.volumes.map((volume, idx) => (
-                <div key={volume.id} className="grid grid-cols-8 gap-2 mb-2">
-                  <div className="col-span-1">
-                    <Input
-                      value={idx + 1}
-                      readOnly
-                      className="h-8 text-xs text-center"
-                    />
+              {nf.volumes.map((volume, idx) => {
+                const volumeCalculado = calcularVolume(volume);
+                
+                return (
+                  <div key={volume.id} className="grid grid-cols-8 gap-2 mb-2">
+                    <div className="col-span-1">
+                      <Input
+                        value={idx + 1}
+                        readOnly
+                        className="h-8 text-xs text-center"
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <Input
+                        value={volume.altura}
+                        onChange={(e) => handleUpdateVolume(volume.id, 'altura', e.target.value)}
+                        className="h-8 text-xs"
+                        disabled={isReadOnly}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <Input
+                        value={volume.largura}
+                        onChange={(e) => handleUpdateVolume(volume.id, 'largura', e.target.value)}
+                        className="h-8 text-xs"
+                        disabled={isReadOnly}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <Input
+                        value={volume.comprimento}
+                        onChange={(e) => handleUpdateVolume(volume.id, 'comprimento', e.target.value)}
+                        className="h-8 text-xs"
+                        disabled={isReadOnly}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <Input
+                        value={volume.peso}
+                        onChange={(e) => handleUpdateVolume(volume.id, 'peso', e.target.value)}
+                        className="h-8 text-xs"
+                        disabled={isReadOnly}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <Input
+                        value={volume.quantidade}
+                        onChange={(e) => handleUpdateVolume(volume.id, 'quantidade', e.target.value)}
+                        className="h-8 text-xs"
+                        disabled={isReadOnly}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <Input
+                        value={formatarNumero(volumeCalculado)}
+                        readOnly
+                        className="h-8 text-xs text-right"
+                      />
+                    </div>
+                    <div className="col-span-1 flex items-center">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleRemoveVolume(volume.id)} 
+                        className="h-8 px-2" 
+                        disabled={isReadOnly}
+                      >
+                        <Trash className="h-3 w-3 text-red-500" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="col-span-1">
-                    <Input
-                      value={volume.altura}
-                      onChange={(e) => handleUpdateVolume(volume.id, 'altura', e.target.value)}
-                      className="h-8 text-xs"
-                      disabled={isReadOnly}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <Input
-                      value={volume.largura}
-                      onChange={(e) => handleUpdateVolume(volume.id, 'largura', e.target.value)}
-                      className="h-8 text-xs"
-                      disabled={isReadOnly}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <Input
-                      value={volume.comprimento}
-                      onChange={(e) => handleUpdateVolume(volume.id, 'comprimento', e.target.value)}
-                      className="h-8 text-xs"
-                      disabled={isReadOnly}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <Input
-                      value={volume.peso}
-                      onChange={(e) => handleUpdateVolume(volume.id, 'peso', e.target.value)}
-                      className="h-8 text-xs"
-                      disabled={isReadOnly}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <Input
-                      value={volume.quantidade}
-                      onChange={(e) => handleUpdateVolume(volume.id, 'quantidade', e.target.value)}
-                      className="h-8 text-xs"
-                      disabled={isReadOnly}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <Input
-                      value={formatarNumero(calcularVolume(volume))}
-                      readOnly
-                      className="h-8 text-xs text-right"
-                    />
-                  </div>
-                  <div className="col-span-1 flex items-center">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => handleRemoveVolume(volume.id)} 
-                      className="h-8 px-2" 
-                      disabled={isReadOnly}
-                    >
-                      <Trash className="h-3 w-3 text-red-500" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               
               {/* Totals */}
               <div className="grid grid-cols-8 gap-2 mt-4 pt-2 border-t border-gray-200">
@@ -271,13 +275,12 @@ const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
                 <div className="col-span-1"></div>
               </div>
               
-              <div className="grid grid-cols-5 gap-2 mt-4 text-sm">
-                <div className="col-span-2 flex flex-col">
-                  <span className="font-medium">Peso Real: <span className="font-semibold">{formatarNumero(totais.pesoTotal)} kg</span></span>
+              <div className="grid grid-cols-2 gap-2 mt-4 text-sm">
+                <div className="col-span-1 flex flex-col">
+                  <span className="font-medium">Peso Total: <span className="font-semibold">{formatarNumero(totais.pesoTotal)} kg</span></span>
                 </div>
-                <div className="col-span-3 flex flex-col">
-                  <span className="font-medium">Peso Cubado: <span className="font-semibold">{formatarNumero(totais.pesoCubadoTotal)} kg</span></span>
-                  <span className="text-xs text-muted-foreground">(Cálculo: {formatarNumero(totais.volumeTotal)} m³ × 300)</span>
+                <div className="col-span-1 flex flex-col">
+                  <span className="font-medium">Volume Total: <span className="font-semibold">{formatarNumero(totais.volumeTotal)} m³</span></span>
                 </div>
               </div>
             </div>

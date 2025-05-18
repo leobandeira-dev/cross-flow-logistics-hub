@@ -2,6 +2,14 @@
 import React from 'react';
 import { NotaFiscalVolume, calcularTotaisColeta, formatarNumero, formatarMoeda } from '../../utils/volumeCalculations';
 import { Card, CardContent } from '@/components/ui/card';
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow 
+} from '@/components/ui/table';
 
 interface NotasFiscaisSummaryProps {
   notasFiscais: NotaFiscalVolume[];
@@ -28,6 +36,39 @@ const NotasFiscaisSummary: React.FC<NotasFiscaisSummaryProps> = ({ notasFiscais 
     <Card className="mt-6">
       <CardContent className="pt-6">
         <h3 className="text-lg font-semibold mb-4">Resumo da Coleta</h3>
+        
+        {/* Table showing each NF with its totals */}
+        <div className="overflow-auto mb-6">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[120px]">Nota Fiscal</TableHead>
+                <TableHead>Remetente</TableHead>
+                <TableHead>Destinatário</TableHead>
+                <TableHead className="text-right">Qtd Volumes</TableHead>
+                <TableHead className="text-right">Peso Total (kg)</TableHead>
+                <TableHead className="text-right">Volume Total (m³)</TableHead>
+                <TableHead className="text-right">Valor NF (R$)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {notasFiscais.map((nf, index) => {
+                const nfTotais = calcularTotaisColeta([nf]);
+                return (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{nf.numeroNF || `NF ${index + 1}`}</TableCell>
+                    <TableCell>{nf.remetente || '-'}</TableCell>
+                    <TableCell>{nf.destinatario || '-'}</TableCell>
+                    <TableCell className="text-right">{nfTotais.qtdVolumes}</TableCell>
+                    <TableCell className="text-right">{formatarNumero(nfTotais.pesoTotal)}</TableCell>
+                    <TableCell className="text-right">{formatarNumero(nfTotais.volumeTotal)}</TableCell>
+                    <TableCell className="text-right">{formatarMoeda(nf.valorTotal || 0)}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
