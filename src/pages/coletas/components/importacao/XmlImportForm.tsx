@@ -99,15 +99,21 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
         const file = acceptedFiles[0];
         
         try {
+          console.log("Trying to parse XML file:", file.name);
           const xmlData = await parseXmlFile(file);
+          
           if (xmlData) {
+            console.log("XML parsed successfully:", file.name);
+            console.log("Extracting data from XML...");
+            
             const extractedData = extractDataFromXml(xmlData);
+            console.log("Extracted data:", extractedData);
             
             // Create nota fiscal with extracted data
             const notaFiscal: NotaFiscalVolume = {
               numeroNF: extractedData.numeroNF || '',
               chaveNF: extractedData.chaveNF || '',
-              dataEmissao: extractedData.dataHoraEmissao || new Date().toISOString().split('T')[0],
+              dataEmissao: extractedData.dataHoraEmissao?.split('T')[0] || new Date().toISOString().split('T')[0],
               volumes: [],
               remetente: extractedData.emitenteRazaoSocial || '',
               emitenteCNPJ: extractedData.emitenteCNPJ || '',
@@ -119,6 +125,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             // Add volume if volumesTotal is present
             if (extractedData.volumesTotal && !isNaN(parseInt(extractedData.volumesTotal))) {
               const quantidade = parseInt(extractedData.volumesTotal);
+              const peso = parseFloat(extractedData.pesoTotalBruto || '0');
               
               // Create a default volume with quantity from XML
               notaFiscal.volumes = [{
@@ -127,7 +134,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
                 largura: 30, // Default width
                 comprimento: 30, // Default length
                 quantidade: quantidade,
-                peso: parseFloat(extractedData.pesoTotalBruto || '0') / quantidade, // Divide total weight by quantity
+                peso: peso > 0 ? peso / quantidade : 0, // Divide total weight by quantity
               }];
             } else {
               // Create at least one default volume if no volume information
@@ -144,8 +151,8 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             // Create remetente info
             const remetenteInfo = {
               cnpj: extractedData.emitenteCNPJ || '',
-              razaoSocial: extractedData.emitenteRazaoSocial || '',
               nome: extractedData.emitenteRazaoSocial || '',
+              razaoSocial: extractedData.emitenteRazaoSocial || '',
               enderecoFormatado: `${extractedData.emitenteEndereco || ''}, ${extractedData.emitenteNumero || ''} - ${extractedData.emitenteBairro || ''}, ${extractedData.emitenteCidade || ''} - ${extractedData.emitenteUF || ''}`,
               endereco: {
                 logradouro: extractedData.emitenteEndereco || '',
@@ -161,8 +168,8 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
             // Create destinatario info
             const destinatarioInfo = {
               cnpj: extractedData.destinatarioCNPJ || '',
-              razaoSocial: extractedData.destinatarioRazaoSocial || '',
               nome: extractedData.destinatarioRazaoSocial || '',
+              razaoSocial: extractedData.destinatarioRazaoSocial || '',
               enderecoFormatado: `${extractedData.destinatarioEndereco || ''}, ${extractedData.destinatarioNumero || ''} - ${extractedData.destinatarioBairro || ''}, ${extractedData.destinatarioCidade || ''} - ${extractedData.destinatarioUF || ''}`,
               endereco: {
                 logradouro: extractedData.destinatarioEndereco || '',
@@ -175,170 +182,60 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
               }
             };
             
+            console.log("Calling onImportSuccess with:", [notaFiscal], remetenteInfo, destinatarioInfo);
             onImportSuccess([notaFiscal], remetenteInfo, destinatarioInfo);
             
             toast({
               title: "XML importado",
               description: `Nota fiscal ${notaFiscal.numeroNF} importada com sucesso.`
             });
+          } else {
+            console.error("Failed to parse XML data");
+            throw new Error("Failed to parse XML data");
           }
         } catch (error) {
           console.error("Erro ao processar XML:", error);
           // Try with the old method as fallback
-          const result = await extractNFInfoFromXML(file);
-          
-          if (result && result.nfInfo) {
-            const notaFiscal: NotaFiscalVolume = {
-              numeroNF: result.nfInfo.numeroNF || '',
-              chaveNF: result.nfInfo.chaveNF || '',
-              dataEmissao: result.nfInfo.dataEmissao || new Date().toISOString().split('T')[0],
-              volumes: convertVolumesToVolumeItems(result.nfInfo.volumes || []),
-              remetente: result.remetente?.razaoSocial || '',
-              emitenteCNPJ: result.remetente?.cnpj || '',
-              destinatario: result.destinatario?.razaoSocial || '',
-              valorTotal: result.nfInfo.valorTotal || 0,
-              pesoTotal: result.nfInfo.pesoTotal || 0
-            };
+          console.log("Trying with fallback method...");
+          try {
+            const result = await extractNFInfoFromXML(file);
             
-            onImportSuccess([notaFiscal], result.remetente, result.destinatario);
-            
+            if (result && result.nfInfo) {
+              const notaFiscal: NotaFiscalVolume = {
+                numeroNF: result.nfInfo.numeroNF || '',
+                chaveNF: result.nfInfo.chaveNF || '',
+                dataEmissao: result.nfInfo.dataEmissao || new Date().toISOString().split('T')[0],
+                volumes: convertVolumesToVolumeItems(result.nfInfo.volumes || []),
+                remetente: result.remetente?.razaoSocial || '',
+                emitenteCNPJ: result.remetente?.cnpj || '',
+                destinatario: result.destinatario?.razaoSocial || '',
+                valorTotal: result.nfInfo.valorTotal || 0,
+                pesoTotal: result.nfInfo.pesoTotal || 0
+              };
+              
+              console.log("Fallback successful:", notaFiscal);
+              onImportSuccess([notaFiscal], result.remetente, result.destinatario);
+              
+              toast({
+                title: "XML importado",
+                description: `Nota fiscal ${result.nfInfo.numeroNF} importada com sucesso.`
+              });
+            } else {
+              throw new Error("Failed to extract data with fallback method");
+            }
+          } catch (fallbackError) {
+            console.error("Erro no método fallback:", fallbackError);
             toast({
-              title: "XML importado",
-              description: `Nota fiscal ${result.nfInfo.numeroNF} importada com sucesso.`
+              title: "Erro ao processar XML",
+              description: "Não foi possível ler o arquivo XML. Verifique se o formato é válido.",
+              variant: "destructive"
             });
           }
         }
       } else {
         // Handle multiple XML files
-        const extractedDataList = [];
-        let firstEmitenteCNPJ = "";
-        let hasMultipleRemetentes = false;
-        
-        // Process each XML file with the extractor from armazenagem/recebimento
-        for (const file of acceptedFiles) {
-          try {
-            const xmlData = await parseXmlFile(file);
-            if (xmlData) {
-              const extractedData = extractDataFromXml(xmlData);
-              
-              // Check if we already have a sender to compare
-              if (firstEmitenteCNPJ === "") {
-                firstEmitenteCNPJ = extractedData.emitenteCNPJ || "";
-              } else if (extractedData.emitenteCNPJ && extractedData.emitenteCNPJ !== firstEmitenteCNPJ) {
-                // Found different sender
-                hasMultipleRemetentes = true;
-                break;
-              }
-              
-              extractedDataList.push(extractedData);
-            }
-          } catch (error) {
-            console.error(`Error processing XML file ${file.name}:`, error);
-          }
-        }
-        
-        // Check if multiple remetentes were found
-        if (hasMultipleRemetentes) {
-          toast({
-            title: "Erro na importação",
-            description: "Você deve cadastrar uma coleta por remetente",
-            variant: "destructive"
-          });
-          setIsLoading(false);
-          return;
-        }
-        
-        // Check if any data was extracted
-        if (extractedDataList.length > 0) {
-          // Create notasFiscais
-          const notasFiscais: NotaFiscalVolume[] = extractedDataList.map(data => {
-            const nf: NotaFiscalVolume = {
-              numeroNF: data.numeroNF || '',
-              chaveNF: data.chaveNF || '',
-              dataEmissao: data.dataHoraEmissao || new Date().toISOString().split('T')[0],
-              volumes: [],
-              remetente: data.emitenteRazaoSocial || '',
-              emitenteCNPJ: data.emitenteCNPJ || '',
-              destinatario: data.destinatarioRazaoSocial || '',
-              valorTotal: parseFloat(data.valorTotal || '0'),
-              pesoTotal: parseFloat(data.pesoTotalBruto || '0')
-            };
-            
-            // Add volume if volumesTotal is present
-            if (data.volumesTotal && !isNaN(parseInt(data.volumesTotal))) {
-              const quantidade = parseInt(data.volumesTotal);
-              
-              // Create a default volume with quantity from XML
-              nf.volumes = [{
-                id: generateVolumeId(),
-                altura: 30, // Default height
-                largura: 30, // Default width
-                comprimento: 30, // Default length
-                quantidade: quantidade,
-                peso: parseFloat(data.pesoTotalBruto || '0') / quantidade, // Divide total weight by quantity
-                cubicVolume: 30 * 30 * 30 * quantidade // Calculate cubic volume
-              }];
-            } else {
-              // Create at least one default volume if no volume information
-              nf.volumes = [{
-                id: generateVolumeId(),
-                altura: 30,
-                largura: 30,
-                comprimento: 30,
-                quantidade: 1,
-                peso: parseFloat(data.pesoTotalBruto || '0'),
-                cubicVolume: 30 * 30 * 30 // Calculate cubic volume
-              }];
-            }
-            
-            return nf;
-          });
-          
-          // Get sender and recipient info from first note
-          const firstData = extractedDataList[0];
-          
-          // Create remetente info
-          const remetenteInfo = {
-            cnpj: firstData.emitenteCNPJ || '',
-            razaoSocial: firstData.emitenteRazaoSocial || '',
-            nome: firstData.emitenteRazaoSocial || '',
-            enderecoFormatado: `${firstData.emitenteEndereco || ''}, ${firstData.emitenteNumero || ''} - ${firstData.emitenteBairro || ''}, ${firstData.emitenteCidade || ''} - ${firstData.emitenteUF || ''}`,
-            endereco: {
-              logradouro: firstData.emitenteEndereco || '',
-              numero: firstData.emitenteNumero || '',
-              complemento: firstData.emitenteComplemento || '',
-              bairro: firstData.emitenteBairro || '',
-              cidade: firstData.emitenteCidade || '',
-              uf: firstData.emitenteUF || '',
-              cep: firstData.emitenteCEP || '',
-            }
-          };
-          
-          // Create destinatario info - this can vary
-          const destinatarioInfo = {
-            cnpj: firstData.destinatarioCNPJ || '',
-            razaoSocial: firstData.destinatarioRazaoSocial || '',
-            nome: firstData.destinatarioRazaoSocial || '',
-            enderecoFormatado: `${firstData.destinatarioEndereco || ''}, ${firstData.destinatarioNumero || ''} - ${firstData.destinatarioBairro || ''}, ${firstData.destinatarioCidade || ''} - ${firstData.destinatarioUF || ''}`,
-            endereco: {
-              logradouro: firstData.destinatarioEndereco || '',
-              numero: firstData.destinatarioNumero || '',
-              complemento: firstData.destinatarioComplemento || '',
-              bairro: firstData.destinatarioBairro || '',
-              cidade: firstData.destinatarioCidade || '',
-              uf: firstData.destinatarioUF || '',
-              cep: firstData.destinatarioCEP || '',
-            }
-          };
-          
-          onImportSuccess(notasFiscais, remetenteInfo, destinatarioInfo);
-          
-          toast({
-            title: "XMLs importados",
-            description: `${notasFiscais.length} notas fiscais importadas com sucesso.`
-          });
-        } else {
-          // Fallback to old method
+        try {
+          console.log(`Processing ${acceptedFiles.length} XML files`);
           const result = await processMultipleXMLFiles(acceptedFiles);
           
           if (result.notasFiscais.length > 0) {
@@ -372,6 +269,7 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
               pesoTotal: nf.pesoTotal || 0
             }));
             
+            console.log("Processed multiple XMLs:", completeNotasFiscais);
             onImportSuccess(completeNotasFiscais, result.remetente, result.destinatario);
             
             toast({
@@ -384,6 +282,13 @@ const XmlImportForm: React.FC<XmlImportFormProps> = ({
               description: "Nenhuma nota fiscal válida encontrada nos arquivos XML."
             });
           }
+        } catch (error) {
+          console.error("Erro ao processar múltiplos XMLs:", error);
+          toast({
+            title: "Erro",
+            description: "Não foi possível processar os arquivos XML.",
+            variant: "destructive"
+          });
         }
       }
     } catch (error) {

@@ -1,64 +1,72 @@
 
-import { DadosEmpresa, EmpresaInfo } from './empresaTypes';
+import { EmpresaInfo } from "../SolicitacaoTypes";
 
-// Convert DadosEmpresa to EmpresaInfo format
-export const convertDadosToEmpresaInfo = (dados: DadosEmpresa): EmpresaInfo => {
-  return {
-    razaoSocial: dados.razaoSocial,
-    cnpj: dados.cnpj,
-    endereco: dados.endereco.logradouro,
-    numero: dados.endereco.numero,
-    complemento: dados.endereco.complemento,
-    bairro: dados.endereco.bairro,
-    cidade: dados.endereco.cidade,
-    uf: dados.endereco.uf,
-    cep: dados.endereco.cep,
-    telefone: dados.telefone || '',
-    email: dados.email || ''
-  };
-};
+/**
+ * Extrai informações de empresa a partir dos dados XML
+ */
+export const extractEmpresaInfoFromXML = (empresaInfo: any): EmpresaInfo => {
+  // Certifica que o objeto empresaInfo existe
+  if (!empresaInfo) return {} as EmpresaInfo;
 
-// Convert EmpresaInfo to DadosEmpresa format
-export const convertEmpresaInfoToDados = (info: EmpresaInfo): DadosEmpresa => {
-  return {
-    razaoSocial: info.razaoSocial,
-    cnpj: info.cnpj,
-    nomeFantasia: info.razaoSocial, // Use razaoSocial as fallback for nomeFantasia
-    endereco: {
-      logradouro: info.endereco,
-      numero: info.numero,
-      complemento: info.complemento || '',
-      bairro: info.bairro,
-      cidade: info.cidade,
-      uf: info.uf,
-      cep: info.cep
-    },
-    enderecoFormatado: `${info.endereco}, ${info.numero} - ${info.bairro}, ${info.cidade}/${info.uf}`,
-    telefone: info.telefone || '',
-    email: info.email || ''
-  };
-};
-
-// Extract empresa info from XML data
-export const extractEmpresaInfoFromXML = (xmlData: any): EmpresaInfo => {
-  if (!xmlData) return {} as EmpresaInfo;
+  // Extrai informações do endereço
+  const endereco = empresaInfo.endereco || {};
   
   return {
-    razaoSocial: xmlData.razaoSocial || xmlData.nome || '',
-    cnpj: xmlData.cnpj || '',
-    endereco: xmlData.endereco?.logradouro || '',
-    numero: xmlData.endereco?.numero || '',
-    complemento: xmlData.endereco?.complemento || '',
-    bairro: xmlData.endereco?.bairro || '',
-    cidade: xmlData.endereco?.cidade || '',
-    uf: xmlData.endereco?.uf || '',
-    cep: xmlData.endereco?.cep || '',
-    telefone: xmlData.telefone || '',
-    email: xmlData.email || ''
+    razaoSocial: empresaInfo.nome || empresaInfo.razaoSocial || '',
+    cnpj: empresaInfo.cnpj || '',
+    endereco: endereco.logradouro || '',
+    numero: endereco.numero || '',
+    complemento: endereco.complemento || '',
+    bairro: endereco.bairro || '',
+    cidade: endereco.cidade || '',
+    uf: endereco.uf || '',
+    cep: endereco.cep || '',
+    telefone: endereco.fone || empresaInfo.telefone || '',
+    email: empresaInfo.email || ''
   };
 };
 
-// Format address for display
-export const formatEnderecoCompleto = (info: EmpresaInfo): string => {
-  return `${info.endereco}, ${info.numero}${info.complemento ? ' - ' + info.complemento : ''}, ${info.bairro}, ${info.cidade}/${info.uf}`;
+/**
+ * Formata o endereço completo a partir de uma empresa
+ */
+export const formatEnderecoCompleto = (empresa: EmpresaInfo): string => {
+  if (!empresa) return '';
+  
+  const partes = [
+    empresa.endereco,
+    empresa.numero,
+    empresa.complemento ? `- ${empresa.complemento}` : '',
+    empresa.bairro ? `- ${empresa.bairro}` : '',
+    `${empresa.cidade || ''} - ${empresa.uf || ''}`,
+    empresa.cep ? `CEP: ${empresa.cep}` : ''
+  ];
+  
+  return partes.filter(parte => parte).join(' ');
+};
+
+/**
+ * Formata o CNPJ com máscara
+ */
+export const formatCNPJ = (cnpj: string): string => {
+  if (!cnpj) return '';
+  
+  // Remove caracteres não numéricos
+  const numeros = cnpj.replace(/\D/g, '');
+  
+  // Aplica a máscara
+  if (numeros.length === 14) {
+    return numeros.replace(
+      /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+      '$1.$2.$3/$4-$5'
+    );
+  }
+  
+  return cnpj;
+};
+
+/**
+ * Verifica se o objeto empresa tem informações suficientes
+ */
+export const hasEmpresaInfo = (empresa: EmpresaInfo): boolean => {
+  return !!(empresa && (empresa.razaoSocial || empresa.cnpj));
 };
