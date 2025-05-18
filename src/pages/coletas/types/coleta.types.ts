@@ -32,7 +32,7 @@ export interface SolicitacaoColeta {
   notasFiscais?: NotaFiscalVolume[];
   observacoes?: string;
   // Adding backward compatibility properties
-  cliente?: string; // Changed from boolean to string to match what we're using
+  cliente?: string;
   data?: string;
   solicitante?: string;
   origem?: string;

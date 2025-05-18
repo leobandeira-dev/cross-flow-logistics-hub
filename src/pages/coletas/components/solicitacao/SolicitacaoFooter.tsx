@@ -1,46 +1,51 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Loader2 } from 'lucide-react';
 import { SolicitacaoFooterProps } from './SolicitacaoTypes';
 
 const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
   currentStep,
-  onNext,
   onPrev,
+  onNext,
   onSubmit,
-  isLoading
+  isLoading = false
 }) => {
+  const isFirstStep = currentStep === 1;
+  const isLastStep = currentStep === 2;
+  
   return (
-    <div className="flex justify-between border-t pt-4 mt-4">
-      <Button
-        variant="outline"
+    <div className="flex justify-between mt-6">
+      <Button 
+        variant="outline" 
         onClick={onPrev}
-        disabled={currentStep === 1 || isLoading}
+        disabled={isFirstStep || isLoading}
       >
-        Voltar
+        <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
       </Button>
-
+      
       <div className="flex gap-2">
-        {currentStep < 2 ? (
+        {!isLastStep ? (
           <Button 
             onClick={onNext}
             disabled={isLoading}
           >
-            Avançar
+            Avançar <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (
           <Button 
             onClick={onSubmit}
             disabled={isLoading}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-cross-blue hover:bg-cross-blueDark"
           >
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...
               </>
             ) : (
-              'Finalizar'
+              <>
+                <Save className="mr-2 h-4 w-4" /> Finalizar
+              </>
             )}
           </Button>
         )}

@@ -40,20 +40,17 @@ export const calcularTotaisColeta = (notasFiscais: any[]): {
   volumeTotal: number;
   pesoTotal: number;
   pesoCubadoTotal: number;
-  valorTotal: number; // Added valorTotal to the return type
 } => {
   let totalVolumes = 0;
   let totalVolumeM3 = 0;
   let totalPeso = 0;
-  let totalValor = 0; // Added to track the total value
   
   if (!notasFiscais || notasFiscais.length === 0) {
     return {
       qtdVolumes: 0,
       volumeTotal: 0,
       pesoTotal: 0,
-      pesoCubadoTotal: 0,
-      valorTotal: 0 // Added default value
+      pesoCubadoTotal: 0
     };
   }
   
@@ -63,7 +60,6 @@ export const calcularTotaisColeta = (notasFiscais: any[]): {
       totalVolumes += totaisNota.qtdVolumes;
       totalVolumeM3 += totaisNota.volumeTotal;
       totalPeso += nf.pesoTotal || totaisNota.pesoTotal;
-      totalValor += nf.valorTotal || 0; // Add the invoice value to the total
     }
   });
   
@@ -74,7 +70,6 @@ export const calcularTotaisColeta = (notasFiscais: any[]): {
     qtdVolumes: totalVolumes,
     volumeTotal: totalVolumeM3,
     pesoTotal: totalPeso,
-    pesoCubadoTotal: pesoCubado,
-    valorTotal: totalValor // Return the accumulated total value
+    pesoCubadoTotal: pesoCubado
   };
 };

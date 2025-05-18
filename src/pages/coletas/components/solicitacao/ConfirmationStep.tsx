@@ -8,7 +8,7 @@ import { calcularTotaisColeta } from '../../utils/volumes/calculations';
 
 interface ConfirmationStepProps {
   formData: InternalFormData;
-  handleInputChange: <K extends keyof InternalFormData>(field: K, value: InternalFormData[K]) => void;
+  handleInputChange: (field: keyof InternalFormData, value: any) => void;
 }
 
 const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ formData, handleInputChange }) => {

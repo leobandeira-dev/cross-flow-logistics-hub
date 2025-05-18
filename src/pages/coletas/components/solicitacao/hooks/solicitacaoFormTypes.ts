@@ -1,9 +1,9 @@
 
+import { SolicitacaoFormData, EmpresaInfo, DadosEmpresa } from '../SolicitacaoTypes';
 import { NotaFiscalVolume } from '../../../utils/volumes/types';
-import { EmpresaInfo } from '../SolicitacaoTypes';
 
 // Internal form data with some fields optional for initial state
-export interface InternalFormData {
+export interface InternalFormData extends Partial<SolicitacaoFormData> {
   remetente: EmpresaInfo;
   destinatario: EmpresaInfo;
   dataColeta: string;
@@ -11,7 +11,7 @@ export interface InternalFormData {
   observacoes: string;
   notasFiscais: NotaFiscalVolume[];
   // Required fields
-  tipoFrete: 'FOB' | 'CIF';
+  tipoFrete: 'FOB' | 'CIF'; // Updated from cliente to tipoFrete
   origem: string;
   destino: string;
   // Extended properties for XML import data
@@ -27,8 +27,6 @@ export interface InternalFormData {
   horaAprovacao?: string;
   dataInclusao?: string;
   horaInclusao?: string;
-  // Quantidade de volumes for form submission
-  quantidadeVolumes?: number;
 }
 
 // Return type for the useSolicitacaoForm hook

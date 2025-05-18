@@ -8,7 +8,6 @@ import { SolicitacaoFormHeader } from './solicitacao/formHeader';
 import NotasFiscaisStep from './solicitacao/NotasFiscaisStep';
 import ConfirmationStep from './solicitacao/ConfirmationStep';
 import SolicitacaoFooter from './solicitacao/SolicitacaoFooter';
-import { InternalFormData } from './solicitacao/hooks/solicitacaoFormTypes';
 
 interface EditSolicitacaoDialogProps {
   solicitacao: SolicitacaoColeta | null;
@@ -25,7 +24,7 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
 }) => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<InternalFormData | null>(null);
+  const [formData, setFormData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Update formData when the solicitacao changes
@@ -65,7 +64,6 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
         horaAprovacao: '',
         dataInclusao: solicitacao.dataSolicitacao || '',
         horaInclusao: '',
-        quantidadeVolumes: solicitacao.volumes || 0
         // Add notas fiscais as empty array for now
         // In a real implementation, we would convert solicitacao.notas to the format expected by NotasFiscaisStep
       });
@@ -74,12 +72,8 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
 
   if (!formData) return null;
 
-  // Updated to use the correct type for handleInputChange
-  const handleInputChange = <K extends keyof InternalFormData>(field: K, value: InternalFormData[K]) => {
-    setFormData((prev: InternalFormData | null) => {
-      if (!prev) return null;
-      return { ...prev, [field]: value };
-    });
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
   };
 
   const nextStep = () => {
@@ -93,22 +87,18 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
   const handleSubmit = () => {
     setIsLoading(true);
     try {
-      if (!solicitacao) return;
-      
       // Convert formData back to SolicitacaoColeta format
-      const updatedSolicitacao: SolicitacaoColeta = {
+      const updatedSolicitacao = {
         ...solicitacao,
-        // When we save a client as a string in SolicitacaoColeta, we need to make sure it's a string
-        cliente: formData.tipoFrete === 'FOB' ? 'Cliente FOB' : 'Cliente CIF',
+        cliente: formData.cliente,
         data: formData.dataColeta,
-        origem: formData.origem || formData.remetente?.razaoSocial || '',
-        destino: formData.destino || formData.destinatario?.razaoSocial || '',
+        origem: formData.origem || formData.remetente?.razaoSocial,
+        destino: formData.destino || formData.destinatario?.razaoSocial,
         observacoes: formData.observacoes,
-        volumes: formData.quantidadeVolumes || 0
         // Would need to handle notes conversion here
       };
       
-      onSave(updatedSolicitacao);
+      onSave(updatedSolicitacao as SolicitacaoColeta);
       
       toast({
         title: "Solicitação atualizada",
@@ -140,7 +130,7 @@ const EditSolicitacaoDialog: React.FC<EditSolicitacaoDialogProps> = ({
           horaAprovacao={formData.horaAprovacao || ''}
           dataInclusao={formData.dataInclusao || ''}
           horaInclusao={formData.horaInclusao || ''}
-          onTipoFreteChange={(value) => handleInputChange('tipoFrete', value as 'FOB' | 'CIF')}
+          onTipoFreteChange={(value) => handleInputChange('tipoFrete', value)}
           onDataColetaChange={(value) => handleInputChange('dataColeta', value)}
           onHoraColetaChange={(value) => handleInputChange('horaColeta', value || '')}
         />

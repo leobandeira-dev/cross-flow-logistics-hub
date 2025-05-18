@@ -80,21 +80,13 @@ export const useFormSubmission = (
         },
         notasFiscais: formData.notasFiscais,
         observacoes: formData.observacoes,
-        origem: formData.origem || `${formData.remetente.cidade}-${formData.remetente.uf}`,
-        destino: formData.destino || `${formData.destinatario.cidade}-${formData.destinatario.uf}`,
-        volumes: formData.quantidadeVolumes || 0
+        origem: formData.origem,
+        destino: formData.destino,
+        volumes: formData.quantidadeVolumes
       };
       
       // Update the solicitations list in localStorage
-      let existingSolicitations = [];
-      try {
-        const storedData = localStorage.getItem('solicitacoesColeta');
-        existingSolicitations = storedData ? JSON.parse(storedData) : [];
-      } catch (error) {
-        console.error("Erro ao ler solicitações existentes:", error);
-        existingSolicitations = [];
-      }
-      
+      const existingSolicitations = JSON.parse(localStorage.getItem('solicitacoesColeta') || '[]');
       const updatedSolicitations = [novaColeta, ...existingSolicitations];
       localStorage.setItem('solicitacoesColeta', JSON.stringify(updatedSolicitations));
       
@@ -110,7 +102,7 @@ export const useFormSubmission = (
       setCurrentStep(1);
       setIsOpen(false);
       
-      // Refresh the page to show updated solicitations list
+      // Reload the page to show updated solicitations list
       window.location.reload();
     } catch (error) {
       console.error("Erro ao submeter formulário:", error);

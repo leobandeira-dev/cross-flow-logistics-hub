@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { InternalFormData } from './hooks/solicitacaoFormTypes';
+import { SolicitacaoFormData } from './SolicitacaoTypes';
 import { Card, CardContent } from '@/components/ui/card';
 import NotasFiscaisManager from '../NotasFiscaisManager';
 import ImportacaoTabs from './ImportacaoTabs';
@@ -10,8 +10,8 @@ import { convertDadosToEmpresaInfo, convertEmpresaInfoToDados } from './empresa/
 import { calcularTotaisColeta } from '../../utils/volumes/calculations';
 
 interface NotasFiscaisStepProps {
-  formData: InternalFormData;
-  handleInputChange: <K extends keyof InternalFormData>(field: K, value: InternalFormData[K]) => void;
+  formData: SolicitacaoFormData;
+  handleInputChange: <K extends keyof SolicitacaoFormData>(field: K, value: SolicitacaoFormData[K]) => void;
   handleImportSuccess: (notasFiscais: any[], remetenteInfo?: any, destinatarioInfo?: any) => void;
   isImporting?: boolean;
 }
@@ -35,20 +35,18 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
         <CardContent className="pt-6">
           <h3 className="font-semibold text-lg mb-4">Cabeçalho da Solicitação</h3>
           <SolicitacaoFormHeader 
-            currentStep={1}
-            isLoading={isImporting}
             tipoFrete={formData.tipoFrete}
             dataColeta={formData.dataColeta}
-            horaColeta={formData.horaColeta || ''}
-            onTipoFreteChange={(tipo) => handleInputChange('tipoFrete', tipo as 'FOB' | 'CIF')}
+            horaColeta={formData.horaColeta}
+            onTipoFreteChange={(tipo) => handleInputChange('tipoFrete', tipo)}
             onDataColetaChange={(data) => handleInputChange('dataColeta', data)}
-            onHoraColetaChange={(hora) => handleInputChange('horaColeta', hora || '')}
+            onHoraColetaChange={(hora) => handleInputChange('horaColeta', hora)}
           />
           
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="bg-gray-50 p-3 rounded">
               <span className="block text-xs text-gray-500">Valor Total</span>
-              <span className="text-lg font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totais.valorTotal || 0)}</span>
+              <span className="text-lg font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totais.pesoTotal)}</span>
             </div>
             <div className="bg-gray-50 p-3 rounded">
               <span className="block text-xs text-gray-500">Peso Total</span>

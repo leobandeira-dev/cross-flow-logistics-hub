@@ -1,21 +1,29 @@
 
-import { ReactNode } from 'react';
-import { NotaFiscalVolume } from '../../utils/volumes/types';
+// This file contains the types for the Solicitacao feature
 
-export interface SolicitacaoDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+// Address types
+export interface EnderecoCompleto {
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  cep: string;
 }
 
-export interface NovaSolicitacaoDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+// Basic company types
+export interface DadosEmpresa {
+  cnpj: string;
+  razaoSocial: string;
+  nomeFantasia: string;
+  endereco: EnderecoCompleto;
+  enderecoFormatado: string;
+  telefone?: string;
+  email?: string;
 }
 
+// Simplified company info for form display
 export interface EmpresaInfo {
   razaoSocial: string;
   cnpj: string;
@@ -30,84 +38,77 @@ export interface EmpresaInfo {
   email?: string;
 }
 
-// Adding missing types
-export interface EnderecoCompleto {
-  logradouro: string;
-  numero: string;
-  complemento?: string;
-  bairro: string;
-  cidade: string;
-  uf: string;
-  cep: string;
-}
-
-export interface DadosEmpresa {
-  cnpj: string;
-  razaoSocial: string;
-  nomeFantasia: string;
-  endereco: EnderecoCompleto;
-  enderecoFormatado: string;
-  telefone?: string;
-  email?: string;
-}
-
+// Form data
 export interface SolicitacaoFormData {
-  remetente: EmpresaInfo;
-  destinatario: EmpresaInfo;
-  tipoFrete: 'FOB' | 'CIF';
-  dataColeta: string;
-  horaColeta: string;
-  observacoes: string;
-  notasFiscais: NotaFiscalVolume[];
+  tipoFrete: 'FOB' | 'CIF'; // FOB/CIF option replacing cliente
   origem: string;
   destino: string;
+  remetente: EmpresaInfo;
+  destinatario: EmpresaInfo;
+  dataColeta: string;
+  horaColeta?: string;
+  observacoes: string;
+  notasFiscais: any[];
+  dataInclusao?: string;
+  horaInclusao?: string;
   quantidadeVolumes?: number;
+  // Extended properties for address display
+  origemEndereco?: string;
+  origemCEP?: string;
+  destinoEndereco?: string;
+  destinoCEP?: string;
+  // Extended properties for approval flow
+  dataAprovacao?: string;
+  horaAprovacao?: string;
 }
 
-export interface HeaderSectionProps {
-  title: string;
-  description?: string;
-  children?: ReactNode;
+// Dialog props
+export interface NovaSolicitacaoDialogProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-export interface TabContentProps {
-  onNext?: () => void;
-  onImportSuccess?: (notasFiscais: NotaFiscalVolume[], remetenteInfo?: any, destinatarioInfo?: any) => void;
-  isLoading?: boolean;
+// Dialog props for new dialog component
+export interface SolicitacaoDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-export interface FormStepProps {
-  formData: any;
-  handleInputChange: (field: string, value: any) => void;
+// Progress component props
+export interface SolicitacaoProgressProps {
+  currentStep: number;
   onNext?: () => void;
   onPrev?: () => void;
 }
 
-export interface FormHeaderProps {
-  currentStep: number;
-  tipoFrete: string;
-  dataColeta: string;
-  horaColeta: string;
-  dataAprovacao?: string;
-  horaAprovacao?: string;
-  dataInclusao?: string;
-  horaInclusao?: string;
-  isLoading: boolean;
-  onTipoFreteChange: (value: string) => void;
-  onDataColetaChange: (value: string) => void;
-  onHoraColetaChange: (value: string | null) => void;
-}
-
+// Footer component props
 export interface SolicitacaoFooterProps {
   currentStep: number;
-  onNext: () => void;
   onPrev: () => void;
+  onNext: () => void;
   onSubmit: () => void;
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-export interface SolicitacaoProgressProps {
-  currentStep: number;
-  onNext: () => void;
-  onPrev: () => void;
-}
+// Empty objects for initialization
+export const EMPTY_EMPRESA = {
+  cnpj: '',
+  razaoSocial: '',
+  nomeFantasia: '',
+  endereco: {
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    uf: '',
+    cep: ''
+  },
+  enderecoFormatado: '',
+  telefone: '',
+  email: ''
+};
