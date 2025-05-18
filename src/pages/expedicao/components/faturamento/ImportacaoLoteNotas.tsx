@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,20 +28,10 @@ const ImportacaoLoteNotas: React.FC<ImportacaoLoteNotasProps> = ({ onImportarLot
   
   // Função para importar as notas
   const importarNotas = () => {
-    // Validar se todos os campos obrigatórios estão preenchidos
-    // Removidos: fretePorTonelada, pesoMinimo, aliquotaICMS, aliquotaExpresso
-    const notasCompletas = notasLote.filter(nota => 
-      nota.data && 
-      nota.cliente && 
-      nota.pesoNota
-    ) as Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'>[];
+    // Allow importing any notes regardless of missing fields
+    const notasParaImportar = notasLote as Omit<NotaFiscal, 'id' | 'fretePeso' | 'valorExpresso' | 'freteRatear'>[];
     
-    if (notasCompletas.length < notasLote.length) {
-      alert('Algumas notas possuem campos obrigatórios não preenchidos!');
-      return;
-    }
-    
-    onImportarLote(notasCompletas);
+    onImportarLote(notasParaImportar);
     limparTudo(); // Limpa o formulário após importar
   };
 
