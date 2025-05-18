@@ -3,7 +3,7 @@ import React from 'react';
 import { NotaFiscalVolume } from '../../../utils/volumeCalculations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash, Weight } from 'lucide-react';
+import { Trash } from 'lucide-react';
 
 interface NotaFiscalHeaderProps {
   nf: NotaFiscalVolume;
@@ -26,6 +26,10 @@ const NotaFiscalHeader: React.FC<NotaFiscalHeaderProps> = ({
   onUpdatePesoTotal,
   isReadOnly = false
 }) => {
+  // Format date if available
+  const formattedDate = nf.dataEmissao ? 
+    new Date(nf.dataEmissao).toLocaleDateString('pt-BR') : '';
+    
   return (
     <div className="flex justify-between">
       <div className="flex-1">
@@ -89,13 +93,24 @@ const NotaFiscalHeader: React.FC<NotaFiscalHeaderProps> = ({
               <div>
                 <label className="text-xs text-muted-foreground">Data de Emissão</label>
                 <Input
-                  value={new Date(nf.dataEmissao).toLocaleDateString()}
+                  value={formattedDate}
                   className="mt-1"
                   readOnly
                 />
               </div>
             )}
           </div>
+          
+          {nf.chaveNF && (
+            <div className="mt-3">
+              <label className="text-xs text-muted-foreground">Chave da NF</label>
+              <Input
+                value={nf.chaveNF}
+                className="mt-1 font-mono text-xs"
+                readOnly
+              />
+            </div>
+          )}
         </div>
       </div>
       <Button variant="destructive" size="sm" onClick={onRemove} disabled={isReadOnly}>

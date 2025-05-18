@@ -6,101 +6,101 @@ import { Plus } from 'lucide-react';
 import { VolumeItem } from '../../../utils/volumeCalculations';
 
 interface AddVolumeFormProps {
-  onAddVolume: (volume: Omit<VolumeItem, 'id'>) => void;
-  isReadOnly: boolean;
+  onAddVolume: (volume: Omit<VolumeItem, "id">) => void;
+  isReadOnly?: boolean;
 }
 
-const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly }) => {
-  const [newVolume, setNewVolume] = useState<Partial<VolumeItem>>({
+const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume, isReadOnly = false }) => {
+  const [novoVolume, setNovoVolume] = useState<Omit<VolumeItem, "id" | "peso">>({
     altura: 0,
     largura: 0,
     comprimento: 0,
-    peso: 0, // We'll keep this in the state but use the value from the nota fiscal
     quantidade: 1
   });
 
-  const handleVolumeChange = (field: keyof VolumeItem, value: string) => {
-    setNewVolume(prev => ({
-      ...prev,
-      [field]: parseFloat(value) || 0
-    }));
+  const handleVolumeChange = (field: keyof Omit<VolumeItem, "id" | "peso">, value: any) => {
+    setNovoVolume(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleAddVolume = () => {
-    if (newVolume.altura && newVolume.largura && newVolume.comprimento) {
-      onAddVolume({
-        altura: newVolume.altura || 0,
-        largura: newVolume.largura || 0,
-        comprimento: newVolume.comprimento || 0,
-        peso: newVolume.peso || 0, // We'll keep this in the volume object
-        quantidade: newVolume.quantidade || 1
-      });
-      
-      // Reset form
-      setNewVolume({
-        altura: 0,
-        largura: 0,
-        comprimento: 0,
-        peso: 0,
-        quantidade: 1
-      });
+  const adicionarVolume = () => {
+    // Validate fields
+    if (novoVolume.altura <= 0 || novoVolume.largura <= 0 || novoVolume.comprimento <= 0) {
+      return;
     }
+    
+    // Add the volume with peso set to 0 (weight comes from the XML)
+    onAddVolume({
+      ...novoVolume,
+      peso: 0 // Weight is handled at the nota fiscal level
+    });
+    
+    // Reset form
+    setNovoVolume({
+      altura: 0,
+      largura: 0,
+      comprimento: 0,
+      quantidade: 1
+    });
   };
-
-  if (isReadOnly) {
-    return null;
-  }
 
   return (
-    <div className="grid grid-cols-7 gap-2">
-      <div className="col-span-1">
-        <label className="text-xs text-muted-foreground">Alt. (cm)</label>
-        <Input
-          value={newVolume.altura || ''}
-          onChange={(e) => handleVolumeChange('altura', e.target.value)}
-          className="h-8 text-xs"
-          placeholder="0"
-          type="number"
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end">
+      <div>
+        <span className="text-xs">Altura (cm)</span>
+        <Input 
+          type="number" 
+          value={novoVolume.altura || ''} 
+          onChange={(e) => handleVolumeChange('altura', parseFloat(e.target.value) || 0)}
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          disabled={isReadOnly}
         />
       </div>
-      <div className="col-span-1">
-        <label className="text-xs text-muted-foreground">Larg. (cm)</label>
-        <Input
-          value={newVolume.largura || ''}
-          onChange={(e) => handleVolumeChange('largura', e.target.value)}
-          className="h-8 text-xs"
-          placeholder="0"
-          type="number"
+      <div>
+        <span className="text-xs">Largura (cm)</span>
+        <Input 
+          type="number" 
+          value={novoVolume.largura || ''} 
+          onChange={(e) => handleVolumeChange('largura', parseFloat(e.target.value) || 0)}
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          disabled={isReadOnly}
         />
       </div>
-      <div className="col-span-1">
-        <label className="text-xs text-muted-foreground">Comp. (cm)</label>
-        <Input
-          value={newVolume.comprimento || ''}
-          onChange={(e) => handleVolumeChange('comprimento', e.target.value)}
-          className="h-8 text-xs"
-          placeholder="0"
-          type="number"
+      <div>
+        <span className="text-xs">Comprimento (cm)</span>
+        <Input 
+          type="number" 
+          value={novoVolume.comprimento || ''} 
+          onChange={(e) => handleVolumeChange('comprimento', parseFloat(e.target.value) || 0)}
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          disabled={isReadOnly}
         />
       </div>
-      <div className="col-span-1">
-        <label className="text-xs text-muted-foreground">Qtde</label>
-        <Input
-          value={newVolume.quantidade || 1}
-          onChange={(e) => handleVolumeChange('quantidade', e.target.value)}
-          className="h-8 text-xs"
-          placeholder="1"
-          type="number"
+      <div>
+        <span className="text-xs">Quantidade</span>
+        <Input 
+          type="number" 
+          value={novoVolume.quantidade || ''} 
+          onChange={(e) => handleVolumeChange('quantidade', parseInt(e.target.value) || 1)}
           min="1"
+          placeholder="1"
+          disabled={isReadOnly}
         />
       </div>
-      <div className="col-span-3 flex items-end">
+      <div>
         <Button 
-          onClick={handleAddVolume}
-          className="h-8"
-          disabled={!newVolume.altura || !newVolume.largura || !newVolume.comprimento}
+          type="button" 
+          variant="outline"
+          onClick={adicionarVolume}
+          className="w-full"
+          disabled={isReadOnly || novoVolume.altura <= 0 || novoVolume.largura <= 0 || novoVolume.comprimento <= 0}
         >
-          <Plus className="h-4 w-4 mr-1" /> Adicionar Volume
+          <Plus className="h-4 w-4 mr-1" /> Adicionar
         </Button>
       </div>
     </div>

@@ -10,15 +10,14 @@ interface AddVolumeFormProps {
 }
 
 const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
-  const [novoVolume, setNovoVolume] = useState<Omit<VolumeItem, "id">>({
+  const [novoVolume, setNovoVolume] = useState<Omit<VolumeItem, "id" | "peso">>({
     altura: 0,
     largura: 0,
     comprimento: 0,
-    peso: 0, // We'll keep this in the state but not show it in the form
     quantidade: 1
   });
 
-  const handleVolumeChange = (field: keyof Omit<VolumeItem, "id">, value: any) => {
+  const handleVolumeChange = (field: keyof Omit<VolumeItem, "id" | "peso">, value: any) => {
     setNovoVolume(prev => ({ ...prev, [field]: value }));
   };
 
@@ -28,10 +27,11 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
       return;
     }
     
-    // Add unique ID
+    // Add unique ID and set peso to 0 (weight comes from the XML)
     const volumeComId: VolumeItem = {
       ...novoVolume,
-      id: generateVolumeId()
+      id: generateVolumeId(),
+      peso: 0 // Weight is handled at the nota fiscal level
     };
     
     onAddVolume(volumeComId);
@@ -41,13 +41,12 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
       altura: 0,
       largura: 0,
       comprimento: 0,
-      peso: 0,
       quantidade: 1
     });
   };
 
   return (
-    <div className="grid grid-cols-5 gap-2 items-end">
+    <div className="grid grid-cols-4 gap-2 items-end">
       <div>
         <span className="text-xs">Altura (cm)</span>
         <Input 

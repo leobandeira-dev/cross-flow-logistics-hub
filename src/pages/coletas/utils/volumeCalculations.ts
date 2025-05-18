@@ -1,182 +1,78 @@
+
+// Volume calculation utilities
+
+import { v4 as uuidv4 } from 'uuid';
+
 export interface VolumeItem {
   id: string;
-  altura: number;
-  largura: number;
-  comprimento: number;
-  peso: number;
-  quantidade: number;
+  altura: number; // height in cm
+  largura: number; // width in cm
+  comprimento: number; // length in cm
+  peso: number; // weight in kg
+  quantidade: number; // quantity
 }
 
 export interface NotaFiscalVolume {
   numeroNF: string;
+  chaveNF?: string; // Added for XML import
+  dataEmissao?: string; // Added for XML import
   volumes: VolumeItem[];
   remetente: string;
+  emitenteCNPJ?: string; // Added for sender consistency validation
   destinatario: string;
   valorTotal: number;
-  // New field for total weight from XML
-  pesoTotal?: number;
-  // New optional fields for tracking
-  status?: string;
-  prioridade?: string;
-  dataEmissao?: string;
-  chaveNF?: string;
+  pesoTotal: number;
 }
 
-// For backward compatibility with older code
-export interface Volume extends Omit<VolumeItem, "id"> {
-  id?: string;
-}
+export type NotaFiscalVolumeInput = Omit<NotaFiscalVolume, 'id'>;
 
-// Função para gerar ID único para volumes
+// Generate a unique ID for a volume
 export const generateVolumeId = (): string => {
-  return Math.random().toString(36).substring(2, 15);
+  return uuidv4();
 };
 
-// Função para garantir que um Volume sempre tenha um ID válido
-export const ensureVolumeId = (volume: Volume | VolumeItem): VolumeItem => {
-  if (volume.id) {
-    return volume as VolumeItem;
-  }
-  return { ...volume, id: generateVolumeId() } as VolumeItem;
+// Calculate total volume (m³) for a single volume item
+export const calcularVolume = (volume: VolumeItem): number => {
+  // Convert from cm³ to m³ (divide by 1,000,000)
+  return (volume.altura * volume.largura * volume.comprimento * volume.quantidade) / 1000000;
 };
 
-// Helper to ensure a partial NotaFiscal has all required fields
-export const ensureCompleteNotaFiscal = (
-  notaFiscal: Partial<NotaFiscalVolume>, 
-  defaultRemetente: string = '', 
-  defaultDestinatario: string = ''
-): NotaFiscalVolume => {
-  return {
-    numeroNF: notaFiscal.numeroNF || '',
-    volumes: Array.isArray(notaFiscal.volumes) 
-      ? convertVolumesToVolumeItems(notaFiscal.volumes) 
-      : [],
-    remetente: notaFiscal.remetente || defaultRemetente,
-    destinatario: notaFiscal.destinatario || defaultDestinatario,
-    valorTotal: notaFiscal.valorTotal || 0,
-    status: notaFiscal.status || 'pendente',
-    prioridade: notaFiscal.prioridade || 'normal',
-    dataEmissao: notaFiscal.dataEmissao,
-    chaveNF: notaFiscal.chaveNF
-  };
-};
-
-// Helper para converter arrays de Volume para VolumeItem
-export const convertVolumesToVolumeItems = (volumes: Volume[]): VolumeItem[] => {
-  return volumes.map(vol => ensureVolumeId(vol));
-};
-
-// Helper para converter uma nota fiscal parcial para NotaFiscalVolume completa
-export const createNotaFiscal = (
-  numeroNF: string, 
-  volumes: Volume[], 
-  remetente: string = '', 
-  destinatario: string = '', 
-  valorTotal: number = 0,
-  status: string = 'pendente',
-  prioridade: string = 'normal',
-  dataEmissao?: string,
-  chaveNF?: string
-): NotaFiscalVolume => {
-  return {
-    numeroNF,
-    volumes: convertVolumesToVolumeItems(volumes),
-    remetente,
-    destinatario,
-    valorTotal,
-    status,
-    prioridade,
-    dataEmissao,
-    chaveNF
-  };
-};
-
-// Função para calcular o volume de um item
-export const calcularVolume = (volume: VolumeItem | Volume): number => {
-  // Medidas são em centímetros, então convertemos para metros ao dividir por 100 para cada dimensão
-  // Multiplicamos pela quantidade para obter o volume total de todos os itens iguais
-  return (volume.altura / 100) * (volume.largura / 100) * (volume.comprimento / 100) * volume.quantidade;
-};
-
-// Função para calcular o peso cubado de um volume
-export const calcularPesoCubado = (volumeMetroCubico: number): number => {
-  // Fator de conversão padrão de 300kg/m³
-  const FATOR_CONVERSAO = 300;
-  return volumeMetroCubico * FATOR_CONVERSAO;
-};
-
-// Função para formatar número com 3 casas decimais
-export const formatarNumero = (numero: number): string => {
-  return numero.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-};
-
-// Função para formatar números como moeda
-export const formatarMoeda = (valor: number): string => {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-};
-
-// Função para calcular totais de uma nota fiscal
-export const calcularTotaisNota = (volumes: VolumeItem[], pesoTotalFixo?: number): { 
-  volumeTotal: number; 
-  pesoTotal: number; 
-  pesoCubadoTotal: number;
-  qtdVolumes: number;
-} => {
-  let volumeTotal = 0;
-  let pesoTotal = 0;
-  let qtdVolumes = 0;
-
-  volumes.forEach(vol => {
-    const volume = calcularVolume(vol);
-    volumeTotal += volume;
-    
-    // Only calculate peso from volumes if no fixed total is provided
-    if (pesoTotalFixo === undefined) {
-      pesoTotal += vol.peso * vol.quantidade;
-    }
-    
-    qtdVolumes += vol.quantidade;
+// Format number to Brazilian format with 2 or 3 decimals
+export const formatarNumero = (numero: number, decimais: number = 3): string => {
+  return numero.toLocaleString('pt-BR', { 
+    minimumFractionDigits: decimais, 
+    maximumFractionDigits: decimais 
   });
-
-  // Use the fixed peso total if provided, otherwise use calculated value
-  if (pesoTotalFixo !== undefined) {
-    pesoTotal = pesoTotalFixo;
-  }
-
-  const pesoCubadoTotal = calcularPesoCubado(volumeTotal);
-
-  return {
-    volumeTotal,
-    pesoTotal,
-    pesoCubadoTotal,
-    qtdVolumes
-  };
 };
 
-// Função para calcular totais de todas as notas fiscais em uma coleta
-export const calcularTotaisColeta = (notasFiscais: NotaFiscalVolume[]): { 
-  volumeTotal: number; 
-  pesoTotal: number; 
-  pesoCubadoTotal: number;
-  qtdVolumes: number;
-} => {
-  let volumeTotal = 0;
-  let pesoTotal = 0;
-  let pesoCubadoTotal = 0;
-  let qtdVolumes = 0;
-
-  notasFiscais.forEach(nf => {
-    const totaisNota = calcularTotaisNota(nf.volumes, nf.pesoTotal);
-    volumeTotal += totaisNota.volumeTotal;
-    pesoTotal += totaisNota.pesoTotal;
-    pesoCubadoTotal += totaisNota.pesoCubadoTotal;
-    qtdVolumes += totaisNota.qtdVolumes;
+// Convert various volume formats to VolumeItem format
+export const convertVolumesToVolumeItems = (volumes: any[]): VolumeItem[] => {
+  if (!volumes || !Array.isArray(volumes)) return [];
+  
+  return volumes.map((vol: any) => {
+    // Generate a new ID for each volume
+    return {
+      id: vol.id || generateVolumeId(),
+      altura: typeof vol.altura === 'number' ? vol.altura : parseFloat(vol.altura) || 0,
+      largura: typeof vol.largura === 'number' ? vol.largura : parseFloat(vol.largura) || 0,
+      comprimento: typeof vol.comprimento === 'number' ? vol.comprimento : parseFloat(vol.comprimento) || 0,
+      peso: typeof vol.peso === 'number' ? vol.peso : parseFloat(vol.peso) || 0,
+      quantidade: typeof vol.quantidade === 'number' ? vol.quantidade : parseInt(vol.quantidade) || 1
+    };
   });
+};
 
+// Ensure a nota fiscal has all required properties
+export const ensureCompleteNotaFiscal = (nf: any): NotaFiscalVolume => {
   return {
-    volumeTotal,
-    pesoTotal,
-    pesoCubadoTotal,
-    qtdVolumes
+    numeroNF: nf.numeroNF || '',
+    chaveNF: nf.chaveNF || '',
+    dataEmissao: nf.dataEmissao || '',
+    volumes: Array.isArray(nf.volumes) ? convertVolumesToVolumeItems(nf.volumes) : [],
+    remetente: nf.remetente || '',
+    emitenteCNPJ: nf.emitenteCNPJ || '',
+    destinatario: nf.destinatario || '',
+    valorTotal: typeof nf.valorTotal === 'number' ? nf.valorTotal : parseFloat(nf.valorTotal) || 0,
+    pesoTotal: typeof nf.pesoTotal === 'number' ? nf.pesoTotal : parseFloat(nf.pesoTotal) || 0
   };
 };
