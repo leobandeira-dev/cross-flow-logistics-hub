@@ -17,7 +17,7 @@ export const useAuthState = () => {
     
     // Primeiro configurar a assinatura para mudanças no estado de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         console.log('Evento de autenticação:', event);
         
         if (!isMounted) return;

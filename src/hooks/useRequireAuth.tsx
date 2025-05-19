@@ -4,14 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
 export const useRequireAuth = (redirectUrl: string = '/auth') => {
-  const { user, loading } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const navigate = useNavigate();
-  const [authChecked, setAuthChecked] = useState(false);
+  const [localAuthChecked, setLocalAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Só redirecionar quando o carregamento estiver completo e o usuário não estiver autenticado
-    if (!loading && !authChecked) {
-      setAuthChecked(true);
+    // Só redirecionar quando o carregamento estiver completo, a autenticação tiver sido verificada,
+    // e nossa verificação local ainda não tiver sido feita
+    if (!loading && authChecked && !localAuthChecked) {
+      setLocalAuthChecked(true);
       
       if (!user) {
         const currentPath = window.location.pathname;
@@ -32,12 +33,12 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [user, loading, navigate, redirectUrl, authChecked]);
+  }, [user, loading, navigate, redirectUrl, localAuthChecked, authChecked]);
 
   return { 
     user, 
     loading, 
     isAdmin: user?.funcao === 'admin',
-    authChecked
+    authChecked: localAuthChecked && authChecked
   };
 };

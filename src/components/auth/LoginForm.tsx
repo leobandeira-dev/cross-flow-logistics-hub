@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 type LoginFormData = {
   email: string;
@@ -21,6 +22,8 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -31,7 +34,10 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
       console.log('Submitting login form with email:', data.email);
       await signIn(data.email, data.password);
       console.log('Sign in completed successfully');
-      // A navegação será tratada automaticamente pelos redirecionamentos de autenticação
+      
+      // Obter o destino pretendido do estado ou usar o padrão para dashboard
+      const from = location.state?.from || '/dashboard';
+      console.log('Navigation will redirect to:', from);
     } catch (error: any) {
       console.error('Login error:', error);
       
