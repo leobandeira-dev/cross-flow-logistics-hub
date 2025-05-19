@@ -6,28 +6,43 @@ import { useAuth } from '../hooks/useAuth';
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, authChecked, verifyAuthState } = useAuth();
   const location = useLocation();
-  const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
+  const [navigationReady, setNavigationReady] = useState(false);
   
   useEffect(() => {
+    let navigationTimer: NodeJS.Timeout;
+    
+    // Safety timeout to prevent stuck states
+    navigationTimer = setTimeout(() => {
+      if (!navigationReady) {
+        console.log('ProtectedRoute - Safety timeout triggered, forcing navigation decision');
+        setNavigationReady(true);
+      }
+    }, 2000);
+  
+    // Wait for auth check to complete before deciding on navigation
     if (!loading) {
-      console.log('ProtectedRoute - path:', location.pathname, 'user:', !!user, 'loading:', loading, 'authChecked:', authChecked);
+      console.log('ProtectedRoute - path:', location.pathname, 
+                  'user:', !!user, 
+                  'loading:', loading, 
+                  'authChecked:', authChecked);
       
-      // Verify auth state if needed
+      // Ensure auth state is verified if needed
       if (!authChecked) {
         verifyAuthState();
         return;
       }
       
-      if (user) {
-        setAuthState('authenticated');
-      } else {
-        setAuthState('unauthenticated');
+      // Once auth check is complete, we're ready to decide on navigation
+      if (authChecked && !navigationReady) {
+        setNavigationReady(true);
       }
     }
-  }, [location, user, loading, authChecked, verifyAuthState]);
+    
+    return () => clearTimeout(navigationTimer);
+  }, [location, user, loading, authChecked, verifyAuthState, navigationReady]);
   
-  // Mostrar carregamento apenas durante a verificação inicial
-  if (loading || authState === 'checking') {
+  // While auth state is being verified, show a loading indicator
+  if (loading || !navigationReady) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -36,12 +51,12 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Se não estiver carregando e não houver usuário, redirecionar para a página de autenticação
-  if (authState === 'unauthenticated') {
+  // If not authenticated after check completes, redirect to login
+  if (!user) {
     console.log('ProtectedRoute - No authenticated user, redirecting to login from:', location.pathname);
     return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
   
-  // Se autenticado, renderizar o conteúdo protegido
+  // If authenticated, render the protected content
   return <>{children}</>;
 };

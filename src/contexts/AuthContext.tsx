@@ -4,7 +4,8 @@ import { Usuario } from "@/types/supabase.types";
 import { Session } from '@supabase/supabase-js';
 import { SignUpCredentials } from '@/services/auth/authTypes';
 
-type AuthContextType = {
+// Define the shape of our auth context
+export type AuthContextType = {
   user: Usuario | null;
   session: Session | null;
   loading: boolean;
@@ -19,8 +20,10 @@ type AuthContextType = {
   verifyAuthState: () => void;
 };
 
+// Create the context with undefined as initial value
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Create a hook to use the auth context
 export const useAuthContext = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {

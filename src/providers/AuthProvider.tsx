@@ -1,11 +1,11 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 import { useAuthState } from '@/hooks/useAuthState';
 import { useAuthActions } from '@/hooks/useAuthActions';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Primeiro, estabelecer os hooks de gerenciamento de estado
+  // Authentication state hooks
   const { 
     user, 
     session, 
@@ -17,18 +17,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthChecked 
   } = useAuthState();
   
-  // Em seguida, configurar ações que usam os setters de estado
+  // Actions that affect auth state
   const { signIn, signUp, signOut, forgotPassword, updatePassword } = useAuthActions(setLoading, setUser);
 
-  // Fornecer método para verificação explícita do estado de autenticação
+  // For preventing multiple verifications
+  const verificationAttempted = useRef(false);
+
+  // Method to explicitly verify auth state
   const verifyAuthState = useCallback(() => {
-    if (!authChecked && !loading) {
+    if (!authChecked && !loading && !verificationAttempted.current) {
       console.log("Explicitly verifying auth state");
+      verificationAttempted.current = true;
       setAuthChecked(true);
     }
   }, [authChecked, loading, setAuthChecked]);
 
-  // Registrar o estado de autenticação quando ele muda
+  // Debugging auth state changes
   useEffect(() => {
     console.log('AuthProvider state updated:', { 
       user: !!user, 
@@ -37,19 +41,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       connectionError,
       authChecked
     });
-    
-    // Auto-verificação após um período razoável se ainda não estiver verificado
-    if (!authChecked && !loading) {
+  }, [user, session, loading, connectionError, authChecked]);
+
+  // Auto-verification after initialization completes
+  useEffect(() => {
+    if (!authChecked && !loading && !verificationAttempted.current) {
       const timer = setTimeout(() => {
-        console.log("Auto setting authChecked to true after timeout");
+        console.log("Auto setting authChecked to true after initialization completed");
+        verificationAttempted.current = true;
         setAuthChecked(true);
-      }, 500);
+      }, 800); // Increased timeout to ensure all listeners are set up
       
       return () => clearTimeout(timer);
     }
-  }, [user, session, loading, connectionError, authChecked, setAuthChecked]);
+  }, [user, session, loading, authChecked, setAuthChecked]);
 
-  // Fornecer o contexto de autenticação aos filhos
+  // Provide auth context to children
   return (
     <AuthContext.Provider
       value={{

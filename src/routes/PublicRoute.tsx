@@ -1,28 +1,45 @@
 
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
 
 export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, authChecked, verifyAuthState } = useAuth();
   const location = useLocation();
-  const [redirectChecked, setRedirectChecked] = useState(false);
+  const [navigationReady, setNavigationReady] = useState(false);
 
   useEffect(() => {
-    // Verify auth state if needed
-    if (!loading && !authChecked) {
-      verifyAuthState();
+    let navigationTimer: NodeJS.Timeout;
+    
+    // Safety timeout to prevent stuck states
+    navigationTimer = setTimeout(() => {
+      if (!navigationReady) {
+        console.log('PublicRoute - Safety timeout triggered, forcing navigation decision');
+        setNavigationReady(true);
+      }
+    }, 2000);
+    
+    // Wait for auth check to complete before deciding on navigation
+    if (!loading) {
+      // Ensure auth state is verified if needed
+      if (!authChecked) {
+        verifyAuthState();
+        return;
+      }
+      
+      // Log the state once for debugging
+      if (authChecked && !navigationReady) {
+        console.log('PublicRoute - path:', location.pathname, 'user:', !!user, 
+                    'loading:', loading, 'authChecked:', authChecked);
+        setNavigationReady(true);
+      }
     }
     
-    // Verificar autenticação uma vez quando o carregamento estiver concluído
-    if (!loading && authChecked && !redirectChecked) {
-      console.log('PublicRoute - path:', location.pathname, 'user:', !!user, 'loading:', loading, 'authChecked:', authChecked);
-      setRedirectChecked(true);
-    }
-  }, [location, user, loading, redirectChecked, authChecked, verifyAuthState]);
+    return () => clearTimeout(navigationTimer);
+  }, [location, user, loading, navigationReady, authChecked, verifyAuthState]);
 
-  // Mostrar carregamento apenas durante a verificação inicial de autenticação
-  if (loading || !authChecked) {
+  // Show loading state while auth is being verified
+  if (loading || !navigationReady) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -31,10 +48,8 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Para rotas públicas, se o usuário já estiver autenticado,
-  // redirecionar para o dashboard
+  // For public routes, if user is authenticated, redirect to dashboard or intended destination
   if (user) {
-    // Obter o destino pretendido do estado ou usar o padrão para dashboard
     const from = location.state?.from || '/dashboard';
     console.log('PublicRoute - User authenticated, redirecting to:', from);
     return <Navigate to={from} replace />;

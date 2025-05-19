@@ -21,35 +21,41 @@ interface LoginFormProps {
 export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormProps) => {
   const { signIn, user, loading, authChecked } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Redirect user after successful login
+  // Redirect user after login
   useEffect(() => {
-    if (user && authChecked && !loading) {
+    // Only handle redirection once we have an authenticated user and auth is checked
+    if (user && authChecked && !loading && !redirectAttempted) {
       const from = location.state?.from || '/dashboard';
       console.log('LoginForm: User authenticated, redirecting to:', from);
-      navigate(from, { replace: true });
+      setRedirectAttempted(true);
+      
+      // Small timeout to ensure state updates are processed
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 100);
     }
-  }, [user, authChecked, loading, navigate, location.state]);
+  }, [user, authChecked, loading, navigate, location.state, redirectAttempted]);
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
     setSuccess(null);
+    setRedirectAttempted(false); // Reset redirect attempted flag
     
     try {
       console.log('Submitting login form with email:', data.email);
       await signIn(data.email, data.password);
       console.log('Sign in completed successfully');
-      
-      // Navigation will be handled by the useEffect above
+      // Navigation will be handled by the useEffect hook
       
     } catch (error: any) {
       console.error('Login error:', error);
       
-      // Exibir mensagens de erro específicas
       if (error.message && error.message.includes('Email não confirmado')) {
         setError("Seu email ainda não foi confirmado. Por favor, verifique sua caixa de entrada e clique no link de confirmação.");
       } else if (error.message && error.message.includes('Credenciais inválidas')) {

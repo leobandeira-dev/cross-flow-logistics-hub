@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Usuario } from '@/types/supabase.types';
 import { Session } from '@supabase/supabase-js';
@@ -10,19 +9,34 @@ export const useAuthState = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [connectionError, setConnectionError] = useState<boolean>(false);
   const [authChecked, setAuthChecked] = useState<boolean>(false);
+  
+  // Keep track of initialization
+  const initialized = useRef(false);
 
+  // Set up auth state listeners and check current session
   useEffect(() => {
-    console.log('Inicializando estado de autenticação');
+    console.log('Initializing auth state management');
+    
     let isMounted = true;
     let initTimeout: NodeJS.Timeout | null = null;
+    let authTimeout: NodeJS.Timeout | null = null;
     
-    // Primeiro configurar a assinatura para mudanças no estado de autenticação
+    // Safety timeout to prevent stuck loading state
+    initTimeout = setTimeout(() => {
+      if (isMounted && loading) {
+        console.log('Auth initialization safety timeout triggered');
+        setLoading(false);
+        if (!authChecked) setAuthChecked(true);
+      }
+    }, 3000);
+
+    // First, set up the auth state change subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        if (!isMounted) return;
+        
         console.log('Evento de autenticação:', event);
         
-        if (!isMounted) return;
-
         if (currentSession) {
           setSession(currentSession);
           
@@ -31,7 +45,10 @@ export const useAuthState = () => {
             const usuarioData: Usuario = {
               id: userData.id,
               email: userData.email || '',
-              nome: userData.user_metadata?.nome || userData.user_metadata?.name || userData.email || '',
+              nome: userData.user_meta_data?.nome || 
+                   userData.user_metadata?.nome || 
+                   userData.user_metadata?.name || 
+                   userData.email || '',
               telefone: userData.user_metadata?.telefone,
               avatar_url: userData.user_metadata?.avatar_url,
               empresa_id: userData.user_metadata?.empresa_id,
@@ -50,25 +67,21 @@ export const useAuthState = () => {
           setSession(null);
           console.log('User is null from auth change event');
         }
+        
+        // Don't mark as checked from events since session might still be initializing
       }
     );
     
-    // Então verificar a sessão atual
+    // Then check for an existing session
     const initializeAuth = async () => {
-      // Garantir que a inicialização termine eventualmente
-      initTimeout = setTimeout(() => {
-        if (isMounted && loading) {
-          console.log('Auth initialization timed out, setting loading to false');
-          setLoading(false);
-          setAuthChecked(true);
-        }
-      }, 2000);
-
+      if (initialized.current) return;
+      initialized.current = true;
+      
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         if (!isMounted) return;
-
+        
         if (currentSession) {
           setSession(currentSession);
           
@@ -77,7 +90,10 @@ export const useAuthState = () => {
             const usuarioData: Usuario = {
               id: userData.id,
               email: userData.email || '',
-              nome: userData.user_metadata?.nome || userData.user_metadata?.name || userData.email || '',
+              nome: userData.user_meta_data?.nome || 
+                   userData.user_metadata?.nome || 
+                   userData.user_metadata?.name || 
+                   userData.email || '',
               telefone: userData.user_metadata?.telefone,
               avatar_url: userData.user_metadata?.avatar_url,
               empresa_id: userData.user_metadata?.empresa_id,
@@ -103,24 +119,28 @@ export const useAuthState = () => {
       } finally {
         if (isMounted) {
           setLoading(false);
-          setAuthChecked(true);
-        }
-        
-        if (initTimeout) {
-          clearTimeout(initTimeout);
+          
+          // Allow a small delay to ensure all state updates are processed
+          authTimeout = setTimeout(() => {
+            if (isMounted && !authChecked) {
+              console.log('Auth initialization completed, marking as checked');
+              setAuthChecked(true);
+            }
+          }, 100);
         }
       }
     };
     
+    // Start the initialization
     initializeAuth();
     
+    // Clean up
     return () => {
       isMounted = false;
       subscription.unsubscribe();
       
-      if (initTimeout) {
-        clearTimeout(initTimeout);
-      }
+      if (initTimeout) clearTimeout(initTimeout);
+      if (authTimeout) clearTimeout(authTimeout);
     };
   }, []);
 
