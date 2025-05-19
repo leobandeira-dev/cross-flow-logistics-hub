@@ -5,7 +5,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
   Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
-  Calculator, BarChart, PieChart, Table, Download, Printer, Search, Filter, List, Kanban
+  Calculator, BarChart, PieChart, Table, Download, Printer, Search, Filter, List, Kanban,
+  // Novos ícones para o módulo administrativo
+  ClipboardList, CreditCard, FileSpreadsheet, Briefcase, BookUser, HelpCircle, Target
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -91,6 +93,25 @@ const Sidebar: React.FC = () => {
       
       <nav className="flex-1 overflow-y-auto py-4 px-2">
         <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/dashboard" active />
+        
+        {/* Módulo de Administração - Novo */}
+        <SubMenu icon={Briefcase} label="Administração" defaultOpen={false}>
+          <SidebarItem icon={LayoutDashboard} label="Dashboard Admin" href="/admin" />
+          <SidebarItem icon={Users} label="Clientes" href="/admin/clientes" />
+          <SubMenu icon={FileSpreadsheet} label="Financeiro" defaultOpen={false}>
+            <SidebarItem icon={CreditCard} label="Recebimentos" href="/admin/financeiro/recebimentos" />
+            <SidebarItem icon={FileText} label="Notas Fiscais" href="/admin/financeiro/notas-fiscais" />
+          </SubMenu>
+          <SubMenu icon={Package} label="Produtos" defaultOpen={false}>
+            <SidebarItem icon={Package} label="Pacotes" href="/admin/produtos/pacotes" />
+          </SubMenu>
+          <SubMenu icon={BookUser} label="Acessos" defaultOpen={false}>
+            <SidebarItem icon={Users} label="Gestão de Acessos" href="/admin/acessos" />
+            <SidebarItem icon={FileText} label="Reset de Senhas" href="/admin/acessos/reset-senhas" />
+          </SubMenu>
+          <SidebarItem icon={HelpCircle} label="Suporte" href="/admin/suporte" />
+          <SidebarItem icon={Target} label="Leads" href="/admin/leads" />
+        </SubMenu>
         
         <SubMenu icon={Truck} label="Coletas" defaultOpen={false}>
           <SidebarItem icon={FileText} label="Solicitações" href="/coletas/solicitacoes" />
