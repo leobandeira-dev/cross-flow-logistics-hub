@@ -13,6 +13,7 @@ import ColetasRoutes from './features/ColetasRoutes';
 import RelatoriosRoutes from './features/RelatoriosRoutes';
 import CadastrosRoutes from './features/CadastrosRoutes';
 import ConfiguracoesRoutes from './features/ConfiguracoesRoutes';
+import AdminRoutes from './features/AdminRoutes';
 
 const AppRoutes = () => {
   const { user } = useAuth();
@@ -31,6 +32,7 @@ const AppRoutes = () => {
       {RelatoriosRoutes()}
       {CadastrosRoutes()}
       {ConfiguracoesRoutes()}
+      {AdminRoutes()} {/* Add the Admin routes here */}
       
       {/* NotFound */}
       <Route path="*" element={<NotFound />} />
