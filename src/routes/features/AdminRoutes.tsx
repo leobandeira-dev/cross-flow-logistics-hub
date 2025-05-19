@@ -14,7 +14,7 @@ import LeadsAdmin from '@/pages/admin/leads/LeadsAdmin';
 import ResetSenhasAdmin from '@/pages/admin/acessos/ResetSenhasAdmin';
 
 const AdminRoutes = () => {
-  // Create a special admin protected route wrapper to prevent redirects
+  // Create a wrapper component for admin routes
   const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => (
     <ProtectedRoute>
       {children}
@@ -22,7 +22,7 @@ const AdminRoutes = () => {
   );
 
   return [
-    // Admin Dashboard - Using the special admin protected route
+    // All admin routes using the admin protected route wrapper
     <Route key="admin-dashboard" path="/admin" element={
       <AdminProtectedRoute>
         <AdminDashboard />
