@@ -33,9 +33,13 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFor
     try {
       await signUp(data.email, data.password, data.nome, data.telefone, data.cnpj);
       setActiveTab('login');
-      setSuccess('Cadastro realizado com sucesso! Verifique seu e-mail para confirmar o cadastro.');
+      setSuccess('Cadastro realizado com sucesso! Enviamos um email para confirmação. Por favor, verifique sua caixa de entrada (e a pasta de spam) para ativar sua conta.');
     } catch (error: any) {
-      setError(error?.message || 'Ocorreu um erro ao fazer cadastro.');
+      if (error.message.includes('already registered')) {
+        setError('Este email já está cadastrado. Por favor, faça login ou utilize outro email.');
+      } else {
+        setError(error?.message || 'Ocorreu um erro ao fazer cadastro.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -117,6 +121,12 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFor
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? 'Cadastrando...' : 'Cadastrar'}
       </Button>
+      
+      <div className="mt-3 text-sm text-gray-500 text-center">
+        Ao se cadastrar, você receberá um email de confirmação.
+        <br />
+        É necessário confirmar seu email antes de fazer login.
+      </div>
     </form>
   );
 };

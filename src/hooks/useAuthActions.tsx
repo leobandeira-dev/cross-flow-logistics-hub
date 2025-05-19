@@ -18,7 +18,16 @@ export const useAuthActions = (
         password
       });
       
-      if (error) throw error;
+      if (error) {
+        // Tratamento específico para diferentes tipos de erro
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Credenciais inválidas. Verifique seu e-mail e senha.');
+        } else if (error.message.includes('Email not confirmed')) {
+          throw new Error('Email não confirmado. Por favor, verifique sua caixa de entrada e confirme seu cadastro.');
+        } else {
+          throw error;
+        }
+      }
       
       // O onAuthStateChange irá atualizar o estado do usuário
       
@@ -58,8 +67,9 @@ export const useAuthActions = (
             nome,
             telefone,
             cnpj,
-            funcao: 'operador' // Função padrão para novos usuários
-          }
+            funcao: 'operador', // Função padrão para novos usuários
+          },
+          emailRedirectTo: window.location.origin + '/auth?confirmed=true'
         }
       });
       
@@ -67,7 +77,7 @@ export const useAuthActions = (
       
       toast({
         title: "Cadastro realizado com sucesso",
-        description: "Bem-vindo ao sistema! Verifique seu email para confirmar o cadastro.",
+        description: "Enviamos um email de confirmação para você. Por favor, verifique sua caixa de entrada e confirme seu cadastro para acessar o sistema.",
       });
       
       console.log('Usuário cadastrado:', data.user);

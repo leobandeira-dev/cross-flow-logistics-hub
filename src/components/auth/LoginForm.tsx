@@ -35,7 +35,15 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
       // Navigation will be handled by the auth redirects
     } catch (error: any) {
       console.error('Login error:', error);
-      setError(error?.message || 'An error occurred during login. Please check your credentials.');
+      
+      // Exibir mensagens de erro específicas
+      if (error.message.includes('Email não confirmado')) {
+        setError("Seu email ainda não foi confirmado. Por favor, verifique sua caixa de entrada e clique no link de confirmação.");
+      } else if (error.message.includes('Credenciais inválidas')) {
+        setError("Email ou senha incorretos. Por favor, verifique e tente novamente.");
+      } else {
+        setError(error?.message || 'Ocorreu um erro durante o login. Verifique suas credenciais.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -48,19 +56,19 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
         <Input
           id="email"
           type="email"
-          placeholder="your@email.com"
-          {...register('email', { required: "Email is required" })}
+          placeholder="seu@email.com"
+          {...register('email', { required: "Email é obrigatório" })}
         />
         {errors.email && (
           <p className="text-sm text-red-500">{errors.email.message}</p>
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">Senha</Label>
         <Input
           id="password"
           type="password"
-          {...register('password', { required: "Password is required" })}
+          {...register('password', { required: "Senha é obrigatória" })}
         />
         {errors.password && (
           <p className="text-sm text-red-500">{errors.password.message}</p>
@@ -74,12 +82,12 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
               onForgotPassword();
             }}
           >
-            Forgot password?
+            Esqueceu a senha?
           </Button>
         </div>
       </div>
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? 'Logging in...' : 'Login'}
+        {isLoading ? 'Entrando...' : 'Entrar'}
       </Button>
     </form>
   );

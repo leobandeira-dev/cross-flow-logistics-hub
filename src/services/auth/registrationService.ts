@@ -21,7 +21,8 @@ const registrationService = {
           telefone: credentials.telefone,
           cnpj: credentials.cnpj, // Importante: adiciona o CNPJ aos metadados para vinculação à empresa
           funcao: credentials.funcao || 'operador'
-        }
+        },
+        emailRedirectTo: `${window.location.origin}/auth?confirmed=true`
       }
     });
 
