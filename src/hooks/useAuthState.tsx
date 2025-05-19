@@ -21,47 +21,57 @@ export const useAuthState = () => {
     let authTimeout: NodeJS.Timeout | null = null;
     
     // First, set up auth state change subscription
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        if (!isMounted.current) return;
-        
-        console.log('Evento de autenticação detectado:', event);
-        
-        // Update session state
-        setSession(currentSession);
-        
-        // Update user state if we have a session
-        if (currentSession?.user) {
-          const userData = currentSession.user;
-          console.log('Metadados do usuário:', userData.user_metadata);
+    let subscription;
+    try {
+      const { data } = supabase.auth.onAuthStateChange(
+        async (event, currentSession) => {
+          if (!isMounted.current) return;
           
-          const usuarioData: Usuario = {
-            id: userData.id,
-            email: userData.email || '',
-            nome: userData.user_metadata?.nome || 
-                 userData.user_metadata?.name || 
-                 userData.email || '',
-            telefone: userData.user_metadata?.telefone,
-            avatar_url: userData.user_metadata?.avatar_url,
-            empresa_id: userData.user_metadata?.empresa_id,
-            perfil_id: userData.user_metadata?.perfil_id,
-            status: userData.user_metadata?.status,
-            created_at: userData.created_at || new Date().toISOString(),
-            updated_at: userData.updated_at || new Date().toISOString(),
-            funcao: userData.user_metadata?.funcao || 'operador'
-          };
+          console.log('Evento de autenticação detectado:', event);
           
-          setUser(usuarioData);
-          setLoading(false);
-          setAuthChecked(true);
-        } else {
-          // Clear user state if no session
-          setUser(null);
-          setLoading(false);
-          setAuthChecked(true);
+          // Update session state
+          setSession(currentSession);
+          
+          // Update user state if we have a session
+          if (currentSession?.user) {
+            const userData = currentSession.user;
+            console.log('Metadados do usuário:', userData.user_metadata);
+            
+            const usuarioData: Usuario = {
+              id: userData.id,
+              email: userData.email || '',
+              nome: userData.user_metadata?.nome || 
+                   userData.user_metadata?.name || 
+                   userData.email || '',
+              telefone: userData.user_metadata?.telefone,
+              avatar_url: userData.user_metadata?.avatar_url,
+              empresa_id: userData.user_metadata?.empresa_id,
+              perfil_id: userData.user_metadata?.perfil_id,
+              status: userData.user_metadata?.status,
+              created_at: userData.created_at || new Date().toISOString(),
+              updated_at: userData.updated_at || new Date().toISOString(),
+              funcao: userData.user_metadata?.funcao || 'operador'
+            };
+            
+            setUser(usuarioData);
+            setLoading(false);
+            setAuthChecked(true);
+          } else {
+            // Clear user state if no session
+            setUser(null);
+            setLoading(false);
+            setAuthChecked(true);
+          }
         }
-      }
-    );
+      );
+      
+      subscription = data.subscription;
+    } catch (error) {
+      console.error('Erro ao configurar listener de autenticação:', error);
+      setLoading(false);
+      setAuthChecked(true);
+      setConnectionError(true);
+    }
     
     // Then check for existing session
     const initializeAuth = async () => {
@@ -127,7 +137,13 @@ export const useAuthState = () => {
     // Cleanup
     return () => {
       isMounted.current = false;
-      subscription.unsubscribe();
+      if (subscription) {
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.error('Error unsubscribing from auth events:', error);
+        }
+      }
       
       if (authTimeout) clearTimeout(authTimeout);
     };
