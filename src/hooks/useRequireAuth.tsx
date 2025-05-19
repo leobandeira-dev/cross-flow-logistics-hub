@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
-export const useRequireAuth = (redirectUrl: string = '/dashboard') => {
+export const useRequireAuth = (redirectUrl: string = '/') => {
   const { user, loading, authChecked } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,8 +39,14 @@ export const useRequireAuth = (redirectUrl: string = '/dashboard') => {
       }
     } catch (error) {
       console.error('Navigation error in useRequireAuth:', error);
-      // In case of error, fallback to simpler approach
-      window.location.href = redirectUrl;
+      // Em caso de erro no ambiente de preview, tentamos uma abordagem mais simples
+      if (window.location.hostname.includes('lovableproject.com') || 
+          window.location.hostname.includes('lovable.app')) {
+        window.location.hash = redirectUrl.replace(/^\//, '');
+      } else {
+        // Fallback para navegação direta em produção
+        window.location.href = redirectUrl;
+      }
     }
   }, [user, loading, authChecked, navigate, redirectUrl, location.pathname]);
 

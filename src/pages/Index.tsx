@@ -11,7 +11,18 @@ const Index = () => {
     // Redirecionar para dashboard quando a verificação de autenticação estiver completa
     if (authChecked) {
       console.log('Index page - Verificação de autenticação concluída, redirecionando para dashboard');
-      navigate('/dashboard', { replace: true });
+      try {
+        navigate('/dashboard', { replace: true });
+      } catch (error) {
+        console.error('Error navigating to dashboard:', error);
+        // Fallback para navegação direta em caso de erro
+        if (window.location.hostname.includes('lovableproject.com') || 
+            window.location.hostname.includes('lovable.app')) {
+          window.location.hash = 'dashboard';
+        } else {
+          window.location.href = '/dashboard';
+        }
+      }
     }
   }, [authChecked, navigate]);
 
