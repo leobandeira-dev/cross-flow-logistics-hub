@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { subDays } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../components/layout/MainLayout';
 import DateRangeSelector from '../../components/dashboard/DateRangeSelector';
 import StatCardsSection from './components/StatCardsSection';
@@ -11,27 +10,13 @@ import ProcessTimelineSection from './components/ProcessTimelineSection';
 import PendingApprovalSection from './components/PendingApprovalSection';
 import OperationalMetricsSection from './components/OperationalMetricsSection';
 import RecentCollectRequestsSection from './components/RecentCollectRequestsSection';
-import { useAuth } from '@/hooks/useAuth';
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-  
   // Initialize with the last 30 days as the default date range
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 30),
     to: new Date()
   });
-
-  // Log that we're rendering the dashboard component
-  console.log('Dashboard component rendering. User authenticated:', !!user);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      console.log('No authenticated user in Dashboard, redirecting to landing page');
-      navigate('/', { replace: true });
-    }
-  }, [user, loading, navigate]);
 
   return (
     <MainLayout title="Dashboard">

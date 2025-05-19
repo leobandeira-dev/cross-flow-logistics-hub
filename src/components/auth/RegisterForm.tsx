@@ -5,14 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
-import { SignUpCredentials } from '@/services/auth/authTypes';
 
 type RegisterFormData = {
   nome: string;
   email: string;
   telefone?: string;
   cnpj: string;
-  cnpj_transportadora?: string;
   password: string;
 };
 
@@ -20,10 +18,9 @@ interface RegisterFormProps {
   setError: (error: string | null) => void;
   setSuccess: (success: string | null) => void;
   setActiveTab: (tab: string) => void;
-  userType: 'cliente' | 'transportador';
 }
 
-export const RegisterForm = ({ setError, setSuccess, setActiveTab, userType }: RegisterFormProps) => {
+export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFormProps) => {
   const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>();
@@ -34,19 +31,7 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab, userType }: R
     setSuccess(null);
     
     try {
-      const funcao = userType === 'transportador' ? 'fornecedor' : 'operador';
-      
-      const credentials: SignUpCredentials = {
-        email: data.email,
-        password: data.password,
-        nome: data.nome,
-        telefone: data.telefone,
-        cnpj: data.cnpj,
-        funcao: funcao,
-        cnpj_transportadora: data.cnpj_transportadora
-      };
-      
-      await signUp(credentials);
+      await signUp(data.email, data.password, data.nome, data.telefone, data.cnpj);
       setActiveTab('login');
       setSuccess('Cadastro realizado com sucesso! Enviamos um email para confirmação. Por favor, verifique sua caixa de entrada (e a pasta de spam) para ativar sua conta.');
     } catch (error: any) {
@@ -92,7 +77,7 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab, userType }: R
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="cnpj">CNPJ da {userType === 'transportador' ? 'Sua Empresa' : 'Empresa'}</Label>
+        <Label htmlFor="cnpj">CNPJ da Empresa</Label>
         <Input
           id="cnpj"
           placeholder="00.000.000/0000-00"
@@ -108,27 +93,6 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab, userType }: R
           <p className="text-sm text-red-500">{errors.cnpj.message}</p>
         )}
       </div>
-      
-      {userType === 'transportador' && (
-        <div className="space-y-2">
-          <Label htmlFor="cnpj_transportadora">CNPJ da Transportadora Principal</Label>
-          <Input
-            id="cnpj_transportadora"
-            placeholder="CNPJ da transportadora licenciada"
-            {...register('cnpj_transportadora', { 
-              required: 'CNPJ da transportadora é obrigatório',
-              minLength: {
-                value: 14,
-                message: 'CNPJ deve ter pelo menos 14 dígitos'
-              }
-            })}
-          />
-          {errors.cnpj_transportadora && (
-            <p className="text-sm text-red-500">{errors.cnpj_transportadora.message}</p>
-          )}
-        </div>
-      )}
-      
       <div className="space-y-2">
         <Label htmlFor="telefone">Telefone (opcional)</Label>
         <Input

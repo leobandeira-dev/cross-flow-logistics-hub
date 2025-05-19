@@ -2,6 +2,7 @@
 import React from 'react';
 import { LogOut, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,10 +17,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 export const UserProfileMenu: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { profile } = useUserProfile();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
-  if (!user) return null;
+  if (!profile) return null;
 
   const getInitials = (name: string) => {
     return name
@@ -43,10 +45,10 @@ export const UserProfileMenu: React.FC = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="rounded-full h-10 w-10 p-0">
-          {user.avatar_url ? (
+          {profile.avatar ? (
             <Avatar>
-              <AvatarImage src={user.avatar_url} alt={user.nome} />
-              <AvatarFallback>{getInitials(user.nome)}</AvatarFallback>
+              <AvatarImage src={profile.avatar} alt={profile.name} />
+              <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
             </Avatar>
           ) : (
             <User size={20} />
@@ -57,8 +59,8 @@ export const UserProfileMenu: React.FC = () => {
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium">{user.nome}</p>
-            <p className="text-xs text-gray-500">{user.email}</p>
+            <p className="text-sm font-medium">{profile.name}</p>
+            <p className="text-xs text-gray-500">{profile.email}</p>
           </div>
         </DropdownMenuLabel>
         

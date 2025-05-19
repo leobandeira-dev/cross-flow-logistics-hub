@@ -10,7 +10,7 @@ const registrationService = {
    * Cadastra um novo usuário
    */
   async signUp(credentials: SignUpCredentials) {
-    console.log('RegistrationService: Cadastrando usuário com:', credentials.email, 'função:', credentials.funcao);
+    console.log('RegistrationService: Cadastrando usuário com:', credentials.email);
     
     const { data, error } = await supabase.auth.signUp({
       email: credentials.email,
@@ -19,9 +19,8 @@ const registrationService = {
         data: {
           nome: credentials.nome,
           telefone: credentials.telefone,
-          cnpj: credentials.cnpj, 
-          funcao: credentials.funcao || 'operador',
-          cnpj_transportadora: credentials.cnpj_transportadora
+          cnpj: credentials.cnpj, // Importante: adiciona o CNPJ aos metadados para vinculação à empresa
+          funcao: credentials.funcao || 'operador'
         },
         emailRedirectTo: `${window.location.origin}/auth?confirmed=true`
       }

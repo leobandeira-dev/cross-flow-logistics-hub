@@ -13,7 +13,6 @@ export type SignUpCredentials = {
   telefone?: string;
   cnpj: string;
   funcao?: string;
-  cnpj_transportadora?: string;
 };
 
 export type AuthSession = {

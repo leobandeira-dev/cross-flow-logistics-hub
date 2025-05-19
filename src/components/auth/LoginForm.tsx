@@ -4,9 +4,8 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 type LoginFormData = {
   email: string;
@@ -20,9 +19,8 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormProps) => {
-  const { signIn, verifyAuthState } = useAuth();
+  const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
 
   const handleLogin = async (data: LoginFormData) => {
@@ -33,25 +31,15 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
     try {
       console.log('Submitting login form with email:', data.email);
       await signIn(data.email, data.password);
-      console.log('Sign in completed successfully');
-      
-      // Make sure auth state is verified
-      verifyAuthState();
-      
-      toast({
-        title: "Login realizado com sucesso",
-        description: "Você será redirecionado para o dashboard.",
-      });
-      
-      // Navigate to dashboard after successful login
-      navigate('/dashboard', { replace: true });
-      
+      console.log('Sign in completed');
+      // Navigation will be handled by the auth redirects
     } catch (error: any) {
       console.error('Login error:', error);
       
-      if (error.message && error.message.includes('Email não confirmado')) {
+      // Exibir mensagens de erro específicas
+      if (error.message.includes('Email não confirmado')) {
         setError("Seu email ainda não foi confirmado. Por favor, verifique sua caixa de entrada e clique no link de confirmação.");
-      } else if (error.message && error.message.includes('Credenciais inválidas')) {
+      } else if (error.message.includes('Credenciais inválidas')) {
         setError("Email ou senha incorretos. Por favor, verifique e tente novamente.");
       } else {
         setError(error?.message || 'Ocorreu um erro durante o login. Verifique suas credenciais.');

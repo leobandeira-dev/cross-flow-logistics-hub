@@ -1,7 +1,8 @@
+
+import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { Usuario } from '@/types/supabase.types';
 import { supabase } from '@/integrations/supabase/client';
-import { SignUpCredentials } from '@/services/auth/authTypes';
 
 export const useAuthActions = (
   setLoading: (loading: boolean) => void,
@@ -28,9 +29,14 @@ export const useAuthActions = (
         }
       }
       
-      // Auth state change events will update the user state
+      // O onAuthStateChange irá atualizar o estado do usuário
       
-      console.log('Login bem-sucedido:', data);
+      toast({
+        title: "Login realizado com sucesso",
+        description: "Bem-vindo de volta!",
+      });
+      
+      console.log('Usuário logado:', data.user);
     } catch (error: any) {
       console.error('Erro de login:', error);
       toast({
@@ -44,27 +50,26 @@ export const useAuthActions = (
     }
   };
 
-  const signUp = async (credentials: SignUpCredentials): Promise<void> => {
+  const signUp = async (email: string, password: string, nome: string, telefone?: string, cnpj?: string): Promise<void> => {
     setLoading(true);
     try {
-      console.log('Tentativa de registro com:', credentials.email, 'funcao:', credentials.funcao);
+      console.log('Tentativa de registro com:', email);
       
-      if (!credentials.cnpj) {
+      if (!cnpj) {
         throw new Error("CNPJ é obrigatório para cadastro");
       }
       
       const { data, error } = await supabase.auth.signUp({
-        email: credentials.email,
-        password: credentials.password,
+        email,
+        password,
         options: {
           data: {
-            nome: credentials.nome,
-            telefone: credentials.telefone,
-            cnpj: credentials.cnpj,
-            funcao: credentials.funcao || 'operador',
-            cnpj_transportadora: credentials.cnpj_transportadora,
+            nome,
+            telefone,
+            cnpj,
+            funcao: 'operador', // Função padrão para novos usuários
           },
-          emailRedirectTo: `${window.location.origin}/auth?confirmed=true`
+          emailRedirectTo: window.location.origin + '/auth?confirmed=true'
         }
       });
       
@@ -97,7 +102,7 @@ export const useAuthActions = (
       
       if (error) throw error;
       
-      // Clear user state
+      // Limpar estado do usuário
       setUser(null);
       
       toast({
@@ -105,8 +110,7 @@ export const useAuthActions = (
         description: "Você foi desconectado do sistema.",
       });
       
-      // Redirect happens via auth state change events
-      console.log('Logout bem-sucedido');
+      console.log('Usuário deslogado');
     } catch (error: any) {
       console.error('Erro ao fazer logout:', error);
       toast({
@@ -120,7 +124,7 @@ export const useAuthActions = (
   const forgotPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: window.location.origin + '/reset-password'
       });
       
       if (error) throw error;
