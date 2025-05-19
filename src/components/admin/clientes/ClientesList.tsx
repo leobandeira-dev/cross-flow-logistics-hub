@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { SearchFilter } from '@/components/common/SearchFilter';
+import SearchFilter from '@/components/common/SearchFilter';
 import { 
   MoreHorizontal, 
   Edit, 

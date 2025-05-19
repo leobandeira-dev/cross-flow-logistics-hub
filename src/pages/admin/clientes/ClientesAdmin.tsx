@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import MainLayout from '@/components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ClientesList } from '@/components/admin/clientes/ClientesList';
 import { ClienteForm } from '@/components/admin/clientes/ClienteForm';

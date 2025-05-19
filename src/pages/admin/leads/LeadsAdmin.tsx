@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import MainLayout from '@/components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LeadsKanbanView } from '@/components/admin/leads/LeadsKanbanView';
 import { LeadsTableView } from '@/components/admin/leads/LeadsTableView';
