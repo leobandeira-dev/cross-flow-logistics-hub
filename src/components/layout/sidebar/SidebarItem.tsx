@@ -22,6 +22,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, href, acti
   const isAdminRoute = href.startsWith('/admin');
   const hasAdminAccess = user?.funcao === 'admin';
   
+  // Console log for debugging
+  if (isAdminRoute) {
+    console.log(`SidebarItem "${label}" - Admin route check:`, { 
+      hasAdminAccess, 
+      userRole: user?.funcao 
+    });
+  }
+  
   // Don't render admin links for non-admin users
   if (isAdminRoute && !hasAdminAccess) {
     return null;

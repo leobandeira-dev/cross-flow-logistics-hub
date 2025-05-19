@@ -11,11 +11,20 @@ import SidebarItem from '../SidebarItem';
 const AdminNavigationGroup: React.FC = () => {
   const { user } = useAuth();
   
-  // Só renderizar para usuários admin
+  // Console log to help debug
+  console.log('AdminNavigationGroup rendering:', { 
+    user: user, 
+    userRole: user?.funcao,
+    isAdmin: user?.funcao === 'admin'
+  });
+  
+  // Only render for admin users
   if (!user || user.funcao !== 'admin') {
+    console.log('AdminNavigationGroup not showing - user is not admin');
     return null;
   }
 
+  console.log('AdminNavigationGroup showing - user is admin');
   return (
     <SubMenu icon={Briefcase} label="Administração" defaultOpen={true}>
       <SidebarItem icon={LayoutDashboard} label="Dashboard Admin" href="/admin" />

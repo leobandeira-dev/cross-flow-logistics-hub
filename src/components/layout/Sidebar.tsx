@@ -16,7 +16,14 @@ import {
 } from './sidebar/NavigationGroups';
 
 const Sidebar: React.FC = () => {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  
+  // Debug log for admin user status
+  console.log('Sidebar rendering with user:', { 
+    userId: user?.id, 
+    userRole: user?.funcao,
+    isAdmin: user?.funcao === 'admin' 
+  });
   
   const handleLogout = async () => {
     try {
