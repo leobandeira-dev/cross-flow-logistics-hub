@@ -43,10 +43,15 @@ interface SubMenuProps {
 const SubMenu: React.FC<SubMenuProps> = ({ label, icon: Icon, children, defaultOpen = false }) => {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
   
+  const handleToggleSubmenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsOpen(!isOpen);
+  };
+  
   return (
     <div className="my-1">
       <button 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggleSubmenu}
         className="flex items-center justify-between w-full text-sidebar-foreground/70 hover:text-sidebar-foreground px-4 py-3 transition-colors"
       >
         <div className="flex items-center gap-3">
