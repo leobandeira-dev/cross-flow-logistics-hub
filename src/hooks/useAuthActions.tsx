@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { Usuario } from '@/types/supabase.types';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useAuthActions = (
   setLoading: (loading: boolean) => void,
@@ -10,34 +11,28 @@ export const useAuthActions = (
   const signIn = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     try {
-      console.log('Login attempt with:', email);
+      console.log('Tentativa de login com:', email);
       
-      // For demonstration, allow any login in frontend-only mode
-      const mockUser: Usuario = {
-        id: '1',
-        email: email,
-        nome: email.split('@')[0],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      
-      // Store user in localStorage for persistence
-      localStorage.setItem('mockUser', JSON.stringify(mockUser));
-      
-      // Update user state
-      setUser(mockUser);
-      
-      toast({
-        title: "Login successful",
-        description: "Welcome back!",
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
       
-      console.log('User logged in:', mockUser);
-    } catch (error: any) {
-      console.error('Login error:', error);
+      if (error) throw error;
+      
+      // O onAuthStateChange irá atualizar o estado do usuário
+      
       toast({
-        title: "Login error",
-        description: error?.message || "Check your credentials and try again.",
+        title: "Login realizado com sucesso",
+        description: "Bem-vindo de volta!",
+      });
+      
+      console.log('Usuário logado:', data.user);
+    } catch (error: any) {
+      console.error('Erro de login:', error);
+      toast({
+        title: "Erro de login",
+        description: error?.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
       throw error;
@@ -46,38 +41,41 @@ export const useAuthActions = (
     }
   };
 
-  const signUp = async (email: string, password: string, nome: string, telefone?: string): Promise<void> => {
+  const signUp = async (email: string, password: string, nome: string, telefone?: string, cnpj?: string): Promise<void> => {
     setLoading(true);
     try {
-      console.log('Registration attempt with:', email);
+      console.log('Tentativa de registro com:', email);
       
-      // Frontend-only mode registration
-      const mockUser: Usuario = {
-        id: '1',
-        email: email,
-        nome: nome,
-        telefone: telefone,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      if (!cnpj) {
+        throw new Error("CNPJ é obrigatório para cadastro");
+      }
       
-      // Store user in localStorage for simulation
-      localStorage.setItem('mockUser', JSON.stringify(mockUser));
-      
-      // Update user state
-      setUser(mockUser);
-      
-      toast({
-        title: "Registration successful",
-        description: "Welcome to the system!",
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            nome,
+            telefone,
+            cnpj,
+            funcao: 'operador' // Função padrão para novos usuários
+          }
+        }
       });
       
-      console.log('User registered:', mockUser);
-    } catch (error: any) {
-      console.error('Registration error:', error);
+      if (error) throw error;
+      
       toast({
-        title: "Registration error",
-        description: error?.message || "Check the information provided and try again.",
+        title: "Cadastro realizado com sucesso",
+        description: "Bem-vindo ao sistema! Verifique seu email para confirmar o cadastro.",
+      });
+      
+      console.log('Usuário cadastrado:', data.user);
+    } catch (error: any) {
+      console.error('Erro no cadastro:', error);
+      toast({
+        title: "Erro no cadastro",
+        description: error?.message || "Verifique as informações fornecidas e tente novamente.",
         variant: "destructive",
       });
       throw error;
@@ -88,25 +86,26 @@ export const useAuthActions = (
 
   const signOut = async () => {
     try {
-      console.log('Signing out');
+      console.log('Fazendo logout');
       
-      // Remove user from localStorage
-      localStorage.removeItem('mockUser');
+      const { error } = await supabase.auth.signOut();
       
-      // Clear user state
+      if (error) throw error;
+      
+      // Limpar estado do usuário
       setUser(null);
       
       toast({
-        title: "Logged out successfully",
-        description: "You have been disconnected from the system.",
+        title: "Logout realizado com sucesso",
+        description: "Você foi desconectado do sistema.",
       });
       
-      console.log('User signed out');
+      console.log('Usuário deslogado');
     } catch (error: any) {
-      console.error('Error signing out:', error);
+      console.error('Erro ao fazer logout:', error);
       toast({
-        title: "Error signing out",
-        description: error?.message || "An error occurred while disconnecting.",
+        title: "Erro ao fazer logout",
+        description: error?.message || "Ocorreu um erro ao desconectar.",
         variant: "destructive",
       });
     }
@@ -114,18 +113,21 @@ export const useAuthActions = (
 
   const forgotPassword = async (email: string) => {
     try {
-      // Simulate sending password reset email
-      console.log('Password reset request for:', email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password'
+      });
+      
+      if (error) throw error;
       
       toast({
-        title: "Email sent",
-        description: "Check your inbox to reset your password.",
+        title: "Email enviado",
+        description: "Confira sua caixa de entrada para redefinir sua senha.",
       });
     } catch (error: any) {
-      console.error('Error requesting password reset:', error);
+      console.error('Erro ao solicitar redefinição de senha:', error);
       toast({
-        title: "Error requesting reset",
-        description: error?.message || "Check the email provided and try again.",
+        title: "Erro na solicitação",
+        description: error?.message || "Verifique o email fornecido e tente novamente.",
         variant: "destructive",
       });
       throw error;
@@ -134,18 +136,21 @@ export const useAuthActions = (
 
   const updatePassword = async (password: string) => {
     try {
-      // Simulate password update
-      console.log('Updating password');
+      const { error } = await supabase.auth.updateUser({
+        password
+      });
+      
+      if (error) throw error;
       
       toast({
-        title: "Password updated",
-        description: "Your password has been updated successfully.",
+        title: "Senha atualizada",
+        description: "Sua senha foi atualizada com sucesso.",
       });
     } catch (error: any) {
-      console.error('Error updating password:', error);
+      console.error('Erro ao atualizar senha:', error);
       toast({
-        title: "Error updating password",
-        description: error?.message || "An error occurred while updating your password.",
+        title: "Erro ao atualizar senha",
+        description: error?.message || "Ocorreu um erro ao atualizar sua senha.",
         variant: "destructive",
       });
       throw error;

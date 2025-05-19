@@ -3,32 +3,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { SignUpCredentials } from "./authTypes";
 
 /**
- * Service for registration operations - frontend only mock
+ * Serviço para operações de registro
  */
 const registrationService = {
   /**
    * Cadastra um novo usuário
    */
   async signUp(credentials: SignUpCredentials) {
-    console.log('RegistrationService: Mocking sign up with:', credentials.email);
+    console.log('RegistrationService: Cadastrando usuário com:', credentials.email);
     
-    // In frontend-only mode, return mock data
-    return {
-      user: {
-        id: 'mock-new-user-id',
-        email: credentials.email,
-        user_metadata: {
+    const { data, error } = await supabase.auth.signUp({
+      email: credentials.email,
+      password: credentials.password,
+      options: {
+        data: {
           nome: credentials.nome,
-          telefone: credentials.telefone
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      session: {
-        access_token: 'mock-access-token',
-        refresh_token: 'mock-refresh-token',
-        expires_at: Date.now() + 3600000 // 1 hour from now
+          telefone: credentials.telefone,
+          cnpj: credentials.cnpj, // Importante: adiciona o CNPJ aos metadados para vinculação à empresa
+          funcao: credentials.funcao || 'operador'
+        }
       }
+    });
+
+    if (error) {
+      console.error('RegistrationService: Erro ao cadastrar:', error);
+      throw error;
+    }
+
+    return {
+      user: data.user,
+      session: data.session
     };
   },
 };

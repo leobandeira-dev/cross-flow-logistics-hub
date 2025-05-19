@@ -9,7 +9,7 @@ type AuthContextType = {
   loading: boolean;
   connectionError: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, nome: string, telefone?: string) => Promise<void>;
+  signUp: (email: string, password: string, nome: string, telefone?: string, cnpj?: string) => Promise<void>;
   signOut: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;

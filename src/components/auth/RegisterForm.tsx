@@ -10,6 +10,7 @@ type RegisterFormData = {
   nome: string;
   email: string;
   telefone?: string;
+  cnpj: string;
   password: string;
 };
 
@@ -22,7 +23,7 @@ interface RegisterFormProps {
 export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFormProps) => {
   const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const { register, handleSubmit } = useForm<RegisterFormData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>();
 
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
@@ -30,7 +31,7 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFor
     setSuccess(null);
     
     try {
-      await signUp(data.email, data.password, data.nome, data.telefone);
+      await signUp(data.email, data.password, data.nome, data.telefone, data.cnpj);
       setActiveTab('login');
       setSuccess('Cadastro realizado com sucesso! Verifique seu e-mail para confirmar o cadastro.');
     } catch (error: any) {
@@ -47,8 +48,11 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFor
         <Input
           id="nome"
           placeholder="Seu nome completo"
-          {...register('nome', { required: true })}
+          {...register('nome', { required: 'Nome é obrigatório' })}
         />
+        {errors.nome && (
+          <p className="text-sm text-red-500">{errors.nome.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="register-email">Email</Label>
@@ -56,8 +60,34 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFor
           id="register-email"
           type="email"
           placeholder="seu@email.com"
-          {...register('email', { required: true })}
+          {...register('email', { 
+            required: 'Email é obrigatório',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Email inválido'
+            }
+          })}
         />
+        {errors.email && (
+          <p className="text-sm text-red-500">{errors.email.message}</p>
+        )}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="cnpj">CNPJ da Empresa</Label>
+        <Input
+          id="cnpj"
+          placeholder="00.000.000/0000-00"
+          {...register('cnpj', { 
+            required: 'CNPJ é obrigatório',
+            minLength: {
+              value: 14,
+              message: 'CNPJ deve ter pelo menos 14 dígitos'
+            }
+          })}
+        />
+        {errors.cnpj && (
+          <p className="text-sm text-red-500">{errors.cnpj.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="telefone">Telefone (opcional)</Label>
@@ -72,8 +102,17 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFor
         <Input
           id="register-password"
           type="password"
-          {...register('password', { required: true })}
+          {...register('password', { 
+            required: 'Senha é obrigatória',
+            minLength: {
+              value: 6,
+              message: 'A senha deve ter pelo menos 6 caracteres'
+            }
+          })}
         />
+        {errors.password && (
+          <p className="text-sm text-red-500">{errors.password.message}</p>
+        )}
       </div>
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? 'Cadastrando...' : 'Cadastrar'}

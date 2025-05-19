@@ -11,15 +11,11 @@ export type SignUpCredentials = {
   password: string;
   nome: string;
   telefone?: string;
+  cnpj: string;
+  funcao?: string;
 };
 
 export type AuthSession = {
-  user: {
-    id: string;
-    email: string;
-  };
-  session: {
-    access_token: string;
-    expires_at: number;
-  };
+  user: any;
+  session: any;
 };

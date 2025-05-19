@@ -1,31 +1,41 @@
 
 import { useState, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 import { Usuario } from '@/types/supabase.types';
 import { Session } from '@supabase/supabase-js';
 
 export const useAuthState = () => {
-  // Create a mock user to bypass authentication
-  const mockUser: Usuario = {
-    id: '1',
-    email: 'usuario@exemplo.com',
-    nome: 'Usuário Padrão',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  
-  const [user, setUser] = useState<Usuario | null>(mockUser);
-  const [session, setSession] = useState<Session | null>({
-    access_token: 'mock-access-token',
-    expires_at: Date.now() + 3600000, // 1 hour from now
-    user: mockUser
-  } as any);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [user, setUser] = useState<Usuario | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [connectionError, setConnectionError] = useState<boolean>(false);
 
-  // No need to check for stored user since we're always using the mock user
   useEffect(() => {
-    console.log('Initializing authentication state (frontend mode - bypassing authentication)');
-    setLoading(false);
+    console.log('Inicializando estado de autenticação');
+    
+    // Primeiro configuramos o listener de mudanças de estado
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        console.log('Evento de autenticação:', event);
+        setSession(currentSession);
+        setUser(currentSession?.user as Usuario || null);
+      }
+    );
+    
+    // Depois verificamos a sessão atual
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user as Usuario || null);
+      setLoading(false);
+    }).catch(error => {
+      console.error('Erro ao verificar sessão:', error);
+      setConnectionError(true);
+      setLoading(false);
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return { 

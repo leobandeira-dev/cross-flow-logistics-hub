@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Service for handling authentication sessions
+ * Serviço para gerenciamento de sessões de autenticação
  */
 const sessionService = {
   /**
@@ -10,7 +10,7 @@ const sessionService = {
    */
   async isAuthenticated() {
     const { data: { session } } = await supabase.auth.getSession();
-    console.log('SessionService: isAuthenticated check returned', !!session);
+    console.log('SessionService: Verificação de autenticação retornou', !!session);
     return !!session;
   },
 
@@ -18,15 +18,15 @@ const sessionService = {
    * Faz logout do usuário
    */
   async signOut() {
-    console.log('Attempting to sign out');
+    console.log('Tentando fazer logout');
     const { error } = await supabase.auth.signOut();
     
     if (error) {
-      console.error('Sign out error:', error);
+      console.error('Erro no logout:', error);
       throw new Error(error.message);
     }
 
-    console.log('Sign out successful');
+    console.log('Logout realizado com sucesso');
     return true;
   },
 };
