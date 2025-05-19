@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Usuario } from '@/types/supabase.types';
@@ -10,29 +11,29 @@ export const useAuthState = () => {
   const [connectionError, setConnectionError] = useState<boolean>(false);
   const [authChecked, setAuthChecked] = useState<boolean>(false);
   
-  // Keep track of initialization
+  // Controlar inicialização
   const initialized = useRef(false);
   const isMounted = useRef(true);
 
-  // Set up auth state listeners and check current session
+  // Configurar ouvintes de estado de autenticação e verificar sessão atual
   useEffect(() => {
-    console.log('Initializing auth state management');
+    console.log('Inicializando gerenciamento de estado de autenticação');
     
     let authTimeout: NodeJS.Timeout | null = null;
     
-    // First, set up the auth state change subscription
+    // Primeiro, configurar a assinatura de alteração de estado de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         if (!isMounted.current) return;
         
-        console.log('Auth event detected:', event);
+        console.log('Evento de autenticação detectado:', event);
         
         if (currentSession) {
           setSession(currentSession);
           
           if (currentSession.user) {
             const userData = currentSession.user;
-            console.log('User metadata:', userData.user_metadata);
+            console.log('Metadados do usuário:', userData.user_metadata);
             
             const usuarioData: Usuario = {
               id: userData.id,
@@ -51,15 +52,15 @@ export const useAuthState = () => {
             };
             
             setUser(usuarioData);
-            console.log('User updated from auth change event:', usuarioData);
+            console.log('Usuário atualizado a partir do evento de alteração de autenticação:', usuarioData);
           }
         } else {
           setUser(null);
           setSession(null);
-          console.log('User is null from auth change event');
+          console.log('Usuário é nulo a partir do evento de alteração de autenticação');
         }
 
-        // Always mark auth as checked after an auth state change
+        // Sempre marcar a autenticação como verificada após uma alteração de estado de autenticação
         if (!authChecked) {
           setAuthChecked(true);
           setLoading(false);
@@ -67,13 +68,13 @@ export const useAuthState = () => {
       }
     );
     
-    // Then check for an existing session
+    // Em seguida, verificar se há uma sessão existente
     const initializeAuth = async () => {
       if (initialized.current) return;
       initialized.current = true;
       
       try {
-        console.log('Checking for existing session...');
+        console.log('Verificando sessão existente...');
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         if (!isMounted.current) return;
@@ -83,7 +84,7 @@ export const useAuthState = () => {
           
           if (currentSession.user) {
             const userData = currentSession.user;
-            console.log('User metadata from session:', userData.user_metadata);
+            console.log('Metadados do usuário da sessão:', userData.user_metadata);
             
             const usuarioData: Usuario = {
               id: userData.id,
@@ -102,39 +103,39 @@ export const useAuthState = () => {
             };
             
             setUser(usuarioData);
-            console.log('User initialized from session:', usuarioData);
+            console.log('Usuário inicializado a partir da sessão:', usuarioData);
           }
         } else {
           setUser(null);
           setSession(null);
-          console.log('No active session found during initialization');
+          console.log('Nenhuma sessão ativa encontrada durante a inicialização');
         }
       } catch (error) {
         if (!isMounted.current) return;
-        console.error('Error checking session:', error);
+        console.error('Erro ao verificar sessão:', error);
         setConnectionError(true);
       } finally {
         if (isMounted.current) {
           setLoading(false);
           setAuthChecked(true);
-          console.log('Auth initialization completed, marking as checked');
+          console.log('Inicialização de autenticação concluída, marcando como verificada');
         }
       }
     };
     
-    // Start the initialization
+    // Iniciar a inicialização
     initializeAuth();
     
-    // Safety timeout to prevent stuck loading state
+    // Timeout de segurança para evitar estado de carregamento travado
     authTimeout = setTimeout(() => {
       if (isMounted.current && loading) {
-        console.log('Auth initialization safety timeout triggered');
+        console.log('Timeout de segurança de inicialização de autenticação acionado');
         setLoading(false);
         setAuthChecked(true);
       }
     }, 3000);
     
-    // Clean up
+    // Limpeza
     return () => {
       isMounted.current = false;
       subscription.unsubscribe();

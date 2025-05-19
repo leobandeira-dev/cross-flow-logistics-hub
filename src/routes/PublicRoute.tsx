@@ -1,12 +1,12 @@
+
 import { Navigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, authChecked } = useAuth();
   const location = useLocation();
   
-  // While still checking auth state, show a loading indicator
+  // Enquanto estiver verificando a autenticação, mostra um indicador de carregamento
   if (loading || !authChecked) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -16,14 +16,13 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // For public routes, if user is authenticated, redirect to dashboard
+  // Para rotas públicas, se o usuário está autenticado, redireciona para o dashboard
   if (user) {
     const from = location.state?.from || '/dashboard';
-    console.log('PublicRoute - User authenticated, redirecting to:', from);
+    console.log('PublicRoute - Usuário autenticado, redirecionando para:', from);
     return <Navigate to={from} replace />;
   }
 
-  // Otherwise, render the public page
-  console.log('PublicRoute - No authenticated user, showing public content');
+  // Caso contrário, renderiza a página pública
   return <>{children}</>;
 };

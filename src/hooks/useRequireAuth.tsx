@@ -12,35 +12,33 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
-    // Safety timeout to prevent stuck states
+    // Timeout de segurança para evitar estados presos
     timer = setTimeout(() => {
       if (!localAuthChecked) {
-        console.log('useRequireAuth - Safety timeout triggered');
+        console.log('useRequireAuth - Timeout de segurança ativado');
         setLocalAuthChecked(true);
       }
     }, 2000);
     
-    // Only proceed when loading is complete and auth has been checked
+    // Só prossegue quando o carregamento é concluído e a autenticação foi verificada
     if (!loading && authChecked && !localAuthChecked) {
-      console.log('useRequireAuth - Auth check completed, checking access. User:', !!user);
+      console.log('useRequireAuth - Verificação de autenticação concluída, verificando acesso. Usuário:', !!user);
       setLocalAuthChecked(true);
       
       if (!user) {
         const currentPath = location.pathname;
-        console.log('useRequireAuth - No user detected. Redirecting to auth from:', currentPath);
+        console.log('useRequireAuth - Nenhum usuário detectado. Redirecionando para autenticação de:', currentPath);
         navigate(redirectUrl, { state: { from: currentPath }, replace: true });
         return;
       }
       
-      // Special handling for admin routes when user is authenticated
+      // Tratamento especial para rotas de administrador quando o usuário está autenticado
       const currentPath = location.pathname;
       const isAdminSection = currentPath.startsWith('/admin');
       
-      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user role:', user?.funcao);
-      
-      // For admin section, require admin access
+      // Para seção de administrador, exigir acesso de administrador
       if (isAdminSection && user.funcao !== 'admin') {
-        console.log('Unauthorized access to admin area. Redirecting to dashboard');
+        console.log('Acesso não autorizado à área administrativa. Redirecionando para o dashboard');
         navigate('/dashboard', { replace: true });
       }
     }
