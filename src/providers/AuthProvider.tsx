@@ -5,23 +5,24 @@ import { useAuthState } from '@/hooks/useAuthState';
 import { useAuthActions } from '@/hooks/useAuthActions';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // First, establish the state management hooks
-  const { user, session, loading, setLoading, setUser, connectionError } = useAuthState();
+  // Primeiro, estabelecer os hooks de gerenciamento de estado
+  const { user, session, loading, setLoading, setUser, connectionError, authChecked } = useAuthState();
   
-  // Then, set up actions that use the state setters
+  // Em seguida, configurar ações que usam os setters de estado
   const { signIn, signUp, signOut, forgotPassword, updatePassword } = useAuthActions(setLoading, setUser);
 
-  // Log the authentication state when it changes
+  // Registrar o estado de autenticação quando ele muda
   useEffect(() => {
     console.log('AuthProvider state updated:', { 
       user: !!user, 
       session: !!session, 
       loading, 
-      connectionError 
+      connectionError,
+      authChecked
     });
-  }, [user, session, loading, connectionError]);
+  }, [user, session, loading, connectionError, authChecked]);
 
-  // Provide the authentication context to children
+  // Fornecer o contexto de autenticação aos filhos
   return (
     <AuthContext.Provider
       value={{
@@ -29,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         session,
         loading,
         connectionError,
+        authChecked,
         signIn,
         signUp,
         signOut,

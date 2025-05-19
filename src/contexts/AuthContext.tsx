@@ -9,6 +9,7 @@ type AuthContextType = {
   session: Session | null;
   loading: boolean;
   connectionError: boolean;
+  authChecked: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (credentials: SignUpCredentials) => Promise<void>;
   signOut: () => Promise<void>;

@@ -30,15 +30,15 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
     try {
       console.log('Submitting login form with email:', data.email);
       await signIn(data.email, data.password);
-      console.log('Sign in completed');
-      // Navigation will be handled by the auth redirects
+      console.log('Sign in completed successfully');
+      // A navegação será tratada automaticamente pelos redirecionamentos de autenticação
     } catch (error: any) {
       console.error('Login error:', error);
       
       // Exibir mensagens de erro específicas
-      if (error.message.includes('Email não confirmado')) {
+      if (error.message && error.message.includes('Email não confirmado')) {
         setError("Seu email ainda não foi confirmado. Por favor, verifique sua caixa de entrada e clique no link de confirmação.");
-      } else if (error.message.includes('Credenciais inválidas')) {
+      } else if (error.message && error.message.includes('Credenciais inválidas')) {
         setError("Email ou senha incorretos. Por favor, verifique e tente novamente.");
       } else {
         setError(error?.message || 'Ocorreu um erro durante o login. Verifique suas credenciais.');

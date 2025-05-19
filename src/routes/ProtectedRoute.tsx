@@ -1,17 +1,27 @@
 
 import { useLocation, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const location = useLocation();
+  const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
   
   useEffect(() => {
-    console.log('ProtectedRoute - path:', location.pathname, 'user:', !!user, 'loading:', loading);
-  }, [location, user, loading]);
+    console.log('ProtectedRoute - path:', location.pathname, 'user:', !!user, 'loading:', loading, 'authChecked:', authChecked);
+    
+    if (!loading) {
+      if (user) {
+        setAuthState('authenticated');
+      } else {
+        setAuthState('unauthenticated');
+      }
+    }
+  }, [location, user, loading, authChecked]);
   
-  if (loading) {
+  // Mostrar carregamento apenas durante a verificação inicial
+  if (loading || authState === 'checking') {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -20,12 +30,12 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // If not loading and no user, redirect to auth page
-  if (!user) {
+  // Se não estiver carregando e não houver usuário, redirecionar para a página de autenticação
+  if (authState === 'unauthenticated') {
     console.log('ProtectedRoute - No authenticated user, redirecting to login');
     return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
   
-  // If authenticated, render the protected content
+  // Se autenticado, renderizar o conteúdo protegido
   return <>{children}</>;
 };

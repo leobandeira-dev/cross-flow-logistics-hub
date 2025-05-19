@@ -9,15 +9,19 @@ export const useAuthState = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [connectionError, setConnectionError] = useState<boolean>(false);
+  const [authChecked, setAuthChecked] = useState<boolean>(false);
 
   useEffect(() => {
     console.log('Inicializando estado de autenticação');
+    let isMounted = true;
     
-    // First set up the subscription to auth state changes
+    // Primeiro configurar a assinatura para mudanças no estado de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log('Evento de autenticação:', event);
         
+        if (!isMounted) return;
+
         if (currentSession) {
           setSession(currentSession);
           
@@ -34,7 +38,7 @@ export const useAuthState = () => {
               status: userData.user_metadata?.status,
               created_at: userData.created_at || new Date().toISOString(),
               updated_at: userData.updated_at || new Date().toISOString(),
-              funcao: userData.user_metadata?.funcao
+              funcao: userData.user_metadata?.funcao || 'operador'
             };
             
             setUser(usuarioData);
@@ -48,11 +52,13 @@ export const useAuthState = () => {
       }
     );
     
-    // Then check the current session
+    // Então verificar a sessão atual
     const initializeAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
+        if (!isMounted) return;
+
         if (currentSession) {
           setSession(currentSession);
           
@@ -69,7 +75,7 @@ export const useAuthState = () => {
               status: userData.user_metadata?.status,
               created_at: userData.created_at || new Date().toISOString(),
               updated_at: userData.updated_at || new Date().toISOString(),
-              funcao: userData.user_metadata?.funcao
+              funcao: userData.user_metadata?.funcao || 'operador'
             };
             
             setUser(usuarioData);
@@ -81,16 +87,21 @@ export const useAuthState = () => {
           console.log('No active session found during initialization');
         }
       } catch (error) {
+        if (!isMounted) return;
         console.error('Erro ao verificar sessão:', error);
         setConnectionError(true);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          setAuthChecked(true);
+        }
       }
     };
     
     initializeAuth();
     
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -101,6 +112,7 @@ export const useAuthState = () => {
     setUser, 
     loading, 
     setLoading, 
-    connectionError 
+    connectionError,
+    authChecked 
   };
 };
