@@ -19,6 +19,7 @@ const Index = () => {
           navigate('/dashboard', { replace: true });
         } else {
           console.log('User is not authenticated, showing landing page');
+          navigate('/', { replace: true });
         }
       } catch (error) {
         console.error('Error during navigation:', error);

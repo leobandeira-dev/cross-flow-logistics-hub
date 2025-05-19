@@ -6,15 +6,17 @@ import { Toaster } from './components/ui/toaster';
 import { queryClient } from './lib/queryClient';
 import AppRoutes from './routes/AppRoutes';
 
-// Função melhorada para detectar ambiente de preview
+// Improved function to detect preview environment
 const isPreviewEnvironment = () => {
-  return window.location.hostname.includes('lovableproject.com') || 
-         window.location.hostname.includes('lovable.app') ||
-         window.top !== window.self; // Detecta se está em um iframe
+  const isPreview = window.location.hostname.includes('lovableproject.com') || 
+                   window.location.hostname.includes('lovable.app') ||
+                   window.top !== window.self; // Detect if in iframe
+  console.log('Preview environment detection:', isPreview);
+  return isPreview;
 };
 
 function App() {
-  // Usa HashRouter em ambiente de preview para evitar problemas com a API de histórico
+  // Use HashRouter in preview environment to avoid history API issues
   const Router = isPreviewEnvironment() ? HashRouter : BrowserRouter;
   
   console.log('Ambiente de preview detectado:', isPreviewEnvironment());

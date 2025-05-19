@@ -2,6 +2,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import NotFound from '../pages/NotFound';
+import LandingPage from '../pages/LandingPage';
 
 // Feature Routes
 import CoreRoutes from './features/CoreRoutes';
@@ -22,9 +23,9 @@ const AppRoutes = () => {
   
   return (
     <Routes>
-      {/* Default route for authenticated users */}
+      {/* Root route - show landing page for non-authenticated users */}
       <Route path="/" element={
-        user ? <Navigate to="/dashboard" replace /> : null
+        user ? <Navigate to="/dashboard" replace /> : <LandingPage />
       } />
       
       {/* Feature routes - spreading the array of routes returned by each feature */}
