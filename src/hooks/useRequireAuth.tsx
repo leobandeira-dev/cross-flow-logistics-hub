@@ -13,22 +13,18 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
     if (!loading) {
       // Set initial load to false after first check
       if (isInitialLoad) {
-        setIsInitialLoad(false);
-      }
-      
-      // Only redirect if not authenticated and on initial load
-      // This prevents constant redirects during navigation
-      if (!user && isInitialLoad) {
         const currentPath = window.location.pathname;
         const isAdminSection = currentPath.startsWith('/admin');
         
         console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', !!user, 'isInitialLoad:', isInitialLoad);
         
-        // For admin routes, we bypass the redirect logic
-        // In a production app, you would want proper authentication checks here
-        if (!isAdminSection) {
-          navigate(redirectUrl, { state: { from: window.location.pathname } });
+        // For admin routes or when user is authenticated, don't redirect
+        if (!user && !isAdminSection) {
+          navigate(redirectUrl, { state: { from: currentPath } });
         }
+        
+        // Mark initial load as complete
+        setIsInitialLoad(false);
       }
     }
   }, [user, loading, navigate, redirectUrl, isInitialLoad]);
