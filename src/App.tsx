@@ -7,6 +7,8 @@ import { queryClient } from './lib/queryClient';
 import AppRoutes from './routes/AppRoutes';
 
 function App() {
+  console.log('App rendering');
+  
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
