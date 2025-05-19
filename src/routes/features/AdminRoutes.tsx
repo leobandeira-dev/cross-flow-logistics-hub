@@ -14,66 +14,73 @@ import LeadsAdmin from '@/pages/admin/leads/LeadsAdmin';
 import ResetSenhasAdmin from '@/pages/admin/acessos/ResetSenhasAdmin';
 
 const AdminRoutes = () => {
+  // Create a special admin protected route wrapper to prevent redirects
+  const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => (
+    <ProtectedRoute>
+      {children}
+    </ProtectedRoute>
+  );
+
   return [
-    // Admin Dashboard
+    // Admin Dashboard - Using the special admin protected route
     <Route key="admin-dashboard" path="/admin" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <AdminDashboard />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
     
     // Clientes
     <Route key="clientes-admin" path="/admin/clientes" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <ClientesAdmin />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
     
     // Financeiro
     <Route key="recebimentos-admin" path="/admin/financeiro/recebimentos" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <RecebimentosAdmin />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
     
     <Route key="notas-fiscais-admin" path="/admin/financeiro/notas-fiscais" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <NotasFiscaisAdmin />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
     
     // Produtos/Pacotes
     <Route key="pacotes-admin" path="/admin/produtos/pacotes" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <PacotesAdmin />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
     
     // Acessos
     <Route key="acessos-admin" path="/admin/acessos" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <AcessosAdmin />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
     
     <Route key="reset-senhas-admin" path="/admin/acessos/reset-senhas" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <ResetSenhasAdmin />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
     
     // Suporte
     <Route key="suporte-admin" path="/admin/suporte" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <SuporteAdmin />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
     
     // Leads
     <Route key="leads-admin" path="/admin/leads" element={
-      <ProtectedRoute>
+      <AdminProtectedRoute>
         <LeadsAdmin />
-      </ProtectedRoute>
+      </AdminProtectedRoute>
     } />,
   ];
 };

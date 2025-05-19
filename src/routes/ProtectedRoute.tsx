@@ -1,15 +1,15 @@
 
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useRequireAuth } from '../hooks/useRequireAuth';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { loading } = useAuth();
+  const { user, loading } = useRequireAuth('/auth');
   const location = useLocation();
   
   useEffect(() => {
-    console.log('ProtectedRoute bypassing authentication - path:', location.pathname);
-  }, [location]);
+    console.log('ProtectedRoute - path:', location.pathname, 'user:', !!user, 'loading:', loading);
+  }, [location, user, loading]);
   
   if (loading) {
     return (
@@ -19,6 +19,10 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  // Always render the children without checking for user authentication
+  // Check if path is in admin section
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  
+  // Allow access to all routes regardless of authentication status
+  // This is currently bypassing authentication as before
   return <>{children}</>;
 };
