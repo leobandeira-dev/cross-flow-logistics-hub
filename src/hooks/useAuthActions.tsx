@@ -50,10 +50,18 @@ export const useAuthActions = (
     }
   };
 
-  const signUp = async (email: string, password: string, nome: string, telefone?: string, cnpj?: string): Promise<void> => {
+  const signUp = async (
+    email: string, 
+    password: string, 
+    nome: string, 
+    telefone?: string, 
+    cnpj?: string,
+    funcao: string = 'operador',
+    cnpj_transportadora?: string
+  ): Promise<void> => {
     setLoading(true);
     try {
-      console.log('Tentativa de registro com:', email);
+      console.log('Tentativa de registro com:', email, 'funcao:', funcao);
       
       if (!cnpj) {
         throw new Error("CNPJ é obrigatório para cadastro");
@@ -67,7 +75,8 @@ export const useAuthActions = (
             nome,
             telefone,
             cnpj,
-            funcao: 'operador', // Função padrão para novos usuários
+            funcao,
+            cnpj_transportadora,
           },
           emailRedirectTo: window.location.origin + '/auth?confirmed=true'
         }

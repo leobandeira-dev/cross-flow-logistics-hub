@@ -13,6 +13,7 @@ interface AuthTabsProps {
   setError: (error: string | null) => void;
   setSuccess: (success: string | null) => void;
   onForgotPassword: () => void;
+  userType: 'cliente' | 'transportador';
 }
 
 export const AuthTabs = ({ 
@@ -22,7 +23,8 @@ export const AuthTabs = ({
   success, 
   setError, 
   setSuccess, 
-  onForgotPassword 
+  onForgotPassword,
+  userType
 }: AuthTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -56,6 +58,7 @@ export const AuthTabs = ({
           setError={setError} 
           setSuccess={setSuccess} 
           setActiveTab={setActiveTab}
+          userType={userType}
         />
       </TabsContent>
     </Tabs>

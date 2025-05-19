@@ -4,12 +4,12 @@ import { useEffect } from 'react';
 import { useRequireAuth } from '../hooks/useRequireAuth';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useRequireAuth('/auth');
+  const { user, loading, isAdmin } = useRequireAuth('/auth');
   const location = useLocation();
   
   useEffect(() => {
-    console.log('ProtectedRoute - path:', location.pathname, 'user:', !!user, 'loading:', loading);
-  }, [location, user, loading]);
+    console.log('ProtectedRoute - path:', location.pathname, 'user:', !!user, 'isAdmin:', isAdmin, 'loading:', loading);
+  }, [location, user, loading, isAdmin]);
   
   if (loading) {
     return (

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Truck, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { AuthTabs } from './AuthTabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AuthCardProps {
   activeTab: string;
@@ -22,6 +23,7 @@ interface AuthCardProps {
   setError: (error: string | null) => void;
   setSuccess: (success: string | null) => void;
   onForgotPassword: () => void;
+  userType: 'cliente' | 'transportador';
 }
 
 export const AuthCard = ({
@@ -31,7 +33,8 @@ export const AuthCard = ({
   success,
   setError,
   setSuccess,
-  onForgotPassword
+  onForgotPassword,
+  userType
 }: AuthCardProps) => {
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 p-4">
@@ -46,9 +49,31 @@ export const AuthCard = ({
 
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Sistema Logístico</CardTitle>
+          <div className="flex justify-center mb-4">
+            <Tabs value={userType} className="w-full">
+              <TabsList className="grid grid-cols-2">
+                <Link to="/auth?user_type=cliente">
+                  <TabsTrigger value="cliente" className="flex items-center">
+                    <Users className="h-4 w-4 mr-2" />
+                    Sou Cliente
+                  </TabsTrigger>
+                </Link>
+                <Link to="/auth?user_type=transportador">
+                  <TabsTrigger value="transportador" className="flex items-center">
+                    <Truck className="h-4 w-4 mr-2" />
+                    Sou Transportador
+                  </TabsTrigger>
+                </Link>
+              </TabsList>
+            </Tabs>
+          </div>
+          <CardTitle className="text-2xl font-bold">
+            {userType === 'transportador' ? 'Área do Transportador' : 'Sistema Logístico'}
+          </CardTitle>
           <CardDescription>
-            Faça login ou crie sua conta para continuar
+            {userType === 'transportador' 
+              ? 'Faça login ou crie sua conta para solicitar coletas' 
+              : 'Faça login ou crie sua conta para continuar'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -60,6 +85,7 @@ export const AuthCard = ({
             setError={setError}
             setSuccess={setSuccess}
             onForgotPassword={onForgotPassword}
+            userType={userType}
           />
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">

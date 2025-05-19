@@ -1,14 +1,16 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { LogIn, Truck, Package, ClipboardList, BarChart4, Users, ShieldCheck, Warehouse, FileCheck, Headphones, BadgeCheck, Headset } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import LeadForm from '@/components/leads/LeadForm';
 
 const LandingPage = () => {
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState('');
 
   // Define the sales packages
   const salesPackages = [
@@ -74,7 +76,18 @@ const LandingPage = () => {
     icon: Headset,
     features: ["Registro de Ocorrências", "Tratamento de Chamados", "Notificações Automáticas", "Histórico de Atendimentos"]
   }];
-  return <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+
+  const handleChoosePackage = (packageName: string) => {
+    setSelectedPackage(packageName);
+    setShowLeadForm(true);
+  };
+
+  const handleCloseLeadForm = () => {
+    setShowLeadForm(false);
+  };
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -88,15 +101,26 @@ const LandingPage = () => {
                 <Link to="#modules" className="text-gray-600 hover:text-primary">Módulos</Link>
                 <Link to="#pricing" className="text-gray-600 hover:text-primary">Planos</Link>
               </div>
-              {user ? <Button asChild>
+              {user ? (
+                <Button asChild>
                   <Link to="/dashboard">
                     Acessar Sistema <LogIn className="ml-2 h-4 w-4" />
                   </Link>
-                </Button> : <Button asChild>
-                  <Link to="/auth">
-                    Login / Cadastro <LogIn className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>}
+                </Button>
+              ) : (
+                <div className="flex space-x-2">
+                  <Button asChild variant="outline">
+                    <Link to="/auth?user_type=transportador">
+                      Sou Transportador
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link to="/auth?user_type=cliente">
+                      Sou Cliente
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -116,7 +140,7 @@ const LandingPage = () => {
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <Button size="lg" asChild className="px-10">
-                  <Link to="/auth">Começar agora</Link>
+                  <Link to="/auth?user_type=cliente">Começar agora</Link>
                 </Button>
               </div>
             </div>
@@ -437,7 +461,10 @@ const LandingPage = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button className={`w-full mt-6 ${pkg.highlighted ? 'bg-primary hover:bg-primary/90' : 'bg-gray-800 hover:bg-gray-700'}`}>
+                  <Button 
+                    className={`w-full mt-6 ${pkg.highlighted ? 'bg-primary hover:bg-primary/90' : 'bg-gray-800 hover:bg-gray-700'}`}
+                    onClick={() => handleChoosePackage(pkg.name)}
+                  >
                     Escolher Plano
                   </Button>
                 </CardContent>
@@ -457,7 +484,7 @@ const LandingPage = () => {
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
             <div className="inline-flex rounded-md shadow">
               <Button variant="secondary" size="lg" asChild>
-                <Link to="/auth">
+                <Link to="/auth?user_type=cliente">
                   Criar uma conta
                 </Link>
               </Button>
@@ -507,7 +534,18 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-    </div>;
+      
+      {/* Lead Form Modal */}
+      {showLeadForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <LeadForm 
+            selectedPackage={selectedPackage} 
+            onClose={handleCloseLeadForm}
+          />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default LandingPage;

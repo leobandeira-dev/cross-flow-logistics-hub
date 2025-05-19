@@ -14,10 +14,20 @@ const AuthPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [userType, setUserType] = useState<'cliente' | 'transportador'>(
+    location.search.includes('transportador') ? 'transportador' : 'cliente'
+  );
   
   // Check URL parameters to determine which tab to show and handle confirmation
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    
+    // Set user type based on URL parameter
+    if (params.get('user_type') === 'transportador') {
+      setUserType('transportador');
+    } else {
+      setUserType('cliente');
+    }
     
     if (params.get('register') === 'true') {
       setActiveTab('register');
@@ -94,6 +104,7 @@ const AuthPage = () => {
       setError={setError}
       setSuccess={setSuccess}
       onForgotPassword={handleForgotPasswordClick}
+      userType={userType}
     />
   );
 };

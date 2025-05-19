@@ -1,6 +1,6 @@
 
 import { Route } from 'react-router-dom';
-import { ProtectedRoute } from '../ProtectedRoute';
+import { AdminRoute } from '../AdminRoute';
 
 // Admin Pages Imports
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -15,65 +15,65 @@ import ResetSenhasAdmin from '@/pages/admin/acessos/ResetSenhasAdmin';
 
 const AdminRoutes = () => {
   return [
-    // All admin routes using the standard protected route
+    // All admin routes using the AdminRoute component for stricter access control
     <Route key="admin-dashboard" path="/admin" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <AdminDashboard />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
     
     // Clientes
     <Route key="clientes-admin" path="/admin/clientes" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <ClientesAdmin />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
     
     // Financeiro
     <Route key="recebimentos-admin" path="/admin/financeiro/recebimentos" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <RecebimentosAdmin />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
     
     <Route key="notas-fiscais-admin" path="/admin/financeiro/notas-fiscais" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <NotasFiscaisAdmin />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
     
     // Produtos/Pacotes
     <Route key="pacotes-admin" path="/admin/produtos/pacotes" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <PacotesAdmin />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
     
     // Acessos
     <Route key="acessos-admin" path="/admin/acessos" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <AcessosAdmin />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
     
     <Route key="reset-senhas-admin" path="/admin/acessos/reset-senhas" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <ResetSenhasAdmin />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
     
     // Suporte
     <Route key="suporte-admin" path="/admin/suporte" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <SuporteAdmin />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
     
     // Leads
     <Route key="leads-admin" path="/admin/leads" element={
-      <ProtectedRoute>
+      <AdminRoute>
         <LeadsAdmin />
-      </ProtectedRoute>
+      </AdminRoute>
     } />,
   ];
 };

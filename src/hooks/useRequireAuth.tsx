@@ -12,12 +12,22 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
     // Only perform auth check once when loading is complete
     if (!loading && !authChecked) {
       const currentPath = window.location.pathname;
+      
+      // Special handling for admin routes
       const isAdminSection = currentPath.startsWith('/admin');
       
-      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', !!user, 'authChecked:', authChecked);
+      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', user?.funcao, 'authChecked:', authChecked);
       
-      // Only redirect non-admin paths when user is not authenticated
-      if (!user && !isAdminSection) {
+      // For admin section, require admin access
+      if (isAdminSection) {
+        // Only allow users with 'admin' function to access admin routes
+        if (!user || user.funcao !== 'admin') {
+          console.log('Unauthorized access to admin area. Redirecting to dashboard');
+          navigate('/dashboard', { replace: true });
+        }
+      }
+      // For non-admin routes, simply require authentication
+      else if (!user) {
         console.log('Redirecting to auth from:', currentPath);
         navigate(redirectUrl, { state: { from: currentPath } });
       }
@@ -27,5 +37,5 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
     }
   }, [user, loading, navigate, redirectUrl, authChecked]);
 
-  return { user, loading };
+  return { user, loading, isAdmin: user?.funcao === 'admin' };
 };
