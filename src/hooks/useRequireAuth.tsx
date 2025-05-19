@@ -6,27 +6,26 @@ import { useAuth } from './useAuth';
 export const useRequireAuth = (redirectUrl: string = '/auth') => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Only check authentication on initial load
-    if (!loading && isInitialLoad) {
+    // Only perform auth check once when loading is complete
+    if (!loading && !authChecked) {
       const currentPath = window.location.pathname;
       const isAdminSection = currentPath.startsWith('/admin');
       
-      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', !!user);
+      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', !!user, 'authChecked:', authChecked);
       
-      // Don't redirect admin routes regardless of auth status
-      // For non-admin routes, only redirect if user is not authenticated
+      // Only redirect non-admin paths when user is not authenticated
       if (!user && !isAdminSection) {
         console.log('Redirecting to auth from:', currentPath);
         navigate(redirectUrl, { state: { from: currentPath } });
       }
       
-      // Mark initial load as complete after first auth check
-      setIsInitialLoad(false);
+      // Mark auth as checked to prevent future redirects
+      setAuthChecked(true);
     }
-  }, [user, loading, navigate, redirectUrl, isInitialLoad]);
+  }, [user, loading, navigate, redirectUrl, authChecked]);
 
   return { user, loading };
 };
