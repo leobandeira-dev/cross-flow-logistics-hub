@@ -18,14 +18,55 @@ export const useAuthState = () => {
       (event, currentSession) => {
         console.log('Evento de autenticação:', event);
         setSession(currentSession);
-        setUser(currentSession?.user as Usuario || null);
+        
+        // Convertemos o User do Supabase para nosso tipo Usuario
+        if (currentSession?.user) {
+          const userData = currentSession.user;
+          const usuarioData: Usuario = {
+            id: userData.id,
+            email: userData.email || '',
+            nome: userData.user_metadata?.nome || userData.user_metadata?.name || userData.email || '',
+            telefone: userData.user_metadata?.telefone,
+            avatar_url: userData.user_metadata?.avatar_url,
+            empresa_id: userData.user_metadata?.empresa_id,
+            perfil_id: userData.user_metadata?.perfil_id,
+            status: userData.user_metadata?.status,
+            created_at: userData.created_at || new Date().toISOString(),
+            updated_at: userData.updated_at || new Date().toISOString(),
+            funcao: userData.user_metadata?.funcao
+          };
+          setUser(usuarioData);
+        } else {
+          setUser(null);
+        }
       }
     );
     
     // Depois verificamos a sessão atual
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
-      setUser(currentSession?.user as Usuario || null);
+      
+      // Convertemos o User do Supabase para nosso tipo Usuario
+      if (currentSession?.user) {
+        const userData = currentSession.user;
+        const usuarioData: Usuario = {
+          id: userData.id,
+          email: userData.email || '',
+          nome: userData.user_metadata?.nome || userData.user_metadata?.name || userData.email || '',
+          telefone: userData.user_metadata?.telefone,
+          avatar_url: userData.user_metadata?.avatar_url,
+          empresa_id: userData.user_metadata?.empresa_id,
+          perfil_id: userData.user_metadata?.perfil_id,
+          status: userData.user_metadata?.status,
+          created_at: userData.created_at || new Date().toISOString(),
+          updated_at: userData.updated_at || new Date().toISOString(),
+          funcao: userData.user_metadata?.funcao
+        };
+        setUser(usuarioData);
+      } else {
+        setUser(null);
+      }
+      
       setLoading(false);
     }).catch(error => {
       console.error('Erro ao verificar sessão:', error);
