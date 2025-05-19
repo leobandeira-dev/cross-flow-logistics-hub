@@ -28,6 +28,7 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   // For public routes, if user is already authenticated,
   // redirect them to dashboard
   if (user) {
+    // Get the intended destination from state, or default to dashboard
     const from = location.state?.from || '/dashboard';
     console.log('PublicRoute - User authenticated, redirecting to:', from);
     return <Navigate to={from} replace />;

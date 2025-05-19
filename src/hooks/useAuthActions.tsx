@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { toast } from '@/hooks/use-toast';
 import { Usuario } from '@/types/supabase.types';
 import { supabase } from '@/integrations/supabase/client';
@@ -70,7 +70,7 @@ export const useAuthActions = (
             funcao: credentials.funcao || 'operador',
             cnpj_transportadora: credentials.cnpj_transportadora,
           },
-          emailRedirectTo: window.location.origin + '/auth?confirmed=true'
+          emailRedirectTo: `${window.location.origin}/auth?confirmed=true`
         }
       });
       
@@ -125,7 +125,7 @@ export const useAuthActions = (
   const forgotPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/reset-password'
+        redirectTo: `${window.location.origin}/reset-password`
       });
       
       if (error) throw error;

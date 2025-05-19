@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 import { useAuthState } from '@/hooks/useAuthState';
 import { useAuthActions } from '@/hooks/useAuthActions';
@@ -12,7 +12,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { signIn, signUp, signOut, forgotPassword, updatePassword } = useAuthActions(setLoading, setUser);
 
   // Log the authentication state when it changes
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('AuthProvider state updated:', { 
       user: !!user, 
       session: !!session, 

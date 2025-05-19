@@ -1,41 +1,34 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
 export const useRequireAuth = (redirectUrl: string = '/auth') => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Only perform auth check once when loading is complete
-    if (!loading && !authChecked) {
+    // Only redirect when loading is complete and user is not authenticated
+    if (!loading && !user) {
       const currentPath = window.location.pathname;
-      
-      // Special handling for admin routes
+      console.log('useRequireAuth - No user detected. Redirecting to auth from:', currentPath);
+      navigate(redirectUrl, { state: { from: currentPath }, replace: true });
+    }
+    
+    // Special handling for admin routes when user is authenticated
+    if (!loading && user) {
+      const currentPath = window.location.pathname;
       const isAdminSection = currentPath.startsWith('/admin');
       
-      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', user?.funcao, 'authChecked:', authChecked, 'loading:', loading);
+      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', user?.funcao);
       
       // For admin section, require admin access
-      if (isAdminSection) {
-        // Only allow users with 'admin' function to access admin routes
-        if (!user || user.funcao !== 'admin') {
-          console.log('Unauthorized access to admin area. Redirecting to dashboard');
-          navigate('/dashboard', { replace: true });
-        }
+      if (isAdminSection && user.funcao !== 'admin') {
+        console.log('Unauthorized access to admin area. Redirecting to dashboard');
+        navigate('/dashboard', { replace: true });
       }
-      // For non-admin routes, simply require authentication
-      else if (!user) {
-        console.log('Redirecting to auth from:', currentPath);
-        navigate(redirectUrl, { state: { from: currentPath }, replace: true });
-      }
-      
-      // Mark auth as checked to prevent future redirects
-      setAuthChecked(true);
     }
-  }, [user, loading, navigate, redirectUrl, authChecked]);
+  }, [user, loading, navigate, redirectUrl]);
 
   return { 
     user, 

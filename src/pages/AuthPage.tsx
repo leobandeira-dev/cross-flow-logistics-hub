@@ -57,10 +57,8 @@ const AuthPage = () => {
 
   // Redirect authenticated users
   useEffect(() => {
-    console.log('AuthPage useEffect - user:', !!user, 'loading:', loading);
-    
     if (user && !loading) {
-      console.log('User is authenticated, redirecting to:', from);
+      console.log('AuthPage - User is authenticated, redirecting to:', from);
       navigate(from, { replace: true });
     }
   }, [user, loading, navigate, from]);
