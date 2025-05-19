@@ -22,6 +22,6 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
   
-  // If authenticated, render the protected content
+  // If authenticated, render the protected content without redirection
   return <>{children}</>;
 };

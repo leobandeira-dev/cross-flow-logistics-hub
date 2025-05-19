@@ -22,7 +22,7 @@ export const useAuthState = () => {
     
     // First, set up auth state change subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         if (!isMounted.current) return;
         
         console.log('Evento de autenticação detectado:', event);

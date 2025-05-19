@@ -10,17 +10,15 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
 
   useEffect(() => {
     // Only proceed when auth check is complete and not loading
-    if (!loading && authChecked) {
-      console.log('useRequireAuth - Verificação de autenticação concluída, verificando acesso. Usuário:', !!user);
-      
-      if (!user) {
-        const currentPath = location.pathname;
-        console.log('useRequireAuth - Nenhum usuário detectado. Redirecionando para autenticação de:', currentPath);
-        navigate(redirectUrl, { state: { from: currentPath }, replace: true });
-        return;
-      }
-      
-      // Special handling for admin routes when user is authenticated
+    if (!loading && authChecked && !user) {
+      const currentPath = location.pathname;
+      console.log('useRequireAuth - Nenhum usuário detectado. Redirecionando para autenticação de:', currentPath);
+      navigate(redirectUrl, { state: { from: currentPath }, replace: true });
+      return;
+    }
+    
+    // If user is authenticated, check for admin section access
+    if (!loading && authChecked && user) {
       const currentPath = location.pathname;
       const isAdminSection = currentPath.startsWith('/admin');
       
@@ -30,7 +28,7 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [user, loading, navigate, redirectUrl, authChecked, location]);
+  }, [user, loading, authChecked, navigate, redirectUrl, location.pathname]);
 
   return { 
     user, 
