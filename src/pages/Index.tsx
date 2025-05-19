@@ -4,18 +4,18 @@ import { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 const Index = () => {
-  const { user, authChecked } = useAuth();
+  const { authChecked } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Only redirect when auth check is complete
+    // Redirecionar para dashboard quando a verificação de autenticação estiver completa
     if (authChecked) {
-      console.log('Index page - Auth check completed, redirecting to dashboard');
+      console.log('Index page - Verificação de autenticação concluída, redirecionando para dashboard');
       navigate('/dashboard', { replace: true });
     }
   }, [authChecked, navigate]);
 
-  // Show loading while checking auth
+  // Mostrar carregamento enquanto verifica autenticação
   return (
     <div className="flex h-screen items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>

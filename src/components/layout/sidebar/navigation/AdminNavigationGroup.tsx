@@ -11,7 +11,7 @@ import SidebarItem from '../SidebarItem';
 const AdminNavigationGroup: React.FC = () => {
   const { user } = useAuth();
   
-  // Only render for admin users
+  // Só renderizar para usuários admin
   if (!user || user.funcao !== 'admin') {
     return null;
   }

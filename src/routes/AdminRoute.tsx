@@ -6,7 +6,7 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, authChecked } = useAuth();
   const location = useLocation();
   
-  // During initial auth check, show loading indicator
+  // Durante a verificação inicial de autenticação, exibir indicador de carregamento
   if (loading && !authChecked) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -16,18 +16,18 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  // If not authenticated after check is complete, redirect to dashboard
+  // Se não estiver autenticado após a verificação ser concluída, redirecionar para dashboard
   if (!user && authChecked) {
     console.log('AdminRoute - Não autenticado, redirecionando para dashboard');
     return <Navigate to="/dashboard" replace />;
   }
   
-  // If authenticated but not admin after check is complete, redirect to dashboard
+  // Se estiver autenticado mas não for admin após a verificação ser concluída, redirecionar para dashboard
   if (user && authChecked && user.funcao !== 'admin') {
     console.log('AdminRoute - Usuário não é administrador, redirecionando para dashboard');
     return <Navigate to="/dashboard" replace />;
   }
   
-  // If admin, show content
+  // Se for admin, mostrar conteúdo
   return <>{children}</>;
 };

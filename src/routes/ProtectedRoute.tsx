@@ -6,7 +6,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, authChecked } = useAuth();
   const location = useLocation();
   
-  // During initial auth check, show loading indicator
+  // Durante a verificação inicial de autenticação, exibir indicador de carregamento
   if (loading && !authChecked) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -16,12 +16,13 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // If not authenticated after check is complete, redirect to dashboard
+  // Se não estiver autenticado após a verificação ser concluída, redirecionar para login
   if (!user && authChecked) {
     console.log('ProtectedRoute - Usuário não autenticado, redirecionando para login');
+    // Adicionamos o state para lembrar de onde o usuário veio
     return <Navigate to="/dashboard" state={{ from: location.pathname }} replace />;
   }
   
-  // If authenticated, render the children
+  // Se autenticado, renderizar os filhos
   return <>{children}</>;
 };

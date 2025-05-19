@@ -6,7 +6,7 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, authChecked } = useAuth();
   const location = useLocation();
   
-  // During initial auth check, show loading indicator
+  // Durante a verificação inicial de autenticação, exibir indicador de carregamento
   if (loading && !authChecked) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -16,12 +16,15 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // If authenticated, redirect to dashboard or previous path
+  // Se estiver autenticado e não estiver na página do dashboard, 
+  // redirecionar para o dashboard ou origem
   if (user && authChecked && location.pathname !== '/dashboard') {
-    console.log('PublicRoute - Usuário autenticado, redirecionando para dashboard');
-    return <Navigate to="/dashboard" replace />;
+    // Verificamos se há um caminho de origem no state
+    const from = location.state?.from || '/dashboard';
+    console.log('PublicRoute - Usuário autenticado, redirecionando para:', from);
+    return <Navigate to={from} replace />;
   }
 
-  // For non-authenticated users, show the public content
+  // Para usuários não autenticados, exibir o conteúdo público
   return <>{children}</>;
 };
