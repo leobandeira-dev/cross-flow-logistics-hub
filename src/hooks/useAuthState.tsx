@@ -12,28 +12,18 @@ export const useAuthState = () => {
   
   // Keep track of initialization
   const initialized = useRef(false);
+  const isMounted = useRef(true);
 
   // Set up auth state listeners and check current session
   useEffect(() => {
     console.log('Initializing auth state management');
     
-    let isMounted = true;
-    let initTimeout: NodeJS.Timeout | null = null;
     let authTimeout: NodeJS.Timeout | null = null;
     
-    // Safety timeout to prevent stuck loading state
-    initTimeout = setTimeout(() => {
-      if (isMounted && loading) {
-        console.log('Auth initialization safety timeout triggered');
-        setLoading(false);
-        if (!authChecked) setAuthChecked(true);
-      }
-    }, 3000);
-
     // First, set up the auth state change subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        if (!isMounted) return;
+      (event, currentSession) => {
+        if (!isMounted.current) return;
         
         console.log('Auth event detected:', event);
         
@@ -68,6 +58,12 @@ export const useAuthState = () => {
           setSession(null);
           console.log('User is null from auth change event');
         }
+
+        // Always mark auth as checked after an auth state change
+        if (!authChecked) {
+          setAuthChecked(true);
+          setLoading(false);
+        }
       }
     );
     
@@ -80,7 +76,7 @@ export const useAuthState = () => {
         console.log('Checking for existing session...');
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
-        if (!isMounted) return;
+        if (!isMounted.current) return;
         
         if (currentSession) {
           setSession(currentSession);
@@ -114,20 +110,14 @@ export const useAuthState = () => {
           console.log('No active session found during initialization');
         }
       } catch (error) {
-        if (!isMounted) return;
+        if (!isMounted.current) return;
         console.error('Error checking session:', error);
         setConnectionError(true);
       } finally {
-        if (isMounted) {
+        if (isMounted.current) {
           setLoading(false);
-          
-          // Allow a small delay to ensure all state updates are processed
-          authTimeout = setTimeout(() => {
-            if (isMounted && !authChecked) {
-              console.log('Auth initialization completed, marking as checked');
-              setAuthChecked(true);
-            }
-          }, 100);
+          setAuthChecked(true);
+          console.log('Auth initialization completed, marking as checked');
         }
       }
     };
@@ -135,12 +125,20 @@ export const useAuthState = () => {
     // Start the initialization
     initializeAuth();
     
+    // Safety timeout to prevent stuck loading state
+    authTimeout = setTimeout(() => {
+      if (isMounted.current && loading) {
+        console.log('Auth initialization safety timeout triggered');
+        setLoading(false);
+        setAuthChecked(true);
+      }
+    }, 3000);
+    
     // Clean up
     return () => {
-      isMounted = false;
+      isMounted.current = false;
       subscription.unsubscribe();
       
-      if (initTimeout) clearTimeout(initTimeout);
       if (authTimeout) clearTimeout(authTimeout);
     };
   }, []);

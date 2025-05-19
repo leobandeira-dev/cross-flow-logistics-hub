@@ -56,11 +56,11 @@ const AuthPage = () => {
 
   // Redirect authenticated users once auth check is complete
   useEffect(() => {
-    if (!loading && authChecked && user) {
+    if (authChecked && user) {
       console.log('AuthPage - User is authenticated, redirecting to:', from);
       navigate(from, { replace: true });
     }
-  }, [user, loading, authChecked, navigate, from]);
+  }, [user, authChecked, navigate, from]);
 
   const handleForgotPasswordClick = () => {
     setShowForgotPassword(true);

@@ -8,7 +8,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loading || !authChecked) return;
+    if (!authChecked) return;
     
     console.log('Index page - Auth check completed, redirecting based on auth state');
     
@@ -17,7 +17,7 @@ const Index = () => {
     } else {
       navigate('/auth', { replace: true });
     }
-  }, [user, loading, authChecked, navigate]);
+  }, [user, authChecked, navigate]);
 
   // Show loading while checking auth
   return (
