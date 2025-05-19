@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 type LoginFormData = {
   email: string;
@@ -19,8 +20,9 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormProps) => {
-  const { signIn } = useAuth();
+  const { signIn, verifyAuthState } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
 
   const handleLogin = async (data: LoginFormData) => {
@@ -33,10 +35,16 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
       await signIn(data.email, data.password);
       console.log('Sign in completed successfully');
       
+      // Make sure auth state is verified
+      verifyAuthState();
+      
       toast({
         title: "Login realizado com sucesso",
         description: "Você será redirecionado para o dashboard.",
       });
+      
+      // Navigate to dashboard after successful login
+      navigate('/dashboard', { replace: true });
       
     } catch (error: any) {
       console.error('Login error:', error);

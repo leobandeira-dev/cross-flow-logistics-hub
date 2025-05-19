@@ -17,15 +17,20 @@ import ConfiguracoesRoutes from './features/ConfiguracoesRoutes';
 import AdminRoutes from './features/AdminRoutes';
 
 const AppRoutes = () => {
-  const { user } = useAuth();
+  const { user, authChecked } = useAuth();
   
-  console.log('AppRoutes rendering, user authenticated:', !!user);
+  console.log('AppRoutes rendering, user authenticated:', !!user, 'authChecked:', authChecked);
   
   return (
     <Routes>
-      {/* Root route - show landing page for non-authenticated users */}
+      {/* Root route - redirect authenticated users to dashboard, otherwise show landing page */}
       <Route path="/" element={
-        user ? <Navigate to="/dashboard" replace /> : <LandingPage />
+        authChecked && user ? <Navigate to="/dashboard" replace /> : <LandingPage />
+      } />
+      
+      {/* Home route - redirect to appropriate place */}
+      <Route path="/home" element={
+        authChecked && user ? <Navigate to="/dashboard" replace /> : <Navigate to="/" replace />
       } />
       
       {/* Feature routes - spreading the array of routes returned by each feature */}

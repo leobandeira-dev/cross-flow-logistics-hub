@@ -6,13 +6,10 @@ import { ProtectedRoute } from '../ProtectedRoute';
 import LandingPage from '../../pages/LandingPage';
 import Dashboard from '../../pages/dashboard/Dashboard';
 import UserProfilePage from '../../pages/UserProfilePage';
-import Index from '../../pages/Index';
 
 const CoreRoutes = () => {
   return [
     <Route key="landing" path="/" element={<LandingPage />} />,
-    
-    <Route key="index" path="/index" element={<Index />} />,
     
     <Route key="profile" path="/profile" element={
       <ProtectedRoute>

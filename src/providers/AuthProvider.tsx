@@ -42,6 +42,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [user, session, loading, connectionError, authChecked]);
 
+  // Call verifyAuthState after a short delay if still loading
+  useEffect(() => {
+    if (loading && !authChecked) {
+      const timeoutId = setTimeout(() => {
+        verifyAuthState();
+      }, 2000);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [loading, authChecked]);
+
   // Provide auth context to children
   return (
     <AuthContext.Provider
