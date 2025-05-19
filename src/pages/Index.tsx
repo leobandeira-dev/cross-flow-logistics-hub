@@ -4,27 +4,28 @@ import { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 const Index = () => {
-  const { loading } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('Index page - bypassing authentication checks');
+    if (loading || !authChecked) return;
     
-    if (!loading) {
-      // Always redirect to dashboard regardless of authentication status
+    console.log('Index page - Auth check completed, redirecting based on auth state');
+    
+    if (user) {
       navigate('/dashboard', { replace: true });
+    } else {
+      navigate('/auth', { replace: true });
     }
-  }, [loading, navigate]);
+  }, [user, loading, authChecked, navigate]);
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  return null; // Will redirect to dashboard via useEffect
+  // Show loading while checking auth
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <p className="ml-3 text-gray-600">Redirecionando...</p>
+    </div>
+  );
 };
 
 export default Index;

@@ -7,7 +7,7 @@ import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { toast } from '@/hooks/use-toast';
 
 const AuthPage = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<string>('login');
@@ -18,11 +18,10 @@ const AuthPage = () => {
     location.search.includes('transportador') ? 'transportador' : 'cliente'
   );
   
-  // Check URL parameters to determine which tab to show and handle confirmation
+  // Check URL parameters 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     
-    // Set user type based on URL parameter
     if (params.get('user_type') === 'transportador') {
       setUserType('transportador');
     } else {
@@ -55,13 +54,13 @@ const AuthPage = () => {
   // Get the intended destination from location state or default to dashboard
   const from = location.state?.from || '/dashboard';
 
-  // Redirect authenticated users
+  // Redirect authenticated users once auth check is complete
   useEffect(() => {
-    if (user && !loading) {
+    if (!loading && authChecked && user) {
       console.log('AuthPage - User is authenticated, redirecting to:', from);
       navigate(from, { replace: true });
     }
-  }, [user, loading, navigate, from]);
+  }, [user, loading, authChecked, navigate, from]);
 
   const handleForgotPasswordClick = () => {
     setShowForgotPassword(true);
@@ -72,14 +71,17 @@ const AuthPage = () => {
   };
 
   // Show loading state while checking authentication
-  if (loading) {
+  if (loading || !authChecked) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        <p className="ml-3 text-gray-600">Verificando estado de autenticação...</p>
+        <p className="ml-3 text-gray-600">Verificando autenticação...</p>
       </div>
     );
   }
+
+  // Once authentication check is complete, if user is authenticated, they'll be redirected by the useEffect
+  // If we reach here, user is not authenticated, so show the appropriate content
 
   if (showForgotPassword) {
     return (

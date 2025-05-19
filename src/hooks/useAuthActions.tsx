@@ -1,4 +1,3 @@
-
 import { toast } from '@/hooks/use-toast';
 import { Usuario } from '@/types/supabase.types';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,14 +28,9 @@ export const useAuthActions = (
         }
       }
       
-      // O onAuthStateChange irá atualizar o estado do usuário
+      // Auth state change events will update the user state
       
-      toast({
-        title: "Login realizado com sucesso",
-        description: "Bem-vindo de volta!",
-      });
-      
-      console.log('Usuário logado:', data.user);
+      console.log('Login bem-sucedido:', data);
     } catch (error: any) {
       console.error('Erro de login:', error);
       toast({
@@ -103,7 +97,7 @@ export const useAuthActions = (
       
       if (error) throw error;
       
-      // Limpar estado do usuário
+      // Clear user state
       setUser(null);
       
       toast({
@@ -111,7 +105,8 @@ export const useAuthActions = (
         description: "Você foi desconectado do sistema.",
       });
       
-      console.log('Usuário deslogado');
+      // Redirect happens via auth state change events
+      console.log('Logout bem-sucedido');
     } catch (error: any) {
       console.error('Erro ao fazer logout:', error);
       toast({

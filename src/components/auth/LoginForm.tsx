@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 type LoginFormData = {
   email: string;
@@ -22,8 +22,6 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -35,9 +33,10 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
       await signIn(data.email, data.password);
       console.log('Sign in completed successfully');
       
-      // Redirect after successful login
-      const from = location.state?.from || '/dashboard';
-      navigate(from, { replace: true });
+      toast({
+        title: "Login realizado com sucesso",
+        description: "Você será redirecionado para o dashboard.",
+      });
       
     } catch (error: any) {
       console.error('Login error:', error);

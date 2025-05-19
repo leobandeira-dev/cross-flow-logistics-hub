@@ -6,9 +6,9 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { User, Mail, Phone, BadgeCheck, Building } from 'lucide-react';
 
 const CurrentUserInfo = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   
-  if (loading) {
+  if (loading || !authChecked) {
     return (
       <Card className="w-full">
         <CardHeader>
@@ -59,7 +59,7 @@ const CurrentUserInfo = () => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <User className="mr-2 h-5 w-5 text-primary" />
-          Informações do Usuário Atual
+          Informações do Usuário
         </CardTitle>
       </CardHeader>
       <CardContent>
