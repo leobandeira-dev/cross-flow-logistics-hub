@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
+import { SignUpCredentials } from '@/services/auth/authTypes';
 
 type RegisterFormData = {
   nome: string;
@@ -34,15 +35,18 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab, userType }: R
     
     try {
       const funcao = userType === 'transportador' ? 'fornecedor' : 'operador';
-      await signUp(
-        data.email, 
-        data.password, 
-        data.nome, 
-        data.telefone, 
-        data.cnpj, 
-        funcao,
-        data.cnpj_transportadora
-      );
+      
+      const credentials: SignUpCredentials = {
+        email: data.email,
+        password: data.password,
+        nome: data.nome,
+        telefone: data.telefone,
+        cnpj: data.cnpj,
+        funcao: funcao,
+        cnpj_transportadora: data.cnpj_transportadora
+      };
+      
+      await signUp(credentials);
       setActiveTab('login');
       setSuccess('Cadastro realizado com sucesso! Enviamos um email para confirmação. Por favor, verifique sua caixa de entrada (e a pasta de spam) para ativar sua conta.');
     } catch (error: any) {

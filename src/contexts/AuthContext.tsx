@@ -2,6 +2,7 @@
 import React, { createContext, useContext } from 'react';
 import { Usuario } from "@/types/supabase.types";
 import { Session } from '@supabase/supabase-js';
+import { SignUpCredentials } from '@/services/auth/authTypes';
 
 type AuthContextType = {
   user: Usuario | null;
@@ -9,7 +10,7 @@ type AuthContextType = {
   loading: boolean;
   connectionError: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, nome: string, telefone?: string, cnpj?: string) => Promise<void>;
+  signUp: (credentials: SignUpCredentials) => Promise<void>;
   signOut: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;

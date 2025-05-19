@@ -1,8 +1,8 @@
-
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { Usuario } from '@/types/supabase.types';
 import { supabase } from '@/integrations/supabase/client';
+import { SignUpCredentials } from '@/services/auth/authTypes';
 
 export const useAuthActions = (
   setLoading: (loading: boolean) => void,
@@ -50,33 +50,25 @@ export const useAuthActions = (
     }
   };
 
-  const signUp = async (
-    email: string, 
-    password: string, 
-    nome: string, 
-    telefone?: string, 
-    cnpj?: string,
-    funcao: string = 'operador',
-    cnpj_transportadora?: string
-  ): Promise<void> => {
+  const signUp = async (credentials: SignUpCredentials): Promise<void> => {
     setLoading(true);
     try {
-      console.log('Tentativa de registro com:', email, 'funcao:', funcao);
+      console.log('Tentativa de registro com:', credentials.email, 'funcao:', credentials.funcao);
       
-      if (!cnpj) {
+      if (!credentials.cnpj) {
         throw new Error("CNPJ é obrigatório para cadastro");
       }
       
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: credentials.email,
+        password: credentials.password,
         options: {
           data: {
-            nome,
-            telefone,
-            cnpj,
-            funcao,
-            cnpj_transportadora,
+            nome: credentials.nome,
+            telefone: credentials.telefone,
+            cnpj: credentials.cnpj,
+            funcao: credentials.funcao || 'operador',
+            cnpj_transportadora: credentials.cnpj_transportadora,
           },
           emailRedirectTo: window.location.origin + '/auth?confirmed=true'
         }
