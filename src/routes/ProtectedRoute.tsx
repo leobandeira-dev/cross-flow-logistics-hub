@@ -16,10 +16,10 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // If not authenticated after check is complete, redirect to login
+  // If not authenticated after check is complete, redirect to dashboard
   if (!user && authChecked) {
-    console.log('ProtectedRoute - Usuário não autenticado, redirecionando para login de:', location.pathname);
-    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
+    console.log('ProtectedRoute - Usuário não autenticado, redirecionando para dashboard de:', location.pathname);
+    return <Navigate to="/dashboard" state={{ from: location.pathname }} replace />;
   }
   
   // If authenticated, render the protected content without redirection

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
-export const useRequireAuth = (redirectUrl: string = '/auth') => {
+export const useRequireAuth = (redirectUrl: string = '/dashboard') => {
   const { user, loading, authChecked } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,7 +12,7 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
     // Only proceed when auth check is complete and not loading
     if (!loading && authChecked && !user) {
       const currentPath = location.pathname;
-      console.log('useRequireAuth - Nenhum usuário detectado. Redirecionando para autenticação de:', currentPath);
+      console.log('useRequireAuth - Nenhum usuário detectado. Redirecionando para dashboard de:', currentPath);
       navigate(redirectUrl, { state: { from: currentPath }, replace: true });
       return;
     }

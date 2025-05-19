@@ -9,13 +9,8 @@ const Index = () => {
 
   useEffect(() => {
     if (authChecked) {
-      console.log('Index page - Auth check completed, redirecting based on auth state');
-      
-      if (user) {
-        navigate('/dashboard', { replace: true });
-      } else {
-        navigate('/auth', { replace: true });
-      }
+      console.log('Index page - Auth check completed, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
     }
   }, [user, authChecked, navigate]);
 

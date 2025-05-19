@@ -16,10 +16,10 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  // If not authenticated after check is complete, redirect to login
+  // If not authenticated after check is complete, redirect to dashboard
   if (!user && authChecked) {
-    console.log('AdminRoute - Não autenticado, redirecionando para login');
-    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
+    console.log('AdminRoute - Não autenticado, redirecionando para dashboard');
+    return <Navigate to="/dashboard" replace />;
   }
   
   // If authenticated but not admin after check is complete, redirect to dashboard
