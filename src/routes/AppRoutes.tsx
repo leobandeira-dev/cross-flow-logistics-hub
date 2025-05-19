@@ -22,6 +22,11 @@ const AppRoutes = () => {
   
   return (
     <Routes>
+      {/* Default route for authenticated users */}
+      <Route path="/" element={
+        user ? <Navigate to="/dashboard" replace /> : null
+      } />
+      
       {/* Feature routes - spreading the array of routes returned by each feature */}
       {CoreRoutes()}
       {AuthRoutes()}
@@ -32,7 +37,7 @@ const AppRoutes = () => {
       {RelatoriosRoutes()}
       {CadastrosRoutes()}
       {ConfiguracoesRoutes()}
-      {AdminRoutes()} {/* Add the Admin routes here */}
+      {AdminRoutes()}
       
       {/* NotFound */}
       <Route path="*" element={<NotFound />} />

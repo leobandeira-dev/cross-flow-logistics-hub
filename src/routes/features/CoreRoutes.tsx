@@ -5,7 +5,6 @@ import { ProtectedRoute } from '../ProtectedRoute';
 // Pages Import
 import LandingPage from '../../pages/LandingPage';
 import Dashboard from '../../pages/dashboard/Dashboard';
-import Index from '../../pages/Index';
 import UserProfilePage from '../../pages/UserProfilePage';
 
 const CoreRoutes = () => {
@@ -23,8 +22,8 @@ const CoreRoutes = () => {
         <Dashboard />
       </ProtectedRoute>
     } />,
-
-    <Route key="index" path="/index" element={<Index />} />
+    
+    // Remove the index route that causes conflicts
   ];
 };
 
