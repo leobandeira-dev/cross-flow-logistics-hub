@@ -4,18 +4,18 @@ import { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 const Index = () => {
-  const { user, loading, authChecked } = useAuth();
+  const { user, authChecked } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authChecked) return;
-    
-    console.log('Index page - Auth check completed, redirecting based on auth state');
-    
-    if (user) {
-      navigate('/dashboard', { replace: true });
-    } else {
-      navigate('/auth', { replace: true });
+    if (authChecked) {
+      console.log('Index page - Auth check completed, redirecting based on auth state');
+      
+      if (user) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/auth', { replace: true });
+      }
     }
   }, [user, authChecked, navigate]);
 
