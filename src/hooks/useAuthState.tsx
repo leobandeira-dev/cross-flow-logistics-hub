@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Usuario } from '@/types/supabase.types';
@@ -45,7 +46,7 @@ export const useAuthState = () => {
             const usuarioData: Usuario = {
               id: userData.id,
               email: userData.email || '',
-              nome: userData.user_meta_data?.nome || 
+              nome: userData.user_metadata?.nome || 
                    userData.user_metadata?.nome || 
                    userData.user_metadata?.name || 
                    userData.email || '',
@@ -90,7 +91,7 @@ export const useAuthState = () => {
             const usuarioData: Usuario = {
               id: userData.id,
               email: userData.email || '',
-              nome: userData.user_meta_data?.nome || 
+              nome: userData.user_metadata?.nome || 
                    userData.user_metadata?.nome || 
                    userData.user_metadata?.name || 
                    userData.email || '',
