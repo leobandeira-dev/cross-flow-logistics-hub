@@ -5,10 +5,10 @@ import Header from './Header';
 
 interface MainLayoutProps {
   children: React.ReactNode;
-  title: string;
+  title?: string;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, title }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Dashboard" }) => {
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
