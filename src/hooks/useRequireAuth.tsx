@@ -9,24 +9,38 @@ export const useRequireAuth = (redirectUrl: string = '/dashboard') => {
   const location = useLocation();
 
   useEffect(() => {
-    // Só prosseguir quando a verificação de autenticação estiver completa e não estiver carregando
-    if (!loading && authChecked && !user) {
-      const currentPath = location.pathname;
-      console.log('useRequireAuth - Nenhum usuário autenticado detectado. Redirecionando de:', currentPath);
-      navigate(redirectUrl, { state: { from: currentPath }, replace: true });
-      return;
-    }
+    // Exit early if still loading or in preview environment with location restrictions
+    if (loading) return;
     
-    // Se o usuário estiver autenticado, verificar acesso à seção de administração
-    if (!loading && authChecked && user) {
-      const currentPath = location.pathname;
-      const isAdminSection = currentPath.startsWith('/admin');
-      
-      // Para seção de administração, exigir acesso de administrador
-      if (isAdminSection && user.funcao !== 'admin') {
-        console.log('Acesso não autorizado à seção de administração. Redirecionando para dashboard');
-        navigate('/dashboard', { replace: true });
+    try {
+      // Skip redirect if not authenticated but check is complete
+      if (!loading && authChecked && !user) {
+        const currentPath = location.pathname;
+        console.log('useRequireAuth - No authenticated user detected. Redirecting from:', currentPath);
+        
+        // Use replace to avoid building up history stack
+        navigate(redirectUrl, { 
+          state: { from: currentPath }, 
+          replace: true 
+        });
+        return;
       }
+      
+      // If the user is authenticated, check access to admin section
+      if (!loading && authChecked && user) {
+        const currentPath = location.pathname;
+        const isAdminSection = currentPath.startsWith('/admin');
+        
+        // For admin section, require admin access
+        if (isAdminSection && user.funcao !== 'admin') {
+          console.log('Unauthorized access to admin section. Redirecting to dashboard');
+          navigate('/dashboard', { replace: true });
+        }
+      }
+    } catch (error) {
+      console.error('Navigation error in useRequireAuth:', error);
+      // In case of error, fallback to simpler approach
+      window.location.href = redirectUrl;
     }
   }, [user, loading, authChecked, navigate, redirectUrl, location.pathname]);
 
