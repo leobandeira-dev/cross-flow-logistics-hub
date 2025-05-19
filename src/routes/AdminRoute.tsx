@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, authChecked, verifyAuthState } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const location = useLocation();
   const [navigationReady, setNavigationReady] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
@@ -21,29 +21,20 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     }, 2000);
   
     // Check access permissions once auth state is loaded
-    if (!loading) {
-      // Ensure auth state is verified if needed
-      if (!authChecked) {
-        verifyAuthState();
-        return;
-      }
+    if (!loading && authChecked && !navigationReady) {
+      console.log('AdminRoute - Auth check completed, checking permissions. User:', 
+                  !!user, 'function:', user?.funcao);
       
-      // Once auth check is complete, check admin access
-      if (authChecked && !navigationReady) {
-        console.log('AdminRoute - path:', location.pathname, 'user:', !!user, 
-                    'function:', user?.funcao, 'loading:', loading, 'authChecked:', authChecked);
-        
-        // Check if user has admin role
-        const isAdmin = user?.funcao === 'admin';
-        setHasAccess(!!user && isAdmin);
-        setNavigationReady(true);
-      }
+      // Check if user has admin role
+      const isAdmin = user?.funcao === 'admin';
+      setHasAccess(!!user && isAdmin);
+      setNavigationReady(true);
     }
     
     return () => clearTimeout(navigationTimer);
-  }, [user, loading, navigationReady, location, authChecked, verifyAuthState]);
+  }, [user, loading, navigationReady, location, authChecked]);
   
-  if (loading || !navigationReady) {
+  if (loading || !authChecked || !navigationReady) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -65,5 +56,6 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   // Allow access to admin section
+  console.log('AdminRoute - User has admin access, showing admin content');
   return <>{children}</>;
 };

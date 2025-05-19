@@ -77,7 +77,7 @@ const CurrentUserInfo = () => {
               <h3 className="text-2xl font-medium">{user.nome}</h3>
               <div className="flex items-center justify-center sm:justify-start mt-1 text-muted-foreground">
                 <BadgeCheck className="mr-1 h-4 w-4" />
-                <span>{formatRole(user.funcao)}</span>
+                <span>{formatRole(user.funcao || 'operador')}</span>
               </div>
             </div>
             

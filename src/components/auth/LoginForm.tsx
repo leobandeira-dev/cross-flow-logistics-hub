@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,39 +19,25 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormProps) => {
-  const { signIn, user, loading, authChecked } = useAuth();
+  const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [redirectAttempted, setRedirectAttempted] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Redirect user after login
-  useEffect(() => {
-    // Only handle redirection once we have an authenticated user and auth is checked
-    if (user && authChecked && !loading && !redirectAttempted) {
-      const from = location.state?.from || '/dashboard';
-      console.log('LoginForm: User authenticated, redirecting to:', from);
-      setRedirectAttempted(true);
-      
-      // Small timeout to ensure state updates are processed
-      setTimeout(() => {
-        navigate(from, { replace: true });
-      }, 100);
-    }
-  }, [user, authChecked, loading, navigate, location.state, redirectAttempted]);
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
     setSuccess(null);
-    setRedirectAttempted(false); // Reset redirect attempted flag
     
     try {
       console.log('Submitting login form with email:', data.email);
       await signIn(data.email, data.password);
       console.log('Sign in completed successfully');
-      // Navigation will be handled by the useEffect hook
+      
+      // Redirect after successful login
+      const from = location.state?.from || '/dashboard';
+      navigate(from, { replace: true });
       
     } catch (error: any) {
       console.error('Login error:', error);

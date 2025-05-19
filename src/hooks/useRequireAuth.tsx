@@ -4,21 +4,25 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
 export const useRequireAuth = (redirectUrl: string = '/auth') => {
-  const { user, loading, authChecked, verifyAuthState } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [localAuthChecked, setLocalAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Verify auth state if needed
-    if (!loading && !authChecked) {
-      verifyAuthState();
-      return;
-    }
+    let timer: NodeJS.Timeout;
     
-    // Só redirecionar quando o carregamento estiver completo, a autenticação tiver sido verificada,
-    // e nossa verificação local ainda não tiver sido feita
+    // Safety timeout to prevent stuck states
+    timer = setTimeout(() => {
+      if (!localAuthChecked) {
+        console.log('useRequireAuth - Safety timeout triggered');
+        setLocalAuthChecked(true);
+      }
+    }, 2000);
+    
+    // Only proceed when loading is complete and auth has been checked
     if (!loading && authChecked && !localAuthChecked) {
+      console.log('useRequireAuth - Auth check completed, checking access. User:', !!user);
       setLocalAuthChecked(true);
       
       if (!user) {
@@ -28,19 +32,21 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
         return;
       }
       
-      // Tratamento especial para rotas de administrador quando o usuário está autenticado
+      // Special handling for admin routes when user is authenticated
       const currentPath = location.pathname;
       const isAdminSection = currentPath.startsWith('/admin');
       
-      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', user?.funcao);
+      console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user role:', user?.funcao);
       
-      // Para a seção de administrador, requer acesso de administrador
+      // For admin section, require admin access
       if (isAdminSection && user.funcao !== 'admin') {
         console.log('Unauthorized access to admin area. Redirecting to dashboard');
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [user, loading, navigate, redirectUrl, localAuthChecked, authChecked, verifyAuthState, location]);
+    
+    return () => clearTimeout(timer);
+  }, [user, loading, navigate, redirectUrl, localAuthChecked, authChecked, location]);
 
   return { 
     user, 

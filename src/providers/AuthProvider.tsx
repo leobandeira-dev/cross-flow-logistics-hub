@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 import { useAuthState } from '@/hooks/useAuthState';
 import { useAuthActions } from '@/hooks/useAuthActions';
@@ -20,46 +20,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Actions that affect auth state
   const { signIn, signUp, signOut, forgotPassword, updatePassword } = useAuthActions(setLoading, setUser);
 
-  // For preventing multiple verifications
-  const verificationAttempted = useRef(false);
-
   // Method to explicitly verify auth state
-  const verifyAuthState = useCallback(() => {
-    if (!authChecked && !loading && !verificationAttempted.current) {
+  const verifyAuthState = () => {
+    if (!authChecked) {
       console.log("Explicitly verifying auth state");
-      verificationAttempted.current = true;
       setAuthChecked(true);
     }
-  }, [authChecked, loading, setAuthChecked]);
+  };
 
   // Debugging auth state changes
   useEffect(() => {
     console.log('AuthProvider state updated:', { 
-      user: user ? {
-        id: user.id,
-        email: user.email,
-        nome: user.nome,
-        funcao: user.funcao
-      } : null, 
-      session: !!session, 
+      userId: user?.id,
+      userEmail: user?.email,
+      userName: user?.nome,
+      userFunction: user?.funcao,
+      hasSession: !!session, 
       loading, 
       connectionError,
       authChecked
     });
   }, [user, session, loading, connectionError, authChecked]);
-
-  // Auto-verification after initialization completes
-  useEffect(() => {
-    if (!authChecked && !loading && !verificationAttempted.current) {
-      const timer = setTimeout(() => {
-        console.log("Auto setting authChecked to true after initialization completed");
-        verificationAttempted.current = true;
-        setAuthChecked(true);
-      }, 800); // Increased timeout to ensure all listeners are set up
-      
-      return () => clearTimeout(timer);
-    }
-  }, [user, session, loading, authChecked, setAuthChecked]);
 
   // Provide auth context to children
   return (

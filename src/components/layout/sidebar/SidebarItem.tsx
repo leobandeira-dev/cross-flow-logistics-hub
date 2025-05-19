@@ -12,11 +12,11 @@ interface SidebarItemProps {
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, href, active }) => {
   const location = useLocation();
-  const { user, authChecked } = useAuth();
+  const { user } = useAuth();
   
   // Calculate the active state
   const isActive = active || location.pathname === href || 
-                  (href !== '/' && location.pathname.startsWith(href));
+                (href !== '/' && location.pathname.startsWith(href));
 
   // For admin routes, check user permissions
   const isAdminRoute = href.startsWith('/admin');
@@ -35,10 +35,6 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, href, acti
           ? 'bg-sidebar-accent text-sidebar-foreground' 
           : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground'
         }`}
-      onClick={() => {
-        // Only log navigation for debugging
-        console.log(`Navigation: clicked sidebar item to ${href}`);
-      }}
     >
       <Icon size={20} />
       <span>{label}</span>

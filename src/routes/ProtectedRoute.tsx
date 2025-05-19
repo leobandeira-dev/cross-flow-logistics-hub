@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, authChecked, verifyAuthState } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const location = useLocation();
   const [navigationReady, setNavigationReady] = useState(false);
   
@@ -20,29 +20,16 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }, 2000);
   
     // Wait for auth check to complete before deciding on navigation
-    if (!loading) {
-      console.log('ProtectedRoute - path:', location.pathname, 
-                  'user:', !!user, 
-                  'loading:', loading, 
-                  'authChecked:', authChecked);
-      
-      // Ensure auth state is verified if needed
-      if (!authChecked) {
-        verifyAuthState();
-        return;
-      }
-      
-      // Once auth check is complete, we're ready to decide on navigation
-      if (authChecked && !navigationReady) {
-        setNavigationReady(true);
-      }
+    if (!loading && authChecked && !navigationReady) {
+      console.log('ProtectedRoute - Auth check completed, ready for navigation. User:', !!user);
+      setNavigationReady(true);
     }
     
     return () => clearTimeout(navigationTimer);
-  }, [location, user, loading, authChecked, verifyAuthState, navigationReady]);
+  }, [location, user, loading, authChecked, navigationReady]);
   
   // While auth state is being verified, show a loading indicator
-  if (loading || !navigationReady) {
+  if (loading || !authChecked || !navigationReady) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -58,5 +45,6 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   // If authenticated, render the protected content
+  console.log('ProtectedRoute - User authenticated, showing protected content');
   return <>{children}</>;
 };

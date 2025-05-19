@@ -12,7 +12,7 @@ const AdminNavigationGroup: React.FC = () => {
   const { user } = useAuth();
   
   // Only render for admin users
-  if (user?.funcao !== 'admin') {
+  if (!user || user.funcao !== 'admin') {
     return null;
   }
 
