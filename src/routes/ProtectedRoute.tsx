@@ -19,7 +19,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  // Always allow access regardless of authentication status
-  // This prevents redirection loops
+  // Always render children once auth check is complete
+  // This prevents redirection loops - redirects are handled in useRequireAuth
   return <>{children}</>;
 };
