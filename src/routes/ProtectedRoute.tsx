@@ -22,6 +22,6 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/dashboard" state={{ from: location.pathname }} replace />;
   }
   
-  // If authenticated, render the protected content without redirection
+  // If authenticated, simply render the children without redirection
   return <>{children}</>;
 };

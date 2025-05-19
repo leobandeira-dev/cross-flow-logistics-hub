@@ -16,7 +16,7 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // If authenticated and auth check is complete, redirect to dashboard
+  // If authenticated and auth check is complete, redirect to dashboard or previous path
   if (user && authChecked) {
     const from = location.state?.from || '/dashboard';
     console.log('PublicRoute - Usuário autenticado, redirecionando para:', from);
