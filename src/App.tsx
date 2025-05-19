@@ -6,8 +6,14 @@ import { Toaster } from './components/ui/toaster';
 import { queryClient } from './lib/queryClient';
 import AppRoutes from './routes/AppRoutes';
 
-function App() {
+// Add authentication debug logging
+const logAuthState = () => {
   console.log('App rendering');
+  return null;
+};
+
+function App() {
+  logAuthState();
   
   return (
     <QueryClientProvider client={queryClient}>

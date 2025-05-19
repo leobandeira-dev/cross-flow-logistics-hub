@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Usuario } from '@/types/supabase.types';
 import { Session } from '@supabase/supabase-js';
@@ -14,6 +14,7 @@ export const useAuthState = () => {
   useEffect(() => {
     console.log('Inicializando estado de autenticação');
     let isMounted = true;
+    let initTimeout: NodeJS.Timeout | null = null;
     
     // Primeiro configurar a assinatura para mudanças no estado de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -54,6 +55,15 @@ export const useAuthState = () => {
     
     // Então verificar a sessão atual
     const initializeAuth = async () => {
+      // Garantir que a inicialização termine eventualmente
+      initTimeout = setTimeout(() => {
+        if (isMounted && loading) {
+          console.log('Auth initialization timed out, setting loading to false');
+          setLoading(false);
+          setAuthChecked(true);
+        }
+      }, 2000);
+
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
@@ -95,6 +105,10 @@ export const useAuthState = () => {
           setLoading(false);
           setAuthChecked(true);
         }
+        
+        if (initTimeout) {
+          clearTimeout(initTimeout);
+        }
       }
     };
     
@@ -103,6 +117,10 @@ export const useAuthState = () => {
     return () => {
       isMounted = false;
       subscription.unsubscribe();
+      
+      if (initTimeout) {
+        clearTimeout(initTimeout);
+      }
     };
   }, []);
 
@@ -113,6 +131,7 @@ export const useAuthState = () => {
     loading, 
     setLoading, 
     connectionError,
-    authChecked 
+    authChecked,
+    setAuthChecked
   };
 };

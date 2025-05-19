@@ -1,28 +1,35 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
 export const useRequireAuth = (redirectUrl: string = '/auth') => {
-  const { user, loading, authChecked } = useAuth();
+  const { user, loading, authChecked, verifyAuthState } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [localAuthChecked, setLocalAuthChecked] = useState(false);
 
   useEffect(() => {
+    // Verify auth state if needed
+    if (!loading && !authChecked) {
+      verifyAuthState();
+      return;
+    }
+    
     // Só redirecionar quando o carregamento estiver completo, a autenticação tiver sido verificada,
     // e nossa verificação local ainda não tiver sido feita
     if (!loading && authChecked && !localAuthChecked) {
       setLocalAuthChecked(true);
       
       if (!user) {
-        const currentPath = window.location.pathname;
+        const currentPath = location.pathname;
         console.log('useRequireAuth - No user detected. Redirecting to auth from:', currentPath);
         navigate(redirectUrl, { state: { from: currentPath }, replace: true });
         return;
       }
       
       // Tratamento especial para rotas de administrador quando o usuário está autenticado
-      const currentPath = window.location.pathname;
+      const currentPath = location.pathname;
       const isAdminSection = currentPath.startsWith('/admin');
       
       console.log('useRequireAuth - Path:', currentPath, 'isAdmin:', isAdminSection, 'user:', user?.funcao);
@@ -33,7 +40,7 @@ export const useRequireAuth = (redirectUrl: string = '/auth') => {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [user, loading, navigate, redirectUrl, localAuthChecked, authChecked]);
+  }, [user, loading, navigate, redirectUrl, localAuthChecked, authChecked, verifyAuthState, location]);
 
   return { 
     user, 

@@ -1,6 +1,7 @@
 
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { MouseEvent } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -11,8 +12,17 @@ interface SidebarItemProps {
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, href, active }) => {
   const location = useLocation();
+  const { authChecked } = useAuth();
+  const navigate = useNavigate();
   
-  const handleClick = () => {
+  const handleClick = (e: MouseEvent) => {
+    // Prevent default navigation when authentication hasn't been checked yet
+    if (!authChecked) {
+      e.preventDefault();
+      console.log('Navigation prevented: Auth check not completed');
+      return;
+    }
+    
     console.log('Navigation: clicking sidebar item to:', href, 'from:', location.pathname);
   };
 

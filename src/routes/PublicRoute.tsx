@@ -4,17 +4,22 @@ import { useAuth } from '../hooks/useAuth';
 import { useState, useEffect } from 'react';
 
 export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, authChecked } = useAuth();
+  const { user, loading, authChecked, verifyAuthState } = useAuth();
   const location = useLocation();
   const [redirectChecked, setRedirectChecked] = useState(false);
 
   useEffect(() => {
+    // Verify auth state if needed
+    if (!loading && !authChecked) {
+      verifyAuthState();
+    }
+    
     // Verificar autenticação uma vez quando o carregamento estiver concluído
     if (!loading && authChecked && !redirectChecked) {
       console.log('PublicRoute - path:', location.pathname, 'user:', !!user, 'loading:', loading, 'authChecked:', authChecked);
       setRedirectChecked(true);
     }
-  }, [location, user, loading, redirectChecked, authChecked]);
+  }, [location, user, loading, redirectChecked, authChecked, verifyAuthState]);
 
   // Mostrar carregamento apenas durante a verificação inicial de autenticação
   if (loading || !authChecked) {

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,11 +19,20 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormProps) => {
-  const { signIn } = useAuth();
+  const { signIn, user, loading, authChecked } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Redirect user after successful login
+  useEffect(() => {
+    if (user && authChecked && !loading) {
+      const from = location.state?.from || '/dashboard';
+      console.log('LoginForm: User authenticated, redirecting to:', from);
+      navigate(from, { replace: true });
+    }
+  }, [user, authChecked, loading, navigate, location.state]);
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -35,9 +44,8 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
       await signIn(data.email, data.password);
       console.log('Sign in completed successfully');
       
-      // Obter o destino pretendido do estado ou usar o padrão para dashboard
-      const from = location.state?.from || '/dashboard';
-      console.log('Navigation will redirect to:', from);
+      // Navigation will be handled by the useEffect above
+      
     } catch (error: any) {
       console.error('Login error:', error);
       

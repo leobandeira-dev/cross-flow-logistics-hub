@@ -4,12 +4,18 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, authChecked } = useAuth();
+  const { user, loading, authChecked, verifyAuthState } = useAuth();
   const location = useLocation();
   const [accessChecked, setAccessChecked] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
   
   useEffect(() => {
+    // Verify auth state if needed
+    if (!loading && !authChecked) {
+      verifyAuthState();
+      return;
+    }
+    
     if (!loading && authChecked && !accessChecked) {
       console.log('AdminRoute - path:', location.pathname, 'user:', !!user, 'function:', user?.funcao, 'loading:', loading, 'authChecked:', authChecked);
       
@@ -18,7 +24,7 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
       setHasAccess(!!user && isAdmin);
       setAccessChecked(true);
     }
-  }, [user, loading, accessChecked, location, authChecked]);
+  }, [user, loading, accessChecked, location, authChecked, verifyAuthState]);
   
   if (loading || !authChecked || !accessChecked) {
     return (
@@ -27,6 +33,12 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
         <p className="ml-3 text-gray-600">Verificando permissões...</p>
       </div>
     );
+  }
+  
+  // Se não estiver autenticado, redirecionar para a página de login
+  if (!user) {
+    console.log('Access denied: User not authenticated, redirecting from admin area');
+    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
   
   // Verificar se o usuário está autenticado E tem função de administrador

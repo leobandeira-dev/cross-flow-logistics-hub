@@ -16,6 +16,7 @@ type AuthContextType = {
   forgotPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
   setUser: (user: Usuario | null) => void;
+  verifyAuthState: () => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
