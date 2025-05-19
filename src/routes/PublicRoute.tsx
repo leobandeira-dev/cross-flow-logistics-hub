@@ -16,13 +16,12 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // If authenticated and auth check is complete, redirect to dashboard or previous path
-  if (user && authChecked) {
-    const from = location.state?.from || '/dashboard';
-    console.log('PublicRoute - Usuário autenticado, redirecionando para:', from);
-    return <Navigate to={from} replace />;
+  // If authenticated, redirect to dashboard or previous path
+  if (user && authChecked && location.pathname !== '/dashboard') {
+    console.log('PublicRoute - Usuário autenticado, redirecionando para dashboard');
+    return <Navigate to="/dashboard" replace />;
   }
 
-  // Caso contrário, renderiza a página pública
+  // For non-authenticated users, show the public content
   return <>{children}</>;
 };

@@ -10,18 +10,10 @@ const Index = () => {
   useEffect(() => {
     // Only redirect when auth check is complete
     if (authChecked) {
-      if (!user) {
-        console.log('Index page - No authenticated user, staying on dashboard');
-        navigate('/dashboard', { replace: true });
-      } else {
-        // User is authenticated, check if we're already on dashboard
-        if (window.location.pathname === '/index') {
-          console.log('Index page - User authenticated, navigating to dashboard');
-          navigate('/dashboard', { replace: true });
-        }
-      }
+      console.log('Index page - Auth check completed, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
     }
-  }, [user, authChecked, navigate]);
+  }, [authChecked, navigate]);
 
   // Show loading while checking auth
   return (

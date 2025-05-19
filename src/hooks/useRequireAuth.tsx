@@ -12,7 +12,7 @@ export const useRequireAuth = (redirectUrl: string = '/dashboard') => {
     // Only proceed when auth check is complete and not loading
     if (!loading && authChecked && !user) {
       const currentPath = location.pathname;
-      console.log('useRequireAuth - Nenhum usuário detectado. Redirecionando para dashboard de:', currentPath);
+      console.log('useRequireAuth - No authenticated user detected. Redirecting from:', currentPath);
       navigate(redirectUrl, { state: { from: currentPath }, replace: true });
       return;
     }
@@ -24,7 +24,7 @@ export const useRequireAuth = (redirectUrl: string = '/dashboard') => {
       
       // For admin section, require admin access
       if (isAdminSection && user.funcao !== 'admin') {
-        console.log('Acesso não autorizado à área administrativa. Redirecionando para o dashboard');
+        console.log('Unauthorized access to admin section. Redirecting to dashboard');
         navigate('/dashboard', { replace: true });
       }
     }

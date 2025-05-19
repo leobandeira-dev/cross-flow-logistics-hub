@@ -17,7 +17,7 @@ const AdminNavigationGroup: React.FC = () => {
   }
 
   return (
-    <SubMenu icon={Briefcase} label="Administração" defaultOpen={false}>
+    <SubMenu icon={Briefcase} label="Administração" defaultOpen={true}>
       <SidebarItem icon={LayoutDashboard} label="Dashboard Admin" href="/admin" />
       <SidebarItem icon={Users} label="Clientes" href="/admin/clientes" />
       <SubMenu icon={FileSpreadsheet} label="Financeiro" defaultOpen={false}>
