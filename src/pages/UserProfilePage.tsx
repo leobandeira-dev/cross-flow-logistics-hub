@@ -7,6 +7,7 @@ import ProfileForm from '@/components/profile/ProfileForm';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileTabs from '@/components/profile/ProfileTabs';
 import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
+import CurrentUserInfo from '@/components/profile/CurrentUserInfo';
 import { Card, CardContent } from '@/components/ui/card';
 
 const UserProfilePage = () => {
@@ -43,6 +44,9 @@ const UserProfilePage = () => {
     <MainLayout title="Perfil do Usuário">
       <div className="space-y-6">
         <ProfileHeader user={user} />
+        
+        {/* Add the Current User Info component at the top */}
+        <CurrentUserInfo />
         
         <Card>
           <ProfileTabs activeTab={activeTab} onTabChange={handleTabChange} />

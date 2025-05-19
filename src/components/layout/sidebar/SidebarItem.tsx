@@ -12,11 +12,20 @@ interface SidebarItemProps {
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, href, active }) => {
   const location = useLocation();
-  const { authChecked } = useAuth();
+  const { user, authChecked } = useAuth();
   
   // Calculate the active state
   const isActive = active || location.pathname === href || 
                   (href !== '/' && location.pathname.startsWith(href));
+
+  // For admin routes, check user permissions
+  const isAdminRoute = href.startsWith('/admin');
+  const hasAdminAccess = user?.funcao === 'admin';
+  
+  // Don't render admin links for non-admin users
+  if (isAdminRoute && !hasAdminAccess) {
+    return null;
+  }
   
   return (
     <Link 

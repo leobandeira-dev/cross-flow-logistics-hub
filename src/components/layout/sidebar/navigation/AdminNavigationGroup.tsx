@@ -4,11 +4,18 @@ import {
   Briefcase, LayoutDashboard, Users, FileSpreadsheet, 
   CreditCard, FileText, Package, BookUser, HelpCircle, Target 
 } from 'lucide-react';
-
+import { useAuth } from '@/hooks/useAuth';
 import SubMenu from '../SubMenu';
 import SidebarItem from '../SidebarItem';
 
 const AdminNavigationGroup: React.FC = () => {
+  const { user } = useAuth();
+  
+  // Only render for admin users
+  if (user?.funcao !== 'admin') {
+    return null;
+  }
+
   return (
     <SubMenu icon={Briefcase} label="Administração" defaultOpen={false}>
       <SidebarItem icon={LayoutDashboard} label="Dashboard Admin" href="/admin" />

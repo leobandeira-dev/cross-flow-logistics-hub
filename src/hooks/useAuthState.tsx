@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Usuario } from '@/types/supabase.types';
@@ -36,18 +35,19 @@ export const useAuthState = () => {
       async (event, currentSession) => {
         if (!isMounted) return;
         
-        console.log('Evento de autenticação:', event);
+        console.log('Auth event detected:', event);
         
         if (currentSession) {
           setSession(currentSession);
           
           if (currentSession.user) {
             const userData = currentSession.user;
+            console.log('User metadata:', userData.user_metadata);
+            
             const usuarioData: Usuario = {
               id: userData.id,
               email: userData.email || '',
               nome: userData.user_metadata?.nome || 
-                   userData.user_metadata?.nome || 
                    userData.user_metadata?.name || 
                    userData.email || '',
               telefone: userData.user_metadata?.telefone,
@@ -61,15 +61,13 @@ export const useAuthState = () => {
             };
             
             setUser(usuarioData);
-            console.log('User updated from auth change event:', usuarioData.funcao);
+            console.log('User updated from auth change event:', usuarioData);
           }
         } else {
           setUser(null);
           setSession(null);
           console.log('User is null from auth change event');
         }
-        
-        // Don't mark as checked from events since session might still be initializing
       }
     );
     
@@ -79,6 +77,7 @@ export const useAuthState = () => {
       initialized.current = true;
       
       try {
+        console.log('Checking for existing session...');
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         if (!isMounted) return;
@@ -88,11 +87,12 @@ export const useAuthState = () => {
           
           if (currentSession.user) {
             const userData = currentSession.user;
+            console.log('User metadata from session:', userData.user_metadata);
+            
             const usuarioData: Usuario = {
               id: userData.id,
               email: userData.email || '',
               nome: userData.user_metadata?.nome || 
-                   userData.user_metadata?.nome || 
                    userData.user_metadata?.name || 
                    userData.email || '',
               telefone: userData.user_metadata?.telefone,
@@ -106,7 +106,7 @@ export const useAuthState = () => {
             };
             
             setUser(usuarioData);
-            console.log('User initialized from session:', usuarioData.funcao);
+            console.log('User initialized from session:', usuarioData);
           }
         } else {
           setUser(null);
@@ -115,7 +115,7 @@ export const useAuthState = () => {
         }
       } catch (error) {
         if (!isMounted) return;
-        console.error('Erro ao verificar sessão:', error);
+        console.error('Error checking session:', error);
         setConnectionError(true);
       } finally {
         if (isMounted) {

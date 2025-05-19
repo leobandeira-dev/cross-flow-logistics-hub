@@ -35,7 +35,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Debugging auth state changes
   useEffect(() => {
     console.log('AuthProvider state updated:', { 
-      user: !!user, 
+      user: user ? {
+        id: user.id,
+        email: user.email,
+        nome: user.nome,
+        funcao: user.funcao
+      } : null, 
       session: !!session, 
       loading, 
       connectionError,
