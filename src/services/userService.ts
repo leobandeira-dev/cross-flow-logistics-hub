@@ -38,13 +38,20 @@ export const fetchUsers = async (): Promise<UserWithProfile[]> => {
 
   console.log('Fetched users:', data.length);
 
-  return data.map(user => ({
-    id: user.id,
-    nome: user.nome,
-    email: user.email,
-    perfil: user.funcao || 'N/A',
-    avatar_url: user.avatar_url
-  }));
+  return data.map(user => {
+    // Set user with leonardobandeir@gmail.com as administrator
+    const perfil = user.email === 'leonardobandeir@gmail.com' 
+      ? 'Administrador' 
+      : user.funcao || 'N/A';
+      
+    return {
+      id: user.id,
+      nome: user.nome,
+      email: user.email,
+      perfil: perfil,
+      avatar_url: user.avatar_url
+    };
+  });
 };
 
 /**
@@ -87,9 +94,11 @@ export const fetchComprehensiveUsersList = async () => {
       console.error('Error fetching companies:', empresasError);
     }
 
-    // Map users with company information
+    // Map users with company information, ensuring leonardobandeir@gmail.com is an administrator
     return profiles.map(profile => {
       const empresa = empresas?.find(e => e.id === profile.empresa_id) || { nome_fantasia: 'N/A', cnpj: 'N/A' };
+      // Set user with leonardobandeir@gmail.com as administrator
+      const perfil = profile.email === 'leonardobandeir@gmail.com' ? 'Administrador' : profile.funcao;
       
       return {
         id: profile.id,
@@ -97,7 +106,7 @@ export const fetchComprehensiveUsersList = async () => {
         email: profile.email,
         empresa: empresa.nome_fantasia,
         cnpj: empresa.cnpj,
-        perfil: profile.funcao,
+        perfil: perfil,
         status: profile.ultimo_login ? 'ativo' : 'pendente'
       };
     });
