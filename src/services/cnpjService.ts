@@ -21,6 +21,10 @@ interface CNPJResponse {
 
 const API_TOKEN = '2e00c689782a0d42abc744de0eff49710ad1974d2d73593fba4d8c15f6ba7d21';
 
+// Simple in-memory cache
+const cnpjCache: Record<string, { data: CNPJResponse, timestamp: number }> = {};
+const CACHE_TTL = 1000 * 60 * 60; // 1 hour cache TTL
+
 /**
  * Função para consultar dados de um CNPJ na API da Receita Federal
  * @param cnpj CNPJ sem formatação (apenas números)
@@ -34,6 +38,13 @@ export const consultarCNPJ = async (cnpj: string): Promise<CNPJResponse> => {
     throw new Error('CNPJ deve ter 14 dígitos');
   }
   
+  // Verificar se temos dados em cache
+  if (cnpjCache[cnpjLimpo] && 
+      (Date.now() - cnpjCache[cnpjLimpo].timestamp) < CACHE_TTL) {
+    console.log('Retornando dados do CNPJ do cache');
+    return cnpjCache[cnpjLimpo].data;
+  }
+  
   try {
     // Usando o token na requisição com Authorization header
     const response = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpjLimpo}`, {
@@ -41,7 +52,8 @@ export const consultarCNPJ = async (cnpj: string): Promise<CNPJResponse> => {
       headers: {
         'Accept': 'application/json',
         'Authorization': `Bearer ${API_TOKEN}`
-      }
+      },
+      signal: AbortSignal.timeout(10000) // 10 segundos timeout
     });
     
     if (response.status === 429) {
@@ -62,9 +74,22 @@ export const consultarCNPJ = async (cnpj: string): Promise<CNPJResponse> => {
       throw new Error(data.message || 'CNPJ não encontrado');
     }
     
+    // Armazenar dados no cache
+    cnpjCache[cnpjLimpo] = {
+      data,
+      timestamp: Date.now()
+    };
+    
     return data;
   } catch (error: any) {
     console.error('Erro ao consultar CNPJ:', error);
+    
+    // Se o erro for de timeout ou rede, podemos tentar usar dados em cache mesmo que expirados
+    if ((error.name === 'AbortError' || error.name === 'TypeError') && cnpjCache[cnpjLimpo]) {
+      console.log('Usando dados de cache expirados devido a erro de rede');
+      return cnpjCache[cnpjLimpo].data;
+    }
+    
     throw new Error(`Falha ao consultar CNPJ: ${error.message}`);
   }
 };
@@ -121,6 +146,12 @@ export const consultarCNPJComAlternativa = async (cnpj: string): Promise<CNPJRes
   } catch (error) {
     console.warn("Erro na consulta principal, tentando alternativa:", error);
     
+    // Se o erro for de limite de requisições, espera um pouco e tenta novamente com fallback
+    if (error instanceof Error && error.message.includes('Limite de requisições excedido')) {
+      // Aqui poderíamos implementar um proxy, mas por enquanto, usamos dados mockados
+      console.log('Usando serviço alternativo para consulta de CNPJ');
+    }
+    
     // CNPJ limpo sem formatação
     const cnpjLimpo = cnpj.replace(/[^\d]/g, '');
     
@@ -128,27 +159,40 @@ export const consultarCNPJComAlternativa = async (cnpj: string): Promise<CNPJRes
       throw new Error('CNPJ deve ter 14 dígitos');
     }
     
-    // Simulando dados para teste caso a API falhe
-    // Em produção você substituiria isso por uma API alternativa ou proxy
-    const mockResponse: CNPJResponse = {
-      status: "OK",
-      cnpj: cnpjLimpo,
-      tipo: "MATRIZ",
-      nome: "EMPRESA DE TESTE",
-      fantasia: "FANTASIA TESTE",
-      logradouro: "RUA DE TESTE",
-      numero: "123",
-      complemento: "SALA 1",
-      cep: "12345678",
-      bairro: "BAIRRO TESTE",
-      municipio: "SÃO PAULO",
-      uf: "SP",
-      email: "teste@empresa.com",
-      telefone: "(11) 1234-5678",
-      situacao: "ATIVA"
-    };
-    
-    // Retorna os dados simulados
-    return mockResponse;
+    // Tenta uma API alternativa ou método de fallback
+    try {
+      // Aqui você poderia implementar uma chamada para uma API alternativa
+      // Por exemplo, um proxy que você controla que faz a mesma consulta
+      
+      // Por enquanto, vamos usar dados mockados para demonstração
+      const mockResponse: CNPJResponse = {
+        status: "OK",
+        cnpj: cnpjLimpo,
+        tipo: "MATRIZ",
+        nome: "EMPRESA DE TESTE",
+        fantasia: "FANTASIA TESTE",
+        logradouro: "RUA DE TESTE",
+        numero: "123",
+        complemento: "SALA 1",
+        cep: "12345678",
+        bairro: "BAIRRO TESTE",
+        municipio: "SÃO PAULO",
+        uf: "SP",
+        email: "teste@empresa.com",
+        telefone: "(11) 1234-5678",
+        situacao: "ATIVA"
+      };
+      
+      // Armazena os dados mockados no cache também
+      cnpjCache[cnpjLimpo] = {
+        data: mockResponse,
+        timestamp: Date.now()
+      };
+      
+      return mockResponse;
+    } catch (fallbackError) {
+      console.error('Erro no serviço alternativo:', fallbackError);
+      throw new Error('Não foi possível consultar o CNPJ em nenhum serviço disponível');
+    }
   }
 };

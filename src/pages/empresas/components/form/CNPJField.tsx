@@ -15,6 +15,7 @@ interface CNPJFieldProps {
 const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [lastSearched, setLastSearched] = useState<string>('');
 
   const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -41,6 +42,15 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
       });
       return;
     }
+
+    // Se o CNPJ já foi pesquisado recentemente, não faz nova consulta
+    if (lastSearched === cnpjLimpo) {
+      toast({
+        title: "Info",
+        description: "Este CNPJ já foi pesquisado recentemente.",
+      });
+      return;
+    }
     
     setIsLoading(true);
     
@@ -63,6 +73,9 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
           form.setValue(campo as any, valor);
         }
       });
+
+      // Registra este CNPJ como já pesquisado
+      setLastSearched(cnpjLimpo);
       
       toast({
         title: "Dados carregados",

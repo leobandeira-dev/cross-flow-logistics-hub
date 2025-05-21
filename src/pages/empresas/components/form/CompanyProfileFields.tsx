@@ -48,7 +48,10 @@ const CompanyProfileFields: React.FC<CompanyProfileFieldsProps> = ({ form, perfi
             />
           ))}
         </div>
-        <FormMessage>{form.formState.errors.perfil?.message}</FormMessage>
+        {/* Fix: Convert the form error to a string if it exists */}
+        <FormMessage>
+          {form.formState.errors.perfil ? String(form.formState.errors.perfil.message) : null}
+        </FormMessage>
       </div>
 
       <FormField
