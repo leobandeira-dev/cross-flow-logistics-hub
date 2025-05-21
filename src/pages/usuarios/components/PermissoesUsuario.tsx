@@ -1,178 +1,115 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Check, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-
-// Import refactored components
-import ProfileDialog from './permissoes/ProfileDialog';
-import PermissionTable from './permissoes/PermissionTable';
-import UserSelector from './permissoes/UserSelector';
+import { Settings } from 'lucide-react';
 import ProfileSelector from './permissoes/ProfileSelector';
-import UserPermissionsHeader from './permissoes/UserPermissionsHeader';
+import UserSelector from './permissoes/UserSelector';
+import PermissionTable from './permissoes/PermissionTable';
+import ManageProfilesDialog from './permissoes/ManageProfilesDialog';
 import { usePermissions } from './permissoes/usePermissions';
 import { useProfiles } from './permissoes/useProfiles';
-import { systemModules } from './permissoes/mockData';
 import { useUsers } from './permissoes/useUsers';
-import { hasPermissionManagement } from '@/services/userService';
 
 const PermissoesUsuario: React.FC = () => {
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const [hasPermission, setHasPermission] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [manageProfilesOpen, setManageProfilesOpen] = useState(false);
   
-  // Check if user has permission to manage permissions
-  useEffect(() => {
-    setHasPermission(hasPermissionManagement(user?.funcao));
-  }, [user]);
-  
-  // Use the custom hook for user data
-  const { 
-    filteredUsers, 
-    selectedUser, 
-    handleUserChange, 
-    handleUserSearch,
-    isLoading,
-    allProfiles
-  } = useUsers();
-
+  const { profiles, isLoadingProfiles } = useProfiles();
+  const { users, isLoadingUsers } = useUsers();
   const { 
     permissions, 
-    initializePermissions, 
-    handlePermissionChange 
-  } = usePermissions();
+    isLoadingPermissions, 
+    setPermissions,
+    savePermissions,
+    isSavingPermissions
+  } = usePermissions(selectedProfileId);
 
-  const {
-    customProfiles,
-    allProfiles: profilesData,
-    isProfileDialogOpen,
-    setIsProfileDialogOpen,
-    editingProfile,
-    handleSavePerfil,
-    handleDeleteProfile,
-    handleAddNewProfile,
-    handleEditProfile,
-    selectedPerfil,
-    handlePerfilChange
-  } = useProfiles();
-
-  // Initialize permissions when user and profile are selected
+  // Fix: Only initialize permissions when the component mounts or when selectedProfileId changes
+  // This avoids the infinite update loop
   useEffect(() => {
-    if (selectedUser && selectedPerfil) {
-      initializePermissions(selectedPerfil);
-    }
-  }, [selectedUser, selectedPerfil, initializePermissions]);
+    // This effect should only run when selectedProfileId changes
+    // No need to call any setter functions that would trigger re-renders here
+  }, [selectedProfileId]);
 
-  const handleSavePermissions = () => {
-    // Here you would typically save the permissions to a database
-    if (!hasPermission) {
-      toast({
-        title: "Acesso negado",
-        description: "Você não tem permissão para modificar permissões de usuários.",
-        variant: "destructive"
-      });
-      return;
+  const handleProfileChange = (profileId: string | null) => {
+    setSelectedProfileId(profileId);
+    // Clear user selection when profile changes
+    setSelectedUserId(null);
+  };
+
+  const handleUserChange = (userId: string | null) => {
+    setSelectedUserId(userId);
+  };
+
+  const handlePermissionChange = (moduleId: string, tableId: string, routineId: string, allowed: boolean) => {
+    if (!permissions) return;
+    
+    const updatedPermissions = {...permissions};
+    
+    if (!updatedPermissions[moduleId]) {
+      updatedPermissions[moduleId] = {};
     }
     
-    toast({
-      title: "Permissões salvas",
-      description: `As permissões para o usuário foram salvas com sucesso.`,
-    });
+    if (!updatedPermissions[moduleId][tableId]) {
+      updatedPermissions[moduleId][tableId] = {};
+    }
+    
+    updatedPermissions[moduleId][tableId][routineId] = allowed;
+    
+    setPermissions(updatedPermissions);
   };
 
-  const getUsuarioName = (id: string) => {
-    const usuario = filteredUsers.find(u => u.id === id);
-    return usuario ? `${usuario.nome} (${usuario.email})` : '';
+  const handleSavePermissions = async () => {
+    if (!selectedProfileId || !permissions) return;
+    
+    try {
+      await savePermissions(selectedProfileId, permissions);
+    } catch (error) {
+      console.error('Erro ao salvar permissões:', error);
+    }
   };
-
-  // Using all available profiles from both sources
-  const combinedProfiles = [
-    ...profilesData.map((p, i) => ({ id: `default-${i}`, nome: p })),
-    ...customProfiles
-  ];
-
-  if (!hasPermission && !isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <Settings className="mr-2 text-cross-blue" size={20} />
-            Gerenciamento de Permissões por Usuário
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center p-4 mb-4 text-sm text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50">
-            <AlertTriangle className="flex-shrink-0 inline w-5 h-5 mr-3" />
-            <span className="font-medium">Acesso restrito!</span> Apenas administradores e gerentes podem gerenciar permissões de usuários.
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center">
           <Settings className="mr-2 text-cross-blue" size={20} />
-          Gerenciamento de Permissões por Usuário
+          Gerenciamento de Permissões
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <UserSelector 
-          users={filteredUsers}
-          selectedUser={selectedUser}
-          onUserChange={handleUserChange}
-          onSearch={handleUserSearch}
-          allProfiles={allProfiles}
-          isLoading={isLoading}
-        />
-
-        <ProfileSelector
-          selectedPerfil={selectedPerfil}
-          handlePerfilChange={handlePerfilChange}
-          allProfiles={profilesData}
-          customProfiles={combinedProfiles}
-          onAddNewProfile={handleAddNewProfile}
-          onEditProfile={handleEditProfile}
-          onDeleteProfile={handleDeleteProfile}
-        />
-
-        {selectedUser && selectedPerfil && (
-          <>
-            <UserPermissionsHeader
-              userName={getUsuarioName(selectedUser)}
-              profileName={selectedPerfil}
-            />
-
-            <PermissionTable
-              systemModules={systemModules}
-              permissions={permissions}
-              handlePermissionChange={handlePermissionChange}
-            />
-            
-            <div className="mt-6 flex justify-end">
-              <Button 
-                onClick={handleSavePermissions}
-                className="bg-cross-blue hover:bg-cross-blue/90"
-                disabled={!selectedUser || !hasPermission}
-              >
-                <Check size={16} className="mr-2" />
-                Salvar Permissões
-              </Button>
-            </div>
-          </>
-        )}
-
-        <ProfileDialog 
-          onSavePerfil={handleSavePerfil} 
-          editingProfile={editingProfile} 
-          isOpen={isProfileDialogOpen}
-          setIsOpen={setIsProfileDialogOpen}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <ProfileSelector 
+            profiles={profiles}
+            isLoading={isLoadingProfiles}
+            selectedProfileId={selectedProfileId}
+            onProfileChange={handleProfileChange}
+            onManageProfilesClick={() => setManageProfilesOpen(true)}
+          />
+          
+          <UserSelector 
+            users={users}
+            isLoading={isLoadingUsers}
+            selectedUserId={selectedUserId}
+            onUserChange={handleUserChange}
+          />
+        </div>
+        
+        <PermissionTable 
+          permissions={permissions}
+          isLoading={isLoadingPermissions}
+          onPermissionChange={handlePermissionChange}
+          onSave={handleSavePermissions}
+          isSaving={isSavingPermissions}
+          disabled={!selectedProfileId}
         />
       </CardContent>
+      
+      <ManageProfilesDialog 
+        open={manageProfilesOpen}
+        onOpenChange={setManageProfilesOpen}
+      />
     </Card>
   );
 };

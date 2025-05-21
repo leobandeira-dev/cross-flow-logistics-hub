@@ -1,102 +1,82 @@
 
 import { useState, useEffect } from 'react';
-import { systemModules } from './mockData';
 
-export const usePermissions = () => {
-  const [permissions, setPermissions] = useState<Record<string, boolean>>({});
-  
-  const initializePermissions = (perfil: string) => {
-    const initialPermissions: Record<string, boolean> = {};
-    
-    // Set default permissions based on selected profile
-    if (perfil === 'Administrador') {
-      // Full access for admin
-      systemModules.forEach(module => {
-        initialPermissions[`module_${module.id}`] = true;
-        
-        module.tabelas.forEach(tab => {
-          initialPermissions[`tab_${module.id}_${tab.id}`] = true;
-          
-          tab.rotinas.forEach(routine => {
-            initialPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = true;
-          });
-        });
-      });
-    } else if (perfil === 'Gerente') {
-      // Most access for manager, except some admin functions
-      systemModules.forEach(module => {
-        initialPermissions[`module_${module.id}`] = true;
-        
-        module.tabelas.forEach(tab => {
-          initialPermissions[`tab_${module.id}_${tab.id}`] = true;
-          
-          tab.rotinas.forEach(routine => {
-            initialPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = true;
-          });
-        });
-      });
+type Permission = Record<string, Record<string, Record<string, boolean>>>;
+
+export const usePermissions = (profileId: string | null) => {
+  const [permissions, setPermissions] = useState<Permission | null>(null);
+  const [isLoadingPermissions, setIsLoadingPermissions] = useState(false);
+  const [isSavingPermissions, setIsSavingPermissions] = useState(false);
+
+  useEffect(() => {
+    // Only attempt to fetch permissions if we have a profileId
+    if (profileId) {
+      fetchPermissions(profileId);
     } else {
-      // Limited access for other roles
-      systemModules.forEach(module => {
-        initialPermissions[`module_${module.id}`] = perfil === 'Operador';
-        
-        module.tabelas.forEach(tab => {
-          initialPermissions[`tab_${module.id}_${tab.id}`] = perfil === 'Operador';
-          
-          tab.rotinas.forEach(routine => {
-            initialPermissions[`routine_${module.id}_${tab.id}_${routine.id}`] = perfil === 'Operador' && 
-              !routine.id.includes('admin');
-          });
-        });
-      });
+      // Reset permissions when profileId is null
+      setPermissions(null);
     }
-    
-    setPermissions(initialPermissions);
+  }, [profileId]);
+
+  const fetchPermissions = async (profileId: string) => {
+    setIsLoadingPermissions(true);
+    try {
+      // This is a mock implementation. In a real app, you would call your API here.
+      // For testing, let's simulate an API call with a timeout
+      setTimeout(() => {
+        // Mock permission data
+        const mockPermissions: Permission = {
+          'mod1': {
+            'tab1': {
+              'view': true,
+              'edit': false,
+              'delete': false
+            },
+            'tab2': {
+              'view': true,
+              'edit': true,
+              'delete': false
+            }
+          },
+          'mod2': {
+            'tab3': {
+              'view': true,
+              'edit': false,
+              'delete': false
+            }
+          }
+        };
+        
+        setPermissions(mockPermissions);
+        setIsLoadingPermissions(false);
+      }, 1000);
+    } catch (error) {
+      console.error('Error fetching permissions:', error);
+      setIsLoadingPermissions(false);
+    }
   };
 
-  const handlePermissionChange = (key: string, checked: boolean) => {
-    setPermissions(prev => {
-      const updated = { ...prev, [key]: checked };
-      
-      // If it's a module or tab permission, update children accordingly
-      if (key.startsWith('module_')) {
-        const moduleId = key.replace('module_', '');
-        const module = systemModules.find(m => m.id === moduleId);
-        
-        if (module) {
-          module.tabelas.forEach(tab => {
-            const tabKey = `tab_${moduleId}_${tab.id}`;
-            updated[tabKey] = checked;
-            
-            tab.rotinas.forEach(routine => {
-              const routineKey = `routine_${moduleId}_${tab.id}_${routine.id}`;
-              updated[routineKey] = checked;
-            });
-          });
-        }
-      } else if (key.startsWith('tab_')) {
-        // Extract module and tab IDs
-        const [_, moduleId, tabId] = key.split('_');
-        const module = systemModules.find(m => m.id === moduleId);
-        
-        if (module) {
-          const tab = module.tabelas.find(t => t.id === tabId);
-          if (tab) {
-            tab.rotinas.forEach(routine => {
-              const routineKey = `routine_${moduleId}_${tabId}_${routine.id}`;
-              updated[routineKey] = checked;
-            });
-          }
-        }
-      }
-      
-      return updated;
-    });
+  const savePermissions = async (profileId: string, permissions: Permission) => {
+    setIsSavingPermissions(true);
+    try {
+      // This is a mock implementation. In a real app, you would call your API here.
+      // For testing, let's simulate an API call with a timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Permissions saved for profile:', profileId, permissions);
+      setIsSavingPermissions(false);
+      return true;
+    } catch (error) {
+      console.error('Error saving permissions:', error);
+      setIsSavingPermissions(false);
+      throw error;
+    }
   };
 
   return {
     permissions,
-    initializePermissions,
-    handlePermissionChange
+    isLoadingPermissions,
+    setPermissions,
+    savePermissions,
+    isSavingPermissions
   };
 };
