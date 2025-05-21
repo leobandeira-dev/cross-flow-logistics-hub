@@ -22,7 +22,9 @@ const PermissoesEmpresa: React.FC = () => {
     filteredEmpresas, 
     handleEmpresaChange,
     handleSearch,
-    getEmpresaName
+    getEmpresaName,
+    isLoading,
+    error
   } = useEmpresaSearch();
   
   const {
@@ -81,7 +83,14 @@ const PermissoesEmpresa: React.FC = () => {
             selectedEmpresa={selectedEmpresa}
             handleEmpresaChange={handleEmpresaChange}
             filteredEmpresas={filteredEmpresas}
+            isLoading={isLoading}
           />
+          
+          {error && (
+            <div className="p-3 mb-3 text-sm border rounded border-red-200 bg-red-50 text-red-600">
+              Erro ao carregar empresas: {error}
+            </div>
+          )}
         </div>
 
         <ProfileSelector

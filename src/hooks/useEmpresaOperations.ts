@@ -12,12 +12,14 @@ export const useEmpresaOperations = () => {
     setIsLoading(true);
 
     try {
-      // Verificar se o CNPJ já existe
+      // Verificar se o CNPJ já existe - garantindo que seja feito apenas se o CNPJ estiver preenchido
       if (dadosEmpresa.cnpj) {
+        const cnpjLimpo = dadosEmpresa.cnpj.replace(/\D/g, '');
+        
         const { data: empresaExistente } = await supabase
           .from('empresas')
           .select('id')
-          .eq('cnpj', dadosEmpresa.cnpj.replace(/\D/g, ''))
+          .eq('cnpj', cnpjLimpo)
           .maybeSingle();
 
         if (empresaExistente) {
@@ -29,6 +31,14 @@ export const useEmpresaOperations = () => {
           setIsLoading(false);
           return false;
         }
+      } else {
+        toast({
+          title: 'CNPJ obrigatório',
+          description: 'O CNPJ é obrigatório para cadastrar uma empresa.',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return false;
       }
 
       // Preparar dados para inserção
@@ -42,6 +52,10 @@ export const useEmpresaOperations = () => {
         status: 'ativo',
         // Por padrão, definimos como 'Cliente' se não especificado
         tipo: dadosEmpresa.tipo || 'Cliente',
+        // Define o perfil conforme selecionado no formulário
+        perfil: dadosEmpresa.perfil,
+        // Define se é transportadora principal
+        transportadoraPrincipal: dadosEmpresa.transportadoraPrincipal || false,
       };
 
       const { data, error } = await supabase
