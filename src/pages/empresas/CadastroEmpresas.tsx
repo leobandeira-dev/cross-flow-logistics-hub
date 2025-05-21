@@ -1,19 +1,20 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import EmpresaDetailsDialog from './components/EmpresaDetailsDialog';
 import { useEmpresasList } from './hooks/useEmpresasList';
+import { useEmpresasTabs, EmpresaTab } from './hooks/useEmpresasTabs';
 import NovaEmpresaTab from './components/tabs/NovaEmpresaTab';
 import PermissoesTabWrapper from './components/tabs/PermissoesTabWrapper';
 import EmpresasListTabWrapper from './components/tabs/EmpresasListTabWrapper';
 
 interface CadastroEmpresasProps {
-  initialTab?: string;
+  initialTab?: EmpresaTab;
 }
 
 const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadastro' }) => {
-  const [currentTab, setCurrentTab] = useState(initialTab);
+  const { currentTab, setCurrentTab } = useEmpresasTabs({ initialTab });
   const { 
     empresas, 
     isLoading, 
@@ -24,11 +25,6 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
     handleEmpresaSubmit 
   } = useEmpresasList();
   
-  // Atualiza a tab quando o initialTab mudar (útil para navegação via link)
-  useEffect(() => {
-    setCurrentTab(initialTab);
-  }, [initialTab]);
-
   return (
     <MainLayout title="Cadastro de Empresas">
       <div className="mb-6">
@@ -36,7 +32,7 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
         <p className="text-gray-600">Cadastro, permissões e listagem de empresas no sistema</p>
       </div>
       
-      <Tabs defaultValue="cadastro" className="mb-6" value={currentTab} onValueChange={setCurrentTab}>
+      <Tabs defaultValue="cadastro" className="mb-6" value={currentTab} onValueChange={(value) => setCurrentTab(value as EmpresaTab)}>
         <TabsList className="mb-4">
           <TabsTrigger value="cadastro">Nova Empresa</TabsTrigger>
           <TabsTrigger value="permissoes">Permissões</TabsTrigger>

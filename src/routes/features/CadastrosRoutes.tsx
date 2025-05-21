@@ -1,6 +1,7 @@
 
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../ProtectedRoute';
+import { EmpresaTab } from '../../pages/empresas/hooks/useEmpresasTabs';
 
 // Pages Import
 import CadastroUsuarios from '../../pages/usuarios/CadastroUsuarios';
@@ -80,6 +81,12 @@ const CadastrosRoutes = () => {
     <Route key="empresas-permissoes" path="/empresas/permissoes" element={
       <ProtectedRoute>
         <CadastroEmpresas initialTab="permissoes" />
+      </ProtectedRoute>
+    } />,
+    
+    <Route key="empresas-listagem" path="/empresas/listagem" element={
+      <ProtectedRoute>
+        <CadastroEmpresas initialTab="listagem" />
       </ProtectedRoute>
     } />,
     
