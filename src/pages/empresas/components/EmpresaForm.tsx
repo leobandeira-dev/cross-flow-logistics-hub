@@ -17,7 +17,7 @@ import {
 import { Empresa, PerfilEmpresa } from '../types/empresa.types';
 import { Search, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { consultarCNPJ, formatarCNPJ, limparCNPJ, mapearDadosParaFormulario } from '@/services/cnpjService';
+import { consultarCNPJ, formatarCNPJ, limparCNPJ, mapearDadosParaFormulario, consultarCNPJComAlternativa } from '@/services/cnpjService';
 
 // Schema for form validation
 const empresaSchema = z.object({
@@ -102,13 +102,17 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
     setIsLoading(true);
     
     try {
-      const dados = await consultarCNPJ(cnpjLimpo);
+      // Usando a função alternativa que tenta múltiplos métodos
+      const dados = await consultarCNPJComAlternativa(cnpjLimpo);
       
       if (dados.status === 'ERROR') {
         throw new Error(dados.message || 'CNPJ não encontrado');
       }
       
+      console.log("Dados recebidos da API:", dados);
+      
       const dadosFormulario = mapearDadosParaFormulario(dados);
+      console.log("Dados mapeados para o formulário:", dadosFormulario);
       
       // Atualizar os campos do formulário com os dados recebidos
       Object.entries(dadosFormulario).forEach(([campo, valor]) => {
@@ -122,6 +126,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
         description: `Dados da empresa ${dados.nome} carregados com sucesso.`,
       });
     } catch (error: any) {
+      console.error("Erro completo:", error);
       toast({
         title: "Erro ao buscar CNPJ",
         description: error.message || "Não foi possível obter os dados do CNPJ.",
@@ -179,8 +184,9 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
                     variant="outline" 
                     onClick={handleBuscarCNPJ}
                     disabled={isLoading}
+                    className="whitespace-nowrap"
                   >
-                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Search className="h-4 w-4 mr-1" />}
                     {isLoading ? "Buscando..." : "Buscar CNPJ"}
                   </Button>
                 </div>
