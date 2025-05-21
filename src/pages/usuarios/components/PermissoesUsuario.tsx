@@ -15,8 +15,22 @@ const PermissoesUsuario: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [manageProfilesOpen, setManageProfilesOpen] = useState(false);
   
-  const { profiles, isLoadingProfiles } = useProfiles();
-  const { users, isLoadingUsers } = useUsers();
+  const { 
+    allProfiles, 
+    customProfiles,
+    selectedPerfil,
+    handlePerfilChange
+  } = useProfiles();
+  
+  const { 
+    filteredUsers, 
+    selectedUser,
+    handleUserChange,
+    handleUserSearch,
+    isLoading: isLoadingUsers,
+    allProfiles: userProfiles
+  } = useUsers();
+  
   const { 
     permissions, 
     isLoadingPermissions, 
@@ -25,15 +39,23 @@ const PermissoesUsuario: React.FC = () => {
     isSavingPermissions
   } = usePermissions(selectedProfileId);
 
-  // Fix: Only initialize permissions when the component mounts or when selectedProfileId changes
-  // This avoids the infinite update loop
+  // Use selectedPerfil from useProfiles for profile selection
   useEffect(() => {
-    // This effect should only run when selectedProfileId changes
-    // No need to call any setter functions that would trigger re-renders here
-  }, [selectedProfileId]);
+    if (selectedPerfil) {
+      setSelectedProfileId(selectedPerfil);
+    }
+  }, [selectedPerfil]);
+
+  // Use selectedUser from useUsers for user selection
+  useEffect(() => {
+    if (selectedUser) {
+      setSelectedUserId(selectedUser);
+    }
+  }, [selectedUser]);
 
   const handleProfileChange = (profileId: string | null) => {
     setSelectedProfileId(profileId);
+    handlePerfilChange(profileId || "");
     // Clear user selection when profile changes
     setSelectedUserId(null);
   };
@@ -81,18 +103,22 @@ const PermissoesUsuario: React.FC = () => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <ProfileSelector 
-            profiles={profiles}
-            isLoading={isLoadingProfiles}
-            selectedProfileId={selectedProfileId}
-            onProfileChange={handleProfileChange}
-            onManageProfilesClick={() => setManageProfilesOpen(true)}
+            selectedPerfil={selectedPerfil || ""}
+            handlePerfilChange={(value) => handleProfileChange(value)}
+            allProfiles={allProfiles}
+            customProfiles={customProfiles}
+            onAddNewProfile={() => setManageProfilesOpen(true)}
+            onEditProfile={() => {}}
+            onDeleteProfile={() => {}}
           />
           
           <UserSelector 
-            users={users}
-            isLoading={isLoadingUsers}
-            selectedUserId={selectedUserId}
+            users={filteredUsers}
+            selectedUser={selectedUser}
             onUserChange={handleUserChange}
+            onSearch={handleUserSearch}
+            allProfiles={userProfiles}
+            isLoading={isLoadingUsers}
           />
         </div>
         
@@ -107,6 +133,9 @@ const PermissoesUsuario: React.FC = () => {
       </CardContent>
       
       <ManageProfilesDialog 
+        profiles={customProfiles} 
+        onEditProfile={() => {}} 
+        onDeleteProfile={() => {}}
         open={manageProfilesOpen}
         onOpenChange={setManageProfilesOpen}
       />
