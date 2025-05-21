@@ -1,31 +1,28 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SearchFilter, { FilterConfig } from '@/components/common/SearchFilter';
-
-interface User {
-  id: string;
-  nome: string;
-  email: string;
-  perfil: string;
-}
+import { UserWithProfile } from '@/services/userService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface UserSelectorProps {
-  users: User[];
+  users: UserWithProfile[];
   selectedUser: string;
   onUserChange: (value: string) => void;
+  onSearch: (term: string, activeFilters?: Record<string, string[]>) => void;
   allProfiles: string[];
+  isLoading?: boolean;
 }
 
 const UserSelector: React.FC<UserSelectorProps> = ({
   users,
   selectedUser,
   onUserChange,
-  allProfiles
+  onSearch,
+  allProfiles,
+  isLoading = false
 }) => {
-  const [filteredUsers, setFilteredUsers] = React.useState(users);
-
   // Filter configs
   const filterConfigs: FilterConfig[] = [
     {
@@ -35,33 +32,24 @@ const UserSelector: React.FC<UserSelectorProps> = ({
     }
   ];
 
-  // Handle search and filtering
-  const handleSearch = (term: string, activeFilters?: Record<string, string[]>) => {
-    let results = users;
-    
-    // Apply search term filter
-    if (term) {
-      const searchLower = term.toLowerCase();
-      results = results.filter(usuario => 
-        usuario.nome.toLowerCase().includes(searchLower) ||
-        usuario.email.toLowerCase().includes(searchLower)
-      );
-    }
-    
-    // Apply perfil filters
-    if (activeFilters && activeFilters.perfil && activeFilters.perfil.length > 0) {
-      results = results.filter(usuario => activeFilters.perfil.includes(usuario.perfil));
-    }
-    
-    setFilteredUsers(results);
-  };
+  if (isLoading) {
+    return (
+      <div className="mb-6">
+        <Label htmlFor="usuario-search" className="mb-2 block">Buscar Usuário</Label>
+        <Skeleton className="h-10 w-full mb-4" />
+        
+        <Label htmlFor="usuario-select" className="mb-2 block">Selecione o Usuário</Label>
+        <Skeleton className="h-10 w-full md:w-[400px]" />
+      </div>
+    );
+  }
 
   return (
     <div className="mb-6">
       <Label htmlFor="usuario-search" className="mb-2 block">Buscar Usuário</Label>
       <SearchFilter
         placeholder="Buscar por nome ou email..."
-        onSearch={handleSearch}
+        onSearch={onSearch}
         filters={filterConfigs}
         className="mb-4"
       />
@@ -72,7 +60,7 @@ const UserSelector: React.FC<UserSelectorProps> = ({
           <SelectValue placeholder="Selecione um usuário" />
         </SelectTrigger>
         <SelectContent>
-          {filteredUsers.map(usuario => (
+          {users.map(usuario => (
             <SelectItem key={usuario.id} value={usuario.id}>
               {usuario.nome} - {usuario.email} ({usuario.perfil})
             </SelectItem>

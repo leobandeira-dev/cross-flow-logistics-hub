@@ -13,12 +13,21 @@ import ProfileSelector from './permissoes/ProfileSelector';
 import UserPermissionsHeader from './permissoes/UserPermissionsHeader';
 import { usePermissions } from './permissoes/usePermissions';
 import { useProfiles } from './permissoes/useProfiles';
-import { systemModules, usersMock } from './permissoes/mockData';
+import { systemModules } from './permissoes/mockData';
+import { useUsers } from './permissoes/useUsers';
 
 const PermissoesUsuario: React.FC = () => {
   const { toast } = useToast();
-  const [selectedUsuario, setSelectedUsuario] = useState<string>("");
-  const [selectedPerfil, setSelectedPerfil] = useState<string>("");
+  
+  // Use the custom hook for user data
+  const { 
+    filteredUsers, 
+    selectedUser, 
+    handleUserChange, 
+    handleUserSearch,
+    isLoading,
+    allProfiles
+  } = useUsers();
 
   const { 
     permissions, 
@@ -28,30 +37,24 @@ const PermissoesUsuario: React.FC = () => {
 
   const {
     customProfiles,
-    allProfiles,
+    allProfiles: profilesData,
     isProfileDialogOpen,
     setIsProfileDialogOpen,
     editingProfile,
     handleSavePerfil,
     handleDeleteProfile,
     handleAddNewProfile,
-    handleEditProfile
+    handleEditProfile,
+    selectedPerfil,
+    handlePerfilChange
   } = useProfiles();
 
   // Initialize permissions when user and profile are selected
   useEffect(() => {
-    if (selectedUsuario && selectedPerfil) {
+    if (selectedUser && selectedPerfil) {
       initializePermissions(selectedPerfil);
     }
-  }, [selectedUsuario, selectedPerfil]);
-
-  const handleUsuarioChange = (value: string) => {
-    setSelectedUsuario(value);
-  };
-
-  const handlePerfilChange = (value: string) => {
-    setSelectedPerfil(value);
-  };
+  }, [selectedUser, selectedPerfil, initializePermissions]);
 
   const handleSavePermissions = () => {
     // Here you would typically save the permissions to a database
@@ -62,13 +65,13 @@ const PermissoesUsuario: React.FC = () => {
   };
 
   const getUsuarioName = (id: string) => {
-    const usuario = usersMock.find(u => u.id === id);
+    const usuario = filteredUsers.find(u => u.id === id);
     return usuario ? `${usuario.nome} (${usuario.email})` : '';
   };
 
-  // Fix: Using allProfiles for the default profiles instead of userProfiles
+  // Using all available profiles from both sources
   const combinedProfiles = [
-    ...allProfiles.map((p, i) => ({ id: `default-${i}`, nome: p })),
+    ...profilesData.map((p, i) => ({ id: `default-${i}`, nome: p })),
     ...customProfiles
   ];
 
@@ -82,26 +85,28 @@ const PermissoesUsuario: React.FC = () => {
       </CardHeader>
       <CardContent>
         <UserSelector 
-          users={usersMock}
-          selectedUser={selectedUsuario}
-          onUserChange={handleUsuarioChange}
+          users={filteredUsers}
+          selectedUser={selectedUser}
+          onUserChange={handleUserChange}
+          onSearch={handleUserSearch}
           allProfiles={allProfiles}
+          isLoading={isLoading}
         />
 
         <ProfileSelector
           selectedPerfil={selectedPerfil}
           handlePerfilChange={handlePerfilChange}
-          allProfiles={allProfiles}
+          allProfiles={profilesData}
           customProfiles={combinedProfiles}
           onAddNewProfile={handleAddNewProfile}
           onEditProfile={handleEditProfile}
           onDeleteProfile={handleDeleteProfile}
         />
 
-        {selectedUsuario && selectedPerfil && (
+        {selectedUser && selectedPerfil && (
           <>
             <UserPermissionsHeader
-              userName={getUsuarioName(selectedUsuario)}
+              userName={getUsuarioName(selectedUser)}
               profileName={selectedPerfil}
             />
 
@@ -115,7 +120,7 @@ const PermissoesUsuario: React.FC = () => {
               <Button 
                 onClick={handleSavePermissions}
                 className="bg-cross-blue hover:bg-cross-blue/90"
-                disabled={!selectedUsuario}
+                disabled={!selectedUser}
               >
                 <Check size={16} className="mr-2" />
                 Salvar Permissões
