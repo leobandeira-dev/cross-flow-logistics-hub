@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UseFormReturn } from 'react-hook-form';
 import { consultarCNPJComAlternativa, formatarCNPJ, mapearDadosParaFormulario } from '@/services/cnpjService';
@@ -16,6 +16,7 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [lastSearched, setLastSearched] = useState<string>('');
+  const [isUsingMockData, setIsUsingMockData] = useState(false);
 
   const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -28,6 +29,11 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
     }
     e.target.value = value;
     form.setValue('cnpj', value);
+    
+    // Reset estado de mock data quando o usuário muda o CNPJ
+    if (isUsingMockData) {
+      setIsUsingMockData(false);
+    }
   };
 
   const handleBuscarCNPJ = async () => {
@@ -53,6 +59,7 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
     }
     
     setIsLoading(true);
+    setIsUsingMockData(false);
     
     try {
       // Usando a função alternativa que tenta múltiplos métodos
@@ -63,6 +70,11 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
       }
       
       console.log("Dados recebidos da API:", dados);
+      
+      // Verifica se estamos usando dados mockados
+      if (dados.fantasia && dados.fantasia.includes("DADOS MOCKADOS")) {
+        setIsUsingMockData(true);
+      }
       
       const dadosFormulario = mapearDadosParaFormulario(dados);
       console.log("Dados mapeados para o formulário:", dadosFormulario);
@@ -79,7 +91,10 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
       
       toast({
         title: "Dados carregados",
-        description: `Dados da empresa ${dados.nome} carregados com sucesso.`,
+        description: isUsingMockData ? 
+          "Dados mockados carregados. APIs de CNPJ indisponíveis no momento." : 
+          `Dados da empresa ${dados.nome} carregados com sucesso.`,
+        variant: isUsingMockData ? "warning" : "default"
       });
     } catch (error: any) {
       console.error("Erro completo:", error);
@@ -100,7 +115,7 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
       render={({ field }) => (
         <FormItem className="relative">
           <FormLabel>CNPJ</FormLabel>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-1">
             <FormControl>
               <Input 
                 placeholder="00.000.000/0000-00" 
@@ -120,6 +135,12 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
               {isLoading ? "Buscando..." : "Buscar CNPJ"}
             </Button>
           </div>
+          {isUsingMockData && (
+            <div className="text-amber-600 flex items-center text-xs mt-1 mb-1">
+              <AlertCircle className="h-3 w-3 mr-1" />
+              APIs de CNPJ indisponíveis. Usando dados fictícios.
+            </div>
+          )}
           <FormMessage />
         </FormItem>
       )}

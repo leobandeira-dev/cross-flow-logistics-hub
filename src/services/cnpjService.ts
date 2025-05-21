@@ -46,23 +46,14 @@ export const consultarCNPJ = async (cnpj: string): Promise<CNPJResponse> => {
   }
   
   try {
-    // Usando o token na requisição com Authorization header
-    const response = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpjLimpo}`, {
+    // Usando API pública brasil.io como alternativa
+    const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjLimpo}`, {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${API_TOKEN}`
+        'Accept': 'application/json'
       },
       signal: AbortSignal.timeout(10000) // 10 segundos timeout
     });
-    
-    if (response.status === 429) {
-      throw new Error('Limite de requisições excedido. Tente novamente em 1 minuto.');
-    }
-    
-    if (response.status === 504) {
-      throw new Error('Tempo de resposta excedido. Tente novamente mais tarde.');
-    }
     
     if (!response.ok) {
       throw new Error(`Erro na consulta: ${response.status}`);
@@ -70,27 +61,82 @@ export const consultarCNPJ = async (cnpj: string): Promise<CNPJResponse> => {
     
     const data = await response.json();
     
-    if (data.status === 'ERROR') {
-      throw new Error(data.message || 'CNPJ não encontrado');
-    }
+    // Mapear dados do formato da BrasilAPI para o nosso formato
+    const mappedData: CNPJResponse = {
+      status: "OK",
+      cnpj: data.cnpj,
+      tipo: data.identificador_matriz_filial === 1 ? "MATRIZ" : "FILIAL",
+      nome: data.razao_social,
+      fantasia: data.nome_fantasia || data.razao_social,
+      logradouro: data.logradouro || '',
+      numero: data.numero || '',
+      complemento: data.complemento || '',
+      cep: data.cep ? data.cep.replace(/\D/g, '') : '',
+      bairro: data.bairro || '',
+      municipio: data.municipio?.nome || '',
+      uf: data.uf || '',
+      email: data.email || '',
+      telefone: data.ddd_telefone_1 ? `(${data.ddd_telefone_1}) ${data.telefone_1}` : '',
+      situacao: data.situacao_cadastral || 'ATIVA'
+    };
     
     // Armazenar dados no cache
     cnpjCache[cnpjLimpo] = {
-      data,
+      data: mappedData,
       timestamp: Date.now()
     };
     
-    return data;
+    return mappedData;
   } catch (error: any) {
-    console.error('Erro ao consultar CNPJ:', error);
+    console.error('Erro ao consultar CNPJ no BrasilAPI:', error);
     
-    // Se o erro for de timeout ou rede, podemos tentar usar dados em cache mesmo que expirados
-    if ((error.name === 'AbortError' || error.name === 'TypeError') && cnpjCache[cnpjLimpo]) {
-      console.log('Usando dados de cache expirados devido a erro de rede');
-      return cnpjCache[cnpjLimpo].data;
+    // Tenta API principal ReceitaWS como segunda opção
+    try {
+      const response = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpjLimpo}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${API_TOKEN}`
+        },
+        signal: AbortSignal.timeout(10000) // 10 segundos timeout
+      });
+      
+      if (response.status === 429) {
+        throw new Error('Limite de requisições excedido. Tente novamente em 1 minuto.');
+      }
+      
+      if (response.status === 504) {
+        throw new Error('Tempo de resposta excedido. Tente novamente mais tarde.');
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Erro na consulta: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 'ERROR') {
+        throw new Error(data.message || 'CNPJ não encontrado');
+      }
+      
+      // Armazenar dados no cache
+      cnpjCache[cnpjLimpo] = {
+        data,
+        timestamp: Date.now()
+      };
+      
+      return data;
+    } catch (secondError: any) {
+      console.error('Erro ao consultar CNPJ na ReceitaWS:', secondError);
+      
+      // Se o erro for de timeout ou rede, podemos tentar usar dados em cache mesmo que expirados
+      if (cnpjCache[cnpjLimpo]) {
+        console.log('Usando dados de cache expirados devido a erro de rede');
+        return cnpjCache[cnpjLimpo].data;
+      }
+      
+      throw new Error(`Falha ao consultar CNPJ: ${secondError.message}`);
     }
-    
-    throw new Error(`Falha ao consultar CNPJ: ${error.message}`);
   }
 };
 
@@ -141,16 +187,10 @@ export const mapearDadosParaFormulario = (dados: CNPJResponse) => {
  */
 export const consultarCNPJComAlternativa = async (cnpj: string): Promise<CNPJResponse> => {
   try {
-    // Tenta o método principal primeiro
+    // Tenta o método principal primeiro (que já tem múltiplas tentativas)
     return await consultarCNPJ(cnpj);
   } catch (error) {
-    console.warn("Erro na consulta principal, tentando alternativa:", error);
-    
-    // Se o erro for de limite de requisições, espera um pouco e tenta novamente com fallback
-    if (error instanceof Error && error.message.includes('Limite de requisições excedido')) {
-      // Aqui poderíamos implementar um proxy, mas por enquanto, usamos dados mockados
-      console.log('Usando serviço alternativo para consulta de CNPJ');
-    }
+    console.warn("Erro nas consultas principais, tentando alternativa:", error);
     
     // CNPJ limpo sem formatação
     const cnpjLimpo = cnpj.replace(/[^\d]/g, '');
@@ -159,18 +199,61 @@ export const consultarCNPJComAlternativa = async (cnpj: string): Promise<CNPJRes
       throw new Error('CNPJ deve ter 14 dígitos');
     }
     
-    // Tenta uma API alternativa ou método de fallback
+    // Se todas as APIs falharem, usamos uma API pública adicional como último recurso
     try {
-      // Aqui você poderia implementar uma chamada para uma API alternativa
-      // Por exemplo, um proxy que você controla que faz a mesma consulta
+      console.log('Tentando API CNPJ.ws como último recurso');
+      const response = await fetch(`https://publica.cnpj.ws/cnpj/${cnpjLimpo}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        },
+        signal: AbortSignal.timeout(10000)
+      });
       
-      // Por enquanto, vamos usar dados mockados para demonstração
+      if (!response.ok) {
+        throw new Error(`Erro na consulta: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Mapear dados do formato da CNPJ.ws para o nosso formato
+      const mappedData: CNPJResponse = {
+        status: "OK",
+        cnpj: data.cnpj_numero || cnpjLimpo,
+        tipo: data.estabelecimento?.tipo === 'MATRIZ' ? 'MATRIZ' : 'FILIAL',
+        nome: data.razao_social,
+        fantasia: data.estabelecimento?.nome_fantasia || data.razao_social,
+        logradouro: data.estabelecimento?.tipo_logradouro + ' ' + data.estabelecimento?.logradouro || '',
+        numero: data.estabelecimento?.numero || '',
+        complemento: data.estabelecimento?.complemento || '',
+        cep: data.estabelecimento?.cep || '',
+        bairro: data.estabelecimento?.bairro || '',
+        municipio: data.estabelecimento?.cidade?.nome || '',
+        uf: data.estabelecimento?.estado?.sigla || '',
+        email: data.estabelecimento?.email || '',
+        telefone: data.estabelecimento?.ddd1 && data.estabelecimento?.telefone1 ? 
+          `(${data.estabelecimento.ddd1}) ${data.estabelecimento.telefone1}` : '',
+        situacao: data.estabelecimento?.situacao_cadastral || 'ATIVA'
+      };
+      
+      // Armazenar dados no cache
+      cnpjCache[cnpjLimpo] = {
+        data: mappedData,
+        timestamp: Date.now()
+      };
+      
+      return mappedData;
+    } catch (finalError: any) {
+      console.error('Todas as tentativas de API falharam:', finalError);
+      
+      // Se chegou aqui, todas as APIs falharam
+      // Como último recurso, usamos dados mockados para não bloquear o usuário
       const mockResponse: CNPJResponse = {
         status: "OK",
         cnpj: cnpjLimpo,
         tipo: "MATRIZ",
-        nome: "EMPRESA DE TESTE",
-        fantasia: "FANTASIA TESTE",
+        nome: "EMPRESA DE TESTE (APIs indisponíveis)",
+        fantasia: "DADOS MOCKADOS - APIs indisponíveis",
         logradouro: "RUA DE TESTE",
         numero: "123",
         complemento: "SALA 1",
@@ -190,9 +273,6 @@ export const consultarCNPJComAlternativa = async (cnpj: string): Promise<CNPJRes
       };
       
       return mockResponse;
-    } catch (fallbackError) {
-      console.error('Erro no serviço alternativo:', fallbackError);
-      throw new Error('Não foi possível consultar o CNPJ em nenhum serviço disponível');
     }
   }
 };
