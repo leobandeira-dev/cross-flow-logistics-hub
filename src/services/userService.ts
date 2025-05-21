@@ -14,6 +14,7 @@ export interface UserWithProfile {
  * Fetches all users with their profiles from Supabase
  */
 export const fetchUsers = async (): Promise<UserWithProfile[]> => {
+  // Use the 'perfis' table which contains all user profiles
   const { data, error } = await supabase
     .from('perfis')
     .select(`
@@ -28,6 +29,14 @@ export const fetchUsers = async (): Promise<UserWithProfile[]> => {
     console.error('Error fetching users:', error);
     throw error;
   }
+
+  // Ensure we get data back
+  if (!data) {
+    console.log('No users found');
+    return [];
+  }
+
+  console.log('Fetched users:', data.length);
 
   return data.map(user => ({
     id: user.id,

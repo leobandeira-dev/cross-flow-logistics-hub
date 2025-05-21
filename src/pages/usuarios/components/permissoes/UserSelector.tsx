@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SearchFilter, { FilterConfig } from '@/components/common/SearchFilter';
@@ -60,13 +60,22 @@ const UserSelector: React.FC<UserSelectorProps> = ({
           <SelectValue placeholder="Selecione um usuário" />
         </SelectTrigger>
         <SelectContent>
-          {users.map(usuario => (
-            <SelectItem key={usuario.id} value={usuario.id}>
-              {usuario.nome} - {usuario.email} ({usuario.perfil})
-            </SelectItem>
-          ))}
+          {users.length === 0 ? (
+            <SelectItem value="no-users" disabled>Nenhum usuário encontrado</SelectItem>
+          ) : (
+            users.map(usuario => (
+              <SelectItem key={usuario.id} value={usuario.id}>
+                {usuario.nome} - {usuario.email} ({usuario.perfil})
+              </SelectItem>
+            ))
+          )}
         </SelectContent>
       </Select>
+      {users.length > 0 && (
+        <div className="mt-2 text-sm text-gray-500">
+          Total de {users.length} usuário(s) encontrado(s)
+        </div>
+      )}
     </div>
   );
 };

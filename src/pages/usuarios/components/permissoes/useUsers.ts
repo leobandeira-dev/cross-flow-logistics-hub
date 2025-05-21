@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fetchUsers, UserWithProfile } from "@/services/userService";
 
 export const useUsers = () => {
@@ -11,6 +11,18 @@ export const useUsers = () => {
     queryKey: ['users'],
     queryFn: fetchUsers,
   });
+
+  // Initialize filteredUsers with all users when data is loaded
+  useEffect(() => {
+    if (users.length > 0) {
+      setFilteredUsers(users);
+      
+      // Initialize selectedUser with first user if not already set
+      if (!selectedUser && users.length > 0) {
+        setSelectedUser(users[0].id);
+      }
+    }
+  }, [users, selectedUser]);
 
   const handleUserSearch = (term: string, activeFilters?: Record<string, string[]>) => {
     let results = users;
@@ -37,13 +49,6 @@ export const useUsers = () => {
   const handleUserChange = (value: string) => {
     setSelectedUser(value);
   };
-
-  // Initialize filteredUsers with all users when data is loaded
-  useState(() => {
-    if (users.length > 0) {
-      setFilteredUsers(users);
-    }
-  });
 
   // Extract unique profiles for filter options
   const allProfiles = [...new Set(users.map(user => user.perfil))];
