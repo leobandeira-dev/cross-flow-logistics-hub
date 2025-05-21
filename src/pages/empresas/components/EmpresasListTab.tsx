@@ -1,136 +1,111 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building } from 'lucide-react';
+import SearchFilter, { FilterConfig } from '@/components/common/SearchFilter';
 import EmpresasListTable from './EmpresasListTable';
-import SearchFilter from '@/components/common/SearchFilter';
-import { FilterConfig } from '@/components/common/SearchFilter';
-import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 interface EmpresasListTabProps {
   empresas: any[];
+  isLoading?: boolean;
   onViewDetails: (empresa: any) => void;
 }
 
-const EmpresasListTab: React.FC<EmpresasListTabProps> = ({ empresas: initialEmpresas, onViewDetails }) => {
-  const [empresas, setEmpresas] = useState(initialEmpresas);
-  const [filteredEmpresas, setFilteredEmpresas] = useState(initialEmpresas);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+// Configuração de filtros para empresas
+const filterConfig: FilterConfig[] = [
+  {
+    id: 'perfil',
+    name: 'Perfil',
+    options: [
+      { label: 'Transportadora', value: 'Transportadora' },
+      { label: 'Filial', value: 'Filial' },
+      { label: 'Cliente', value: 'Cliente' },
+      { label: 'Fornecedor', value: 'Fornecedor' },
+    ],
+  },
+  {
+    id: 'status',
+    name: 'Status',
+    options: [
+      { label: 'Ativo', value: 'ativo' },
+      { label: 'Inativo', value: 'inativo' },
+    ],
+  },
+];
 
-  const filterConfigs: FilterConfig[] = [
-    {
-      id: 'perfil',
-      label: 'Perfil',
-      options: [
-        { id: 'Transportadora', label: 'Transportadora' },
-        { id: 'Filial', label: 'Filial' },
-        { id: 'Cliente', label: 'Cliente' },
-        { id: 'Fornecedor', label: 'Fornecedor' }
-      ]
-    },
-    {
-      id: 'status',
-      label: 'Status',
-      options: [
-        { id: 'ativo', label: 'Ativo' },
-        { id: 'inativo', label: 'Inativo' }
-      ]
-    }
-  ];
+const EmpresasListTab: React.FC<EmpresasListTabProps> = ({ 
+  empresas, 
+  isLoading = false, 
+  onViewDetails 
+}) => {
+  const [filteredEmpresas, setFilteredEmpresas] = React.useState(empresas);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [activeFilters, setActiveFilters] = React.useState<Record<string, string[]>>({});
 
-  useEffect(() => {
-    const fetchEmpresas = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('empresas')
-          .select('*');
+  // Atualiza os dados filtrados quando a lista de empresas mudar
+  React.useEffect(() => {
+    handleFilterChange(searchTerm, activeFilters);
+  }, [empresas]);
 
-        if (error) {
-          throw error;
-        }
-
-        const formattedData = data.map(item => ({
-          id: item.id,
-          nome: item.nome_fantasia || item.razao_social,
-          razao_social: item.razao_social,
-          nome_fantasia: item.nome_fantasia,
-          cnpj: item.cnpj,
-          email: item.email,
-          telefone: item.telefone,
-          logradouro: item.logradouro,
-          numero: item.numero,
-          complemento: item.complemento,
-          bairro: item.bairro,
-          cidade: item.cidade,
-          uf: item.uf || item.estado,
-          cep: item.cep,
-          inscricao_estadual: item.inscricao_estadual,
-          status: item.status,
-          perfil: item.perfil,
-          transportadora_principal: item.transportadora_principal,
-        }));
-
-        setEmpresas(formattedData);
-        setFilteredEmpresas(formattedData);
-      } catch (err) {
-        console.error('Erro ao buscar empresas:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchEmpresas();
-  }, []);
-
-  const handleSearch = (term: string, activeFilters?: Record<string, string[]>) => {
+  const handleFilterChange = (term: string, filters?: Record<string, string[]>) => {
     setSearchTerm(term);
+    setActiveFilters(filters || {});
     
-    let results = empresas;
+    let filtered = [...empresas];
     
-    // Apply search term filter
+    // Filtrar por termo de busca
     if (term) {
       const searchLower = term.toLowerCase();
-      results = results.filter(empresa => 
-        (empresa.nome && empresa.nome.toLowerCase().includes(searchLower)) ||
-        (empresa.razao_social && empresa.razao_social.toLowerCase().includes(searchLower)) ||
-        (empresa.cnpj && empresa.cnpj.includes(term))
+      filtered = filtered.filter(
+        empresa =>
+          (empresa.nome && empresa.nome.toLowerCase().includes(searchLower)) ||
+          (empresa.razaoSocial && empresa.razaoSocial.toLowerCase().includes(searchLower)) ||
+          (empresa.cnpj && empresa.cnpj.includes(searchLower))
       );
     }
     
-    // Apply perfil filters
-    if (activeFilters && activeFilters.perfil && activeFilters.perfil.length > 0) {
-      results = results.filter(empresa => activeFilters.perfil.includes(empresa.perfil));
+    // Aplicar filtros
+    if (filters) {
+      Object.entries(filters).forEach(([key, values]) => {
+        if (values.length > 0) {
+          filtered = filtered.filter(empresa => {
+            // Tratamento especial para o campo "status" que pode estar em diferentes formatos
+            if (key === 'status') {
+              return values.includes(empresa[key]?.toLowerCase() || '');
+            }
+            return values.includes(empresa[key]);
+          });
+        }
+      });
     }
     
-    // Apply status filters
-    if (activeFilters && activeFilters.status && activeFilters.status.length > 0) {
-      results = results.filter(empresa => activeFilters.status.includes(empresa.status));
-    }
-    
-    setFilteredEmpresas(results);
+    setFilteredEmpresas(filtered);
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center">
-          <Building className="mr-2 text-cross-blue" size={20} />
-          Listagem de Empresas
-        </CardTitle>
+        <CardTitle className="text-lg">Empresas Cadastradas</CardTitle>
       </CardHeader>
       <CardContent>
-        <SearchFilter 
-          placeholder="Buscar por nome, razão social ou CNPJ..." 
-          onSearch={handleSearch}
-          filters={filterConfigs}
-        />
+        <div className="mb-4">
+          <SearchFilter
+            placeholder="Buscar por nome ou CNPJ..."
+            filterConfig={filterConfig}
+            onFilterChange={handleFilterChange}
+          />
+        </div>
         
         {isLoading ? (
-          <div className="py-8 text-center text-gray-500">Carregando empresas...</div>
+          <div className="w-full py-10 flex justify-center items-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-lg">Carregando empresas...</span>
+          </div>
         ) : (
-          <EmpresasListTable empresas={filteredEmpresas} onViewDetails={onViewDetails} />
+          <EmpresasListTable 
+            empresas={filteredEmpresas} 
+            onViewDetails={onViewDetails}
+          />
         )}
       </CardContent>
     </Card>

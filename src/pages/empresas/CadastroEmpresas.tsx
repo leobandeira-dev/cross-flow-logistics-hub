@@ -10,49 +10,7 @@ import PermissoesEmpresa from './components/PermissoesEmpresa';
 import { Empresa } from './types/empresa.types';
 import EmpresasListTab from './components/EmpresasListTab';
 import EmpresaDetailsDialog from './components/EmpresaDetailsDialog';
-import SearchFilter from '@/components/common/SearchFilter';
-import { FilterConfig } from '@/components/common/SearchFilter';
-
-// Mock data for companies
-const empresasMock = [
-  { 
-    id: 1, 
-    nome: "Transportes Rápidos Ltda", 
-    razaoSocial: "Transportes Rápidos Logística Ltda",
-    cnpj: "12.345.678/0001-90", 
-    perfil: "Transportadora", 
-    status: "ativo",
-    transportadoraPrincipal: true,
-    dataCadastro: "10/01/2023"
-  },
-  { 
-    id: 2, 
-    nome: "Filial SP Transportes", 
-    razaoSocial: "Transportes Rápidos Logística Ltda - Filial SP",
-    cnpj: "12.345.678/0002-71", 
-    perfil: "Filial", 
-    status: "ativo",
-    dataCadastro: "15/03/2023"
-  },
-  { 
-    id: 3, 
-    nome: "Indústria ABC", 
-    razaoSocial: "Indústria ABC S.A.",
-    cnpj: "45.678.901/0001-23", 
-    perfil: "Cliente", 
-    status: "ativo",
-    dataCadastro: "22/07/2023"
-  },
-  { 
-    id: 4, 
-    nome: "Fornecedor XYZ", 
-    razaoSocial: "Fornecedor XYZ S.A.",
-    cnpj: "56.789.012/0001-34", 
-    perfil: "Fornecedor", 
-    status: "ativo",
-    dataCadastro: "05/05/2023"
-  },
-];
+import { supabase } from '@/integrations/supabase/client';
 
 interface CadastroEmpresasProps {
   initialTab?: string;
@@ -61,7 +19,8 @@ interface CadastroEmpresasProps {
 const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadastro' }) => {
   const { toast } = useToast();
   const [currentTab, setCurrentTab] = useState(initialTab);
-  const [empresas, setEmpresas] = useState(empresasMock);
+  const [empresas, setEmpresas] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedEmpresa, setSelectedEmpresa] = useState<any>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   
@@ -69,29 +28,114 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
   useEffect(() => {
     setCurrentTab(initialTab);
   }, [initialTab]);
-
-  const handleEmpresaSubmit = (data: Partial<Empresa>) => {
-    // Aqui normalmente seria feita uma chamada para API
-    console.log("Empresa a cadastrar:", data);
-    
-    const novaEmpresa = {
-      id: empresas.length + 1,
-      nome: data.nomeFantasia || data.razaoSocial,
-      razaoSocial: data.razaoSocial,
-      cnpj: data.cnpj,
-      perfil: data.perfil || "Cliente",
-      status: "ativo",
-      endereco: `${data.logradouro}, ${data.numero} - ${data.cidade}/${data.uf}`,
-      email: data.email,
-      telefone: data.telefone,
-      dataCadastro: new Date().toLocaleDateString(),
+  
+  // Carregar empresas do Supabase quando o componente for montado
+  useEffect(() => {
+    const fetchEmpresas = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('empresas')
+          .select('*')
+          .order('razao_social', { ascending: true });
+        
+        if (error) throw error;
+        
+        // Mapear os dados do Supabase para o formato esperado pelo componente
+        const empresasFormatadas = data.map(emp => ({
+          id: emp.id,
+          nome: emp.nome_fantasia || emp.razao_social,
+          razaoSocial: emp.razao_social,
+          nomeFantasia: emp.nome_fantasia,
+          cnpj: emp.cnpj,
+          perfil: emp.perfil || 'Cliente',
+          status: emp.status,
+          endereco: emp.logradouro ? `${emp.logradouro}, ${emp.numero} - ${emp.cidade}/${emp.uf}` : null,
+          email: emp.email,
+          telefone: emp.telefone,
+          logradouro: emp.logradouro,
+          numero: emp.numero,
+          complemento: emp.complemento,
+          bairro: emp.bairro,
+          cidade: emp.cidade,
+          uf: emp.uf,
+          estado: emp.estado,
+          cep: emp.cep,
+          inscricaoEstadual: emp.inscricao_estadual,
+          transportadoraPrincipal: emp.transportadora_principal,
+          dataCadastro: new Date(emp.created_at).toLocaleDateString(),
+        }));
+        
+        console.log('Empresas carregadas:', empresasFormatadas);
+        setEmpresas(empresasFormatadas);
+      } catch (error: any) {
+        console.error('Erro ao carregar empresas:', error);
+        toast({
+          title: 'Erro ao carregar empresas',
+          description: error.message || 'Não foi possível carregar as empresas.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
     
-    setEmpresas([...empresas, novaEmpresa]);
+    fetchEmpresas();
+    
+    // Configurar listener para atualizações em tempo real da tabela empresas
+    const channel = supabase
+      .channel('empresas-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'empresas' }, 
+        () => {
+          console.log('Alterações detectadas na tabela empresas. Recarregando dados...');
+          fetchEmpresas();
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [toast]);
+
+  const handleEmpresaSubmit = async (data: Partial<Empresa>) => {
+    // Aqui normalmente seria feita uma chamada para API
+    // Mas como agora estamos usando o hook useEmpresaOperations diretamente no EmpresaForm,
+    // essa função só será chamada se o EmpresaForm for usado de uma forma diferente
+    console.log("Empresa submetida:", data);
+    
+    // Recarregar a lista de empresas
+    const { data: empresasAtualizadas, error } = await supabase
+      .from('empresas')
+      .select('*')
+      .order('razao_social', { ascending: true });
+      
+    if (error) {
+      console.error('Erro ao recarregar empresas:', error);
+      return;
+    }
+    
+    // Atualizar o estado com as empresas atualizadas
+    const empresasFormatadas = empresasAtualizadas.map(emp => ({
+      id: emp.id,
+      nome: emp.nome_fantasia || emp.razao_social,
+      razaoSocial: emp.razao_social,
+      nomeFantasia: emp.nome_fantasia,
+      cnpj: emp.cnpj,
+      perfil: emp.perfil || 'Cliente',
+      status: emp.status,
+      endereco: emp.logradouro ? `${emp.logradouro}, ${emp.numero} - ${emp.cidade}/${emp.uf}` : null,
+      email: emp.email,
+      telefone: emp.telefone,
+      dataCadastro: new Date(emp.created_at).toLocaleDateString(),
+    }));
+    
+    setEmpresas(empresasFormatadas);
     
     toast({
-      title: "Empresa cadastrada",
-      description: "A empresa foi cadastrada com sucesso.",
+      title: "Empresa atualizada",
+      description: "Os dados da empresa foram atualizados com sucesso.",
     });
   };
 
@@ -123,7 +167,7 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <EmpresaForm onSubmit={handleEmpresaSubmit} />
+              <EmpresaForm />
             </CardContent>
           </Card>
         </TabsContent>
@@ -135,6 +179,7 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
         <TabsContent value="listagem">
           <EmpresasListTab 
             empresas={empresas}
+            isLoading={isLoading}
             onViewDetails={handleVerDetalhes}
           />
         </TabsContent>
@@ -144,6 +189,7 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
         empresa={selectedEmpresa}
+        onSubmit={handleEmpresaSubmit}
       />
     </MainLayout>
   );

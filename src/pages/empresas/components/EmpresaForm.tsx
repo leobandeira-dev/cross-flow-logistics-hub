@@ -36,6 +36,7 @@ type EmpresaFormValues = z.infer<typeof empresaSchema>;
 interface EmpresaFormProps {
   empresa?: Partial<Empresa>;
   onSubmit?: (data: Partial<Empresa>) => void;
+  onCancel?: () => void;
 }
 
 const perfisList = [
@@ -45,8 +46,8 @@ const perfisList = [
   { value: 'Fornecedor', label: 'Fornecedor' },
 ];
 
-const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
-  const { cadastrarEmpresa, isLoading } = useEmpresaOperations();
+const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit, onCancel }) => {
+  const { cadastrarEmpresa, atualizarEmpresa, isLoading } = useEmpresaOperations();
   const isEditMode = !!empresa?.id;
   
   const form = useForm<EmpresaFormValues>({
@@ -71,17 +72,25 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
   });
 
   const handleSubmit = async (data: EmpresaFormValues) => {
+    console.log('Submetendo formulário:', data);
+    
     // Se tiver um callback externo de onSubmit, chama ele
     if (onSubmit) {
       onSubmit(data);
       return;
     }
     
-    // Caso contrário, usa o hook para cadastrar
-    const success = await cadastrarEmpresa(data as Partial<Empresa>);
+    let success = false;
+    
+    // Caso contrário, usa o hook para cadastrar ou atualizar
+    if (isEditMode && empresa?.id) {
+      success = await atualizarEmpresa(empresa.id, data as Partial<Empresa>);
+    } else {
+      success = await cadastrarEmpresa(data as Partial<Empresa>);
+    }
     
     // Se o cadastro foi bem-sucedido, reseta o formulário
-    if (success) {
+    if (success && !isEditMode) {
       form.reset({
         cnpj: '',
         razaoSocial: '',
@@ -131,13 +140,26 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
           <CompanyProfileFields form={form} perfisList={perfisList} />
         </div>
         
-        <Button 
-          type="submit" 
-          className="bg-cross-blue hover:bg-cross-blueDark"
-          disabled={isLoading}
-        >
-          {isLoading ? (isEditMode ? 'Salvando...' : 'Cadastrando...') : (isEditMode ? 'Salvar Alterações' : 'Cadastrar Empresa')}
-        </Button>
+        <div className="flex space-x-4">
+          <Button 
+            type="submit" 
+            className="bg-cross-blue hover:bg-cross-blueDark"
+            disabled={isLoading}
+          >
+            {isLoading ? (isEditMode ? 'Salvando...' : 'Cadastrando...') : (isEditMode ? 'Salvar Alterações' : 'Cadastrar Empresa')}
+          </Button>
+          
+          {onCancel && (
+            <Button 
+              type="button"
+              variant="outline" 
+              onClick={onCancel}
+              disabled={isLoading}
+            >
+              Cancelar
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
   );

@@ -10,6 +10,7 @@ export const useEmpresaOperations = () => {
 
   const cadastrarEmpresa = async (dadosEmpresa: Partial<Empresa>) => {
     setIsLoading(true);
+    console.log('Dados da empresa a cadastrar:', dadosEmpresa);
 
     try {
       // Verificar se o CNPJ já existe - garantindo que seja feito apenas se o CNPJ estiver preenchido
@@ -68,12 +69,13 @@ export const useEmpresaOperations = () => {
       const { data, error } = await supabase
         .from('empresas')
         .insert(empresaData)
-        .select()
-        .single();
+        .select();
 
       if (error) {
         throw new Error(error.message);
       }
+
+      console.log('Empresa cadastrada com sucesso:', data);
 
       toast({
         title: 'Empresa cadastrada com sucesso',
@@ -96,6 +98,7 @@ export const useEmpresaOperations = () => {
 
   const atualizarEmpresa = async (id: string, dadosEmpresa: Partial<Empresa>) => {
     setIsLoading(true);
+    console.log('Atualizando empresa ID:', id, 'com dados:', dadosEmpresa);
 
     try {
       // Mapear os dados para o formato esperado pelo Supabase
@@ -122,12 +125,13 @@ export const useEmpresaOperations = () => {
         .from('empresas')
         .update(empresaData)
         .eq('id', id)
-        .select()
-        .single();
+        .select();
 
       if (error) {
         throw new Error(error.message);
       }
+
+      console.log('Empresa atualizada com sucesso:', data);
 
       toast({
         title: 'Empresa atualizada com sucesso',
