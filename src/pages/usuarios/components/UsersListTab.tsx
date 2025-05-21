@@ -15,6 +15,9 @@ const UsersListTab: React.FC<UsersListTabProps> = ({ users, onViewDetails }) => 
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Extract unique perfil values for filter options
+  const uniquePerfis = [...new Set(users.map(user => user.perfil).filter(Boolean))];
+
   const filterConfigs: FilterConfig[] = [
     {
       id: 'status',
@@ -29,13 +32,7 @@ const UsersListTab: React.FC<UsersListTabProps> = ({ users, onViewDetails }) => 
     {
       id: 'perfil',
       label: 'Perfil',
-      options: [
-        { id: 'Cliente', label: 'Cliente' },
-        { id: 'Fornecedor', label: 'Fornecedor' },
-        { id: 'Funcionário Operacional', label: 'Funcionário Operacional' },
-        { id: 'Funcionário Supervisor', label: 'Funcionário Supervisor' },
-        { id: 'Administrador', label: 'Administrador' }
-      ]
+      options: uniquePerfis.map(perfil => ({ id: perfil, label: perfil }))
     }
   ];
 
@@ -48,10 +45,10 @@ const UsersListTab: React.FC<UsersListTabProps> = ({ users, onViewDetails }) => 
     if (term) {
       const searchLower = term.toLowerCase();
       results = results.filter(user => 
-        user.nome.toLowerCase().includes(searchLower) ||
-        user.email.toLowerCase().includes(searchLower) ||
-        user.empresa.toLowerCase().includes(searchLower) ||
-        user.cnpj.includes(term)
+        (user.nome?.toLowerCase().includes(searchLower) || false) ||
+        (user.email?.toLowerCase().includes(searchLower) || false) ||
+        (user.empresa?.toLowerCase().includes(searchLower) || false) ||
+        (user.cnpj?.includes(term) || false)
       );
     }
     

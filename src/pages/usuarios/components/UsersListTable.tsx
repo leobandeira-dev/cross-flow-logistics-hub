@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/common/StatusBadge";
 
 interface User {
-  id: number;
+  id: string | number;
   nome: string;
   email: string;
   empresa: string;
@@ -20,6 +20,14 @@ interface UsersListTableProps {
 }
 
 const UsersListTable: React.FC<UsersListTableProps> = ({ users, onViewDetails }) => {
+  if (users.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">Nenhum usuário encontrado.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -69,6 +77,9 @@ const UsersListTable: React.FC<UsersListTableProps> = ({ users, onViewDetails })
           ))}
         </tbody>
       </table>
+      <div className="mt-4 text-sm text-gray-500">
+        Total: {users.length} usuário(s)
+      </div>
     </div>
   );
 };

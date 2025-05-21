@@ -55,3 +55,54 @@ export const hasPermissionManagement = (userRole?: string): boolean => {
   const allowedRoles = ['Administrador', 'Gerente', 'admin', 'gerente', 'administrador'];
   return allowedRoles.includes(userRole || '');
 };
+
+/**
+ * Fetches a comprehensive list of users with additional details
+ */
+export const fetchComprehensiveUsersList = async () => {
+  try {
+    const { data: profiles, error } = await supabase
+      .from('perfis')
+      .select(`
+        id,
+        nome,
+        email,
+        funcao,
+        avatar_url,
+        empresa_id,
+        ultimo_login
+      `);
+
+    if (error) {
+      console.error('Error fetching comprehensive users list:', error);
+      throw error;
+    }
+
+    // Get companies info to match with users
+    const { data: empresas, error: empresasError } = await supabase
+      .from('empresas')
+      .select('id, nome_fantasia, cnpj');
+
+    if (empresasError) {
+      console.error('Error fetching companies:', empresasError);
+    }
+
+    // Map users with company information
+    return profiles.map(profile => {
+      const empresa = empresas?.find(e => e.id === profile.empresa_id) || { nome_fantasia: 'N/A', cnpj: 'N/A' };
+      
+      return {
+        id: profile.id,
+        nome: profile.nome,
+        email: profile.email,
+        empresa: empresa.nome_fantasia,
+        cnpj: empresa.cnpj,
+        perfil: profile.funcao,
+        status: profile.ultimo_login ? 'ativo' : 'pendente'
+      };
+    });
+  } catch (error) {
+    console.error('Failed to fetch comprehensive users list:', error);
+    return [];
+  }
+};

@@ -10,15 +10,9 @@ import AprovacoesUsuario from './components/AprovacoesUsuario';
 import PermissoesUsuario from './components/PermissoesUsuario';
 import UsersListTab from './components/UsersListTab';
 import UserDetailsDialog from './components/UserDetailsDialog';
-
-// Updated mock data with new terminology
-const usuariosMock = [
-  { id: 1, nome: 'João Silva', email: 'joao@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Cliente', status: 'ativo' },
-  { id: 2, nome: 'Maria Santos', email: 'maria@fornecedor.com.br', empresa: 'Fornecedor X', cnpj: '98.765.432/0001-10', perfil: 'Fornecedor', status: 'ativo' },
-  { id: 3, nome: 'Pedro Oliveira', email: 'pedro@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Funcionário Operacional', status: 'ativo' },
-  { id: 4, nome: 'Ana Sousa', email: 'ana@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Funcionário Supervisor', status: 'inativo' },
-  { id: 5, nome: 'Carlos Mendes', email: 'carlos@empresa.com.br', empresa: 'Empresa A', cnpj: '12.345.678/0001-90', perfil: 'Administrador', status: 'pendente' },
-];
+import { useQuery } from '@tanstack/react-query';
+import { fetchComprehensiveUsersList } from '@/services/userService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CadastroUsuariosProps {
   initialTab?: string;
@@ -26,10 +20,15 @@ interface CadastroUsuariosProps {
 
 const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadastro' }) => {
   const { toast } = useToast();
-  const [usuarios, setUsuarios] = useState(usuariosMock);
   const [currentTab, setCurrentTab] = useState(initialTab);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+
+  // Fetch real users from Supabase
+  const { data: usuarios = [], isLoading: isLoadingUsers } = useQuery({
+    queryKey: ['comprehensive-users'],
+    queryFn: fetchComprehensiveUsersList,
+  });
 
   // Atualiza a tab quando o initialTab mudar (útil para navegação via link)
   useEffect(() => {
@@ -38,18 +37,6 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
 
   const handleUsuarioSubmit = (data: any) => {
     // Normalmente aqui teríamos uma chamada para API
-    const newUsuario = {
-      id: usuarios.length + 1,
-      nome: data.nome,
-      email: data.email,
-      empresa: data.empresa,
-      cnpj: data.cnpj,
-      perfil: data.perfil,
-      status: 'pendente'
-    };
-
-    setUsuarios([...usuarios, newUsuario]);
-    
     toast({
       title: "Cadastro realizado",
       description: "Seu cadastro foi enviado e está aguardando aprovação.",
@@ -57,10 +44,7 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
   };
 
   const handleApprove = (userId: number) => {
-    setUsuarios(usuarios.map(user => 
-      user.id === userId ? {...user, status: 'ativo'} : user
-    ));
-    
+    // Normalmente aqui teríamos uma chamada para API para aprovar o usuário
     toast({
       title: "Usuário aprovado",
       description: "O usuário foi aprovado com sucesso.",
@@ -68,10 +52,7 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
   };
 
   const handleReject = (userId: number) => {
-    setUsuarios(usuarios.map(user => 
-      user.id === userId ? {...user, status: 'rejeitado'} : user
-    ));
-    
+    // Normalmente aqui teríamos uma chamada para API para rejeitar o usuário
     toast({
       title: "Usuário rejeitado",
       description: "O usuário foi rejeitado.",
@@ -125,10 +106,27 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
         </TabsContent>
         
         <TabsContent value="listagem">
-          <UsersListTab 
-            users={usuarios}
-            onViewDetails={handleVerDetalhes}
-          />
+          {isLoadingUsers ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Users className="mr-2 text-cross-blue" size={20} />
+                  Listagem de Usuários
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-80 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <UsersListTab 
+              users={usuarios}
+              onViewDetails={handleVerDetalhes}
+            />
+          )}
         </TabsContent>
       </Tabs>
 
