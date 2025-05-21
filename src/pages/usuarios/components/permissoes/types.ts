@@ -6,3 +6,20 @@ export interface Profile {
   nome: string;
   descricao?: string;
 }
+
+export interface ModuloEmpresa {
+  id: string;
+  nome: string;
+  tabelas: TabelaEmpresa[];
+}
+
+export interface TabelaEmpresa {
+  id: string;
+  nome: string;
+  rotinas: RotinaEmpresa[];
+}
+
+export interface RotinaEmpresa {
+  id: string;
+  nome: string;
+}
