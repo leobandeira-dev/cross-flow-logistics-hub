@@ -27,6 +27,8 @@ const empresaSchema = z.object({
   cep: z.string().length(9, 'CEP inválido'),
   transportadoraPrincipal: z.boolean().optional(),
   perfil: z.string().min(1, 'Selecione um perfil'),
+  complemento: z.string().optional(),
+  inscricaoEstadual: z.string().optional(),
 });
 
 type EmpresaFormValues = z.infer<typeof empresaSchema>;
@@ -45,6 +47,7 @@ const perfisList = [
 
 const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
   const { cadastrarEmpresa, isLoading } = useEmpresaOperations();
+  const isEditMode = !!empresa?.id;
   
   const form = useForm<EmpresaFormValues>({
     resolver: zodResolver(empresaSchema),
@@ -56,10 +59,12 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
       telefone: empresa?.telefone || '',
       logradouro: empresa?.logradouro || '',
       numero: empresa?.numero || '',
+      complemento: empresa?.complemento || '',
       bairro: empresa?.bairro || '',
       cidade: empresa?.cidade || '',
       uf: empresa?.uf || '',
       cep: empresa?.cep || '',
+      inscricaoEstadual: empresa?.inscricaoEstadual || '',
       transportadoraPrincipal: empresa?.transportadoraPrincipal || false,
       perfil: empresa?.perfil || '',
     },
@@ -85,10 +90,12 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
         telefone: '',
         logradouro: '',
         numero: '',
+        complemento: '',
         bairro: '',
         cidade: '',
         uf: '',
         cep: '',
+        inscricaoEstadual: '',
         transportadoraPrincipal: false,
         perfil: '',
       });
@@ -100,7 +107,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* CNPJ Search Section */}
         <div className="mb-2">
-          <CNPJField form={form} />
+          <CNPJField form={form} disabled={isEditMode} />
         </div>
         
         {/* Basic Information Section */}
@@ -129,7 +136,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
           className="bg-cross-blue hover:bg-cross-blueDark"
           disabled={isLoading}
         >
-          {isLoading ? 'Cadastrando...' : 'Cadastrar Empresa'}
+          {isLoading ? (isEditMode ? 'Salvando...' : 'Cadastrando...') : (isEditMode ? 'Salvar Alterações' : 'Cadastrar Empresa')}
         </Button>
       </form>
     </Form>

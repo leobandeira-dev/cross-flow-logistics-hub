@@ -41,22 +41,29 @@ export const useEmpresaOperations = () => {
         return false;
       }
 
-      // Preparar dados para inserção
+      // Mapear os dados do formulário para o formato esperado pelo Supabase
       const empresaData = {
-        ...dadosEmpresa,
-        // Limpa formatação do CNPJ antes de salvar
+        razao_social: dadosEmpresa.razaoSocial,
+        nome_fantasia: dadosEmpresa.nomeFantasia,
         cnpj: dadosEmpresa.cnpj ? dadosEmpresa.cnpj.replace(/\D/g, '') : null,
-        // Limpa formatação do CEP antes de salvar
+        email: dadosEmpresa.email,
+        telefone: dadosEmpresa.telefone,
+        logradouro: dadosEmpresa.logradouro,
+        numero: dadosEmpresa.numero,
+        complemento: dadosEmpresa.complemento,
+        bairro: dadosEmpresa.bairro,
+        cidade: dadosEmpresa.cidade,
+        uf: dadosEmpresa.uf,
+        estado: dadosEmpresa.uf, // Supabase usa 'estado' em vez de 'uf'
         cep: dadosEmpresa.cep ? dadosEmpresa.cep.replace(/\D/g, '') : null,
-        // Garante que o status seja 'ativo' para novos cadastros
-        status: 'ativo',
-        // Por padrão, definimos como 'Cliente' se não especificado
-        tipo: dadosEmpresa.tipo || 'Cliente',
-        // Define o perfil conforme selecionado no formulário
+        inscricao_estadual: dadosEmpresa.inscricaoEstadual,
         perfil: dadosEmpresa.perfil,
-        // Define se é transportadora principal
-        transportadoraPrincipal: dadosEmpresa.transportadoraPrincipal || false,
+        tipo: dadosEmpresa.tipo || 'Cliente',
+        transportadora_principal: dadosEmpresa.transportadoraPrincipal || false,
+        status: 'ativo',
       };
+
+      console.log('Dados a serem enviados para o Supabase:', empresaData);
 
       const { data, error } = await supabase
         .from('empresas')
@@ -87,8 +94,63 @@ export const useEmpresaOperations = () => {
     }
   };
 
+  const atualizarEmpresa = async (id: string, dadosEmpresa: Partial<Empresa>) => {
+    setIsLoading(true);
+
+    try {
+      // Mapear os dados para o formato esperado pelo Supabase
+      const empresaData = {
+        razao_social: dadosEmpresa.razaoSocial,
+        nome_fantasia: dadosEmpresa.nomeFantasia,
+        email: dadosEmpresa.email,
+        telefone: dadosEmpresa.telefone,
+        logradouro: dadosEmpresa.logradouro,
+        numero: dadosEmpresa.numero,
+        complemento: dadosEmpresa.complemento,
+        bairro: dadosEmpresa.bairro,
+        cidade: dadosEmpresa.cidade,
+        uf: dadosEmpresa.uf,
+        estado: dadosEmpresa.uf, // Supabase usa 'estado' em vez de 'uf'
+        cep: dadosEmpresa.cep ? dadosEmpresa.cep.replace(/\D/g, '') : null,
+        inscricao_estadual: dadosEmpresa.inscricaoEstadual,
+        perfil: dadosEmpresa.perfil,
+        tipo: dadosEmpresa.tipo || 'Cliente',
+        transportadora_principal: dadosEmpresa.transportadoraPrincipal || false,
+      };
+
+      const { data, error } = await supabase
+        .from('empresas')
+        .update(empresaData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      toast({
+        title: 'Empresa atualizada com sucesso',
+        description: `${dadosEmpresa.razaoSocial} foi atualizada com sucesso.`,
+      });
+
+      setIsLoading(false);
+      return true;
+    } catch (error: any) {
+      console.error('Erro ao atualizar empresa:', error);
+      toast({
+        title: 'Erro ao atualizar empresa',
+        description: error.message || 'Não foi possível atualizar a empresa. Tente novamente.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+      return false;
+    }
+  };
+
   return {
     cadastrarEmpresa,
+    atualizarEmpresa,
     isLoading,
   };
 };

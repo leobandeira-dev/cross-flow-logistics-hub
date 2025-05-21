@@ -1,18 +1,24 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Pencil } from 'lucide-react';
+import EmpresaForm from './EmpresaForm';
+import { useEmpresaOperations } from '@/hooks/useEmpresaOperations';
 
 interface EmpresaDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  empresa: any | null;
+  empresa: any;
 }
 
 const EmpresaDetailsDialog: React.FC<EmpresaDetailsDialogProps> = ({
@@ -20,88 +26,169 @@ const EmpresaDetailsDialog: React.FC<EmpresaDetailsDialogProps> = ({
   onOpenChange,
   empresa,
 }) => {
-  if (!empresa) return null;
+  const [editMode, setEditMode] = useState(false);
+  const { atualizarEmpresa, isLoading } = useEmpresaOperations();
 
-  // Helper function to render status badge
-  const renderStatus = (status: string) => {
-    switch (status) {
-      case 'ativo':
-        return <Badge className="bg-green-500">Ativo</Badge>;
-      case 'inativo':
-        return <Badge variant="destructive">Inativo</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+  if (!empresa) {
+    return null;
+  }
+
+  // Mapear os dados da empresa para o formato esperado pelo formulário
+  const empresaFormData = {
+    id: empresa.id,
+    cnpj: empresa.cnpj,
+    razaoSocial: empresa.razaoSocial || empresa.razao_social,
+    nomeFantasia: empresa.nomeFantasia || empresa.nome_fantasia,
+    email: empresa.email,
+    telefone: empresa.telefone,
+    logradouro: empresa.logradouro,
+    numero: empresa.numero,
+    complemento: empresa.complemento,
+    bairro: empresa.bairro,
+    cidade: empresa.cidade,
+    uf: empresa.uf || empresa.estado,
+    cep: empresa.cep,
+    inscricaoEstadual: empresa.inscricaoEstadual || empresa.inscricao_estadual,
+    perfil: empresa.perfil,
+    transportadoraPrincipal: empresa.transportadoraPrincipal || empresa.transportadora_principal,
+  };
+
+  const handleSubmit = async (data: any) => {
+    const success = await atualizarEmpresa(empresa.id, data);
+    if (success) {
+      setEditMode(false);
+      // Recarregar os dados ou atualizar a lista de empresas
+      // Este é um bom lugar para implementar uma função de callback
     }
   };
 
+  const renderContactInfo = () => (
+    <div className="space-y-4 mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4 className="text-sm font-medium text-gray-500">E-mail</h4>
+          <p>{empresa.email || 'Não informado'}</p>
+        </div>
+        <div>
+          <h4 className="text-sm font-medium text-gray-500">Telefone</h4>
+          <p>{empresa.telefone || 'Não informado'}</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAddressInfo = () => (
+    <div className="space-y-4 mt-4">
+      <div>
+        <h4 className="text-sm font-medium text-gray-500">Endereço Completo</h4>
+        <p>
+          {empresa.logradouro ? `${empresa.logradouro}, ${empresa.numero || 's/n'}` : 'Endereço não informado'}
+          {empresa.complemento && ` - ${empresa.complemento}`}
+          {empresa.bairro && `, ${empresa.bairro}`}
+        </p>
+        <p>
+          {empresa.cidade && empresa.cidade}
+          {empresa.uf && ` - ${empresa.uf}`}
+          {empresa.cep && ` - CEP: ${empresa.cep}`}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderCompanyBasicInfo = () => (
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-medium">Informações Básicas</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">Razão Social</h4>
+            <p>{empresa.razaoSocial || empresa.razao_social}</p>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">Nome Fantasia</h4>
+            <p>{empresa.nomeFantasia || empresa.nome_fantasia || 'Não informado'}</p>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">CNPJ</h4>
+            <p>{empresa.cnpj}</p>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">Inscrição Estadual</h4>
+            <p>{empresa.inscricaoEstadual || empresa.inscricao_estadual || 'Não informado'}</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-medium">Perfil da Empresa</h3>
+        <div className="flex items-center gap-2 mt-2">
+          <Badge className={`${empresa.perfil === 'Transportadora' ? 'bg-blue-500' : 
+                              empresa.perfil === 'Filial' ? 'bg-purple-500' : 
+                              empresa.perfil === 'Cliente' ? 'bg-green-500' : 'bg-amber-500'}`}>
+            {empresa.perfil || 'Cliente'}
+          </Badge>
+          
+          {(empresa.transportadoraPrincipal || empresa.transportadora_principal) && (
+            <Badge className="bg-cross-blue">Transportadora Principal</Badge>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Detalhes da Empresa</DialogTitle>
+          <div className="flex justify-between items-center">
+            <DialogTitle>{empresa.nomeFantasia || empresa.nome_fantasia || empresa.razaoSocial || empresa.razao_social}</DialogTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1"
+              onClick={() => setEditMode(!editMode)}
+              disabled={isLoading}
+            >
+              <Pencil size={14} />
+              {editMode ? 'Cancelar Edição' : 'Editar'}
+            </Button>
+          </div>
           <DialogDescription>
-            Informações completas da empresa selecionada.
+            CNPJ: {empresa.cnpj} | Status: {' '}
+            <Badge variant={empresa.status === 'ativo' ? 'default' : 'destructive'}>
+              {empresa.status === 'ativo' ? 'Ativo' : 'Inativo'}
+            </Badge>
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 pt-4">
-          <div className="flex justify-between items-center">
-            <span className="font-medium text-lg">{empresa.nome || empresa.razaoSocial}</span>
-            {renderStatus(empresa.status)}
-          </div>
+        {editMode ? (
+          <EmpresaForm empresa={empresaFormData} onSubmit={handleSubmit} />
+        ) : (
+          <Tabs defaultValue="info">
+            <TabsList className="mb-4">
+              <TabsTrigger value="info">Informações Gerais</TabsTrigger>
+              <TabsTrigger value="address">Endereço</TabsTrigger>
+              <TabsTrigger value="contact">Contato</TabsTrigger>
+            </TabsList>
+            <TabsContent value="info" className="p-1">
+              {renderCompanyBasicInfo()}
+            </TabsContent>
+            <TabsContent value="address" className="p-1">
+              {renderAddressInfo()}
+            </TabsContent>
+            <TabsContent value="contact" className="p-1">
+              {renderContactInfo()}
+            </TabsContent>
+          </Tabs>
+        )}
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-            <div>
-              <p className="text-sm text-muted-foreground">CNPJ</p>
-              <p>{empresa.cnpj || 'N/A'}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-muted-foreground">Perfil</p>
-              <p>{empresa.perfil}</p>
-            </div>
-
-            {empresa.razaoSocial && empresa.razaoSocial !== empresa.nome && (
-              <div className="col-span-2">
-                <p className="text-sm text-muted-foreground">Razão Social</p>
-                <p>{empresa.razaoSocial}</p>
-              </div>
-            )}
-
-            {empresa.endereco && (
-              <div className="col-span-2">
-                <p className="text-sm text-muted-foreground">Endereço</p>
-                <p>{empresa.endereco}</p>
-              </div>
-            )}
-
-            {empresa.email && (
-              <div>
-                <p className="text-sm text-muted-foreground">Email</p>
-                <p>{empresa.email}</p>
-              </div>
-            )}
-
-            {empresa.telefone && (
-              <div>
-                <p className="text-sm text-muted-foreground">Telefone</p>
-                <p>{empresa.telefone}</p>
-              </div>
-            )}
-            
-            {empresa.transportadoraPrincipal && (
-              <div className="col-span-2">
-                <p className="text-sm text-muted-foreground">Transportadora Principal</p>
-                <p>{empresa.transportadoraPrincipal ? 'Sim' : 'Não'}</p>
-              </div>
-            )}
-
-            <div className="col-span-2">
-              <p className="text-sm text-muted-foreground">Data de Cadastro</p>
-              <p>{empresa.dataCadastro || 'N/A'}</p>
-            </div>
-          </div>
-        </div>
+        {!editMode && (
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

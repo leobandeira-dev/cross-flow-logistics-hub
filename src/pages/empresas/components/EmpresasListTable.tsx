@@ -36,7 +36,12 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
 
   // Helper function to format CNPJ
   const formatCNPJ = (cnpj: string) => {
-    return cnpj || 'N/A';
+    if (!cnpj) return 'N/A';
+    // Formatar CNPJ se não estiver formatado
+    if (cnpj.length === 14 && !cnpj.includes('.')) {
+      return `${cnpj.slice(0, 2)}.${cnpj.slice(2, 5)}.${cnpj.slice(5, 8)}/${cnpj.slice(8, 12)}-${cnpj.slice(12)}`;
+    }
+    return cnpj;
   };
 
   // Helper function to get city from address
@@ -45,6 +50,17 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
     if (empresa.endereco) {
       const localInfo = separarCidadeEstado(empresa.endereco);
       return localInfo?.cidade || '';
+    }
+    return '';
+  };
+
+  // Helper function to get state from address
+  const getEstado = (empresa: any) => {
+    if (empresa.uf) return empresa.uf;
+    if (empresa.estado) return empresa.estado;
+    if (empresa.endereco) {
+      const localInfo = separarCidadeEstado(empresa.endereco);
+      return localInfo?.estado || '';
     }
     return '';
   };
@@ -71,17 +87,20 @@ const EmpresasListTable: React.FC<EmpresasListTableProps> = ({
             </TableRow>
           ) : (
             empresas.map((empresa) => (
-              <TableRow key={empresa.id}>
-                <TableCell className="font-medium">{empresa.nome || empresa.razaoSocial}</TableCell>
+              <TableRow key={empresa.id} className="cursor-pointer hover:bg-gray-50" onClick={() => onViewDetails(empresa)}>
+                <TableCell className="font-medium">{empresa.nome || empresa.nome_fantasia || empresa.razao_social}</TableCell>
                 <TableCell>{formatCNPJ(empresa.cnpj)}</TableCell>
                 <TableCell>{getCidade(empresa)}</TableCell>
-                <TableCell>{converterParaUF(empresa.estado)}</TableCell>
+                <TableCell>{converterParaUF(getEstado(empresa))}</TableCell>
                 <TableCell>{renderStatus(empresa.status)}</TableCell>
                 <TableCell className="text-right">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onViewDetails(empresa)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewDetails(empresa);
+                    }}
                     className="inline-flex items-center"
                   >
                     <Eye className="mr-1" size={16} />

@@ -24,6 +24,8 @@ export const useEmpresaSearch = () => {
           throw new Error(error.message);
         }
 
+        console.log('Empresas carregadas do Supabase:', data);
+
         // Mapear os dados do Supabase para o formato esperado pelo componente
         const formattedData: EmpresaMock[] = data.map(item => ({
           id: item.id,
