@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -60,7 +61,7 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
       cell: (row) => {
         return row.tipoVolume === 'quimico' ? 
           <div className="flex items-center">
-            <Biohazard size={16} className="text-red-500 mr-1" />
+            <Biohazard size={18} className="text-red-500 mr-1" />
             <span>Químico</span>
           </div> : 
           <span>Carga Geral</span>;
