@@ -5,15 +5,27 @@ import { userProfiles } from './mockData';
 
 export const useProfiles = () => {
   const { toast } = useToast();
+  const [selectedPerfil, setSelectedPerfil] = useState<string>("");
   const [customProfiles, setCustomProfiles] = useState<Array<{ id: string, nome: string, descricao?: string }>>([]);
   const [allProfiles, setAllProfiles] = useState<string[]>(userProfiles);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<{ id: string, nome: string, descricao?: string } | null>(null);
 
+  // Initialize selectedPerfil if it's empty and profiles are available
+  useEffect(() => {
+    if (!selectedPerfil && allProfiles.length > 0) {
+      setSelectedPerfil(allProfiles[0]);
+    }
+  }, [selectedPerfil, allProfiles]);
+
   // Update all profiles when custom profiles change
   useEffect(() => {
     setAllProfiles([...userProfiles, ...customProfiles.map(p => p.nome)]);
   }, [customProfiles]);
+
+  const handlePerfilChange = (value: string) => {
+    setSelectedPerfil(value);
+  };
 
   // Handle adding or editing a profile
   const handleSavePerfil = (nome: string, descricao: string, id?: string) => {
@@ -59,11 +71,13 @@ export const useProfiles = () => {
   };
 
   return {
+    selectedPerfil,
     customProfiles,
     allProfiles,
     isProfileDialogOpen,
     setIsProfileDialogOpen,
     editingProfile,
+    handlePerfilChange,
     handleSavePerfil,
     handleDeleteProfile,
     handleAddNewProfile,
