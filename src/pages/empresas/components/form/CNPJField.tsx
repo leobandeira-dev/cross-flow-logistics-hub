@@ -94,7 +94,7 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
         description: isUsingMockData ? 
           "Dados mockados carregados. APIs de CNPJ indisponíveis no momento." : 
           `Dados da empresa ${dados.nome} carregados com sucesso.`,
-        variant: isUsingMockData ? "warning" : "default"
+        variant: isUsingMockData ? "default" : "default"
       });
     } catch (error: any) {
       console.error("Erro completo:", error);
