@@ -43,7 +43,7 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
     });
   };
 
-  const handleApprove = (userId: number) => {
+  const handleApprove = (userId: string) => {
     // Normalmente aqui teríamos uma chamada para API para aprovar o usuário
     toast({
       title: "Usuário aprovado",
@@ -51,7 +51,7 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
     });
   };
 
-  const handleReject = (userId: number) => {
+  const handleReject = (userId: string) => {
     // Normalmente aqui teríamos uma chamada para API para rejeitar o usuário
     toast({
       title: "Usuário rejeitado",
@@ -94,11 +94,28 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
         </TabsContent>
         
         <TabsContent value="aprovacoes">
-          <AprovacoesUsuario 
-            usuarios={usuarios.filter(u => u.status === 'pendente')}
-            onApprove={handleApprove}
-            onReject={handleReject}
-          />
+          {isLoadingUsers ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <User className="mr-2 text-cross-blue" size={20} />
+                  Aprovações Pendentes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-80 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <AprovacoesUsuario 
+              usuarios={usuarios.filter(u => u.status === 'pendente')}
+              onApprove={handleApprove}
+              onReject={handleReject}
+            />
+          )}
         </TabsContent>
         
         <TabsContent value="permissoes">

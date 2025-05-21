@@ -12,9 +12,17 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { 
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHead
+} from '@/components/ui/table';
 
 interface Usuario {
-  id: number;
+  id: string;
   nome: string;
   email: string;
   empresa: string;
@@ -25,8 +33,8 @@ interface Usuario {
 
 interface AprovacoesUsuarioProps {
   usuarios: Usuario[];
-  onApprove: (userId: number) => void;
-  onReject: (userId: number) => void;
+  onApprove: (userId: string) => void;
+  onReject: (userId: string) => void;
 }
 
 const AprovacoesUsuario: React.FC<AprovacoesUsuarioProps> = ({
@@ -71,28 +79,28 @@ const AprovacoesUsuario: React.FC<AprovacoesUsuarioProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {usuarios.length > 0 ? (
+          {usuarios && usuarios.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4">Nome</th>
-                    <th className="text-left py-3 px-4">Email</th>
-                    <th className="text-left py-3 px-4">Empresa</th>
-                    <th className="text-left py-3 px-4">CNPJ</th>
-                    <th className="text-left py-3 px-4">Perfil</th>
-                    <th className="text-left py-3 px-4">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Empresa</TableHead>
+                    <TableHead>CNPJ</TableHead>
+                    <TableHead>Perfil</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {usuarios.map((usuario) => (
-                    <tr key={usuario.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">{usuario.nome}</td>
-                      <td className="py-3 px-4">{usuario.email}</td>
-                      <td className="py-3 px-4">{usuario.empresa}</td>
-                      <td className="py-3 px-4">{usuario.cnpj}</td>
-                      <td className="py-3 px-4">{usuario.perfil}</td>
-                      <td className="py-3 px-4">
+                    <TableRow key={usuario.id}>
+                      <TableCell>{usuario.nome}</TableCell>
+                      <TableCell>{usuario.email}</TableCell>
+                      <TableCell>{usuario.empresa}</TableCell>
+                      <TableCell>{usuario.cnpj}</TableCell>
+                      <TableCell>{usuario.perfil}</TableCell>
+                      <TableCell>
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
@@ -113,11 +121,14 @@ const AprovacoesUsuario: React.FC<AprovacoesUsuarioProps> = ({
                             Rejeitar
                           </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
+              <div className="mt-4 text-sm text-gray-500">
+                Total: {usuarios.length} usuário(s) pendente(s)
+              </div>
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
