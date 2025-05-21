@@ -25,7 +25,7 @@ const PermissoesUsuario: React.FC = () => {
   const { 
     filteredUsers, 
     selectedUser,
-    handleUserChange,
+    handleUserChange: handleUserSelection, // Renamed to avoid duplicate declaration
     handleUserSearch,
     isLoading: isLoadingUsers,
     allProfiles: userProfiles
@@ -62,6 +62,10 @@ const PermissoesUsuario: React.FC = () => {
 
   const handleUserChange = (userId: string | null) => {
     setSelectedUserId(userId);
+    // Also update the selection in the useUsers hook
+    if (userId) {
+      handleUserSelection(userId);
+    }
   };
 
   const handlePermissionChange = (moduleId: string, tableId: string, routineId: string, allowed: boolean) => {
@@ -115,7 +119,7 @@ const PermissoesUsuario: React.FC = () => {
           <UserSelector 
             users={filteredUsers}
             selectedUser={selectedUser}
-            onUserChange={handleUserChange}
+            onUserChange={handleUserSelection}
             onSearch={handleUserSearch}
             allProfiles={userProfiles}
             isLoading={isLoadingUsers}
