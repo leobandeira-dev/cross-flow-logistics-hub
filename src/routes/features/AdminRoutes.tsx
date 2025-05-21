@@ -6,7 +6,7 @@ import { ProtectedRoute } from '../ProtectedRoute';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import ClientesAdmin from '@/pages/admin/clientes/ClientesAdmin';
 import RecebimentosAdmin from '@/pages/admin/financeiro/RecebimentosAdmin';
-import NotasFiscaisAdmin from '@/pages/admin/financeiro/NotasFiscaisAdmin';
+import NotasFiscaisAdmin from '@/pages/admin/financeiro/NotasFiscaisAdmin.tsx'; // Fixed extension
 import PacotesAdmin from '@/pages/admin/produtos/PacotesAdmin';
 import AcessosAdmin from '@/pages/admin/acessos/AcessosAdmin';
 import SuporteAdmin from '@/pages/admin/suporte/SuporteAdmin';
