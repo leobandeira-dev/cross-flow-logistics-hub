@@ -10,9 +10,10 @@ import { consultarCNPJComAlternativa, formatarCNPJ, mapearDadosParaFormulario } 
 
 interface CNPJFieldProps {
   form: UseFormReturn<any>;
+  disabled?: boolean; // Added this prop to the interface
 }
 
-const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
+const CNPJField: React.FC<CNPJFieldProps> = ({ form, disabled = false }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [lastSearched, setLastSearched] = useState<string>('');
@@ -122,13 +123,14 @@ const CNPJField: React.FC<CNPJFieldProps> = ({ form }) => {
                 {...field} 
                 onChange={handleCNPJChange}
                 maxLength={18}
+                disabled={disabled}
               />
             </FormControl>
             <Button 
               type="button" 
               variant="outline" 
               onClick={handleBuscarCNPJ}
-              disabled={isLoading}
+              disabled={isLoading || disabled}
               className="whitespace-nowrap"
             >
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Search className="h-4 w-4 mr-1" />}
