@@ -61,7 +61,7 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
       cell: (row) => {
         return row.tipoVolume === 'quimico' ? 
           <div className="flex items-center">
-            <Skull size={20} className="text-red-600 mr-1" />
+            <Skull size={40} className="text-red-600 mr-1" />
             <span>Químico</span>
           </div> : 
           <span>Carga Geral</span>;

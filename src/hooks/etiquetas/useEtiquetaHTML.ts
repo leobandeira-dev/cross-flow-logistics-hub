@@ -12,7 +12,7 @@ export const useEtiquetaHTML = () => {
     // Generate chemical product icon HTML if needed
     const quimicoIconHTML = isQuimico ? `
       <div style="position: absolute; top: 10px; right: 10px; background-color: #FEE2E2; border-radius: 50%; padding: 8px; border: 2px solid #EF4444;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #DC2626;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #DC2626;">
           <circle cx="9" cy="12" r="1"></circle>
           <circle cx="15" cy="12" r="1"></circle>
           <path d="M8 20v2h8v-2"></path>
