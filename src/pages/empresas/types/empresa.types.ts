@@ -1,10 +1,11 @@
 
 export interface Empresa {
-  id?: number;
-  razaoSocial: string;
-  nomeFantasia?: string;
+  id: string;
   cnpj: string;
-  inscricaoEstadual?: string;
+  razaoSocial: string;
+  nomeFantasia: string;
+  email: string;
+  telefone: string;
   logradouro: string;
   numero: string;
   complemento?: string;
@@ -12,39 +13,11 @@ export interface Empresa {
   cidade: string;
   uf: string;
   cep: string;
-  telefone: string;
-  email: string;
-  contato?: string;
+  inscricaoEstadual?: string;
   perfil: string;
-  transportadoraPrincipal?: boolean;
-  status?: string;
-}
-
-// Atualizado para refletir os perfis atualizados
-export type PerfilEmpresa = 'Transportadora' | 'Filial' | 'Cliente' | 'Fornecedor';
-
-export interface ModuloEmpresa {
-  id: string;
-  nome: string;
-  tabelas: TabelaEmpresa[];
-}
-
-export interface TabelaEmpresa {
-  id: string;
-  nome: string;
-  rotinas: RotinaEmpresa[];
-}
-
-export interface RotinaEmpresa {
-  id: string;
-  nome: string;
-}
-
-// Novo: Interface para perfis customizados
-export interface PerfilCustomizado {
-  id: string;
-  nome: string;
-  descricao?: string;
-  tipo: 'usuario' | 'empresa';
-  permissoes?: Record<string, boolean>;
+  status: string;
+  tipo: string;
+  transportadoraPrincipal: boolean;
+  created_at?: string;
+  updated_at?: string;
 }

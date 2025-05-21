@@ -10,6 +10,7 @@ import CNPJField from './form/CNPJField';
 import BasicInfoFields from './form/BasicInfoFields';
 import AddressFields from './form/AddressFields';
 import CompanyProfileFields from './form/CompanyProfileFields';
+import { useEmpresaOperations } from '@/hooks/useEmpresaOperations';
 
 // Schema for form validation
 const empresaSchema = z.object({
@@ -32,7 +33,7 @@ type EmpresaFormValues = z.infer<typeof empresaSchema>;
 
 interface EmpresaFormProps {
   empresa?: Partial<Empresa>;
-  onSubmit: (data: Partial<Empresa>) => void;
+  onSubmit?: (data: Partial<Empresa>) => void;
 }
 
 const perfisList = [
@@ -43,6 +44,8 @@ const perfisList = [
 ];
 
 const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
+  const { cadastrarEmpresa, isLoading } = useEmpresaOperations();
+  
   const form = useForm<EmpresaFormValues>({
     resolver: zodResolver(empresaSchema),
     defaultValues: {
@@ -62,9 +65,39 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
     },
   });
 
+  const handleSubmit = async (data: EmpresaFormValues) => {
+    // Se tiver um callback externo de onSubmit, chama ele
+    if (onSubmit) {
+      onSubmit(data);
+      return;
+    }
+    
+    // Caso contrário, usa o hook para cadastrar
+    const success = await cadastrarEmpresa(data as Partial<Empresa>);
+    
+    // Se o cadastro foi bem-sucedido, reseta o formulário
+    if (success) {
+      form.reset({
+        cnpj: '',
+        razaoSocial: '',
+        nomeFantasia: '',
+        email: '',
+        telefone: '',
+        logradouro: '',
+        numero: '',
+        bairro: '',
+        cidade: '',
+        uf: '',
+        cep: '',
+        transportadoraPrincipal: false,
+        perfil: '',
+      });
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* CNPJ Search Section */}
         <div className="mb-2">
           <CNPJField form={form} />
@@ -94,8 +127,9 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
         <Button 
           type="submit" 
           className="bg-cross-blue hover:bg-cross-blueDark"
+          disabled={isLoading}
         >
-          Cadastrar Empresa
+          {isLoading ? 'Cadastrando...' : 'Cadastrar Empresa'}
         </Button>
       </form>
     </Form>

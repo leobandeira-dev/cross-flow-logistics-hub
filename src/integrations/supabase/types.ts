@@ -212,51 +212,75 @@ export type Database = {
       }
       empresas: {
         Row: {
+          bairro: string | null
           cep: string | null
           cidade: string | null
           cnpj: string | null
+          complemento: string | null
           created_at: string | null
           email: string | null
           endereco: string | null
           estado: string | null
           id: string
+          inscricao_estadual: string | null
+          logradouro: string | null
           nome_fantasia: string | null
+          numero: string | null
+          perfil: string | null
           razao_social: string
           status: string
           telefone: string | null
           tipo: string
+          transportadora_principal: boolean | null
+          uf: string | null
           updated_at: string | null
         }
         Insert: {
+          bairro?: string | null
           cep?: string | null
           cidade?: string | null
           cnpj?: string | null
+          complemento?: string | null
           created_at?: string | null
           email?: string | null
           endereco?: string | null
           estado?: string | null
           id?: string
+          inscricao_estadual?: string | null
+          logradouro?: string | null
           nome_fantasia?: string | null
+          numero?: string | null
+          perfil?: string | null
           razao_social: string
           status?: string
           telefone?: string | null
           tipo: string
+          transportadora_principal?: boolean | null
+          uf?: string | null
           updated_at?: string | null
         }
         Update: {
+          bairro?: string | null
           cep?: string | null
           cidade?: string | null
           cnpj?: string | null
+          complemento?: string | null
           created_at?: string | null
           email?: string | null
           endereco?: string | null
           estado?: string | null
           id?: string
+          inscricao_estadual?: string | null
+          logradouro?: string | null
           nome_fantasia?: string | null
+          numero?: string | null
+          perfil?: string | null
           razao_social?: string
           status?: string
           telefone?: string | null
           tipo?: string
+          transportadora_principal?: boolean | null
+          uf?: string | null
           updated_at?: string | null
         }
         Relationships: []
