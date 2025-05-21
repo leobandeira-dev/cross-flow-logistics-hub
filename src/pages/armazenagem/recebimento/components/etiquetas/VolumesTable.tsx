@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Biohazard, Printer, Edit, LinkIcon } from 'lucide-react';
+import { Skull, Printer, Edit, LinkIcon } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 
@@ -61,7 +61,7 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
       cell: (row) => {
         return row.tipoVolume === 'quimico' ? 
           <div className="flex items-center">
-            <Biohazard size={18} className="text-red-500 mr-1" />
+            <Skull size={20} className="text-red-600 mr-1" />
             <span>Químico</span>
           </div> : 
           <span>Carga Geral</span>;
