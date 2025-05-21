@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,43 +99,59 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
   }, [toast]);
 
   const handleEmpresaSubmit = async (data: Partial<Empresa>) => {
-    // Aqui normalmente seria feita uma chamada para API
-    // Mas como agora estamos usando o hook useEmpresaOperations diretamente no EmpresaForm,
-    // essa função só será chamada se o EmpresaForm for usado de uma forma diferente
     console.log("Empresa submetida:", data);
     
     // Recarregar a lista de empresas
-    const { data: empresasAtualizadas, error } = await supabase
-      .from('empresas')
-      .select('*')
-      .order('razao_social', { ascending: true });
+    try {
+      const { data: empresasAtualizadas, error } = await supabase
+        .from('empresas')
+        .select('*')
+        .order('razao_social', { ascending: true });
+        
+      if (error) {
+        console.error('Erro ao recarregar empresas:', error);
+        return;
+      }
       
-    if (error) {
-      console.error('Erro ao recarregar empresas:', error);
-      return;
+      // Atualizar o estado com as empresas atualizadas
+      const empresasFormatadas = empresasAtualizadas.map(emp => ({
+        id: emp.id,
+        nome: emp.nome_fantasia || emp.razao_social,
+        razaoSocial: emp.razao_social,
+        nomeFantasia: emp.nome_fantasia,
+        cnpj: emp.cnpj,
+        perfil: emp.perfil || 'Cliente',
+        status: emp.status,
+        endereco: emp.logradouro ? `${emp.logradouro}, ${emp.numero} - ${emp.cidade}/${emp.uf}` : null,
+        email: emp.email,
+        telefone: emp.telefone,
+        logradouro: emp.logradouro,
+        numero: emp.numero,
+        complemento: emp.complemento,
+        bairro: emp.bairro,
+        cidade: emp.cidade,
+        uf: emp.uf,
+        estado: emp.estado,
+        cep: emp.cep,
+        inscricaoEstadual: emp.inscricao_estadual,
+        transportadoraPrincipal: emp.transportadora_principal,
+        dataCadastro: new Date(emp.created_at).toLocaleDateString(),
+      }));
+      
+      setEmpresas(empresasFormatadas);
+      
+      toast({
+        title: "Empresa atualizada",
+        description: "Os dados da empresa foram atualizados com sucesso.",
+      });
+    } catch (error: any) {
+      console.error('Erro ao atualizar empresas:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: "Ocorreu um erro ao atualizar os dados. Tente novamente.",
+        variant: "destructive",
+      });
     }
-    
-    // Atualizar o estado com as empresas atualizadas
-    const empresasFormatadas = empresasAtualizadas.map(emp => ({
-      id: emp.id,
-      nome: emp.nome_fantasia || emp.razao_social,
-      razaoSocial: emp.razao_social,
-      nomeFantasia: emp.nome_fantasia,
-      cnpj: emp.cnpj,
-      perfil: emp.perfil || 'Cliente',
-      status: emp.status,
-      endereco: emp.logradouro ? `${emp.logradouro}, ${emp.numero} - ${emp.cidade}/${emp.uf}` : null,
-      email: emp.email,
-      telefone: emp.telefone,
-      dataCadastro: new Date(emp.created_at).toLocaleDateString(),
-    }));
-    
-    setEmpresas(empresasFormatadas);
-    
-    toast({
-      title: "Empresa atualizada",
-      description: "Os dados da empresa foram atualizados com sucesso.",
-    });
   };
 
   const handleVerDetalhes = (empresa: any) => {

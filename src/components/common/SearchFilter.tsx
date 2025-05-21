@@ -25,7 +25,7 @@ export interface FilterConfig {
 
 interface SearchFilterProps {
   placeholder?: string;
-  filters?: FilterConfig[];
+  filterConfig?: FilterConfig[];
   onSearch?: (searchTerm: string, activeFilters?: Record<string, string[]>) => void;
   onFilterChange?: (filter: string, value: string) => void;
   className?: string;
@@ -34,7 +34,7 @@ interface SearchFilterProps {
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
   placeholder = 'Buscar...',
-  filters = [],
+  filterConfig = [],
   onSearch,
   onFilterChange,
   className,
@@ -62,7 +62,9 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   };
 
   const handleSearch = () => {
-    onSearch?.(searchTerm, activeFilters);
+    if (onSearch) {
+      onSearch(searchTerm, activeFilters);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -96,7 +98,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
         />
       </div>
       
-      {filters.length > 0 && (
+      {filterConfig.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="gap-1">
@@ -106,7 +108,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            {filters.map(filter => (
+            {filterConfig.map(filter => (
               <div key={filter.id || filter.name || filter.label} className="p-2">
                 <div className="font-medium text-sm mb-1">{filter.label || filter.name}</div>
                 {filter.options.map(option => {

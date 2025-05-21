@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SearchFilter, { FilterConfig } from '@/components/common/SearchFilter';
@@ -93,6 +92,9 @@ const EmpresasListTab: React.FC<EmpresasListTabProps> = ({
             placeholder="Buscar por nome ou CNPJ..."
             filterConfig={filterConfig}
             onFilterChange={handleFilterChange}
+            // This component expects a different type, let's remove the incompatible prop
+            // and only use the new onSearch prop instead which accepts our function
+            onSearch={handleFilterChange}
           />
         </div>
         

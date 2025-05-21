@@ -14,17 +14,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Pencil } from 'lucide-react';
 import EmpresaForm from './EmpresaForm';
 import { useEmpresaOperations } from '@/hooks/useEmpresaOperations';
+import { Empresa } from '../types/empresa.types';
 
 interface EmpresaDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   empresa: any;
+  onSubmit?: (data: Partial<Empresa>) => void; // Added this property
 }
 
 const EmpresaDetailsDialog: React.FC<EmpresaDetailsDialogProps> = ({
   open,
   onOpenChange,
   empresa,
+  onSubmit,
 }) => {
   const [editMode, setEditMode] = useState(false);
   const { atualizarEmpresa, isLoading } = useEmpresaOperations();
@@ -57,8 +60,10 @@ const EmpresaDetailsDialog: React.FC<EmpresaDetailsDialogProps> = ({
     const success = await atualizarEmpresa(empresa.id, data);
     if (success) {
       setEditMode(false);
-      // Recarregar os dados ou atualizar a lista de empresas
-      // Este é um bom lugar para implementar uma função de callback
+      // If there's an onSubmit callback, call it
+      if (onSubmit) {
+        onSubmit(data);
+      }
     }
   };
 
