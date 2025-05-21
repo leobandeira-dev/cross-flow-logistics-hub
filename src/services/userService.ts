@@ -46,3 +46,12 @@ export const fetchUsers = async (): Promise<UserWithProfile[]> => {
     avatar_url: user.avatar_url
   }));
 };
+
+/**
+ * Checks if the current user has permission to manage user permissions
+ * Only admins and managers can manage permissions
+ */
+export const hasPermissionManagement = (userRole?: string): boolean => {
+  const allowedRoles = ['Administrador', 'Gerente', 'admin', 'gerente', 'administrador'];
+  return allowedRoles.includes(userRole || '');
+};
