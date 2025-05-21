@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Save } from 'lucide-react';
-
-type Permission = Record<string, Record<string, Record<string, boolean>>>;
+import { Permission } from './types';
 
 interface PermissionTableProps {
   permissions: Permission | null;

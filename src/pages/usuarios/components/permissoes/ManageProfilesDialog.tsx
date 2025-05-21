@@ -22,10 +22,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Profile } from './types';
 
 interface ManageProfilesDialogProps { 
-  profiles: Array<{ id: string, nome: string, descricao?: string }>;
-  onEditProfile: (profile: any) => void;
+  profiles: Profile[];
+  onEditProfile: (profile: Profile) => void;
   onDeleteProfile: (id: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;

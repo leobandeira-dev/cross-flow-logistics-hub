@@ -6,6 +6,7 @@ import ProfileSelector from './permissoes/ProfileSelector';
 import UserSelector from './permissoes/UserSelector';
 import PermissionTable from './permissoes/PermissionTable';
 import ManageProfilesDialog from './permissoes/ManageProfilesDialog';
+import ProfileDialog from './permissoes/ProfileDialog';
 import { usePermissions } from './permissoes/usePermissions';
 import { useProfiles } from './permissoes/useProfiles';
 import { useUsers } from './permissoes/useUsers';
@@ -14,18 +15,24 @@ const PermissoesUsuario: React.FC = () => {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [manageProfilesOpen, setManageProfilesOpen] = useState(false);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   
   const { 
-    allProfiles, 
-    customProfiles,
     selectedPerfil,
-    handlePerfilChange
+    customProfiles,
+    allProfiles,
+    editingProfile,
+    handlePerfilChange,
+    handleSavePerfil,
+    handleDeleteProfile,
+    handleAddNewProfile,
+    handleEditProfile
   } = useProfiles();
   
   const { 
     filteredUsers, 
     selectedUser,
-    handleUserChange: handleUserSelection, // Renamed to avoid duplicate declaration
+    handleUserChange: handleUserSelection,
     handleUserSearch,
     isLoading: isLoadingUsers,
     allProfiles: userProfiles
@@ -111,9 +118,9 @@ const PermissoesUsuario: React.FC = () => {
             handlePerfilChange={(value) => handleProfileChange(value)}
             allProfiles={allProfiles}
             customProfiles={customProfiles}
-            onAddNewProfile={() => setManageProfilesOpen(true)}
-            onEditProfile={() => {}}
-            onDeleteProfile={() => {}}
+            onAddNewProfile={handleAddNewProfile}
+            onEditProfile={handleEditProfile}
+            onDeleteProfile={handleDeleteProfile}
           />
           
           <UserSelector 
@@ -138,10 +145,17 @@ const PermissoesUsuario: React.FC = () => {
       
       <ManageProfilesDialog 
         profiles={customProfiles} 
-        onEditProfile={() => {}} 
-        onDeleteProfile={() => {}}
+        onEditProfile={handleEditProfile}
+        onDeleteProfile={handleDeleteProfile}
         open={manageProfilesOpen}
         onOpenChange={setManageProfilesOpen}
+      />
+      
+      <ProfileDialog 
+        onSavePerfil={handleSavePerfil}
+        editingProfile={editingProfile}
+        isOpen={profileDialogOpen}
+        setIsOpen={setProfileDialogOpen}
       />
     </Card>
   );

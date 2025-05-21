@@ -71,6 +71,13 @@ const CadastrosRoutes = () => {
       </ProtectedRoute>
     } />,
     
+    // Standalone permissions route for direct access
+    <Route key="permissoes-usuario" path="/permissoes-usuario" element={
+      <ProtectedRoute>
+        <PermissoesUsuario />
+      </ProtectedRoute>
+    } />,
+    
     // Routes matching sidebar links for empresas section
     <Route key="empresas-cadastro" path="/empresas/cadastro" element={
       <ProtectedRoute>
