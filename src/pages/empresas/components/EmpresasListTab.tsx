@@ -44,12 +44,12 @@ const EmpresasListTab: React.FC<EmpresasListTabProps> = ({
 
   // Atualiza os dados filtrados quando a lista de empresas mudar
   React.useEffect(() => {
-    handleFilterChange(searchTerm, activeFilters);
+    // Não aplicamos filtros automáticos, apenas inicializamos com a lista completa
+    setFilteredEmpresas(empresas);
   }, [empresas]);
 
   const handleFilterChange = (term: string, filters?: Record<string, string[]>) => {
-    setSearchTerm(term);
-    setActiveFilters(filters || {});
+    console.log('Aplicando filtros:', term, filters);
     
     let filtered = [...empresas];
     

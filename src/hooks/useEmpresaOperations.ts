@@ -72,6 +72,7 @@ export const useEmpresaOperations = () => {
         .select();
 
       if (error) {
+        console.error('Erro durante inserção no Supabase:', error);
         throw new Error(error.message);
       }
 
