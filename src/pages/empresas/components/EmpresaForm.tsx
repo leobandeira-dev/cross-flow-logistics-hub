@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,6 +15,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Empresa, PerfilEmpresa } from '../types/empresa.types';
+import { Search, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { consultarCNPJ, formatarCNPJ, limparCNPJ, mapearDadosParaFormulario } from '@/services/cnpjService';
 
 // Schema for form validation
 const empresaSchema = z.object({
@@ -49,6 +51,9 @@ const perfisList = [
 ];
 
 const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  
   const form = useForm<EmpresaFormValues>({
     resolver: zodResolver(empresaSchema),
     defaultValues: {
@@ -79,6 +84,52 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
     }
     e.target.value = value;
     form.setValue('cnpj', value);
+  };
+
+  const handleBuscarCNPJ = async () => {
+    const cnpj = form.getValues('cnpj');
+    const cnpjLimpo = limparCNPJ(cnpj);
+    
+    if (cnpjLimpo.length !== 14) {
+      toast({
+        title: "CNPJ inválido",
+        description: "O CNPJ deve conter 14 dígitos.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const dados = await consultarCNPJ(cnpjLimpo);
+      
+      if (dados.status === 'ERROR') {
+        throw new Error(dados.message || 'CNPJ não encontrado');
+      }
+      
+      const dadosFormulario = mapearDadosParaFormulario(dados);
+      
+      // Atualizar os campos do formulário com os dados recebidos
+      Object.entries(dadosFormulario).forEach(([campo, valor]) => {
+        if (valor) {
+          form.setValue(campo as any, valor);
+        }
+      });
+      
+      toast({
+        title: "Dados carregados",
+        description: `Dados da empresa ${dados.nome} carregados com sucesso.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao buscar CNPJ",
+        description: error.message || "Não foi possível obter os dados do CNPJ.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCEPChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,16 +163,27 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit }) => {
             control={form.control}
             name="cnpj"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="relative">
                 <FormLabel>CNPJ</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="00.000.000/0000-00" 
-                    {...field} 
-                    onChange={handleCNPJChange}
-                    maxLength={18}
-                  />
-                </FormControl>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input 
+                      placeholder="00.000.000/0000-00" 
+                      {...field} 
+                      onChange={handleCNPJChange}
+                      maxLength={18}
+                    />
+                  </FormControl>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleBuscarCNPJ}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    {isLoading ? "Buscando..." : "Buscar CNPJ"}
+                  </Button>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
