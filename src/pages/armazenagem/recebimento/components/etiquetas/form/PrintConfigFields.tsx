@@ -42,6 +42,7 @@ const PrintConfigFields: React.FC<PrintConfigFieldsProps> = ({ form }) => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="standard">Padrão (Sedex)</SelectItem>
+            <SelectItem value="enhanced">Alta Legibilidade (Texto Grande)</SelectItem>
             <SelectItem value="compact">Compacto (Braspress)</SelectItem>
             <SelectItem value="modern">Moderno (Jadlog/UPS)</SelectItem>
           </SelectContent>
