@@ -1,4 +1,5 @@
 
+
 // Tipos relacionados a documentos fiscais
 import { Empresa } from './empresa.types';
 import { Coleta } from './coleta.types';
@@ -56,3 +57,4 @@ export interface ItemNotaFiscal {
   // Relacionamentos
   nota_fiscal?: NotaFiscal;
 }
+
