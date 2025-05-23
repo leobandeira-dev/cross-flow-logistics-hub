@@ -13,18 +13,17 @@ export const useNotaFiscalForm = () => {
     try {
       console.log('Cadastrando nota fiscal:', data);
       
-      // Prepare data for insertion
+      // Prepare data for insertion using correct property names
       const notaFiscalData = {
-        numero: data.numero,
-        serie: data.serie,
-        chave_acesso: data.chaveAcesso,
-        valor: parseFloat(data.valorTotal) || 0,
-        peso_bruto: parseFloat(data.pesoBruto) || 0,
-        quantidade_volumes: parseInt(data.quantidadeVolumes) || 0,
-        data_emissao: data.dataEmissao,
+        numero: data.numeroNF,
+        serie: data.serieNF,
+        chave_acesso: data.chaveNF,
+        valor_total: parseFloat(data.valorTotal) || 0,
+        peso_bruto: parseFloat(data.pesoTotalBruto) || 0,
+        quantidade_volumes: parseInt(data.volumesTotal) || 0,
+        data_emissao: data.dataHoraEmissao,
         status: 'entrada',
-        tipo: 'entrada',
-        observacoes: data.observacoes
+        observacoes: data.informacoesComplementares
       };
 
       const notaFiscal = await criarNotaFiscal(notaFiscalData);
@@ -51,7 +50,7 @@ export const useNotaFiscalForm = () => {
   };
 
   const handleKeySearch = async (getValues: any, setValue: any) => {
-    const chaveAcesso = getValues('chaveAcesso');
+    const chaveAcesso = getValues('chaveNF');
     if (!chaveAcesso) {
       toast({
         title: "Erro",
@@ -68,14 +67,14 @@ export const useNotaFiscalForm = () => {
       const notaFiscal = await buscarNotaFiscalPorChave(chaveAcesso);
       
       if (notaFiscal) {
-        // Populate form with found data
-        setValue('numero', notaFiscal.numero || '');
-        setValue('serie', notaFiscal.serie || '');
-        setValue('valorTotal', notaFiscal.valor?.toString() || '');
-        setValue('pesoBruto', notaFiscal.peso_bruto?.toString() || '');
-        setValue('quantidadeVolumes', notaFiscal.quantidade_volumes?.toString() || '');
-        setValue('dataEmissao', notaFiscal.data_emissao || '');
-        setValue('observacoes', notaFiscal.observacoes || '');
+        // Populate form with found data using correct property names
+        setValue('numeroNF', notaFiscal.numero || '');
+        setValue('serieNF', notaFiscal.serie || '');
+        setValue('valorTotal', notaFiscal.valor_total?.toString() || '');
+        setValue('pesoTotalBruto', notaFiscal.peso_bruto?.toString() || '');
+        setValue('volumesTotal', notaFiscal.quantidade_volumes?.toString() || '');
+        setValue('dataHoraEmissao', notaFiscal.data_emissao || '');
+        setValue('informacoesComplementares', notaFiscal.observacoes || '');
 
         toast({
           title: "Sucesso",
