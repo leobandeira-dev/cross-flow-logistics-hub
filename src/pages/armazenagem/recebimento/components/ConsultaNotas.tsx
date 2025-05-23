@@ -1,243 +1,163 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, FileText, Printer, Eye, Trash2 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
-import { buscarNotasFiscais } from '@/services/notaFiscal/fetchNotaFiscalService';
-import { excluirNotaFiscal } from '@/services/notaFiscal/deleteNotaFiscalService';
-import { NotaFiscal } from '@/types/supabase.types';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Search, Eye, FileText, Download, Filter } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import StatusBadge from './StatusBadge';
+import { notasFiscaisMock } from './notasFiscaisData';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-interface ConsultaNotasProps {
-  onPrintClick: (notaId: string) => void;
-}
+const ConsultaNotas: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('todos');
+  const [tipoFilter, setTipoFilter] = useState<string>('todos');
 
-const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
-  const [notas, setNotas] = useState<NotaFiscal[]>([]);
-  const [filtros, setFiltros] = useState({
-    termo: '',
-    status: '',
-    dataInicio: '',
-    dataFim: ''
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const filteredNotas = useMemo(() => {
+    return notasFiscaisMock.filter(nota => {
+      const matchesSearch = nota.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           nota.chave_acesso?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           nota.remetente?.razao_social?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           nota.destinatario?.razao_social?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'todos' || nota.status === statusFilter;
+      const matchesTipo = tipoFilter === 'todos' || nota.tipo === tipoFilter;
+      
+      return matchesSearch && matchesStatus && matchesTipo;
+    });
+  }, [searchTerm, statusFilter, tipoFilter, notasFiscaisMock]);
 
-  // Load notas fiscais on component mount
-  useEffect(() => {
-    carregarNotas();
-  }, []);
+  const formatCurrency = (valor: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valor);
+  };
 
-  const carregarNotas = async () => {
-    setIsLoading(true);
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '-';
     try {
-      const notasCarregadas = await buscarNotasFiscais(filtros);
-      setNotas(notasCarregadas);
-      console.log('Notas fiscais carregadas:', notasCarregadas);
-    } catch (error: any) {
-      console.error('Erro ao carregar notas:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar notas fiscais",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      return format(new Date(dateString), 'dd/MM/yyyy', { locale: ptBR });
+    } catch {
+      return dateString;
     }
-  };
-
-  const handleFiltrar = () => {
-    carregarNotas();
-  };
-
-  const handleExcluir = async (notaId: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta nota fiscal?')) {
-      return;
-    }
-
-    try {
-      await excluirNotaFiscal(notaId);
-      toast({
-        title: "Sucesso",
-        description: "Nota fiscal excluída com sucesso",
-      });
-      carregarNotas(); // Reload list
-    } catch (error: any) {
-      console.error('Erro ao excluir nota:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao excluir nota fiscal",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      entrada: { variant: 'default' as const, label: 'Entrada' },
-      processando: { variant: 'secondary' as const, label: 'Processando' },
-      concluida: { variant: 'default' as const, label: 'Concluída' },
-      pendente: { variant: 'destructive' as const, label: 'Pendente' }
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || { variant: 'default' as const, label: status };
-    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center">
-          <Search className="mr-2 text-cross-blue" size={20} />
-          Consultar Notas Fiscais
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+        <div className="relative flex-1">
           <Input
-            placeholder="Buscar por número, chave ou fornecedor..."
-            value={filtros.termo}
-            onChange={(e) => setFiltros({ ...filtros, termo: e.target.value })}
+            type="text"
+            placeholder="Buscar nota fiscal..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pr-10"
           />
-          
-          <Select value={filtros.status} onValueChange={(value) => setFiltros({ ...filtros, status: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Todos</SelectItem>
-              <SelectItem value="entrada">Entrada</SelectItem>
-              <SelectItem value="processando">Processando</SelectItem>
-              <SelectItem value="concluida">Concluída</SelectItem>
-              <SelectItem value="pendente">Pendente</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Input
-            type="date"
-            placeholder="Data inicial"
-            value={filtros.dataInicio}
-            onChange={(e) => setFiltros({ ...filtros, dataInicio: e.target.value })}
-          />
-          
-          <Input
-            type="date"
-            placeholder="Data final"
-            value={filtros.dataFim}
-            onChange={(e) => setFiltros({ ...filtros, dataFim: e.target.value })}
-          />
-        </div>
-        
-        <div className="flex justify-between items-center mb-4">
-          <Button onClick={handleFiltrar} disabled={isLoading}>
-            <Search className="mr-2 h-4 w-4" />
-            {isLoading ? 'Carregando...' : 'Filtrar'}
-          </Button>
-          
-          <div className="text-sm text-gray-600">
-            {notas.length} nota(s) encontrada(s)
-          </div>
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
         </div>
 
-        {/* Lista de Notas */}
-        <div className="space-y-4">
-          {notas.map((nota) => (
-            <Card key={nota.id} className="border-l-4 border-l-cross-blue">
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <div className="flex items-center mb-2">
-                      <FileText className="mr-2 h-4 w-4 text-cross-blue" />
-                      <span className="font-semibold">NF: {nota.numero}</span>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Série: {nota.serie || 'N/A'}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Chave: {nota.chave_acesso ? `${nota.chave_acesso.substring(0, 20)}...` : 'N/A'}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-gray-600">Valor Total</div>
-                    <div className="font-semibold">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(nota.valor || 0)}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Peso: {nota.peso_bruto || 0} kg
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Volumes: {nota.quantidade_volumes || 0}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-gray-600">Data Emissão</div>
-                    <div className="font-semibold">
-                      {nota.data_emissao ? new Date(nota.data_emissao).toLocaleDateString('pt-BR') : 'N/A'}
-                    </div>
-                    <div className="mt-1">
-                      {getStatusBadge(nota.status)}
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onPrintClick(nota.id)}
-                      className="flex items-center"
-                    >
-                      <Printer className="mr-1 h-3 w-3" />
-                      Imprimir
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        // Navigate to etiquetas with this nota fiscal data
-                        window.location.href = `/armazenagem/recebimento/etiquetas?nota=${nota.id}`;
-                      }}
-                      className="flex items-center"
-                    >
-                      <Eye className="mr-1 h-3 w-3" />
-                      Etiquetas
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleExcluir(nota.id)}
-                      className="flex items-center"
-                    >
-                      <Trash2 className="mr-1 h-3 w-3" />
-                      Excluir
-                    </Button>
-                  </div>
-                </div>
-                
-                {nota.observacoes && (
-                  <div className="mt-3 pt-3 border-t">
-                    <div className="text-sm text-gray-600">Observações:</div>
-                    <div className="text-sm">{nota.observacoes}</div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-          
-          {notas.length === 0 && !isLoading && (
-            <div className="text-center py-8 text-gray-500">
-              Nenhuma nota fiscal encontrada
-            </div>
-          )}
+        <div className="flex items-center space-x-2">
+          <Filter className="h-5 w-5 text-gray-500" />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrar por Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os Status</SelectItem>
+              <SelectItem value="pendente">Pendente</SelectItem>
+              <SelectItem value="em_transito">Em Trânsito</SelectItem>
+              <SelectItem value="entregue">Entregue</SelectItem>
+              <SelectItem value="cancelado">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={tipoFilter} onValueChange={setTipoFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrar por Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os Tipos</SelectItem>
+              <SelectItem value="entrada">Entrada</SelectItem>
+              <SelectItem value="saida">Saída</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <FileText className="mr-2 h-5 w-5" />
+            Notas Fiscais ({filteredNotas.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Número</TableHead>
+                  <TableHead>Série</TableHead>
+                  <TableHead>Data Emissão</TableHead>
+                  <TableHead>Remetente</TableHead>
+                  <TableHead>Destinatário</TableHead>
+                  <TableHead>Valor Total</TableHead>
+                  <TableHead>Peso (kg)</TableHead>
+                  <TableHead>Volumes</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredNotas.map((nota) => (
+                  <TableRow key={nota.id}>
+                    <TableCell className="font-medium">{nota.numero}</TableCell>
+                    <TableCell>{nota.serie || '-'}</TableCell>
+                    <TableCell>{formatDate(nota.data_emissao)}</TableCell>
+                    <TableCell>
+                      <div className="max-w-32 truncate" title={nota.remetente?.razao_social}>
+                        {nota.remetente?.razao_social || '-'}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="max-w-32 truncate" title={nota.destinatario?.razao_social}>
+                        {nota.destinatario?.razao_social || '-'}
+                      </div>
+                    </TableCell>
+                    <TableCell>{formatCurrency(nota.valor_total)}</TableCell>
+                    <TableCell>{nota.peso_bruto ? `${nota.peso_bruto} kg` : '-'}</TableCell>
+                    <TableCell>{nota.quantidade_volumes || '-'}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={nota.status} />
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {nota.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

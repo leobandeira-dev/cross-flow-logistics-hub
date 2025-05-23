@@ -29,10 +29,9 @@ export const useVolumeGeneration = () => {
               const newNota = await criarNotaFiscal({
                 numero: formValues.notaFiscal,
                 chave_acesso: formValues.notaFiscal,
-                valor: 0,
+                valor_total: 0, // Changed from 'valor' to 'valor_total'
                 data_emissao: new Date().toISOString().split('T')[0],
-                status: 'entrada',
-                tipo: 'entrada'
+                status: 'entrada'
               });
               notaFiscalId = newNota.id;
               console.log('Nova nota fiscal criada:', newNota);
