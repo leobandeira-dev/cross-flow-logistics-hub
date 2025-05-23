@@ -67,16 +67,24 @@ export interface Carregamento {
 
 export interface Ocorrencia {
   id: string;
+  titulo?: string;
   tipo: string;
   descricao: string;
   status: string;
   prioridade: string;
   data_ocorrencia: string;
+  data_abertura?: string;
   usuario_reportou_id: string;
+  usuario_abertura_id?: string;
   usuario_responsavel_id?: string;
   nota_fiscal_id?: string;
   coleta_id?: string;
   ordem_carregamento_id?: string;
+  carregamento_id?: string;
+  etiqueta_id?: string;
+  empresa_cliente_id?: string;
+  data_resolucao?: string;
+  solucao?: string;
   created_at?: string;
   updated_at?: string;
 }

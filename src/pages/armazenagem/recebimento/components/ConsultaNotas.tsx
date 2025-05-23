@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,11 @@ import { notasFiscaisMock } from './notasFiscaisData';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const ConsultaNotas: React.FC = () => {
+interface ConsultaNotasProps {
+  onPrintClick?: (notaId: string) => void;
+}
+
+const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('todos');
   const [tipoFilter, setTipoFilter] = useState<string>('todos');
@@ -145,7 +150,11 @@ const ConsultaNotas: React.FC = () => {
                         <Button size="sm" variant="outline">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => onPrintClick && onPrintClick(nota.id)}
+                        >
                           <Download className="h-4 w-4" />
                         </Button>
                       </div>
