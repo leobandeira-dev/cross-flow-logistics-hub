@@ -1,4 +1,3 @@
-
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../ProtectedRoute';
 
@@ -12,6 +11,7 @@ import AcessosAdmin from '@/pages/admin/acessos/AcessosAdmin';
 import SuporteAdmin from '@/pages/admin/suporte/SuporteAdmin';
 import LeadsAdmin from '@/pages/admin/leads/LeadsAdmin';
 import ResetSenhasAdmin from '@/pages/admin/acessos/ResetSenhasAdmin';
+import DocumentacaoSistema from '@/pages/admin/DocumentacaoSistema';
 
 const AdminRoutes = () => {
   return [
@@ -19,6 +19,13 @@ const AdminRoutes = () => {
     <Route key="admin-dashboard" path="/admin" element={
       <ProtectedRoute>
         <AdminDashboard />
+      </ProtectedRoute>
+    } />,
+    
+    // Documentação do Sistema
+    <Route key="documentacao-sistema" path="/admin/documentacao" element={
+      <ProtectedRoute>
+        <DocumentacaoSistema />
       </ProtectedRoute>
     } />,
     

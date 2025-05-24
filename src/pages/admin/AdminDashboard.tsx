@@ -3,10 +3,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Receipt, Package, Key, Headphones, Kanban, Lock } from 'lucide-react';
+import { Users, Receipt, Package, Key, Headphones, Kanban, Lock, FileText } from 'lucide-react';
 
 const AdminDashboard = () => {
   const adminModules = [
+    {
+      title: 'Documentação',
+      description: 'Documentação técnica completa do sistema',
+      icon: FileText,
+      path: '/admin/documentacao',
+    },
     {
       title: 'Clientes',
       description: 'Gerencie todos os clientes da plataforma',
