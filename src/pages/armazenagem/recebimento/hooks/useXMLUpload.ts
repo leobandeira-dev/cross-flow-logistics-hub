@@ -24,9 +24,6 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
         const content = await readFileAsText(file);
         setXmlContent(content);
         
-        console.log('Processando XML:', file.name);
-        console.log('Conteúdo XML (primeiros 500 chars):', content.substring(0, 500));
-        
         // Parse XML to extract nota fiscal data
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(content, "text/xml");
@@ -34,7 +31,6 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
         // Check for parsing errors
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
-          console.error('Erro de parsing XML:', parseError.textContent);
           throw new Error('Erro ao analisar XML: arquivo pode estar corrompido');
         }
 
@@ -51,64 +47,43 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
         const emitenteRazao = xmlDoc.querySelector('emit xNome')?.textContent || '';
         const destinatarioRazao = xmlDoc.querySelector('dest xNome')?.textContent || '';
 
-        console.log('Dados extraídos do XML:', {
-          numeroNF,
-          serieNF,
-          chaveNF,
-          valorTotal,
-          dataEmissao,
-          pesoTotal,
-          volumes,
-          emitenteRazao,
-          destinatarioRazao
-        });
-
         if (!numeroNF) {
           throw new Error('Número da nota fiscal não encontrado no XML');
-        }
-
-        // Validate and prepare data for database insertion
-        let validDataEmissao: string;
-        try {
-          validDataEmissao = dataEmissao ? new Date(dataEmissao).toISOString() : new Date().toISOString();
-        } catch (error) {
-          console.warn('Data de emissão inválida, usando data atual:', dataEmissao);
-          validDataEmissao = new Date().toISOString();
         }
 
         // Prepare data for database insertion
         const notaFiscalData = {
           numero: numeroNF,
           serie: serieNF,
-          chave_acesso: chaveNF || null,
-          valor_total: valorTotal || 0,
-          peso_bruto: pesoTotal || null,
-          quantidade_volumes: volumes || null,
-          data_emissao: validDataEmissao,
+          chave_acesso: chaveNF,
+          valor_total: valorTotal,
+          peso_bruto: pesoTotal,
+          quantidade_volumes: volumes,
+          data_emissao: dataEmissao ? new Date(dataEmissao).toISOString() : new Date().toISOString(),
           status: 'entrada',
           tipo: 'entrada',
-          observacoes: `Importado do arquivo XML: ${file.name}. Remetente: ${emitenteRazao}. Destinatário: ${destinatarioRazao}.`
+          observacoes: `Importado do arquivo: ${file.name}`
         };
         
-        console.log("Criando nota fiscal do XML no banco de dados:", notaFiscalData);
+        console.log("Criando nota fiscal do XML:", notaFiscalData);
         
-        // Save to database using the service
+        // Save to database
         const novaNota = await criarNotaFiscal(notaFiscalData);
         
-        // Invalidate queries to refresh the data in all components
+        // Invalidate queries to refresh the data
         queryClient.invalidateQueries({ queryKey: ['notas-fiscais'] });
         
-        console.log("✅ Nota fiscal criada do XML com sucesso:", novaNota);
+        console.log("Nota fiscal criada do XML:", novaNota);
         
         toast({
-          title: "Nota fiscal importada e salva",
-          description: `A nota fiscal ${numeroNF} foi importada do XML e salva no banco de dados com ID: ${novaNota.id}`,
+          title: "Nota fiscal importada com sucesso",
+          description: `A nota fiscal ${numeroNF} foi importada e salva no banco de dados.`,
         });
         
       } catch (error) {
-        console.error('❌ Error processing XML file:', error);
+        console.error('Error processing XML file:', error);
         toast({
-          title: "Erro ao processar XML",
+          title: "Erro",
           description: error instanceof Error ? error.message : "Não foi possível processar o arquivo XML.",
           variant: "destructive"
         });
@@ -116,7 +91,6 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
         setPreviewLoading(false);
       }
     } else if (file) {
-      console.error('Arquivo inválido:', file.type);
       toast({
         title: "Formato inválido",
         description: "Por favor, selecione apenas arquivos XML.",

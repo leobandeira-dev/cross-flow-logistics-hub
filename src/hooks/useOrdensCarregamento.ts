@@ -1,20 +1,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { OrdemCarregamento } from '@/types/supabase.types';
 import { toast } from '@/hooks/use-toast';
-import {
-  buscarOrdensCarregamento,
-  criarOrdemCarregamento,
-  atualizarOrdemCarregamento,
-  excluirOrdemCarregamento
-} from '@/services/carregamento/ordemCarregamentoService';
 
-export const useOrdensCarregamento = (filtros?: {
-  status?: string;
-  tipo?: string;
-  dataInicio?: string;
-  dataFim?: string;
-}) => {
+export const useOrdensCarregamento = () => {
   const queryClient = useQueryClient();
 
   // Fetch all ordens de carregamento
@@ -24,15 +14,43 @@ export const useOrdensCarregamento = (filtros?: {
     error,
     refetch 
   } = useQuery({
-    queryKey: ['ordens-carregamento', filtros],
-    queryFn: () => buscarOrdensCarregamento(filtros),
-    retry: 3,
-    retryDelay: 1000
+    queryKey: ['ordens-carregamento'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('ordens_carregamento')
+        .select(`
+          *,
+          empresa_cliente:empresas!empresa_cliente_id(*),
+          motorista:motoristas(*),
+          veiculo:veiculos(*)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Erro ao buscar ordens de carregamento:', error);
+        throw new Error(error.message);
+      }
+
+      return data as OrdemCarregamento[];
+    }
   });
 
   // Create ordem de carregamento mutation
   const createOrdemMutation = useMutation({
-    mutationFn: criarOrdemCarregamento,
+    mutationFn: async (data: Partial<OrdemCarregamento>) => {
+      const { data: newOrdem, error } = await supabase
+        .from('ordens_carregamento')
+        .insert({
+          ...data,
+          numero_ordem: data.numero_ordem || `OC-${Date.now()}`,
+          status: data.status || 'pendente'
+        })
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return newOrdem;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ordens-carregamento'] });
       toast({
@@ -41,7 +59,6 @@ export const useOrdensCarregamento = (filtros?: {
       });
     },
     onError: (error: any) => {
-      console.error('Erro ao criar ordem de carregamento:', error);
       toast({
         title: "Erro",
         description: error.message || "Erro ao criar ordem de carregamento",
@@ -52,8 +69,17 @@ export const useOrdensCarregamento = (filtros?: {
 
   // Update ordem de carregamento mutation
   const updateOrdemMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<OrdemCarregamento> }) => 
-      atualizarOrdemCarregamento(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: Partial<OrdemCarregamento> }) => {
+      const { data: updatedOrdem, error } = await supabase
+        .from('ordens_carregamento')
+        .update(data)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return updatedOrdem;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ordens-carregamento'] });
       toast({
@@ -62,30 +88,9 @@ export const useOrdensCarregamento = (filtros?: {
       });
     },
     onError: (error: any) => {
-      console.error('Erro ao atualizar ordem de carregamento:', error);
       toast({
         title: "Erro",
         description: error.message || "Erro ao atualizar ordem de carregamento",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Delete ordem de carregamento mutation
-  const deleteOrdemMutation = useMutation({
-    mutationFn: excluirOrdemCarregamento,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ordens-carregamento'] });
-      toast({
-        title: "Sucesso",
-        description: "Ordem de carregamento excluída com sucesso!",
-      });
-    },
-    onError: (error: any) => {
-      console.error('Erro ao excluir ordem de carregamento:', error);
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao excluir ordem de carregamento",
         variant: "destructive",
       });
     }
@@ -98,9 +103,7 @@ export const useOrdensCarregamento = (filtros?: {
     refetch,
     createOrdem: createOrdemMutation.mutate,
     updateOrdem: updateOrdemMutation.mutate,
-    deleteOrdem: deleteOrdemMutation.mutate,
     isCreating: createOrdemMutation.isPending,
-    isUpdating: updateOrdemMutation.isPending,
-    isDeleting: deleteOrdemMutation.isPending
+    isUpdating: updateOrdemMutation.isPending
   };
 };
