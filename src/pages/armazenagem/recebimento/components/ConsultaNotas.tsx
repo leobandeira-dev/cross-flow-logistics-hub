@@ -33,7 +33,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       
       return matchesSearch && matchesStatus && matchesTipo;
     });
-  }, [searchTerm, statusFilter, tipoFilter, notasFiscaisMock]);
+  }, [searchTerm, statusFilter, tipoFilter]);
 
   const formatCurrency = (valor: number) => {
     return new Intl.NumberFormat('pt-BR', {
