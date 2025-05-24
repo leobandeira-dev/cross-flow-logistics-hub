@@ -1,8 +1,7 @@
-
 import { NotaFiscal } from '@/types/supabase/fiscal.types';
 
 // Export the interface for other components to use
-export { NotaFiscal };
+export type { NotaFiscal };
 
 // Mock data for demonstration using the correct NotaFiscal interface
 export const notasFiscaisMock: NotaFiscal[] = [
