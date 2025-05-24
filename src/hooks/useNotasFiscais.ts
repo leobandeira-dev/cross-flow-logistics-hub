@@ -1,11 +1,22 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { NotaFiscal } from '@/types/supabase/fiscal.types';
 import { toast } from '@/hooks/use-toast';
+import { 
+  buscarNotasFiscais, 
+  buscarNotaFiscalPorId,
+  criarNotaFiscal,
+  atualizarNotaFiscal,
+  excluirNotaFiscal
+} from '@/services/notaFiscal';
 
-export const useNotasFiscais = () => {
+export const useNotasFiscais = (filtros?: {
+  status?: string;
+  tipo?: string;
+  dataInicio?: string;
+  dataFim?: string;
+}) => {
   const queryClient = useQueryClient();
 
   // Fetch all notas fiscais
@@ -15,39 +26,15 @@ export const useNotasFiscais = () => {
     error,
     refetch 
   } = useQuery({
-    queryKey: ['notas-fiscais'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('notas_fiscais')
-        .select(`
-          *,
-          remetente:empresas!remetente_id(*),
-          destinatario:empresas!destinatario_id(*),
-          transportadora:empresas!transportadora_id(*)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Erro ao buscar notas fiscais:', error);
-        throw new Error(error.message);
-      }
-
-      return data as NotaFiscal[];
-    }
+    queryKey: ['notas-fiscais', filtros],
+    queryFn: () => buscarNotasFiscais(filtros),
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Create nota fiscal mutation
   const createNotaFiscalMutation = useMutation({
-    mutationFn: async (data: Partial<NotaFiscal>) => {
-      const { data: newNota, error } = await supabase
-        .from('notas_fiscais')
-        .insert(data)
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-      return newNota;
-    },
+    mutationFn: criarNotaFiscal,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notas-fiscais'] });
       toast({
@@ -56,6 +43,7 @@ export const useNotasFiscais = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Erro ao criar nota fiscal:', error);
       toast({
         title: "Erro",
         description: error.message || "Erro ao criar nota fiscal",
@@ -66,17 +54,8 @@ export const useNotasFiscais = () => {
 
   // Update nota fiscal mutation
   const updateNotaFiscalMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<NotaFiscal> }) => {
-      const { data: updatedNota, error } = await supabase
-        .from('notas_fiscais')
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-      return updatedNota;
-    },
+    mutationFn: ({ id, data }: { id: string; data: Partial<NotaFiscal> }) => 
+      atualizarNotaFiscal(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notas-fiscais'] });
       toast({
@@ -85,6 +64,7 @@ export const useNotasFiscais = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Erro ao atualizar nota fiscal:', error);
       toast({
         title: "Erro",
         description: error.message || "Erro ao atualizar nota fiscal",
@@ -95,14 +75,7 @@ export const useNotasFiscais = () => {
 
   // Delete nota fiscal mutation
   const deleteNotaFiscalMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('notas_fiscais')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw new Error(error.message);
-    },
+    mutationFn: excluirNotaFiscal,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notas-fiscais'] });
       toast({
@@ -111,6 +84,7 @@ export const useNotasFiscais = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Erro ao excluir nota fiscal:', error);
       toast({
         title: "Erro",
         description: error.message || "Erro ao excluir nota fiscal",

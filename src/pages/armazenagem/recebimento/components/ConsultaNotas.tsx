@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Printer, FileText, Loader2 } from 'lucide-react';
+import { Search, Printer, FileText, Loader2, RefreshCw } from 'lucide-react';
 import { useNotasFiscais } from '@/hooks/useNotasFiscais';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -20,7 +20,13 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const [statusFilter, setStatusFilter] = useState('todos');
   const [tipoFilter, setTipoFilter] = useState('todos');
 
-  const { notasFiscais, isLoading, error, refetch } = useNotasFiscais();
+  // Use the filter values in the hook
+  const filtrosQuery = {
+    ...(statusFilter !== 'todos' && { status: statusFilter }),
+    ...(tipoFilter !== 'todos' && { tipo: tipoFilter })
+  };
+
+  const { notasFiscais, isLoading, error, refetch } = useNotasFiscais(filtrosQuery);
 
   // Filter notas fiscais based on search criteria
   const filteredNotas = notasFiscais.filter(nota => {
@@ -30,10 +36,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       nota.remetente?.razao_social?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       nota.destinatario?.razao_social?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'todos' || nota.status === statusFilter;
-    const matchesTipo = tipoFilter === 'todos' || nota.tipo === tipoFilter;
-
-    return matchesSearch && matchesStatus && matchesTipo;
+    return matchesSearch;
   });
 
   const getStatusBadge = (status: string) => {
@@ -65,13 +68,19 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
     }
   };
 
+  const handleRefresh = () => {
+    console.log('Atualizando lista de notas fiscais...');
+    refetch();
+  };
+
   if (error) {
     return (
       <Card>
         <CardContent className="pt-6">
           <div className="text-center text-red-600">
             <p>Erro ao carregar notas fiscais: {error.message}</p>
-            <Button onClick={() => refetch()} className="mt-2">
+            <Button onClick={handleRefresh} className="mt-2">
+              <RefreshCw className="h-4 w-4 mr-2" />
               Tentar novamente
             </Button>
           </div>
@@ -128,8 +137,8 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
             </SelectContent>
           </Select>
 
-          <Button onClick={() => refetch()} disabled={isLoading}>
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+          <Button onClick={handleRefresh} disabled={isLoading}>
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             Atualizar
           </Button>
         </div>

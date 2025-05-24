@@ -1,81 +1,82 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase.types";
+import { NotaFiscal } from "@/types/supabase/fiscal.types";
 
 /**
- * Fetches a nota fiscal by its access key
+ * Busca uma nota fiscal pela chave de acesso
  */
-export const buscarNotaFiscalPorChave = async (chave: string): Promise<NotaFiscal | null> => {
+export const buscarNotaFiscalPorChave = async (chaveAcesso: string): Promise<NotaFiscal | null> => {
   try {
+    console.log('Buscando nota fiscal por chave:', chaveAcesso);
+    
     const { data, error } = await supabase
       .from('notas_fiscais')
       .select(`
         *,
-        itens:itens_nota_fiscal(*)
+        remetente:empresas!remetente_id(*),
+        destinatario:empresas!destinatario_id(*),
+        transportadora:empresas!transportadora_id(*)
       `)
-      .eq('chave_acesso', chave)
-      .single();
-    
+      .eq('chave_acesso', chaveAcesso)
+      .maybeSingle();
+
     if (error) {
-      if (error.code === 'PGRST116') {
-        // Não encontrou nenhuma nota fiscal
-        return null;
-      }
+      console.error('Erro do Supabase ao buscar nota fiscal:', error);
       throw new Error(`Erro ao buscar nota fiscal: ${error.message}`);
     }
-    
-    return data as unknown as NotaFiscal;
+
+    console.log('Nota fiscal encontrada:', data);
+    return data;
   } catch (error: any) {
-    console.error('Erro ao buscar nota fiscal:', error);
+    console.error('Erro ao buscar nota fiscal por chave:', error);
     throw error;
   }
 };
 
 /**
- * Fetches notas fiscais with optional filters
+ * Busca todas as notas fiscais com filtros opcionais
  */
 export const buscarNotasFiscais = async (filtros?: {
   status?: string;
-  fornecedor?: string;
+  tipo?: string;
   dataInicio?: string;
   dataFim?: string;
-  termo?: string;
 }): Promise<NotaFiscal[]> => {
   try {
     let query = supabase
       .from('notas_fiscais')
       .select(`
         *,
-        itens:itens_nota_fiscal(*)
-      `);
-    
+        remetente:empresas!remetente_id(*),
+        destinatario:empresas!destinatario_id(*),
+        transportadora:empresas!transportadora_id(*)
+      `)
+      .order('created_at', { ascending: false });
+
     if (filtros?.status) {
       query = query.eq('status', filtros.status);
     }
-    
-    if (filtros?.fornecedor) {
-      query = query.ilike('fornecedor', `%${filtros.fornecedor}%`);
+
+    if (filtros?.tipo) {
+      query = query.eq('tipo', filtros.tipo);
     }
-    
+
     if (filtros?.dataInicio) {
-      query = query.gte('data_entrada', filtros.dataInicio);
+      query = query.gte('data_emissao', filtros.dataInicio);
     }
-    
+
     if (filtros?.dataFim) {
-      query = query.lte('data_entrada', filtros.dataFim);
+      query = query.lte('data_emissao', filtros.dataFim);
     }
-    
-    if (filtros?.termo) {
-      query = query.or(`numero.ilike.%${filtros.termo}%,chave_acesso.ilike.%${filtros.termo}%,fornecedor.ilike.%${filtros.termo}%`);
-    }
-    
+
     const { data, error } = await query;
-    
+
     if (error) {
+      console.error('Erro ao buscar notas fiscais:', error);
       throw new Error(`Erro ao buscar notas fiscais: ${error.message}`);
     }
-    
-    return data as unknown as NotaFiscal[];
+
+    return data || [];
   } catch (error: any) {
     console.error('Erro ao buscar notas fiscais:', error);
     throw error;
@@ -83,22 +84,29 @@ export const buscarNotasFiscais = async (filtros?: {
 };
 
 /**
- * Fetches items for a specific nota fiscal
+ * Busca uma nota fiscal por ID
  */
-export const buscarItensNotaFiscal = async (notaFiscalId: string): Promise<ItemNotaFiscal[]> => {
+export const buscarNotaFiscalPorId = async (id: string): Promise<NotaFiscal | null> => {
   try {
     const { data, error } = await supabase
-      .from('itens_nota_fiscal')
-      .select('*')
-      .eq('nota_fiscal_id', notaFiscalId);
-    
+      .from('notas_fiscais')
+      .select(`
+        *,
+        remetente:empresas!remetente_id(*),
+        destinatario:empresas!destinatario_id(*),
+        transportadora:empresas!transportadora_id(*)
+      `)
+      .eq('id', id)
+      .maybeSingle();
+
     if (error) {
-      throw new Error(`Erro ao buscar itens da nota fiscal: ${error.message}`);
+      console.error('Erro ao buscar nota fiscal por ID:', error);
+      throw new Error(`Erro ao buscar nota fiscal: ${error.message}`);
     }
-    
-    return data as ItemNotaFiscal[];
+
+    return data;
   } catch (error: any) {
-    console.error('Erro ao buscar itens da nota fiscal:', error);
+    console.error('Erro ao buscar nota fiscal por ID:', error);
     throw error;
   }
 };

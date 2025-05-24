@@ -1,11 +1,19 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Empresa } from '@/types/supabase/empresa.types';
 import { toast } from '@/hooks/use-toast';
+import {
+  buscarEmpresas,
+  criarEmpresa,
+  atualizarEmpresa,
+  excluirEmpresa
+} from '@/services/empresa/empresaService';
 
-export const useEmpresas = () => {
+export const useEmpresas = (filtros?: {
+  tipo?: string;
+  status?: string;
+}) => {
   const queryClient = useQueryClient();
 
   // Fetch all empresas
@@ -15,34 +23,15 @@ export const useEmpresas = () => {
     error,
     refetch 
   } = useQuery({
-    queryKey: ['empresas'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('empresas')
-        .select('*')
-        .order('razao_social', { ascending: true });
-
-      if (error) {
-        console.error('Erro ao buscar empresas:', error);
-        throw new Error(error.message);
-      }
-
-      return data as Empresa[];
-    }
+    queryKey: ['empresas', filtros],
+    queryFn: () => buscarEmpresas(filtros),
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Create empresa mutation
   const createEmpresaMutation = useMutation({
-    mutationFn: async (data: Partial<Empresa>) => {
-      const { data: newEmpresa, error } = await supabase
-        .from('empresas')
-        .insert(data)
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-      return newEmpresa;
-    },
+    mutationFn: criarEmpresa,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['empresas'] });
       toast({
@@ -51,6 +40,7 @@ export const useEmpresas = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Erro ao criar empresa:', error);
       toast({
         title: "Erro",
         description: error.message || "Erro ao criar empresa",
@@ -61,17 +51,8 @@ export const useEmpresas = () => {
 
   // Update empresa mutation
   const updateEmpresaMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Empresa> }) => {
-      const { data: updatedEmpresa, error } = await supabase
-        .from('empresas')
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-      return updatedEmpresa;
-    },
+    mutationFn: ({ id, data }: { id: string; data: Partial<Empresa> }) => 
+      atualizarEmpresa(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['empresas'] });
       toast({
@@ -80,6 +61,7 @@ export const useEmpresas = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Erro ao atualizar empresa:', error);
       toast({
         title: "Erro",
         description: error.message || "Erro ao atualizar empresa",
@@ -90,14 +72,7 @@ export const useEmpresas = () => {
 
   // Delete empresa mutation
   const deleteEmpresaMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('empresas')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw new Error(error.message);
-    },
+    mutationFn: excluirEmpresa,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['empresas'] });
       toast({
@@ -106,6 +81,7 @@ export const useEmpresas = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Erro ao excluir empresa:', error);
       toast({
         title: "Erro",
         description: error.message || "Erro ao excluir empresa",
