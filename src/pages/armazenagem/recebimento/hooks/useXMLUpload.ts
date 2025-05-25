@@ -1,20 +1,19 @@
 
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { parseXmlFile } from '../utils/xmlParser';
-import { notasFiscais, NotaFiscal } from '../data/mockData';
-import { extractDataFromXml } from '../utils/notaFiscalExtractor';
+import { useQueryClient } from '@tanstack/react-query';
+import { criarNotaFiscal } from '@/services/notaFiscal/createNotaFiscalService';
 
 export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void) => {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [xmlContent, setXmlContent] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
+  const queryClient = useQueryClient();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     // Call the original onFileUpload function
     onFileUpload(e);
     
-    // Additional functionality for DANFE preview
     const file = e.target.files?.[0];
     if (file && file.type === 'text/xml') {
       try {
@@ -25,75 +24,104 @@ export const useXMLUpload = (onFileUpload: (e: React.ChangeEvent<HTMLInputElemen
         const content = await readFileAsText(file);
         setXmlContent(content);
         
-        // Parse XML to extract nota fiscal data
-        const xmlData = await parseXmlFile(file);
+        console.log('Processando XML:', file.name);
+        console.log('Conteúdo XML (primeiros 500 chars):', content.substring(0, 500));
         
-        // Add the imported note to the notasFiscais array
-        if (xmlData) {
-          try {
-            // Use the extractDataFromXml function to get all fields
-            const extractedData = extractDataFromXml(xmlData);
-
-            // Extract information from XML
-            const notaId = extractedData.numeroNF || `NF-${Math.floor(Math.random() * 100000)}`;
-            const numeroNota = extractedData.numeroNF || "";
-            const fornecedor = extractedData.emitenteRazaoSocial || "Fornecedor do XML";
-            const dataEmissao = extractedData.dataHoraEmissao 
-              ? new Date(extractedData.dataHoraEmissao).toLocaleDateString('pt-BR') 
-              : new Date().toLocaleDateString('pt-BR');
-            const valorTotal = extractedData.valorTotal || "0,00";
-            
-            // Create a new nota fiscal object with all the extracted data
-            const novaNota: NotaFiscal = {
-              id: notaId,
-              numero: numeroNota,
-              fornecedor: fornecedor,
-              destinatarioRazaoSocial: extractedData.destinatarioRazaoSocial || "",
-              destinatarioEndereco: extractedData.destinatarioEndereco || "",
-              destinatarioCidade: extractedData.destinatarioCidade || "",
-              destinatarioUF: extractedData.destinatarioUF || "",
-              destinatarioBairro: extractedData.destinatarioBairro || "",
-              destinatarioCEP: extractedData.destinatarioCEP || "",
-              emitenteRazaoSocial: extractedData.emitenteRazaoSocial || "",
-              data: dataEmissao,
-              dataHoraEmissao: extractedData.dataHoraEmissao || "",
-              valor: valorTotal,
-              pesoTotalBruto: extractedData.pesoTotalBruto || "",
-              pesoTotal: extractedData.pesoTotalBruto || "",
-              chaveNF: extractedData.chaveNF || "",
-              status: 'pending', 
-              xmlContent: content // Store XML content for DANFE generation
-            };
-            
-            // Add to the existing array of notas fiscais
-            notasFiscais.unshift(novaNota);
-            
-            console.log("Nota fiscal criada do XML com dados completos:", novaNota);
-            
-            toast({
-              title: "Nota fiscal importada com sucesso",
-              description: `A nota fiscal ${numeroNota} foi importada e adicionada à lista.`,
-            });
-          } catch (error) {
-            console.error("Erro ao extrair dados do XML:", error);
-          }
+        // Parse XML to extract nota fiscal data
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(content, "text/xml");
+        
+        // Check for parsing errors
+        const parseError = xmlDoc.querySelector('parsererror');
+        if (parseError) {
+          console.error('Erro de parsing XML:', parseError.textContent);
+          throw new Error('Erro ao analisar XML: arquivo pode estar corrompido');
         }
+
+        // Extract basic information from XML
+        const numeroNF = xmlDoc.querySelector('nNF')?.textContent || '';
+        const serieNF = xmlDoc.querySelector('serie')?.textContent || '1';
+        const chaveNF = xmlDoc.querySelector('chNFe')?.textContent || '';
+        const valorTotal = parseFloat(xmlDoc.querySelector('vNF')?.textContent || '0');
+        const dataEmissao = xmlDoc.querySelector('dhEmi')?.textContent || '';
+        const pesoTotal = parseFloat(xmlDoc.querySelector('pesoB')?.textContent || '0');
+        const volumes = parseInt(xmlDoc.querySelector('qVol')?.textContent || '1');
+
+        // Extract company information
+        const emitenteRazao = xmlDoc.querySelector('emit xNome')?.textContent || '';
+        const destinatarioRazao = xmlDoc.querySelector('dest xNome')?.textContent || '';
+
+        console.log('Dados extraídos do XML:', {
+          numeroNF,
+          serieNF,
+          chaveNF,
+          valorTotal,
+          dataEmissao,
+          pesoTotal,
+          volumes,
+          emitenteRazao,
+          destinatarioRazao
+        });
+
+        if (!numeroNF) {
+          throw new Error('Número da nota fiscal não encontrado no XML');
+        }
+
+        // Validate and prepare data for database insertion
+        let validDataEmissao: string;
+        try {
+          validDataEmissao = dataEmissao ? new Date(dataEmissao).toISOString() : new Date().toISOString();
+        } catch (error) {
+          console.warn('Data de emissão inválida, usando data atual:', dataEmissao);
+          validDataEmissao = new Date().toISOString();
+        }
+
+        // Prepare data for database insertion
+        const notaFiscalData = {
+          numero: numeroNF,
+          serie: serieNF,
+          chave_acesso: chaveNF || null,
+          valor_total: valorTotal || 0,
+          peso_bruto: pesoTotal || null,
+          quantidade_volumes: volumes || null,
+          data_emissao: validDataEmissao,
+          status: 'entrada',
+          tipo: 'entrada',
+          observacoes: `Importado do arquivo XML: ${file.name}. Remetente: ${emitenteRazao}. Destinatário: ${destinatarioRazao}.`
+        };
+        
+        console.log("Criando nota fiscal do XML no banco de dados:", notaFiscalData);
+        
+        // Save to database using the service
+        const novaNota = await criarNotaFiscal(notaFiscalData);
+        
+        // Invalidate queries to refresh the data in all components
+        queryClient.invalidateQueries({ queryKey: ['notas-fiscais'] });
+        
+        console.log("✅ Nota fiscal criada do XML com sucesso:", novaNota);
         
         toast({
-          title: "XML carregado",
-          description: `O arquivo ${file.name} foi carregado com sucesso.`,
+          title: "Nota fiscal importada e salva",
+          description: `A nota fiscal ${numeroNF} foi importada do XML e salva no banco de dados com ID: ${novaNota.id}`,
         });
         
       } catch (error) {
-        console.error('Error reading XML file:', error);
+        console.error('❌ Error processing XML file:', error);
         toast({
-          title: "Erro",
-          description: "Não foi possível ler o arquivo XML.",
+          title: "Erro ao processar XML",
+          description: error instanceof Error ? error.message : "Não foi possível processar o arquivo XML.",
           variant: "destructive"
         });
       } finally {
         setPreviewLoading(false);
       }
+    } else if (file) {
+      console.error('Arquivo inválido:', file.type);
+      toast({
+        title: "Formato inválido",
+        description: "Por favor, selecione apenas arquivos XML.",
+        variant: "destructive"
+      });
     }
   };
 

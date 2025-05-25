@@ -6,7 +6,7 @@ import { Search } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from './StatusBadge';
 import PriorityBadge from './PriorityBadge';
-import { NotaFiscal } from './notasFiscaisData';
+import { NotaFiscal } from '@/types/supabase/fiscal.types';
 
 interface ListViewProps {
   data: NotaFiscal[];
@@ -23,10 +23,26 @@ const ListView: React.FC<ListViewProps> = ({
     <DataTable
       columns={[
         { header: 'NF', accessor: 'numero' },
-        { header: 'Emitente', accessor: 'emitente' },
-        { header: 'Destinatário', accessor: 'destinatario' },
-        { header: 'Data Emissão', accessor: 'dataEmissao' },
-        { header: 'Valor', accessor: 'valorTotal' },
+        { 
+          header: 'Emitente', 
+          accessor: 'remetente',
+          cell: (row) => row.remetente?.razao_social || '-'
+        },
+        { 
+          header: 'Destinatário', 
+          accessor: 'destinatario',
+          cell: (row) => row.destinatario?.razao_social || '-'
+        },
+        { 
+          header: 'Data Emissão', 
+          accessor: 'data_emissao',
+          cell: (row) => row.data_emissao ? new Date(row.data_emissao).toLocaleDateString('pt-BR') : '-'
+        },
+        { 
+          header: 'Valor', 
+          accessor: 'valor_total',
+          cell: (row) => `R$ ${row.valor_total?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+        },
         { 
           header: 'Status', 
           accessor: 'status',
@@ -35,7 +51,7 @@ const ListView: React.FC<ListViewProps> = ({
         { 
           header: 'Prioridade', 
           accessor: 'prioridade',
-          cell: (row) => <PriorityBadge priority={row.prioridade} />
+          cell: (row) => <PriorityBadge priority="normal" />
         },
         {
           header: 'Ações',
@@ -68,7 +84,7 @@ const ListView: React.FC<ListViewProps> = ({
               </Select>
               <Select
                 onValueChange={(value) => onPriorityUpdate(row.id, value)}
-                defaultValue={row.prioridade}
+                defaultValue="normal"
               >
                 <SelectTrigger className="h-8 w-[130px]">
                   <SelectValue placeholder="Prioridade" />
