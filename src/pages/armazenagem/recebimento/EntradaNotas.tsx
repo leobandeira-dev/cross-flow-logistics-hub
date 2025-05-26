@@ -2,11 +2,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import DocumentPrintModal from '@/components/common/DocumentPrintModal';
 import CadastroNota from './components/CadastroNota';
 import ConsultaNotas from './components/ConsultaNotas';
 import NotaPrintTemplate from './components/NotaPrintTemplate';
 import DANFELayout from './components/print/DANFELayout';
+import ImportarViaXMLWithSave from './components/forms/ImportarViaXMLWithSave';
+import ImportarXMLEmLoteWithSave from './components/forms/ImportarXMLEmLoteWithSave';
 import { notasFiscais } from './data/mockData';
 
 const EntradaNotas: React.FC = () => {
