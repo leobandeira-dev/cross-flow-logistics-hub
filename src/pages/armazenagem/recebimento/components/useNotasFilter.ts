@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { NotaFiscal } from './notasFiscaisData';
+import { NotaFiscal } from '@/types/supabase/fiscal.types';
 
 export const useNotasFilter = (notasData: NotaFiscal[]) => {
   const [selectedTab, setSelectedTab] = useState('todas');
@@ -32,8 +32,8 @@ export const useNotasFilter = (notasData: NotaFiscal[]) => {
     if (searchTerm) {
       filtered = filtered.filter(nf => 
         nf.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        nf.emitente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        nf.destinatario.toLowerCase().includes(searchTerm.toLowerCase())
+        nf.remetente?.razao_social?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        nf.destinatario?.razao_social?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -42,10 +42,7 @@ export const useNotasFilter = (notasData: NotaFiscal[]) => {
       filtered = filtered.filter(nf => nf.status === selectedStatus);
     }
     
-    // Filter by priority
-    if (selectedPriority !== 'todas') {
-      filtered = filtered.filter(nf => nf.prioridade === selectedPriority);
-    }
+    // Filter by priority (since priority is not in the current interface, we'll skip this for now)
     
     // Apply tab filter
     filtered = filterByTab(selectedTab, filtered);

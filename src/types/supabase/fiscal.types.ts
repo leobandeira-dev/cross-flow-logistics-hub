@@ -16,6 +16,7 @@ export interface NotaFiscal {
   data_entrada?: string;
   data_saida?: string;
   status: string;
+  tipo?: string;
   remetente_id?: string;
   destinatario_id?: string;
   transportadora_id?: string;
@@ -27,7 +28,6 @@ export interface NotaFiscal {
   
   // Additional properties for createNotaFiscalService
   valor?: number;
-  tipo?: string;
   empresa_emitente_id?: string;
   empresa_destinatario_id?: string;
   filial_id?: string;

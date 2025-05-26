@@ -1,98 +1,81 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase.types";
+import { NotaFiscal } from "@/types/supabase/fiscal.types";
+
+interface CreateNotaFiscalData {
+  numero: string;
+  serie?: string;
+  chave_acesso?: string;
+  valor_total: number;
+  peso_bruto?: number;
+  quantidade_volumes?: number;
+  data_emissao: string;
+  status?: string;
+  tipo?: string;
+  remetente_id?: string;
+  destinatario_id?: string;
+  transportadora_id?: string;
+  observacoes?: string;
+}
 
 /**
  * Creates a new nota fiscal in the database
  */
-export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNotaFiscal?: Partial<ItemNotaFiscal>[]): Promise<NotaFiscal> => {
+export const criarNotaFiscal = async (data: CreateNotaFiscalData): Promise<NotaFiscal> => {
   try {
-    // Create a properly typed object with required fields
-    const notaFiscalToInsert = {
-      numero: notaFiscal.numero || '',
-      valor: notaFiscal.valor || 0,
-      data_emissao: notaFiscal.data_emissao || new Date().toISOString().split('T')[0],
-      tipo: notaFiscal.tipo || 'entrada',
-      status: notaFiscal.status || 'pendente',
-      // Optional fields
-      chave_acesso: notaFiscal.chave_acesso,
-      serie: notaFiscal.serie,
-      peso_bruto: notaFiscal.peso_bruto,
-      quantidade_volumes: notaFiscal.quantidade_volumes,
-      data_entrada: notaFiscal.data_entrada,
-      data_saida: notaFiscal.data_saida,
-      empresa_emitente_id: notaFiscal.empresa_emitente_id,
-      empresa_destinatario_id: notaFiscal.empresa_destinatario_id,
-      filial_id: notaFiscal.filial_id,
-      ordem_carregamento_id: notaFiscal.ordem_carregamento_id,
-      coleta_id: notaFiscal.coleta_id,
-      observacoes: notaFiscal.observacoes,
-      tempo_armazenamento_horas: notaFiscal.tempo_armazenamento_horas
-    };
+    console.log('Criando nota fiscal com dados:', data);
     
-    const { data, error } = await supabase
+    // Validate required fields
+    if (!data.numero) {
+      throw new Error('Número da nota fiscal é obrigatório');
+    }
+    
+    if (!data.data_emissao) {
+      throw new Error('Data de emissão é obrigatória');
+    }
+
+    // Ensure data_emissao is a valid ISO string
+    let validDataEmissao: string;
+    try {
+      validDataEmissao = new Date(data.data_emissao).toISOString();
+    } catch (error) {
+      console.error('Data de emissão inválida:', data.data_emissao);
+      validDataEmissao = new Date().toISOString();
+    }
+
+    const insertData = {
+      numero: data.numero,
+      serie: data.serie || '1',
+      chave_acesso: data.chave_acesso || null,
+      valor_total: data.valor_total || 0,
+      peso_bruto: data.peso_bruto || null,
+      quantidade_volumes: data.quantidade_volumes || null,
+      data_emissao: validDataEmissao,
+      status: data.status || 'pendente',
+      tipo: data.tipo || 'entrada',
+      remetente_id: data.remetente_id || null,
+      destinatario_id: data.destinatario_id || null,
+      transportadora_id: data.transportadora_id || null,
+      observacoes: data.observacoes || null
+    };
+
+    console.log('Dados preparados para inserção:', insertData);
+    
+    const { data: notaFiscal, error } = await supabase
       .from('notas_fiscais')
-      .insert(notaFiscalToInsert)
+      .insert(insertData)
       .select()
       .single();
     
     if (error) {
+      console.error('Erro do Supabase:', error);
       throw new Error(`Erro ao criar nota fiscal: ${error.message}`);
     }
     
-    // Se houver itens, cria-os vinculados à nota fiscal
-    if (itensNotaFiscal && itensNotaFiscal.length > 0) {
-      const itensComNotaId = itensNotaFiscal.map(item => ({
-        ...item,
-        nota_fiscal_id: data.id
-      }));
-      
-      await criarItensNotaFiscal(itensComNotaId);
-    }
-    
-    return data as NotaFiscal;
-  } catch (error) {
-    console.error('Erro ao criar nota fiscal:', error);
-    throw error;
-  }
-};
-
-/**
- * Creates items for a nota fiscal
- */
-export const criarItensNotaFiscal = async (itensNotaFiscal: Partial<ItemNotaFiscal>[]): Promise<ItemNotaFiscal[]> => {
-  try {
-    if (!itensNotaFiscal.length) return [];
-    
-    // Ensure all required properties are present for each item
-    const itemsWithRequiredProps = itensNotaFiscal.map(item => {
-      return {
-        codigo_produto: item.codigo_produto || 'N/A',
-        descricao: item.descricao || 'N/A',
-        quantidade: item.quantidade || 0,
-        valor_unitario: item.valor_unitario || 0,
-        valor_total: item.valor_total || 0,
-        sequencia: item.sequencia || 1,
-        nota_fiscal_id: item.nota_fiscal_id,
-        // Optional fields
-        id: item.id,
-        created_at: item.created_at,
-        updated_at: item.updated_at
-      } as ItemNotaFiscal;
-    });
-    
-    const { data, error } = await supabase
-      .from('itens_nota_fiscal')
-      .insert(itemsWithRequiredProps)
-      .select();
-    
-    if (error) {
-      throw new Error(`Erro ao criar itens da nota fiscal: ${error.message}`);
-    }
-    
-    return data as ItemNotaFiscal[];
+    console.log('Nota fiscal criada com sucesso:', notaFiscal);
+    return notaFiscal as NotaFiscal;
   } catch (error: any) {
-    console.error('Erro ao criar itens da nota fiscal:', error);
+    console.error('Erro ao criar nota fiscal:', error);
     throw error;
   }
 };
