@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import StatusBadge from './StatusBadge';
 import PriorityBadge from './PriorityBadge';
-import { NotaFiscal } from '@/types/supabase/fiscal.types';
+import { NotaFiscal } from './notasFiscaisData';
 
 interface KanbanColumnProps {
   title: string;
@@ -24,18 +24,12 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, status, notas }) => 
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div className="font-medium">{nota.numero}</div>
-                  <PriorityBadge priority="normal" />
+                  <PriorityBadge priority={nota.prioridade} />
                 </div>
-                <div className="text-sm text-muted-foreground mb-2">
-                  {nota.remetente?.razao_social || '-'} → {nota.destinatario?.razao_social || '-'}
-                </div>
-                <div className="text-sm mb-2">
-                  R$ {nota.valor_total?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
+                <div className="text-sm text-muted-foreground mb-2">{nota.emitente} → {nota.destinatario}</div>
+                <div className="text-sm mb-2">{nota.valorTotal}</div>
                 <div className="flex justify-between items-center">
-                  <div className="text-xs text-muted-foreground">
-                    {nota.data_emissao ? new Date(nota.data_emissao).toLocaleDateString('pt-BR') : '-'}
-                  </div>
+                  <div className="text-xs text-muted-foreground">{nota.dataEmissao}</div>
                   <StatusBadge status={nota.status} />
                 </div>
               </CardContent>

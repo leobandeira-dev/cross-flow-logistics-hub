@@ -5,7 +5,7 @@ import { useEtiquetaPDF } from './useEtiquetaPDF';
 
 export const useEtiquetaMaeGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const { generateEtiquetaPDF } = useEtiquetaPDF();
+  const { generateEtiquetaMasterPDF } = useEtiquetaPDF();
   
   // Função para gerar etiqueta mãe
   const generateEtiquetaMaePDF = async (
@@ -17,8 +17,8 @@ export const useEtiquetaMaeGeneration = () => {
   ): Promise<EtiquetaGenerationResult> => {
     setIsGenerating(true);
     try {
-      // Gerar o PDF para etiqueta mãe usando o método correto
-      await generateEtiquetaPDF(masterVolume, notaData, formatoImpressao, 'mae', layoutStyle);
+      // Gerar o PDF para etiqueta mãe
+      await generateEtiquetaMasterPDF(masterVolume, notaData, formatoImpressao, etiquetaMaeId, layoutStyle);
       
       return {
         status: 'success'

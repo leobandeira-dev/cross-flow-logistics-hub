@@ -1,210 +1,202 @@
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Search, Printer, FileText, Loader2, RefreshCw } from 'lucide-react';
-import { useNotasFiscais } from '@/hooks/useNotasFiscais';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { FileText, Printer, Tag } from 'lucide-react';
+import DataTable from '@/components/common/DataTable';
+import StatusBadge from '@/components/common/StatusBadge';
+import SearchFilter from '@/components/common/SearchFilter';
+import { notasFiscais } from '../data/mockData';
+
+// Define filter config directly inside this component instead of importing
+const notasFilterConfig = [
+  {
+    name: "Status",
+    options: [
+      { label: "Todos", value: "all" },
+      { label: "Processada", value: "completed" },
+      { label: "Aguardando", value: "pending" },
+      { label: "Rejeitada", value: "processing" }
+    ]
+  },
+  {
+    name: "Fornecedor",
+    options: [
+      { label: "Todos", value: "all" },
+      { label: "Fornecedor A", value: "Fornecedor A" },
+      { label: "Fornecedor B", value: "Fornecedor B" },
+      { label: "Fornecedor C", value: "Fornecedor C" }
+    ]
+  }
+];
 
 interface ConsultaNotasProps {
   onPrintClick: (notaId: string) => void;
 }
 
 const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('todos');
-  const [tipoFilter, setTipoFilter] = useState('todos');
+  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
 
-  // Use the filter values in the hook
-  const filtrosQuery = {
-    ...(statusFilter !== 'todos' && { status: statusFilter }),
-    ...(tipoFilter !== 'todos' && { tipo: tipoFilter })
-  };
-
-  const { notasFiscais, isLoading, error, refetch } = useNotasFiscais(filtrosQuery);
-
-  // Filter notas fiscais based on search criteria
+  // Filter the notes based on search term and filters
   const filteredNotas = notasFiscais.filter(nota => {
-    const matchesSearch = searchTerm === '' || 
-      nota.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      nota.chave_acesso?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      nota.remetente?.razao_social?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      nota.destinatario?.razao_social?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return matchesSearch;
+    // Apply search term filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = 
+        nota.id.toLowerCase().includes(searchLower) ||
+        nota.fornecedor.toLowerCase().includes(searchLower) ||
+        nota.destinatarioRazaoSocial?.toLowerCase().includes(searchLower);
+      
+      if (!matchesSearch) return false;
+    }
+    
+    // Apply status filter
+    if (activeFilters.Status && activeFilters.Status.length > 0) {
+      if (!activeFilters.Status.includes(nota.status)) {
+        return false;
+      }
+    }
+    
+    // Apply fornecedor filter
+    if (activeFilters.Fornecedor && activeFilters.Fornecedor.length > 0) {
+      if (!activeFilters.Fornecedor.includes(nota.fornecedor)) {
+        return false;
+      }
+    }
+    
+    return true;
   });
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      'pendente': { variant: 'secondary' as const, label: 'Pendente' },
-      'entrada': { variant: 'default' as const, label: 'Entrada' },
-      'no_armazem': { variant: 'outline' as const, label: 'No Armazém' },
-      'em_carregamento': { variant: 'default' as const, label: 'Em Carregamento' },
-      'expedido': { variant: 'outline' as const, label: 'Expedido' },
-      'entregue': { variant: 'outline' as const, label: 'Entregue' }
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || { variant: 'secondary' as const, label: status };
-    return <Badge variant={config.variant}>{config.label}</Badge>;
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
-
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: ptBR });
-    } catch {
-      return 'Data inválida';
+  const handleSearch = (value: string, filters?: Record<string, string[]>) => {
+    setSearchTerm(value);
+    if (filters) {
+      setActiveFilters(filters);
     }
   };
 
-  const handleRefresh = () => {
-    console.log('Atualizando lista de notas fiscais...');
-    refetch();
+  const handleGerarEtiquetasClick = (nota: any) => {
+    console.log("Nota sendo passada para geração de etiquetas:", nota);
+    
+    // Calculate or extract volumesTotal based on available information
+    let volumesTotal = '';
+    
+    // Check for volumesTotal in different properties
+    if (nota.volumesTotal) {
+      volumesTotal = String(nota.volumesTotal).trim();
+    } else if (nota.volumes) {
+      // If nota has a volumes array, use its length
+      volumesTotal = String(nota.volumes.length);
+    } else if (nota.itens && nota.itens.length > 0) {
+      // If nota has items, we could estimate volumes based on items
+      // This is a fallback and may not be accurate in all cases
+      volumesTotal = String(nota.itens.length);
+    }
+    
+    console.log("Volume total extracted for etiquetas:", volumesTotal);
+    
+    // Navigate to GeracaoEtiquetas with complete nota data
+    navigate('/armazenagem/recebimento/etiquetas', { 
+      state: {
+        notaFiscal: nota.id,
+        numeroPedido: nota.numeroPedido || '',
+        volumesTotal: volumesTotal,
+        // Sender data
+        remetente: nota.fornecedor || '',
+        emitente: nota.emitenteRazaoSocial || '',
+        // Recipient data - ensure all required fields are included
+        destinatario: nota.destinatarioRazaoSocial || '',
+        endereco: nota.destinatarioEndereco || '',
+        cidade: nota.destinatarioCidade || '',
+        cidadeCompleta: `${nota.destinatarioCidade || ''} - ${nota.destinatarioUF || ''}`,
+        uf: nota.destinatarioUF || '',
+        // Weight information
+        pesoTotal: nota.pesoTotalBruto || nota.pesoTotal || '',
+        chaveNF: nota.chaveNF || '',
+        // Additional recipient address details
+        enderecoDestinatario: nota.destinatarioEndereco || '',
+        bairroDestinatario: nota.destinatarioBairro || '',
+        cidadeDestinatario: nota.destinatarioCidade || '',
+        cepDestinatario: nota.destinatarioCEP || '',
+        ufDestinatario: nota.destinatarioUF || '',
+        // Date information
+        dataEmissao: nota.dataHoraEmissao || nota.data || '',
+      }
+    });
   };
-
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center text-red-600">
-            <p>Erro ao carregar notas fiscais: {error.message}</p>
-            <Button onClick={handleRefresh} className="mt-2">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Tentar novamente
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center">
-          <FileText className="mr-2 text-cross-blue" size={20} />
-          Consulta de Notas Fiscais
-        </CardTitle>
+        <CardTitle>Consulta de Notas Fiscais</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Buscar por número, chave ou empresa..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos os Status</SelectItem>
-              <SelectItem value="pendente">Pendente</SelectItem>
-              <SelectItem value="entrada">Entrada</SelectItem>
-              <SelectItem value="no_armazem">No Armazém</SelectItem>
-              <SelectItem value="em_carregamento">Em Carregamento</SelectItem>
-              <SelectItem value="expedido">Expedido</SelectItem>
-              <SelectItem value="entregue">Entregue</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={tipoFilter} onValueChange={setTipoFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos os Tipos</SelectItem>
-              <SelectItem value="entrada">Entrada</SelectItem>
-              <SelectItem value="saida">Saída</SelectItem>
-              <SelectItem value="transferencia">Transferência</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button onClick={handleRefresh} disabled={isLoading}>
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            Atualizar
-          </Button>
-        </div>
-
-        {/* Tabela de Notas Fiscais */}
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        ) : (
-          <div className="border rounded-md">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Número</TableHead>
-                  <TableHead>Série</TableHead>
-                  <TableHead>Remetente</TableHead>
-                  <TableHead>Destinatário</TableHead>
-                  <TableHead>Valor Total</TableHead>
-                  <TableHead>Data Emissão</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredNotas.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                      {searchTerm || statusFilter !== 'todos' || tipoFilter !== 'todos' 
-                        ? 'Nenhuma nota fiscal encontrada com os filtros aplicados.' 
-                        : 'Nenhuma nota fiscal cadastrada.'}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredNotas.map((nota) => (
-                    <TableRow key={nota.id}>
-                      <TableCell className="font-medium">{nota.numero}</TableCell>
-                      <TableCell>{nota.serie || '-'}</TableCell>
-                      <TableCell>
-                        {nota.remetente?.razao_social || 'Não informado'}
-                      </TableCell>
-                      <TableCell>
-                        {nota.destinatario?.razao_social || 'Não informado'}
-                      </TableCell>
-                      <TableCell>{formatCurrency(nota.valor_total)}</TableCell>
-                      <TableCell>{formatDate(nota.data_emissao)}</TableCell>
-                      <TableCell>{getStatusBadge(nota.status)}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onPrintClick(nota.id)}
-                        >
-                          <Printer className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-
-        <div className="mt-4 text-sm text-gray-600">
-          Total de registros: {filteredNotas.length}
+        <SearchFilter 
+          placeholder="Buscar por número, fornecedor ou destinatário..." 
+          filters={notasFilterConfig} 
+          onSearch={handleSearch}
+        />
+        
+        <div className="rounded-md border">
+          <DataTable
+            columns={[
+              { header: 'Número NF', accessor: 'id' },
+              { header: 'Fornecedor', accessor: 'fornecedor' },
+              { header: 'Destinatário', accessor: 'destinatarioRazaoSocial' },
+              { header: 'Valor Total', accessor: 'valor' },
+              { header: 'Data Emissão', accessor: 'dataEmissao' },
+              { 
+                header: 'Status', 
+                accessor: 'status',
+                cell: (row) => {
+                  switch (row.status) {
+                    case 'completed':
+                      return <StatusBadge status="success" text="Processada" />;
+                    case 'pending':
+                      return <StatusBadge status="pending" text="Aguardando" />;
+                    case 'processing':
+                      return <StatusBadge status="error" text="Rejeitada" />;
+                    default:
+                      return <StatusBadge status="pending" text={row.status} />;
+                  }
+                }
+              },
+              {
+                header: 'Ações',
+                accessor: 'actions',
+                cell: (row) => (
+                  <div className="flex space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onPrintClick(row.id)}
+                    >
+                      <Printer className="h-4 w-4 mr-1" />
+                      DANFE
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                    >
+                      <FileText className="h-4 w-4 mr-1" />
+                      Detalhes
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleGerarEtiquetasClick(row)}
+                    >
+                      <Tag className="h-4 w-4 mr-1" />
+                      Etiquetas
+                    </Button>
+                  </div>
+                )
+              }
+            ]}
+            data={filteredNotas}
+          />
         </div>
       </CardContent>
     </Card>

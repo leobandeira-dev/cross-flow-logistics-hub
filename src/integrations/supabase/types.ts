@@ -339,7 +339,6 @@ export type Database = {
           codigo_risco: string | null
           comprimento: number | null
           created_at: string | null
-          dados_json: Json | null
           data_geracao: string
           etiqueta_mae_id: string | null
           fragil: boolean | null
@@ -361,7 +360,6 @@ export type Database = {
           codigo_risco?: string | null
           comprimento?: number | null
           created_at?: string | null
-          dados_json?: Json | null
           data_geracao?: string
           etiqueta_mae_id?: string | null
           fragil?: boolean | null
@@ -383,7 +381,6 @@ export type Database = {
           codigo_risco?: string | null
           comprimento?: number | null
           created_at?: string | null
-          dados_json?: Json | null
           data_geracao?: string
           etiqueta_mae_id?: string | null
           fragil?: boolean | null
@@ -482,53 +479,6 @@ export type Database = {
             columns: ["ordem_carregamento_id"]
             isOneToOne: false
             referencedRelation: "ordens_carregamento"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      itens_nota_fiscal: {
-        Row: {
-          codigo_produto: string
-          created_at: string | null
-          descricao: string
-          id: string
-          nota_fiscal_id: string
-          quantidade: number
-          sequencia: number
-          updated_at: string | null
-          valor_total: number
-          valor_unitario: number
-        }
-        Insert: {
-          codigo_produto: string
-          created_at?: string | null
-          descricao: string
-          id?: string
-          nota_fiscal_id: string
-          quantidade?: number
-          sequencia: number
-          updated_at?: string | null
-          valor_total?: number
-          valor_unitario?: number
-        }
-        Update: {
-          codigo_produto?: string
-          created_at?: string | null
-          descricao?: string
-          id?: string
-          nota_fiscal_id?: string
-          quantidade?: number
-          sequencia?: number
-          updated_at?: string | null
-          valor_total?: number
-          valor_unitario?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "itens_nota_fiscal_nota_fiscal_id_fkey"
-            columns: ["nota_fiscal_id"]
-            isOneToOne: false
-            referencedRelation: "notas_fiscais"
             referencedColumns: ["id"]
           },
         ]
@@ -716,7 +666,6 @@ export type Database = {
       notas_fiscais: {
         Row: {
           chave_acesso: string | null
-          coleta_id: string | null
           created_at: string | null
           data_emissao: string
           data_entrada: string | null
@@ -724,21 +673,18 @@ export type Database = {
           destinatario_id: string | null
           id: string
           numero: string
-          observacoes: string | null
           ordem_carregamento_id: string | null
           peso_bruto: number | null
           quantidade_volumes: number | null
           remetente_id: string | null
           serie: string | null
           status: string
-          tipo: string | null
           transportadora_id: string | null
           updated_at: string | null
           valor_total: number
         }
         Insert: {
           chave_acesso?: string | null
-          coleta_id?: string | null
           created_at?: string | null
           data_emissao: string
           data_entrada?: string | null
@@ -746,21 +692,18 @@ export type Database = {
           destinatario_id?: string | null
           id?: string
           numero: string
-          observacoes?: string | null
           ordem_carregamento_id?: string | null
           peso_bruto?: number | null
           quantidade_volumes?: number | null
           remetente_id?: string | null
           serie?: string | null
           status?: string
-          tipo?: string | null
           transportadora_id?: string | null
           updated_at?: string | null
           valor_total?: number
         }
         Update: {
           chave_acesso?: string | null
-          coleta_id?: string | null
           created_at?: string | null
           data_emissao?: string
           data_entrada?: string | null
@@ -768,14 +711,12 @@ export type Database = {
           destinatario_id?: string | null
           id?: string
           numero?: string
-          observacoes?: string | null
           ordem_carregamento_id?: string | null
           peso_bruto?: number | null
           quantidade_volumes?: number | null
           remetente_id?: string | null
           serie?: string | null
           status?: string
-          tipo?: string | null
           transportadora_id?: string | null
           updated_at?: string | null
           valor_total?: number
@@ -786,13 +727,6 @@ export type Database = {
             columns: ["ordem_carregamento_id"]
             isOneToOne: false
             referencedRelation: "ordens_carregamento"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notas_fiscais_coleta_id_fkey"
-            columns: ["coleta_id"]
-            isOneToOne: false
-            referencedRelation: "coletas"
             referencedColumns: ["id"]
           },
           {
