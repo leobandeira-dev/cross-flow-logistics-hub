@@ -16,11 +16,11 @@ export const parseXmlFile = async (file: File): Promise<Record<string, any> | nu
           const xmlContent = e.target.result as string;
           console.log('Conteúdo XML lido (primeiros 500 chars):', xmlContent.substring(0, 500));
           
-          // Parse XML usando DOMParser
+          // Parse XML using DOMParser
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(xmlContent, "text/xml");
           
-          // Verificar erros de parsing
+          // Check for parsing errors
           const parseError = xmlDoc.getElementsByTagName("parsererror");
           if (parseError.length > 0) {
             console.error("Erro ao fazer parse do XML:", parseError[0].textContent);
@@ -30,7 +30,7 @@ export const parseXmlFile = async (file: File): Promise<Record<string, any> | nu
           
           console.log("XML parseado com sucesso usando DOMParser");
           
-          // Converter XML Document para objeto JavaScript
+          // Convert XML Document to JavaScript object
           const result = xmlDocumentToObject(xmlDoc);
           console.log("XML convertido para objeto:", result);
           
@@ -60,7 +60,7 @@ export const xmlDocumentToObject = (xmlDoc: Document): Record<string, any> => {
   const convertElement = (element: Element): any => {
     const result: any = {};
     
-    // Adicionar atributos
+    // Add attributes
     if (element.attributes && element.attributes.length > 0) {
       for (let i = 0; i < element.attributes.length; i++) {
         const attr = element.attributes[i];
@@ -68,7 +68,7 @@ export const xmlDocumentToObject = (xmlDoc: Document): Record<string, any> => {
       }
     }
     
-    // Processar nós filhos
+    // Process child nodes
     const children = element.childNodes;
     let textContent = '';
     
@@ -82,11 +82,11 @@ export const xmlDocumentToObject = (xmlDoc: Document): Record<string, any> => {
         }
       } else if (child.nodeType === Node.ELEMENT_NODE) {
         const childElement = child as Element;
-        const tagName = childElement.tagName.toLowerCase();
+        const tagName = childElement.tagName;
         const childResult = convertElement(childElement);
         
         if (result[tagName]) {
-          // Se já existe, transformar em array
+          // If already exists, convert to array
           if (!Array.isArray(result[tagName])) {
             result[tagName] = [result[tagName]];
           }
@@ -97,12 +97,12 @@ export const xmlDocumentToObject = (xmlDoc: Document): Record<string, any> => {
       }
     }
     
-    // Se tem apenas texto e nenhum elemento filho, retornar o texto
+    // If only text content and no child elements, return the text
     if (Object.keys(result).length === 0 && textContent) {
       return textContent;
     }
     
-    // Se tem texto e elementos, adicionar o texto como propriedade especial
+    // If has text and elements, add text as special property
     if (textContent && Object.keys(result).length > 0) {
       result['#text'] = textContent;
     }
@@ -110,9 +110,9 @@ export const xmlDocumentToObject = (xmlDoc: Document): Record<string, any> => {
     return result;
   };
   
-  // Começar pelo elemento raiz
+  // Start with root element
   const rootElement = xmlDoc.documentElement;
-  const rootTagName = rootElement.tagName.toLowerCase();
+  const rootTagName = rootElement.tagName;
   
   return {
     [rootTagName]: convertElement(rootElement)

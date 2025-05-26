@@ -46,7 +46,7 @@ export const criarNotaFiscal = async (data: CreateNotaFiscalData): Promise<NotaF
       console.log('Usando data atual:', validDataEmissao);
     }
 
-    // Prepare insert data with all required fields
+    // Prepare insert data with valid status values
     const insertData = {
       numero: data.numero.toString(),
       serie: data.serie?.toString() || '1',
@@ -55,8 +55,8 @@ export const criarNotaFiscal = async (data: CreateNotaFiscalData): Promise<NotaF
       peso_bruto: data.peso_bruto ? Number(data.peso_bruto) : null,
       quantidade_volumes: data.quantidade_volumes ? Number(data.quantidade_volumes) : null,
       data_emissao: validDataEmissao,
-      status: data.status || 'entrada',
-      tipo: data.tipo || 'entrada',
+      status: 'pendente', // Use a valid status value
+      tipo: 'entrada', // This should be valid as per the type field
       remetente_id: data.remetente_id || null,
       destinatario_id: data.destinatario_id || null,
       transportadora_id: data.transportadora_id || null,
@@ -80,6 +80,12 @@ export const criarNotaFiscal = async (data: CreateNotaFiscalData): Promise<NotaF
         hint: error.hint,
         code: error.code
       });
+      
+      // Provide more specific error messages
+      if (error.code === '23514') {
+        throw new Error(`Erro de validação no banco de dados. Verifique se os valores dos campos estão corretos. Status usado: ${insertData.status}, Tipo usado: ${insertData.tipo}`);
+      }
+      
       throw new Error(`Erro ao criar nota fiscal: ${error.message}`);
     }
     
