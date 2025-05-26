@@ -23,7 +23,8 @@ interface CreateNotaFiscalData {
  */
 export const criarNotaFiscal = async (data: CreateNotaFiscalData): Promise<NotaFiscal> => {
   try {
-    console.log('Criando nota fiscal com dados:', data);
+    console.log('=== INÍCIO CRIAÇÃO NOTA FISCAL ===');
+    console.log('Dados recebidos:', data);
     
     // Validate required fields
     if (!data.numero) {
@@ -38,20 +39,23 @@ export const criarNotaFiscal = async (data: CreateNotaFiscalData): Promise<NotaF
     let validDataEmissao: string;
     try {
       validDataEmissao = new Date(data.data_emissao).toISOString();
+      console.log('Data de emissão validada:', validDataEmissao);
     } catch (error) {
       console.error('Data de emissão inválida:', data.data_emissao);
       validDataEmissao = new Date().toISOString();
+      console.log('Usando data atual:', validDataEmissao);
     }
 
+    // Prepare insert data with all required fields
     const insertData = {
-      numero: data.numero,
-      serie: data.serie || '1',
+      numero: data.numero.toString(),
+      serie: data.serie?.toString() || '1',
       chave_acesso: data.chave_acesso || null,
-      valor_total: data.valor_total || 0,
-      peso_bruto: data.peso_bruto || null,
-      quantidade_volumes: data.quantidade_volumes || null,
+      valor_total: Number(data.valor_total) || 0,
+      peso_bruto: data.peso_bruto ? Number(data.peso_bruto) : null,
+      quantidade_volumes: data.quantidade_volumes ? Number(data.quantidade_volumes) : null,
       data_emissao: validDataEmissao,
-      status: data.status || 'pendente',
+      status: data.status || 'entrada',
       tipo: data.tipo || 'entrada',
       remetente_id: data.remetente_id || null,
       destinatario_id: data.destinatario_id || null,
@@ -60,6 +64,7 @@ export const criarNotaFiscal = async (data: CreateNotaFiscalData): Promise<NotaF
     };
 
     console.log('Dados preparados para inserção:', insertData);
+    console.log('Tentando inserir no Supabase...');
     
     const { data: notaFiscal, error } = await supabase
       .from('notas_fiscais')
@@ -68,14 +73,23 @@ export const criarNotaFiscal = async (data: CreateNotaFiscalData): Promise<NotaF
       .single();
     
     if (error) {
-      console.error('Erro do Supabase:', error);
+      console.error('Erro do Supabase ao inserir:', error);
+      console.error('Detalhes do erro:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       throw new Error(`Erro ao criar nota fiscal: ${error.message}`);
     }
     
-    console.log('Nota fiscal criada com sucesso:', notaFiscal);
+    console.log('✅ Nota fiscal criada com sucesso no Supabase:', notaFiscal);
+    console.log('=== FIM CRIAÇÃO NOTA FISCAL ===');
+    
     return notaFiscal as NotaFiscal;
   } catch (error: any) {
-    console.error('Erro ao criar nota fiscal:', error);
+    console.error('❌ Erro geral ao criar nota fiscal:', error);
+    console.error('Stack trace:', error.stack);
     throw error;
   }
 };
