@@ -43,7 +43,7 @@ const ImportarViaXMLWithSave: React.FC<ImportarViaXMLWithSaveProps> = ({
           // Emitente data
           emitenteCNPJ: importedNota.emitenteCNPJ || importedNota.emitente_cnpj || '',
           emitenteRazaoSocial: importedNota.emitenteRazaoSocial || importedNota.emitente_razao_social || '',
-          emitenteTelefone: importedNota.emitenteTelefone || importedNota.emitente_telefone || '',
+          emitenteTelefone: importedNota.emitente_telefone || importedNota.emitenteTelefone || '',
           emitenteUF: importedNota.emitenteUF || importedNota.emitente_uf || '',
           emitenteCidade: importedNota.emitenteCidade || importedNota.emitente_cidade || '',
           emitenteBairro: importedNota.emitenteBairro || importedNota.emitente_bairro || '',
@@ -54,7 +54,7 @@ const ImportarViaXMLWithSave: React.FC<ImportarViaXMLWithSaveProps> = ({
           // Destinatario data
           destinatarioCNPJ: importedNota.destinatarioCNPJ || importedNota.destinatario_cnpj || '',
           destinatarioRazaoSocial: importedNota.destinatarioRazaoSocial || importedNota.destinatario_razao_social || '',
-          destinatarioTelefone: importedNota.destinatarioTelefone || importedNota.destinatario_telefone || '',
+          destinatarioTelefone: importedNota.destinatario_telefone || importedNota.destinatarioTelefone || '',
           destinatarioUF: importedNota.destinatarioUF || importedNota.destinatario_uf || '',
           destinatarioCidade: importedNota.destinatarioCidade || importedNota.destinatario_cidade || '',
           destinatarioBairro: importedNota.destinatarioBairro || importedNota.destinatario_bairro || '',
