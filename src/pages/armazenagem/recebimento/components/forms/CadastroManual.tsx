@@ -1,73 +1,27 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { notaFiscalSchema, NotaFiscalSchemaType } from './notaFiscalSchema';
-import DadosNotaFiscal from './DadosNotaFiscal';
-import DadosEmitente from './DadosEmitente';
-import DadosDestinatario from './DadosDestinatario';
-import InformacoesTransporte from './InformacoesTransporte';
-import InformacoesComplementares from './InformacoesComplementares';
-import { Loader2 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { AlertTriangle } from 'lucide-react';
 
-interface CadastroManualProps {
-  onSubmit: (data: NotaFiscalSchemaType) => void;
-  isLoading?: boolean;
-}
-
-const CadastroManual: React.FC<CadastroManualProps> = ({ onSubmit, isLoading = false }) => {
-  const form = useForm<NotaFiscalSchemaType>({
-    resolver: zodResolver(notaFiscalSchema),
-    defaultValues: {
-      currentTab: 'manual',
-      numeroNF: '',
-      serieNF: '',
-      chaveNF: '',
-      valorTotal: '0',
-      pesoTotalBruto: '0',
-      volumesTotal: '0',
-      emitenteRazaoSocial: '',
-      emitenteCNPJ: '',
-      destinatarioRazaoSocial: '',
-      destinatarioCNPJ: '',
-    }
-  });
-
+const CadastroManual: React.FC = () => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Cadastro Manual de Nota Fiscal</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <DadosNotaFiscal />
-            <DadosEmitente />
-            <DadosDestinatario />
-            <InformacoesTransporte />
-            <InformacoesComplementares />
-            
-            <div className="flex justify-end">
-              <Button 
-                type="submit" 
-                className="bg-cross-blue hover:bg-cross-blue/90"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Salvando...
-                  </>
-                ) : (
-                  'Salvar Nota Fiscal'
-                )}
-              </Button>
+      <CardContent className="pt-6">
+        <div className="flex items-start space-x-4">
+          <AlertTriangle className="text-yellow-500 h-5 w-5" />
+          <div>
+            <p className="text-sm font-medium mb-2">Cadastro Manual de Documento</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Preencha todos os campos manualmente para cadastrar um documento não fiscal.
+              Todos os campos marcados com * são obrigatórios.
+            </p>
+            <div className="text-xs text-gray-500 space-y-1">
+              <p>• Certifique-se de preencher corretamente os dados do emitente e destinatário</p>
+              <p>• Informações de transporte são opcionais para documentos não fiscais</p>
+              <p>• É recomendável anexar arquivos de suporte quando disponíveis</p>
             </div>
-          </form>
-        </Form>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
