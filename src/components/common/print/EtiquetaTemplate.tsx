@@ -51,6 +51,8 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
       }
     };
     
+    const isModernStyleLayout = layoutStyle === 'modern' || layoutStyle === 'enhanced' || layoutStyle === 'alta-legibilidade';
+    
     return (
       <div 
         ref={ref}
@@ -60,15 +62,15 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
           pageBreakAfter: 'always',
         }}
       >
-        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-${layoutStyle === 'modern' || layoutStyle === 'enhanced' || layoutStyle === 'alta-legibilidade' ? '0' : '3'} ${(layoutStyle === 'modern' || layoutStyle === 'enhanced' || layoutStyle === 'alta-legibilidade') ? 'overflow-hidden' : ''} relative`}>
-          {isMae && layoutStyle !== 'modern' && layoutStyle !== 'enhanced' && layoutStyle !== 'alta-legibilidade' && (
+        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-${isModernStyleLayout ? '0' : '3'} ${isModernStyleLayout ? 'overflow-hidden' : ''} relative`}>
+          {isMae && !isModernStyleLayout && (
             <EtiquetaMaeHeader 
               etiquetaMaeId={volumeData.etiquetaMae} 
               descricao={volumeData.descricao} 
             />
           )}
           
-          {isQuimico && layoutStyle !== 'modern' && layoutStyle !== 'enhanced' && layoutStyle !== 'alta-legibilidade' && <QuimicoIcon />}
+          {isQuimico && !isModernStyleLayout && <QuimicoIcon />}
           
           {renderLayout()}
         </Card>
