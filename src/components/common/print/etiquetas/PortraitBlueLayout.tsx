@@ -24,35 +24,35 @@ const PortraitBlueLayout: React.FC<EtiquetaLayoutProps> = ({
       {/* QR Code Section - Reduzido */}
       <div className="flex justify-center py-1">
         <div className="text-center bg-white p-2 rounded-lg shadow-md">
-          <QrCode size={50} className="mx-auto mb-1" />
+          <QrCode size={45} className="mx-auto mb-1" />
           <div className="text-xs font-bold text-blue-800">{volumeData.id}</div>
         </div>
       </div>
 
-      {/* Nota Fiscal - DESTAQUE MÁXIMO */}
-      <div className="bg-blue-100 border-4 border-blue-600 rounded-xl p-5 text-center shadow-lg">
-        <div className="text-lg text-blue-800 font-black">NOTA FISCAL</div>
-        <div className="text-5xl font-black text-blue-900 mt-2 tracking-wider">{volumeData.notaFiscal || 'N/A'}</div>
+      {/* Nota Fiscal - CONTAINER PRETO */}
+      <div className="bg-black border-4 border-gray-800 rounded-xl p-5 text-center shadow-lg">
+        <div className="text-lg text-white font-black">NOTA FISCAL</div>
+        <div className="text-5xl font-black text-white mt-2 tracking-wider">{volumeData.notaFiscal || 'N/A'}</div>
       </div>
 
-      {/* Cidade Destino - DESTAQUE MÁXIMO */}
-      <div className="bg-blue-200 border-4 border-blue-700 rounded-xl p-5 text-center shadow-lg">
-        <div className="text-lg text-blue-800 font-black">CIDADE DESTINO</div>
-        <div className="text-4xl font-black text-blue-900 mt-2 leading-tight">{displayCidade}</div>
-        <div className="text-3xl font-black text-blue-800 mt-1">{volumeData.uf}</div>
+      {/* Cidade Destino - CONTAINER PRETO */}
+      <div className="bg-black border-4 border-gray-800 rounded-xl p-5 text-center shadow-lg">
+        <div className="text-lg text-white font-black">CIDADE DESTINO</div>
+        <div className="text-4xl font-black text-white mt-2 leading-tight">{displayCidade}</div>
+        <div className="text-3xl font-black text-white mt-1">{volumeData.uf}</div>
       </div>
 
-      {/* Remetente - DESTAQUE MÁXIMO */}
-      <div className="bg-blue-300 border-4 border-blue-800 rounded-xl p-5 shadow-lg">
-        <div className="text-lg text-blue-900 font-black">REMETENTE</div>
-        <div className="text-3xl font-black text-blue-900 leading-tight mt-2">{volumeData.remetente || 'N/A'}</div>
+      {/* Remetente - CONTAINER PRETO */}
+      <div className="bg-black border-4 border-gray-800 rounded-xl p-5 shadow-lg">
+        <div className="text-lg text-white font-black">REMETENTE</div>
+        <div className="text-3xl font-black text-white leading-tight mt-2">{volumeData.remetente || 'N/A'}</div>
       </div>
 
-      {/* Quantidade de Volumes - DESTAQUE MÁXIMO (para etiqueta mãe) */}
+      {/* Quantidade de Volumes - CONTAINER PRETO (para etiqueta mãe) */}
       {isMae && (
-        <div className="bg-blue-400 border-4 border-blue-900 rounded-xl p-5 text-center shadow-lg">
-          <div className="text-lg text-blue-900 font-black">QUANTIDADE DE VOLUMES</div>
-          <div className="text-5xl font-black text-blue-900 mt-2">{volumeData.quantidade || '0'}</div>
+        <div className="bg-black border-4 border-gray-800 rounded-xl p-5 text-center shadow-lg">
+          <div className="text-lg text-white font-black">QUANTIDADE DE VOLUMES</div>
+          <div className="text-5xl font-black text-white mt-2">{volumeData.quantidade || '0'}</div>
         </div>
       )}
 
