@@ -1,90 +1,93 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { FormItem, FormLabel } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Upload, Loader2, CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Upload } from 'lucide-react';
 import { useNotaFiscalImport } from '@/hooks/notaFiscal/useNotaFiscalImport';
+import XMLFileUpload from './XMLFileUpload';
 
 interface ImportarViaXMLWithSaveProps {
-  onNotasImported: (notas: any[]) => void;
+  onNotasImported?: (notas: any[]) => void;
+  onFormPopulated?: (notaData: any) => void;
 }
 
-const ImportarViaXMLWithSave: React.FC<ImportarViaXMLWithSaveProps> = ({ onNotasImported }) => {
-  const { isImporting, importedNotas, importSingleXML, clearImported } = useNotaFiscalImport();
+const ImportarViaXMLWithSave: React.FC<ImportarViaXMLWithSaveProps> = ({ 
+  onNotasImported, 
+  onFormPopulated 
+}) => {
+  const { isImporting, importSingleXML } = useNotaFiscalImport();
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === 'text/xml') {
-      try {
-        const notaImportada = await importSingleXML(file);
-        onNotasImported([notaImportada]);
-      } catch (error) {
-        console.error('Erro na importação:', error);
+    if (!file) return;
+
+    try {
+      const importedNota = await importSingleXML(file);
+      
+      // Notify parent about imported notas
+      if (onNotasImported) {
+        onNotasImported([importedNota]);
       }
+      
+      // Populate form with all extracted data
+      if (onFormPopulated && importedNota) {
+        const formData = {
+          // Basic nota fiscal data
+          numeroNF: importedNota.numeroNF || importedNota.numero || '',
+          serieNF: importedNota.serieNF || importedNota.serie || '',
+          chaveNF: importedNota.chaveNF || importedNota.chave_acesso || '',
+          valorTotal: importedNota.valorTotal?.toString() || importedNota.valor_total?.toString() || '',
+          pesoTotalBruto: importedNota.pesoTotalBruto?.toString() || importedNota.peso_bruto?.toString() || '',
+          volumesTotal: importedNota.volumesTotal?.toString() || importedNota.quantidade_volumes?.toString() || '',
+          dataHoraEmissao: importedNota.dataEmissao || importedNota.data_emissao || '',
+          
+          // Emitente data
+          emitenteCNPJ: importedNota.emitenteCNPJ || importedNota.emitente_cnpj || '',
+          emitenteRazaoSocial: importedNota.emitenteRazaoSocial || importedNota.emitente_razao_social || '',
+          emitenteTelefone: importedNota.emitenteTelefone || importedNota.emitente_telefone || '',
+          emitenteUF: importedNota.emitenteUF || importedNota.emitente_uf || '',
+          emitenteCidade: importedNota.emitenteCidade || importedNota.emitente_cidade || '',
+          emitenteBairro: importedNota.emitenteBairro || importedNota.emitente_bairro || '',
+          emitenteEndereco: importedNota.emitenteEndereco || importedNota.emitente_endereco || '',
+          emitenteNumero: importedNota.emitenteNumero || importedNota.emitente_numero || '',
+          emitenteCEP: importedNota.emitenteCEP || importedNota.emitente_cep || '',
+          
+          // Destinatario data
+          destinatarioCNPJ: importedNota.destinatarioCNPJ || importedNota.destinatario_cnpj || '',
+          destinatarioRazaoSocial: importedNota.destinatarioRazaoSocial || importedNota.destinatario_razao_social || '',
+          destinatarioTelefone: importedNota.destinatarioTelefone || importedNota.destinatario_telefone || '',
+          destinatarioUF: importedNota.destinatarioUF || importedNota.destinatario_uf || '',
+          destinatarioCidade: importedNota.destinatarioCidade || importedNota.destinatario_cidade || '',
+          destinatarioBairro: importedNota.destinatarioBairro || importedNota.destinatario_bairro || '',
+          destinatarioEndereco: importedNota.destinatarioEndereco || importedNota.destinatario_endereco || '',
+          destinatarioNumero: importedNota.destinatarioNumero || importedNota.destinatario_numero || '',
+          destinatarioCEP: importedNota.destinatarioCEP || importedNota.destinatario_cep || '',
+          
+          // Additional data
+          numeroPedido: importedNota.numeroPedido || importedNota.numero_pedido || '',
+          informacoesComplementares: importedNota.informacoesComplementares || importedNota.informacoes_complementares || importedNota.observacoes || '',
+          tipoOperacao: importedNota.tipoOperacao || importedNota.tipo_operacao || ''
+        };
+        
+        onFormPopulated(formData);
+      }
+    } catch (error) {
+      console.error('Erro ao importar XML:', error);
     }
-    
-    // Clear the input
-    e.target.value = '';
   };
 
   return (
     <Card>
-      <CardContent className="pt-6">
-        <div className="space-y-4">
-          <FormItem>
-            <FormLabel>Upload de Arquivo XML (com salvamento automático)</FormLabel>
-            <div className="flex flex-col items-center justify-center w-full">
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  {isImporting ? (
-                    <Loader2 className="w-10 h-10 mb-3 text-gray-400 animate-spin" />
-                  ) : (
-                    <Upload className="w-10 h-10 mb-3 text-gray-400" />
-                  )}
-                  <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
-                  </p>
-                  <p className="text-xs text-gray-500">XML (MAX. 10MB)</p>
-                </div>
-                <input 
-                  type="file" 
-                  className="hidden" 
-                  accept=".xml"
-                  onChange={handleFileChange}
-                  disabled={isImporting}
-                />
-              </label>
-            </div>
-          </FormItem>
-
-          {importedNotas.length > 0 && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center mb-2">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                <h3 className="text-sm font-medium text-green-800">
-                  {importedNotas.length} nota(s) fiscal(ais) importada(s) e salva(s)
-                </h3>
-              </div>
-              <div className="space-y-1">
-                {importedNotas.map((nota, index) => (
-                  <p key={index} className="text-xs text-green-700">
-                    NF: {nota.numero} - Valor: R$ {nota.valor_total?.toFixed(2)}
-                  </p>
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearImported}
-                className="mt-2"
-              >
-                Limpar Lista
-              </Button>
-            </div>
-          )}
-        </div>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center">
+          <Upload className="mr-2 text-cross-blue" size={20} />
+          Importar XML Único
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <XMLFileUpload 
+          onFileChange={handleFileUpload}
+          isLoading={isImporting}
+        />
       </CardContent>
     </Card>
   );
