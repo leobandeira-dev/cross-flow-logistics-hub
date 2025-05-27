@@ -34,7 +34,7 @@ const ImportarViaXMLWithSave: React.FC<ImportarViaXMLWithSaveProps> = ({
         // Populate form with extracted data
         onFormPopulated(extractedData);
         
-        // Prepare data for saving to Supabase
+        // Prepare data for saving to Supabase - using correct field names
         const notaFiscalData: Partial<NotaFiscal> = {
           numero: extractedData.numeroNF || '',
           serie: extractedData.serieNF || '',
@@ -44,29 +44,8 @@ const ImportarViaXMLWithSave: React.FC<ImportarViaXMLWithSaveProps> = ({
           quantidade_volumes: parseInt(extractedData.volumesTotal?.toString() || '0'),
           data_emissao: extractedData.dataHoraEmissao || new Date().toISOString(),
           
-          // Emitter data
-          emitente_cnpj: extractedData.emitenteCNPJ || '',
-          emitente_razao_social: extractedData.emitenteRazaoSocial || '',
-          emitente_telefone: extractedData.emitente_telefone || extractedData.emitentetelefone || '',
-          emitente_uf: extractedData.emitenteUF || '',
-          emitente_cidade: extractedData.emitenteCidade || '',
-          emitente_bairro: extractedData.emitenteBairro || '',
-          emitente_endereco: extractedData.emitenteEndereco || '',
-          emitente_numero: extractedData.emitenteNumero || '',
-          emitente_cep: extractedData.emitenteCEP || '',
-          
-          // Recipient data
-          destinatario_cnpj: extractedData.destinatarioCNPJ || '',
-          destinatario_razao_social: extractedData.destinatarioRazaoSocial || '',
-          destinatario_telefone: extractedData.destinatario_telefone || extractedData.destinatariotelefone || '',
-          destinatario_uf: extractedData.destinatarioUF || '',
-          destinatario_cidade: extractedData.destinatarioCidade || '',
-          destinatario_bairro: extractedData.destinatarioBairro || '',
-          destinatario_endereco: extractedData.destinatarioEndereco || '',
-          destinatario_numero: extractedData.destinatarioNumero || '',
-          destinatario_cep: extractedData.destinatarioCEP || '',
-          
-          // Additional data
+          // Note: The NotaFiscal type doesn't have emitente/destinatario fields
+          // These would need to be handled through the relacionamentos if needed
           numero_pedido: extractedData.numeroPedido || '',
           informacoes_complementares: extractedData.informacoesComplementares || '',
           
