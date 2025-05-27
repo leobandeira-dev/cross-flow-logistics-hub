@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { EtiquetaGenerationResult, LayoutStyle } from './types';
+import { EtiquetaGenerationResult } from './types';
 import { useEtiquetaPDF } from './useEtiquetaPDF';
 
 export const useVolumeGeneration = () => {
@@ -13,7 +13,7 @@ export const useVolumeGeneration = () => {
     notaData: any, 
     formatoImpressao: string,
     tipoEtiqueta: 'volume' | 'mae' = 'volume',
-    layoutStyle: LayoutStyle = 'standard'
+    layoutStyle: 'standard' | 'compact' | 'modern' = 'standard'
   ): Promise<EtiquetaGenerationResult> => {
     setIsGenerating(true);
     try {

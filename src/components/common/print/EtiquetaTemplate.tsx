@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card';
 import CompactLayout from './etiquetas/CompactLayout';
 import StandardLayout from './etiquetas/StandardLayout';
 import ModernLayout from './etiquetas/ModernLayout';
-import EnhancedReadabilityLayout from './etiquetas/EnhancedReadabilityLayout';
 import EtiquetaMaeHeader from './etiquetas/EtiquetaMaeHeader';
 import QuimicoIcon from './etiquetas/QuimicoIcon';
 import { getClassificacaoText, getDisplayCidade } from './etiquetas/utils';
@@ -40,8 +39,6 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
           return <CompactLayout {...layoutProps} />;
         case 'modern':
           return <ModernLayout {...layoutProps} />;
-        case 'enhanced':
-          return <EnhancedReadabilityLayout {...layoutProps} />;
         case 'standard':
         default:
           return <StandardLayout {...layoutProps} />;
@@ -57,15 +54,15 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
           pageBreakAfter: 'always',
         }}
       >
-        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-${layoutStyle === 'modern' || layoutStyle === 'enhanced' ? '0' : '3'} ${(layoutStyle === 'modern' || layoutStyle === 'enhanced') ? 'overflow-hidden' : ''} relative`}>
-          {isMae && layoutStyle !== 'modern' && layoutStyle !== 'enhanced' && (
+        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-${layoutStyle === 'modern' ? '0' : '3'} ${layoutStyle === 'modern' ? 'overflow-hidden' : ''} relative`}>
+          {isMae && layoutStyle !== 'modern' && (
             <EtiquetaMaeHeader 
               etiquetaMaeId={volumeData.etiquetaMae} 
               descricao={volumeData.descricao} 
             />
           )}
           
-          {isQuimico && layoutStyle !== 'modern' && layoutStyle !== 'enhanced' && <QuimicoIcon />}
+          {isQuimico && layoutStyle !== 'modern' && <QuimicoIcon />}
           
           {renderLayout()}
         </Card>

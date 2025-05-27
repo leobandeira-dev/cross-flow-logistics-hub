@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { Permission } from './types';
-import { mockPermissions } from './mockData';
+
+type Permission = Record<string, Record<string, Record<string, boolean>>>;
 
 export const usePermissions = (profileId: string | null) => {
   const [permissions, setPermissions] = useState<Permission | null>(null);
@@ -24,8 +24,30 @@ export const usePermissions = (profileId: string | null) => {
       // This is a mock implementation. In a real app, you would call your API here.
       // For testing, let's simulate an API call with a timeout
       setTimeout(() => {
-        // Get mock permission data
-        setPermissions(mockPermissions as Permission);
+        // Mock permission data
+        const mockPermissions: Permission = {
+          'mod1': {
+            'tab1': {
+              'view': true,
+              'edit': false,
+              'delete': false
+            },
+            'tab2': {
+              'view': true,
+              'edit': true,
+              'delete': false
+            }
+          },
+          'mod2': {
+            'tab3': {
+              'view': true,
+              'edit': false,
+              'delete': false
+            }
+          }
+        };
+        
+        setPermissions(mockPermissions);
         setIsLoadingPermissions(false);
       }, 1000);
     } catch (error) {

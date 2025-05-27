@@ -1,43 +1,39 @@
 
-// Mock data for user profiles
-export const userProfiles = [
-  'Administrador',
-  'Gerente',
-  'Supervisor',
-  'Operador',
-  'Cliente',
-  'Fornecedor'
+import { ModuloEmpresa } from './types';
+
+// Mock modules similar to empresa permissions
+export const systemModules: ModuloEmpresa[] = [
+  {
+    id: 'armazenagem',
+    nome: 'Armazenagem',
+    tabelas: [
+      {
+        id: 'recebimento',
+        nome: 'Recebimento',
+        rotinas: [
+          { id: 'notas', nome: 'Entrada de Notas' },
+          { id: 'fornecedor', nome: 'Recebimento de Fornecedor' },
+          { id: 'filiais', nome: 'Recebimento de Filiais' },
+          { id: 'coleta', nome: 'Recebimento de Coleta' },
+          { id: 'etiquetas', nome: 'Geração de Etiquetas' },
+        ]
+      },
+    ]
+  }
 ];
 
-// Mock permissions for testing
-export const mockPermissions = {
-  'Cadastros': {
-    'Usuarios': {
-      'view': true,
-      'edit': true,
-      'delete': true
-    },
-    'Empresas': {
-      'view': true,
-      'edit': true,
-      'delete': false
-    },
-    'Motoristas': {
-      'view': true,
-      'edit': false,
-      'delete': false
-    }
-  },
-  'Operações': {
-    'Coletas': {
-      'view': true,
-      'edit': true,
-      'delete': true
-    },
-    'Carregamento': {
-      'view': true,
-      'edit': true,
-      'delete': false
-    }
-  }
-};
+// Mock profiles for users
+export const userProfiles = [
+  "Administrador",
+  "Gerente",
+  "Operador",
+  "Visualizador"
+];
+
+// Mock users for select
+export const usersMock = [
+  { id: "1", nome: "João Silva", email: "joao.silva@exemplo.com", perfil: "Administrador" },
+  { id: "2", nome: "Maria Oliveira", email: "maria.oliveira@exemplo.com", perfil: "Gerente" },
+  { id: "3", nome: "Carlos Santos", email: "carlos.santos@exemplo.com", perfil: "Operador" },
+  { id: "4", nome: "Ana Pereira", email: "ana.pereira@exemplo.com", perfil: "Visualizador" },
+];

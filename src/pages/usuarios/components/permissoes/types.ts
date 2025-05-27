@@ -1,16 +1,7 @@
 
-export type Permission = Record<string, Record<string, Record<string, boolean>>>;
-
-export interface Profile {
+export interface RotinaEmpresa {
   id: string;
   nome: string;
-  descricao?: string;
-}
-
-export interface ModuloEmpresa {
-  id: string;
-  nome: string;
-  tabelas: TabelaEmpresa[];
 }
 
 export interface TabelaEmpresa {
@@ -19,7 +10,24 @@ export interface TabelaEmpresa {
   rotinas: RotinaEmpresa[];
 }
 
-export interface RotinaEmpresa {
+export interface ModuloEmpresa {
   id: string;
   nome: string;
+  tabelas: TabelaEmpresa[];
+}
+
+export interface UserProfile {
+  id: string;
+  nome: string;
+  descricao?: string;
+}
+
+export interface UserPermissionProps {
+  moduleId: string;
+  modulePermission: boolean;
+  tabId: string;
+  tabPermission: boolean;
+  routineId: string;
+  routinePermission: boolean;
+  onPermissionChange: (key: string, checked: boolean) => void;
 }

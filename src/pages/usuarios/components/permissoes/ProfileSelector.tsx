@@ -4,15 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Profile } from './types';
+import ManageProfilesDialog from './ManageProfilesDialog';
 
 interface ProfileSelectorProps {
   selectedPerfil: string;
   handlePerfilChange: (value: string) => void;
   allProfiles: string[];
-  customProfiles: Profile[];
+  customProfiles: Array<{ id: string, nome: string, descricao?: string }>;
   onAddNewProfile: () => void;
-  onEditProfile: (profile: Profile) => void;
+  onEditProfile: (profile: any) => void;
   onDeleteProfile: (id: string) => void;
 }
 
@@ -47,6 +47,11 @@ const ProfileSelector: React.FC<ProfileSelectorProps> = ({
           <Plus size={14} />
           Novo Perfil
         </Button>
+        <ManageProfilesDialog 
+          profiles={customProfiles}
+          onEditProfile={onEditProfile}
+          onDeleteProfile={onDeleteProfile}
+        />
       </div>
     </div>
   );

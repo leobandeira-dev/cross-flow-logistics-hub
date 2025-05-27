@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -96,7 +97,6 @@ const Sidebar: React.FC = () => {
         {/* Módulo de Administração - Novo */}
         <SubMenu icon={Briefcase} label="Administração" defaultOpen={false}>
           <SidebarItem icon={LayoutDashboard} label="Dashboard Admin" href="/admin" />
-          <SidebarItem icon={FileText} label="Documentação" href="/admin/documentacao" />
           <SidebarItem icon={Users} label="Clientes" href="/admin/clientes" />
           <SubMenu icon={FileSpreadsheet} label="Financeiro" defaultOpen={false}>
             <SidebarItem icon={CreditCard} label="Recebimentos" href="/admin/financeiro/recebimentos" />
