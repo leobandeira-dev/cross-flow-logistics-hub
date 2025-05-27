@@ -25,6 +25,7 @@ const PrintConfigFields: React.FC<PrintConfigFieldsProps> = ({ form }) => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="50x100">Etiqueta 50x100mm</SelectItem>
+            <SelectItem value="150x100">Etiqueta 150x100mm (Retrato)</SelectItem>
             <SelectItem value="a4">Folha A4</SelectItem>
           </SelectContent>
         </Select>
@@ -45,6 +46,7 @@ const PrintConfigFields: React.FC<PrintConfigFieldsProps> = ({ form }) => {
             <SelectItem value="enhanced">Alta Legibilidade (Texto Grande)</SelectItem>
             <SelectItem value="compact">Compacto (Braspress)</SelectItem>
             <SelectItem value="modern">Moderno (Jadlog/UPS)</SelectItem>
+            <SelectItem value="portrait">Retrato (Itens Grandes)</SelectItem>
           </SelectContent>
         </Select>
       </div>
