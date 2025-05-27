@@ -44,10 +44,11 @@ const ImportarViaXMLWithSave: React.FC<ImportarViaXMLWithSaveProps> = ({
           quantidade_volumes: parseInt(extractedData.volumesTotal?.toString() || '0'),
           data_emissao: extractedData.dataHoraEmissao || new Date().toISOString(),
           
-          // Note: The NotaFiscal type doesn't have emitente/destinatario fields
-          // These would need to be handled through the relacionamentos if needed
-          numero_pedido: extractedData.numeroPedido || '',
-          informacoes_complementares: extractedData.informacoesComplementares || '',
+          // Store additional information in observacoes field since these specific fields don't exist in NotaFiscal type
+          observacoes: [
+            extractedData.numeroPedido ? `Pedido: ${extractedData.numeroPedido}` : '',
+            extractedData.informacoesComplementares || ''
+          ].filter(Boolean).join(' | ') || undefined,
           
           status: 'pendente',
           tipo: 'entrada'
