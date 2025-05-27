@@ -1,6 +1,6 @@
 
 /**
- * Utility functions for parsing XML files
+ * Utility functions for parsing XML files and extracting data
  */
 
 /**
@@ -116,5 +116,81 @@ export const xmlDocumentToObject = (xmlDoc: Document): Record<string, any> => {
   
   return {
     [rootTagName]: convertElement(rootElement)
+  };
+};
+
+/**
+ * Utility function to extract values from a specific path in XML
+ */
+export const extractXmlValue = (xmlObj: any, path: string[]): any => {
+  let current = xmlObj;
+  
+  for (const key of path) {
+    // Tente acessar com várias variações de capitalização
+    const variants = [
+      key, // Original
+      key.toLowerCase(), // Tudo minúsculo
+      key.toUpperCase(), // Tudo maiúsculo
+      key.charAt(0).toUpperCase() + key.slice(1), // Primeira letra maiúscula
+      key.charAt(0).toLowerCase() + key.slice(1) // Primeira letra minúscula
+    ];
+    
+    let found = false;
+    for (const variant of variants) {
+      if (current && current[variant] !== undefined) {
+        current = current[variant];
+        found = true;
+        break;
+      }
+    }
+    
+    if (!found) {
+      return undefined;
+    }
+  }
+  
+  return current;
+};
+
+/**
+ * Function to normalize a NFe object structure
+ * Handles different formats and naming conventions in XML
+ */
+export const normalizeNFeStructure = (xmlObj: any): any => {
+  let nfe, infNFe, protNFe;
+  
+  // Try to find the NFe node with different naming conventions
+  if (xmlObj.nfeproc || xmlObj.nfeProc || xmlObj.NFePRoc || xmlObj.NFEPROC) {
+    const proc = xmlObj.nfeproc || xmlObj.nfeProc || xmlObj.NFePRoc || xmlObj.NFEPROC;
+    nfe = proc.NFe || proc.nfe;
+    protNFe = proc.protNFe || proc.protNfe || proc.PROTNFE;
+  } else if (xmlObj.NFe || xmlObj.nfe || xmlObj.NFE) {
+    nfe = xmlObj.NFe || xmlObj.nfe || xmlObj.NFE;
+  }
+  
+  if (!nfe) {
+    console.error('Estrutura de NFe não encontrada no XML');
+    return null;
+  }
+  
+  // Try to find infNFe node with different naming conventions
+  infNFe = nfe.infNFe || nfe.infnfe || nfe.INFNFE;
+  
+  if (!infNFe) {
+    console.error('Estrutura infNFe não encontrada no XML');
+    return null;
+  }
+  
+  // Return a normalized structure
+  return {
+    nfe,
+    infNFe,
+    protNFe,
+    ide: infNFe.ide || infNFe.IDE,
+    emit: infNFe.emit || infNFe.EMIT,
+    dest: infNFe.dest || infNFe.DEST,
+    total: infNFe.total || infNFe.TOTAL,
+    transp: infNFe.transp || infNFe.TRANSP,
+    infAdic: infNFe.infAdic || infNFe.infadic || infNFe.INFADIC
   };
 };

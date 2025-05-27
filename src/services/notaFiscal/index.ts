@@ -4,3 +4,4 @@ export * from './fetchNotaFiscalService';
 export * from './updateNotaFiscalService';
 export * from './deleteNotaFiscalService';
 export * from './statsNotaFiscalService';
+export * from './searchNotaFiscalService';

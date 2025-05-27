@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -59,12 +58,16 @@ export const useNotaFiscalImport = () => {
       const dataEmissao = ide.dhemi || ide.dhEmi || ide.demi || ide.dEmi || '';
       const pesoTotalBruto = parseFloat(vol.pesob || vol.pesoB || '0');
       const volumesTotal = parseInt(vol.qvol || vol.qVol || '1');
+      const tipoOperacao = ide.tpnf || ide.tpNF || '';
       
       // Extract company data
       const emitenteRazao = emit.xnome || emit.xNome || '';
       const emitenteCNPJ = emit.cnpj || emit.CNPJ || '';
+      const emitenteFone = emit.enderemit?.fone || emit.enderEmit?.fone || '';
+      
       const destinatarioRazao = dest.xnome || dest.xNome || '';
       const destinatarioCNPJ = dest.cnpj || dest.CNPJ || '';
+      const destinatarioFone = dest.enderdest?.fone || dest.enderDest?.fone || '';
       
       // Extract addresses
       const emitenteEndereco = emit.enderemit || emit.enderEmit || {};
@@ -102,6 +105,7 @@ export const useNotaFiscalImport = () => {
         pesoTotalBruto,
         volumesTotal,
         chaveNF,
+        tipoOperacao,
         emitenteRazao,
         emitenteCNPJ,
         destinatarioRazao,
@@ -118,10 +122,13 @@ export const useNotaFiscalImport = () => {
         pesoTotalBruto,
         volumesTotal,
         chaveNF,
+        tipoOperacao,
         emitenteRazao,
         emitenteCNPJ,
+        emitenteFone,
         destinatarioRazao,
         destinatarioCNPJ,
+        destinatarioFone,
         emitenteEndereco: {
           logradouro: emitenteEndereco.xlgr || emitenteEndereco.xLgr || '',
           numero: emitenteEndereco.nro || '',
@@ -179,7 +186,7 @@ export const useNotaFiscalImport = () => {
         validDataEmissao = new Date().toISOString();
       }
 
-      // Prepare data for database - using 'pendente' status instead of 'entrada'
+      // Prepare data for database with all extracted fields
       const notaFiscalData = {
         numero: extractedData.numeroNF.toString(),
         serie: extractedData.serieNF.toString() || '1',
@@ -188,8 +195,37 @@ export const useNotaFiscalImport = () => {
         peso_bruto: extractedData.pesoTotalBruto || null,
         quantidade_volumes: extractedData.volumesTotal || null,
         data_emissao: validDataEmissao,
-        status: 'pendente', // Changed from 'entrada' to 'pendente'
+        data_hora_emissao: validDataEmissao,
+        status: 'pendente',
         tipo: 'entrada',
+        tipo_operacao: extractedData.tipoOperacao || null,
+        
+        // Dados do emitente
+        emitente_cnpj: extractedData.emitenteCNPJ || null,
+        emitente_razao_social: extractedData.emitenteRazao || null,
+        emitente_telefone: extractedData.emitenteFone || null,
+        emitente_uf: extractedData.emitenteEndereco?.uf || null,
+        emitente_cidade: extractedData.emitenteEndereco?.cidade || null,
+        emitente_bairro: extractedData.emitenteEndereco?.bairro || null,
+        emitente_endereco: extractedData.emitenteEndereco?.logradouro || null,
+        emitente_numero: extractedData.emitenteEndereco?.numero || null,
+        emitente_cep: extractedData.emitenteEndereco?.cep || null,
+        
+        // Dados do destinatário
+        destinatario_cnpj: extractedData.destinatarioCNPJ || null,
+        destinatario_razao_social: extractedData.destinatarioRazao || null,
+        destinatario_telefone: extractedData.destinatarioFone || null,
+        destinatario_uf: extractedData.destinatarioEndereco?.uf || null,
+        destinatario_cidade: extractedData.destinatarioEndereco?.cidade || null,
+        destinatario_bairro: extractedData.destinatarioEndereco?.bairro || null,
+        destinatario_endereco: extractedData.destinatarioEndereco?.logradouro || null,
+        destinatario_numero: extractedData.destinatarioEndereco?.numero || null,
+        destinatario_cep: extractedData.destinatarioEndereco?.cep || null,
+        
+        // Campos adicionais
+        numero_pedido: extractedData.numeroPedido || null,
+        informacoes_complementares: extractedData.informacoesComplementares || null,
+        
         observacoes: `Importado do XML: ${file.name}. Emitente: ${extractedData.emitenteRazao}. Destinatário: ${extractedData.destinatarioRazao}.`
       };
       
