@@ -339,6 +339,7 @@ export type Database = {
           codigo_risco: string | null
           comprimento: number | null
           created_at: string | null
+          dados_json: Json | null
           data_geracao: string
           etiqueta_mae_id: string | null
           fragil: boolean | null
@@ -360,6 +361,7 @@ export type Database = {
           codigo_risco?: string | null
           comprimento?: number | null
           created_at?: string | null
+          dados_json?: Json | null
           data_geracao?: string
           etiqueta_mae_id?: string | null
           fragil?: boolean | null
@@ -381,6 +383,7 @@ export type Database = {
           codigo_risco?: string | null
           comprimento?: number | null
           created_at?: string | null
+          dados_json?: Json | null
           data_geracao?: string
           etiqueta_mae_id?: string | null
           fragil?: boolean | null
@@ -479,6 +482,53 @@ export type Database = {
             columns: ["ordem_carregamento_id"]
             isOneToOne: false
             referencedRelation: "ordens_carregamento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itens_nota_fiscal: {
+        Row: {
+          codigo_produto: string
+          created_at: string | null
+          descricao: string
+          id: string
+          nota_fiscal_id: string
+          quantidade: number
+          sequencia: number
+          updated_at: string | null
+          valor_total: number
+          valor_unitario: number
+        }
+        Insert: {
+          codigo_produto: string
+          created_at?: string | null
+          descricao: string
+          id?: string
+          nota_fiscal_id: string
+          quantidade?: number
+          sequencia: number
+          updated_at?: string | null
+          valor_total?: number
+          valor_unitario?: number
+        }
+        Update: {
+          codigo_produto?: string
+          created_at?: string | null
+          descricao?: string
+          id?: string
+          nota_fiscal_id?: string
+          quantidade?: number
+          sequencia?: number
+          updated_at?: string | null
+          valor_total?: number
+          valor_unitario?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_nota_fiscal_nota_fiscal_id_fkey"
+            columns: ["nota_fiscal_id"]
+            isOneToOne: false
+            referencedRelation: "notas_fiscais"
             referencedColumns: ["id"]
           },
         ]
@@ -665,60 +715,189 @@ export type Database = {
       }
       notas_fiscais: {
         Row: {
+          arquivo_cte_coleta: string | null
+          arquivo_cte_viagem: string | null
+          arquivos_diversos: string | null
           chave_acesso: string | null
+          coleta_id: string | null
           created_at: string | null
+          data_embarque: string | null
           data_emissao: string
           data_entrada: string | null
+          data_hora_emissao: string | null
+          data_hora_entrada: string | null
           data_saida: string | null
+          destinatario_bairro: string | null
+          destinatario_cep: string | null
+          destinatario_cidade: string | null
+          destinatario_cnpj: string | null
+          destinatario_endereco: string | null
           destinatario_id: string | null
+          destinatario_numero: string | null
+          destinatario_razao_social: string | null
+          destinatario_telefone: string | null
+          destinatario_uf: string | null
+          emitente_bairro: string | null
+          emitente_cep: string | null
+          emitente_cidade: string | null
+          emitente_cnpj: string | null
+          emitente_endereco: string | null
+          emitente_numero: string | null
+          emitente_razao_social: string | null
+          emitente_telefone: string | null
+          emitente_uf: string | null
+          entregue_ao_fornecedor: string | null
+          fob_cif: string | null
+          fracionado: boolean | null
           id: string
+          informacoes_complementares: string | null
+          lista_romaneio: string | null
+          motorista: string | null
           numero: string
+          numero_coleta: string | null
+          numero_cte_coleta: string | null
+          numero_cte_viagem: string | null
+          numero_pedido: string | null
+          observacoes: string | null
           ordem_carregamento_id: string | null
           peso_bruto: number | null
           quantidade_volumes: number | null
+          quimico: boolean | null
           remetente_id: string | null
+          responsavel_entrega: string | null
           serie: string | null
           status: string
+          status_embarque: string | null
+          tempo_armazenamento_horas: number | null
+          tipo: string | null
+          tipo_operacao: string | null
           transportadora_id: string | null
           updated_at: string | null
+          valor_coleta: number | null
           valor_total: number
         }
         Insert: {
+          arquivo_cte_coleta?: string | null
+          arquivo_cte_viagem?: string | null
+          arquivos_diversos?: string | null
           chave_acesso?: string | null
+          coleta_id?: string | null
           created_at?: string | null
+          data_embarque?: string | null
           data_emissao: string
           data_entrada?: string | null
+          data_hora_emissao?: string | null
+          data_hora_entrada?: string | null
           data_saida?: string | null
+          destinatario_bairro?: string | null
+          destinatario_cep?: string | null
+          destinatario_cidade?: string | null
+          destinatario_cnpj?: string | null
+          destinatario_endereco?: string | null
           destinatario_id?: string | null
+          destinatario_numero?: string | null
+          destinatario_razao_social?: string | null
+          destinatario_telefone?: string | null
+          destinatario_uf?: string | null
+          emitente_bairro?: string | null
+          emitente_cep?: string | null
+          emitente_cidade?: string | null
+          emitente_cnpj?: string | null
+          emitente_endereco?: string | null
+          emitente_numero?: string | null
+          emitente_razao_social?: string | null
+          emitente_telefone?: string | null
+          emitente_uf?: string | null
+          entregue_ao_fornecedor?: string | null
+          fob_cif?: string | null
+          fracionado?: boolean | null
           id?: string
+          informacoes_complementares?: string | null
+          lista_romaneio?: string | null
+          motorista?: string | null
           numero: string
+          numero_coleta?: string | null
+          numero_cte_coleta?: string | null
+          numero_cte_viagem?: string | null
+          numero_pedido?: string | null
+          observacoes?: string | null
           ordem_carregamento_id?: string | null
           peso_bruto?: number | null
           quantidade_volumes?: number | null
+          quimico?: boolean | null
           remetente_id?: string | null
+          responsavel_entrega?: string | null
           serie?: string | null
           status?: string
+          status_embarque?: string | null
+          tempo_armazenamento_horas?: number | null
+          tipo?: string | null
+          tipo_operacao?: string | null
           transportadora_id?: string | null
           updated_at?: string | null
+          valor_coleta?: number | null
           valor_total?: number
         }
         Update: {
+          arquivo_cte_coleta?: string | null
+          arquivo_cte_viagem?: string | null
+          arquivos_diversos?: string | null
           chave_acesso?: string | null
+          coleta_id?: string | null
           created_at?: string | null
+          data_embarque?: string | null
           data_emissao?: string
           data_entrada?: string | null
+          data_hora_emissao?: string | null
+          data_hora_entrada?: string | null
           data_saida?: string | null
+          destinatario_bairro?: string | null
+          destinatario_cep?: string | null
+          destinatario_cidade?: string | null
+          destinatario_cnpj?: string | null
+          destinatario_endereco?: string | null
           destinatario_id?: string | null
+          destinatario_numero?: string | null
+          destinatario_razao_social?: string | null
+          destinatario_telefone?: string | null
+          destinatario_uf?: string | null
+          emitente_bairro?: string | null
+          emitente_cep?: string | null
+          emitente_cidade?: string | null
+          emitente_cnpj?: string | null
+          emitente_endereco?: string | null
+          emitente_numero?: string | null
+          emitente_razao_social?: string | null
+          emitente_telefone?: string | null
+          emitente_uf?: string | null
+          entregue_ao_fornecedor?: string | null
+          fob_cif?: string | null
+          fracionado?: boolean | null
           id?: string
+          informacoes_complementares?: string | null
+          lista_romaneio?: string | null
+          motorista?: string | null
           numero?: string
+          numero_coleta?: string | null
+          numero_cte_coleta?: string | null
+          numero_cte_viagem?: string | null
+          numero_pedido?: string | null
+          observacoes?: string | null
           ordem_carregamento_id?: string | null
           peso_bruto?: number | null
           quantidade_volumes?: number | null
+          quimico?: boolean | null
           remetente_id?: string | null
+          responsavel_entrega?: string | null
           serie?: string | null
           status?: string
+          status_embarque?: string | null
+          tempo_armazenamento_horas?: number | null
+          tipo?: string | null
+          tipo_operacao?: string | null
           transportadora_id?: string | null
           updated_at?: string | null
+          valor_coleta?: number | null
           valor_total?: number
         }
         Relationships: [
@@ -727,6 +906,13 @@ export type Database = {
             columns: ["ordem_carregamento_id"]
             isOneToOne: false
             referencedRelation: "ordens_carregamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notas_fiscais_coleta_id_fkey"
+            columns: ["coleta_id"]
+            isOneToOne: false
+            referencedRelation: "coletas"
             referencedColumns: ["id"]
           },
           {
