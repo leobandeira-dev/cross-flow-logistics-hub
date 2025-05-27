@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Printer, FileText, Loader2, RefreshCw } from 'lucide-react';
+import { Search, Printer, FileText, Loader2, RefreshCw, Tags } from 'lucide-react';
 import { useNotasFiscais } from '@/hooks/useNotasFiscais';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
 
 interface ConsultaNotasProps {
   onPrintClick: (notaId: string) => void;
@@ -19,6 +20,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
   const [tipoFilter, setTipoFilter] = useState('todos');
+  const navigate = useNavigate();
 
   // Use the filter values in the hook
   const filtrosQuery = {
@@ -71,6 +73,51 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const handleRefresh = () => {
     console.log('Atualizando lista de notas fiscais...');
     refetch();
+  };
+
+  const handleGenerateEtiquetas = (nota: any) => {
+    console.log('Navegando para geração de etiquetas com dados da nota:', nota);
+    
+    // Preparar dados da nota fiscal para o formulário de etiquetas
+    const notaData = {
+      id: nota.id,
+      numero: nota.numero,
+      chave_acesso: nota.chave_acesso,
+      peso_bruto: nota.peso_bruto,
+      quantidade_volumes: nota.quantidade_volumes,
+      valor_total: nota.valor_total,
+      emitente_razao_social: nota.emitente_razao_social,
+      destinatario_razao_social: nota.destinatario_razao_social,
+      destinatario_cidade: nota.destinatario_cidade,
+      destinatario_uf: nota.destinatario_uf,
+      data_emissao: nota.data_emissao,
+      // Incluir todos os dados extras
+      emitente_cnpj: nota.emitente_cnpj,
+      emitente_telefone: nota.emitente_telefone,
+      emitente_cidade: nota.emitente_cidade,
+      emitente_bairro: nota.emitente_bairro,
+      emitente_endereco: nota.emitente_endereco,
+      emitente_numero: nota.emitente_numero,
+      emitente_cep: nota.emitente_cep,
+      emitente_uf: nota.emitente_uf,
+      destinatario_cnpj: nota.destinatario_cnpj,
+      destinatario_telefone: nota.destinatario_telefone,
+      destinatario_bairro: nota.destinatario_bairro,
+      destinatario_endereco: nota.destinatario_endereco,
+      destinatario_numero: nota.destinatario_numero,
+      destinatario_cep: nota.destinatario_cep,
+      numero_pedido: nota.numero_pedido,
+      informacoes_complementares: nota.informacoes_complementares
+    };
+
+    // Navegar para a página de etiquetas com os dados da nota
+    navigate('/armazenagem/recebimento/etiquetas', {
+      state: {
+        activeTab: 'gerar',
+        notaFiscalData: notaData,
+        autoGenerate: true
+      }
+    });
   };
 
   if (error) {
@@ -178,22 +225,34 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
                       <TableCell className="font-medium">{nota.numero}</TableCell>
                       <TableCell>{nota.serie || '-'}</TableCell>
                       <TableCell>
-                        {nota.remetente?.razao_social || 'Não informado'}
+                        {nota.remetente?.razao_social || nota.emitente_razao_social || 'Não informado'}
                       </TableCell>
                       <TableCell>
-                        {nota.destinatario?.razao_social || 'Não informado'}
+                        {nota.destinatario?.razao_social || nota.destinatario_razao_social || 'Não informado'}
                       </TableCell>
                       <TableCell>{formatCurrency(nota.valor_total)}</TableCell>
                       <TableCell>{formatDate(nota.data_emissao)}</TableCell>
                       <TableCell>{getStatusBadge(nota.status)}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onPrintClick(nota.id)}
-                        >
-                          <Printer className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onPrintClick(nota.id)}
+                            title="Imprimir nota fiscal"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleGenerateEtiquetas(nota)}
+                            title="Gerar etiquetas"
+                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          >
+                            <Tags className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

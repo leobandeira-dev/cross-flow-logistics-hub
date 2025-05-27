@@ -47,6 +47,31 @@ const GeracaoEtiquetas: React.FC = () => {
     handleVincularVolumes
   } = useGeracaoEtiquetas();
 
+  // Handle data from navigation state (when coming from ConsultaNotas)
+  useEffect(() => {
+    if (location.state?.notaFiscalData) {
+      const notaData = location.state.notaFiscalData;
+      console.log('Preenchendo formulário com dados da nota:', notaData);
+      
+      // Populate form with nota fiscal data
+      form.setValue('notaFiscal', notaData.numero || '');
+      form.setValue('volumesTotal', notaData.quantidade_volumes?.toString() || '');
+      form.setValue('pesoTotalBruto', notaData.peso_bruto?.toString() || '');
+      
+      // Set additional fields for etiqueta generation
+      form.setValue('formatoImpressao', '150x100'); // Default to new format
+      form.setValue('layoutStyle', 'alta-legibilidade'); // Default to new layout
+      
+      // Auto-generate volumes if autoGenerate is true
+      if (location.state?.autoGenerate && notaData.quantidade_volumes) {
+        setTimeout(() => {
+          console.log('Auto-gerando volumes para a nota fiscal');
+          handleGenerateVolumes();
+        }, 500);
+      }
+    }
+  }, [location.state, form, handleGenerateVolumes]);
+
   // Set initial form values if opening specifically for etiquetas mãe creation
   useEffect(() => {
     if (initialTab === 'etiquetasMae') {
@@ -82,18 +107,20 @@ const GeracaoEtiquetas: React.FC = () => {
         <p className="text-gray-600">Gere etiquetas de identificação única para cada volume ou etiquetas mãe para agrupamento</p>
       </div>
       
-      {/* Nota Fiscal Selector */}
-      <NotaFiscalSelector 
-        notasFiscais={notasFiscais}
-        selectedNotaId={selectedNotaId}
-        onNotaSelection={handleNotaSelection}
-        isLoading={loadingNotas}
-      />
+      {/* Nota Fiscal Selector - Hide if coming from ConsultaNotas */}
+      {!location.state?.notaFiscalData && (
+        <NotaFiscalSelector 
+          notasFiscais={notasFiscais}
+          selectedNotaId={selectedNotaId}
+          onNotaSelection={handleNotaSelection}
+          isLoading={loadingNotas}
+        />
+      )}
       
       {/* Use the FormInitializer to handle form data initialization */}
       <FormInitializer 
         form={form} 
-        notaFiscalData={notaFiscalData}
+        notaFiscalData={location.state?.notaFiscalData || notaFiscalData}
         onInitialized={handleGenerateVolumes}
       />
       
