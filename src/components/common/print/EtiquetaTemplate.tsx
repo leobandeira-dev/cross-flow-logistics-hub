@@ -5,7 +5,6 @@ import CompactLayout from './etiquetas/CompactLayout';
 import StandardLayout from './etiquetas/StandardLayout';
 import ModernLayout from './etiquetas/ModernLayout';
 import EnhancedReadabilityLayout from './etiquetas/EnhancedReadabilityLayout';
-import AltaLegibilidadeLayout from './etiquetas/AltaLegibilidadeLayout';
 import EtiquetaMaeHeader from './etiquetas/EtiquetaMaeHeader';
 import QuimicoIcon from './etiquetas/QuimicoIcon';
 import { getClassificacaoText, getDisplayCidade } from './etiquetas/utils';
@@ -43,15 +42,11 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
           return <ModernLayout {...layoutProps} />;
         case 'enhanced':
           return <EnhancedReadabilityLayout {...layoutProps} />;
-        case 'alta-legibilidade':
-          return <AltaLegibilidadeLayout {...layoutProps} />;
         case 'standard':
         default:
           return <StandardLayout {...layoutProps} />;
       }
     };
-    
-    const isModernStyleLayout = layoutStyle === 'modern' || layoutStyle === 'enhanced' || layoutStyle === 'alta-legibilidade';
     
     return (
       <div 
@@ -62,15 +57,15 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
           pageBreakAfter: 'always',
         }}
       >
-        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-${isModernStyleLayout ? '0' : '3'} ${isModernStyleLayout ? 'overflow-hidden' : ''} relative`}>
-          {isMae && !isModernStyleLayout && (
+        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-${layoutStyle === 'modern' || layoutStyle === 'enhanced' ? '0' : '3'} ${(layoutStyle === 'modern' || layoutStyle === 'enhanced') ? 'overflow-hidden' : ''} relative`}>
+          {isMae && layoutStyle !== 'modern' && layoutStyle !== 'enhanced' && (
             <EtiquetaMaeHeader 
               etiquetaMaeId={volumeData.etiquetaMae} 
               descricao={volumeData.descricao} 
             />
           )}
           
-          {isQuimico && !isModernStyleLayout && <QuimicoIcon />}
+          {isQuimico && layoutStyle !== 'modern' && layoutStyle !== 'enhanced' && <QuimicoIcon />}
           
           {renderLayout()}
         </Card>

@@ -13,8 +13,8 @@ import { notaFiscalSchema, defaultValues, NotaFiscalSchemaType } from './forms/n
 
 // Import form sections
 import ImportarPorChave from './forms/ImportarPorChave';
-import ImportarViaXMLWithSave from './forms/ImportarViaXMLWithSave';
-import ImportarXMLEmLoteWithSave from './forms/ImportarXMLEmLoteWithSave';
+import ImportarViaXML from './forms/ImportarViaXML';
+import ImportarXMLEmLote from './forms/ImportarXMLEmLote';
 import CadastroManual from './forms/CadastroManual';
 import DadosNotaFiscal from './forms/DadosNotaFiscal';
 import DadosEmitente from './forms/DadosEmitente';
@@ -58,20 +58,16 @@ const NotaFiscalForm: React.FC = () => {
     form.reset(defaultValues);
   };
 
-  const handleFormPopulation = (formData: any) => {
-    console.log('Populando formulário com dados do XML:', formData);
+  // Helper function to convert File[] to FileList-like object
+  const handleBatchFiles = (files: File[]) => {
+    // Create a FileList-like object from File[]
+    const fileList = {
+      ...files,
+      item: (index: number) => files[index] || null,
+      length: files.length
+    } as FileList;
     
-    // Populate all form fields with extracted XML data
-    Object.keys(formData).forEach(key => {
-      if (formData[key] && formData[key] !== '') {
-        form.setValue(key as keyof NotaFiscalSchemaType, formData[key]);
-      }
-    });
-  };
-
-  const handleNotasImported = (notas: any[]) => {
-    // Handle imported notas
-    console.log('Notas importadas:', notas);
+    handleBatchImport(fileList, form.setValue);
   };
 
   return (
@@ -94,15 +90,16 @@ const NotaFiscalForm: React.FC = () => {
             </TabsContent>
             
             <TabsContent value="xml" className="space-y-4 py-4">
-              <ImportarViaXMLWithSave 
-                onFormPopulated={handleFormPopulation}
-                onNotasImported={handleNotasImported}
+              <ImportarViaXML 
+                onFileUpload={(e) => handleFileUpload(e, form.setValue)} 
+                isLoading={isLoading}
               />
             </TabsContent>
             
             <TabsContent value="lote" className="space-y-4 py-4">
-              <ImportarXMLEmLoteWithSave 
-                onNotasImported={handleNotasImported}
+              <ImportarXMLEmLote 
+                onBatchImport={handleBatchFiles}
+                isLoading={isLoading}
               />
             </TabsContent>
             
@@ -111,15 +108,17 @@ const NotaFiscalForm: React.FC = () => {
             </TabsContent>
           </Tabs>
 
-          {/* Show form sections for all tabs except batch import */}
-          <>
-            <DadosNotaFiscal />
-            <DadosEmitente />
-            <DadosDestinatario />
-            <InformacoesAdicionais />
-            <InformacoesTransporte />
-            <InformacoesComplementares />
-          </>
+          {/* Formulário de dados da nota fiscal - only shown for non-batch tabs */}
+          {form.watch('currentTab') !== 'lote' && (
+            <>
+              <DadosNotaFiscal />
+              <DadosEmitente />
+              <DadosDestinatario />
+              <InformacoesAdicionais />
+              <InformacoesTransporte />
+              <InformacoesComplementares />
+            </>
+          )}
 
           <div className="flex justify-end gap-2">
             <Button 

@@ -1,145 +1,104 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NotaFiscal } from "@/types/supabase/fiscal.types";
+import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase.types";
 
 /**
- * Fetches a nota fiscal by its access key (chave de acesso)
+ * Fetches a nota fiscal by its access key
  */
-export const buscarNotaFiscalPorChave = async (chaveAcesso: string): Promise<NotaFiscal | null> => {
+export const buscarNotaFiscalPorChave = async (chave: string): Promise<NotaFiscal | null> => {
   try {
-    console.log('Buscando nota fiscal por chave:', chaveAcesso);
-    
     const { data, error } = await supabase
       .from('notas_fiscais')
-      .select('*')
-      .eq('chave_acesso', chaveAcesso)
-      .maybeSingle();
+      .select(`
+        *,
+        itens:itens_nota_fiscal(*)
+      `)
+      .eq('chave_acesso', chave)
+      .single();
     
     if (error) {
-      console.error('Erro ao buscar nota fiscal por chave:', error);
+      if (error.code === 'PGRST116') {
+        // Não encontrou nenhuma nota fiscal
+        return null;
+      }
       throw new Error(`Erro ao buscar nota fiscal: ${error.message}`);
     }
     
-    console.log('Resultado da busca por chave:', data);
-    return data;
+    return data as unknown as NotaFiscal;
   } catch (error: any) {
-    console.error('Erro na busca por chave:', error);
+    console.error('Erro ao buscar nota fiscal:', error);
     throw error;
   }
 };
 
 /**
- * Fetches a nota fiscal by its number
+ * Fetches notas fiscais with optional filters
  */
-export const buscarNotaFiscalPorNumero = async (numero: string): Promise<NotaFiscal | null> => {
-  try {
-    console.log('Buscando nota fiscal por número:', numero);
-    
-    const { data, error } = await supabase
-      .from('notas_fiscais')
-      .select('*')
-      .eq('numero', numero)
-      .maybeSingle();
-    
-    if (error) {
-      console.error('Erro ao buscar nota fiscal por número:', error);
-      throw new Error(`Erro ao buscar nota fiscal: ${error.message}`);
-    }
-    
-    console.log('Resultado da busca por número:', data);
-    return data;
-  } catch (error: any) {
-    console.error('Erro na busca por número:', error);
-    throw error;
-  }
-};
-
-/**
- * Fetches all notas fiscais with optional filters
- */
-export const buscarNotasFiscais = async (filters?: {
+export const buscarNotasFiscais = async (filtros?: {
   status?: string;
-  numero?: string;
-  chave_acesso?: string;
-  emitente_cnpj?: string;
-  destinatario_cnpj?: string;
-  data_inicio?: string;
-  data_fim?: string;
-}) => {
+  fornecedor?: string;
+  dataInicio?: string;
+  dataFim?: string;
+  termo?: string;
+}): Promise<NotaFiscal[]> => {
   try {
-    console.log('Buscando notas fiscais com filtros:', filters);
-    
     let query = supabase
       .from('notas_fiscais')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select(`
+        *,
+        itens:itens_nota_fiscal(*)
+      `);
     
-    // Apply filters
-    if (filters?.status) {
-      query = query.eq('status', filters.status);
+    if (filtros?.status) {
+      query = query.eq('status', filtros.status);
     }
     
-    if (filters?.numero) {
-      query = query.ilike('numero', `%${filters.numero}%`);
+    if (filtros?.fornecedor) {
+      query = query.ilike('fornecedor', `%${filtros.fornecedor}%`);
     }
     
-    if (filters?.chave_acesso) {
-      query = query.ilike('chave_acesso', `%${filters.chave_acesso}%`);
+    if (filtros?.dataInicio) {
+      query = query.gte('data_entrada', filtros.dataInicio);
     }
     
-    if (filters?.emitente_cnpj) {
-      query = query.ilike('emitente_cnpj', `%${filters.emitente_cnpj}%`);
+    if (filtros?.dataFim) {
+      query = query.lte('data_entrada', filtros.dataFim);
     }
     
-    if (filters?.destinatario_cnpj) {
-      query = query.ilike('destinatario_cnpj', `%${filters.destinatario_cnpj}%`);
-    }
-    
-    if (filters?.data_inicio) {
-      query = query.gte('data_emissao', filters.data_inicio);
-    }
-    
-    if (filters?.data_fim) {
-      query = query.lte('data_emissao', filters.data_fim);
+    if (filtros?.termo) {
+      query = query.or(`numero.ilike.%${filtros.termo}%,chave_acesso.ilike.%${filtros.termo}%,fornecedor.ilike.%${filtros.termo}%`);
     }
     
     const { data, error } = await query;
     
     if (error) {
-      console.error('Erro ao buscar notas fiscais:', error);
       throw new Error(`Erro ao buscar notas fiscais: ${error.message}`);
     }
     
-    console.log(`Encontradas ${data?.length || 0} notas fiscais`);
-    return data || [];
+    return data as unknown as NotaFiscal[];
   } catch (error: any) {
-    console.error('Erro na busca de notas fiscais:', error);
+    console.error('Erro ao buscar notas fiscais:', error);
     throw error;
   }
 };
 
 /**
- * Fetches a single nota fiscal by ID
+ * Fetches items for a specific nota fiscal
  */
-export const buscarNotaFiscalPorId = async (id: string): Promise<NotaFiscal | null> => {
+export const buscarItensNotaFiscal = async (notaFiscalId: string): Promise<ItemNotaFiscal[]> => {
   try {
-    console.log('Buscando nota fiscal por ID:', id);
-    
     const { data, error } = await supabase
-      .from('notas_fiscais')
+      .from('itens_nota_fiscal')
       .select('*')
-      .eq('id', id)
-      .maybeSingle();
+      .eq('nota_fiscal_id', notaFiscalId);
     
     if (error) {
-      console.error('Erro ao buscar nota fiscal por ID:', error);
-      throw new Error(`Erro ao buscar nota fiscal: ${error.message}`);
+      throw new Error(`Erro ao buscar itens da nota fiscal: ${error.message}`);
     }
     
-    console.log('Resultado da busca por ID:', data);
-    return data;
+    return data as ItemNotaFiscal[];
   } catch (error: any) {
-    console.error('Erro na busca por ID:', error);
+    console.error('Erro ao buscar itens da nota fiscal:', error);
     throw error;
   }
 };

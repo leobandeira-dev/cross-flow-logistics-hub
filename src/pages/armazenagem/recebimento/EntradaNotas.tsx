@@ -2,21 +2,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import DocumentPrintModal from '@/components/common/DocumentPrintModal';
 import CadastroNota from './components/CadastroNota';
 import ConsultaNotas from './components/ConsultaNotas';
 import NotaPrintTemplate from './components/NotaPrintTemplate';
 import DANFELayout from './components/print/DANFELayout';
-import ImportarViaXMLWithSave from './components/forms/ImportarViaXMLWithSave';
-import ImportarXMLEmLoteWithSave from './components/forms/ImportarXMLEmLoteWithSave';
 import { notasFiscais } from './data/mockData';
 
 const EntradaNotas: React.FC = () => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedNota, setSelectedNota] = useState<string>('');
-  const [importedNotas, setImportedNotas] = useState<any[]>([]);
   const notaFiscalRef = useRef<HTMLDivElement>(null);
   const danfeRef = useRef<HTMLDivElement>(null);
   const simplifiedDanfeRef = useRef<HTMLDivElement>(null);
@@ -38,10 +33,6 @@ const EntradaNotas: React.FC = () => {
   const handlePrintClick = (notaId: string) => {
     setSelectedNota(notaId);
     setPrintModalOpen(true);
-  };
-
-  const handleNotasImported = (notas: any[]) => {
-    setImportedNotas(prev => [...prev, ...notas]);
   };
 
   // Sample XML content for each nota fiscal
@@ -104,7 +95,6 @@ const EntradaNotas: React.FC = () => {
         <TabsList className="mb-4">
           <TabsTrigger value="cadastrar">Cadastrar Nota</TabsTrigger>
           <TabsTrigger value="consultar">Consultar Notas</TabsTrigger>
-          <TabsTrigger value="importar">Importar XMLs</TabsTrigger>
         </TabsList>
         
         <TabsContent value="cadastrar">
@@ -113,50 +103,6 @@ const EntradaNotas: React.FC = () => {
         
         <TabsContent value="consultar">
           <ConsultaNotas onPrintClick={handlePrintClick} />
-        </TabsContent>
-        
-        <TabsContent value="importar">
-          <div className="space-y-6">
-            <Tabs defaultValue="unico" className="w-full">
-              <TabsList className="mb-4">
-                <TabsTrigger value="unico">Importar XML Único</TabsTrigger>
-                <TabsTrigger value="lote">Importar XML em Lote</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="unico">
-                <ImportarViaXMLWithSave onNotasImported={handleNotasImported} />
-              </TabsContent>
-              
-              <TabsContent value="lote">
-                <ImportarXMLEmLoteWithSave onNotasImported={handleNotasImported} />
-              </TabsContent>
-            </Tabs>
-            
-            {importedNotas.length > 0 && (
-              <Card>
-                <CardContent className="pt-6">
-                  <h3 className="font-semibold text-lg mb-4">
-                    Notas Fiscais Importadas ({importedNotas.length})
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {importedNotas.map((nota, index) => (
-                      <div key={index} className="p-4 border rounded-lg bg-gray-50">
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-medium">NF: {nota.numero}</h4>
-                          <Badge variant="outline">{nota.status}</Badge>
-                        </div>
-                        <p className="text-sm text-gray-600">Valor: R$ {nota.valor_total?.toFixed(2)}</p>
-                        <p className="text-sm text-gray-600">Volumes: {nota.quantidade_volumes || 'N/A'}</p>
-                        {nota.peso_bruto && (
-                          <p className="text-sm text-gray-600">Peso: {nota.peso_bruto} kg</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
         </TabsContent>
       </Tabs>
       

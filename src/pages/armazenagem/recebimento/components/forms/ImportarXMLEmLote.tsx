@@ -6,8 +6,9 @@ import { FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Upload, Loader2, FileText, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useQueryClient } from '@tanstack/react-query';
-import { criarNotaFiscal } from '@/services/notaFiscal/createNotaFiscalService';
+import { parseXmlFile } from '../../utils/xmlParser';
+import { extractDataFromXml } from '../../utils/notaFiscalExtractor';
+import { notasFiscais } from '../../data/mockData';
 
 interface ImportarXMLEmLoteProps {
   onBatchImport: (files: File[]) => void;
@@ -16,15 +17,8 @@ interface ImportarXMLEmLoteProps {
 
 const ImportarXMLEmLote: React.FC<ImportarXMLEmLoteProps> = ({ onBatchImport, isLoading = false }) => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [commonFields, setCommonFields] = useState({
-    responsavelEntrega: '',
-    motorista: '',
-    numeroColeta: '',
-    dataEntrada: ''
-  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -47,43 +41,6 @@ const ImportarXMLEmLote: React.FC<ImportarXMLEmLoteProps> = ({ onBatchImport, is
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const parseXMLData = (xmlContent: string, fileName: string) => {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlContent, "text/xml");
-    
-    // Check for parsing errors
-    const parseError = xmlDoc.querySelector('parsererror');
-    if (parseError) {
-      throw new Error(`Erro ao analisar XML ${fileName}: arquivo pode estar corrompido`);
-    }
-
-    // Extract data from XML
-    const numeroNF = xmlDoc.querySelector('nNF')?.textContent || '';
-    const serieNF = xmlDoc.querySelector('serie')?.textContent || '1';
-    const chaveNF = xmlDoc.querySelector('chNFe')?.textContent || '';
-    const valorTotal = parseFloat(xmlDoc.querySelector('vNF')?.textContent || '0');
-    const dataEmissao = xmlDoc.querySelector('dhEmi')?.textContent || '';
-    const pesoTotal = parseFloat(xmlDoc.querySelector('pesoB')?.textContent || '0');
-    const volumes = parseInt(xmlDoc.querySelector('qVol')?.textContent || '1');
-
-    if (!numeroNF) {
-      throw new Error(`Número da nota fiscal não encontrado no XML ${fileName}`);
-    }
-
-    return {
-      numero: numeroNF,
-      serie: serieNF,
-      chave_acesso: chaveNF,
-      valor_total: valorTotal,
-      peso_bruto: pesoTotal,
-      quantidade_volumes: volumes,
-      data_emissao: dataEmissao ? new Date(dataEmissao).toISOString() : new Date().toISOString(),
-      status: 'entrada',
-      tipo: 'entrada',
-      observacoes: `Importado em lote do arquivo: ${fileName}. Responsável: ${commonFields.responsavelEntrega || 'Não informado'}. Motorista: ${commonFields.motorista || 'Não informado'}.`
-    };
-  };
-
   const handleImportBatch = async () => {
     if (selectedFiles.length === 0) {
       toast({
@@ -95,51 +52,54 @@ const ImportarXMLEmLote: React.FC<ImportarXMLEmLoteProps> = ({ onBatchImport, is
     }
 
     setPreviewLoading(true);
-    let successCount = 0;
-    let errorCount = 0;
-    const errors: string[] = [];
     
     try {
       // Process each XML file
       for (const file of selectedFiles) {
         try {
-          const xmlContent = await readFileAsText(file);
-          const notaFiscalData = parseXMLData(xmlContent, file.name);
-          
-          // Save to database
-          await criarNotaFiscal(notaFiscalData);
-          successCount++;
-          
+          const xmlData = await parseXmlFile(file);
+          if (xmlData) {
+            const extractedData = extractDataFromXml(xmlData);
+            const notaId = extractedData.numeroNF || `NF-${Math.floor(Math.random() * 100000)}`;
+            
+            // Add to the existing notas fiscais array
+            notasFiscais.unshift({
+              id: notaId,
+              numero: extractedData.numeroNF || "",
+              fornecedor: extractedData.emitenteRazaoSocial || "Fornecedor do XML",
+              data: extractedData.dataHoraEmissao 
+                ? new Date(extractedData.dataHoraEmissao).toLocaleDateString('pt-BR') 
+                : new Date().toLocaleDateString('pt-BR'),
+              valor: extractedData.valorTotal || "0,00",
+              status: 'pending',
+              // Add other fields from extractedData
+              destinatarioRazaoSocial: extractedData.destinatarioRazaoSocial || "",
+              destinatarioEndereco: extractedData.destinatarioEndereco || "",
+              destinatarioCidade: extractedData.destinatarioCidade || "",
+              destinatarioUF: extractedData.destinatarioUF || "",
+              destinatarioBairro: extractedData.destinatarioBairro || "",
+              destinatarioCEP: extractedData.destinatarioCEP || "",
+              emitenteRazaoSocial: extractedData.emitenteRazaoSocial || "",
+              dataHoraEmissao: extractedData.dataHoraEmissao || "",
+              pesoTotalBruto: extractedData.pesoTotalBruto || "",
+              pesoTotal: extractedData.pesoTotalBruto || "",
+              chaveNF: extractedData.chaveNF || "",
+            });
+          }
         } catch (error) {
           console.error(`Erro ao processar arquivo ${file.name}:`, error);
-          errorCount++;
-          errors.push(`${file.name}: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
         }
       }
 
-      // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['notas-fiscais'] });
-
-      if (successCount > 0) {
-        toast({
-          title: "Importação concluída",
-          description: `${successCount} arquivo(s) importado(s) com sucesso${errorCount > 0 ? `. ${errorCount} arquivo(s) com erro.` : '.'}`,
-        });
-      }
-
-      if (errorCount > 0) {
-        console.error('Erros na importação:', errors);
-        toast({
-          title: "Alguns arquivos não foram importados",
-          description: `${errorCount} arquivo(s) apresentaram erro. Verifique o console para detalhes.`,
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Importação concluída",
+        description: `${selectedFiles.length} arquivo(s) importado(s) com sucesso.`,
+      });
       
       // Pass files to parent component
       onBatchImport(selectedFiles);
       
-      // Clear selected files after import attempt
+      // Clear selected files after successful import
       setSelectedFiles([]);
       
     } catch (error) {
@@ -152,21 +112,6 @@ const ImportarXMLEmLote: React.FC<ImportarXMLEmLoteProps> = ({ onBatchImport, is
     } finally {
       setPreviewLoading(false);
     }
-  };
-
-  const readFileAsText = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          resolve(event.target.result as string);
-        } else {
-          reject(new Error('Failed to read file'));
-        }
-      };
-      reader.onerror = () => reject(reader.error);
-      reader.readAsText(file);
-    });
   };
 
   return (
@@ -234,38 +179,22 @@ const ImportarXMLEmLote: React.FC<ImportarXMLEmLoteProps> = ({ onBatchImport, is
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormItem>
                 <FormLabel>Responsável pela entrega</FormLabel>
-                <Input 
-                  placeholder="Nome do responsável" 
-                  value={commonFields.responsavelEntrega}
-                  onChange={(e) => setCommonFields(prev => ({ ...prev, responsavelEntrega: e.target.value }))}
-                />
+                <Input placeholder="Nome do responsável" />
               </FormItem>
               
               <FormItem>
                 <FormLabel>Motorista</FormLabel>
-                <Input 
-                  placeholder="Nome do motorista" 
-                  value={commonFields.motorista}
-                  onChange={(e) => setCommonFields(prev => ({ ...prev, motorista: e.target.value }))}
-                />
+                <Input placeholder="Nome do motorista" />
               </FormItem>
               
               <FormItem>
                 <FormLabel>Número da coleta</FormLabel>
-                <Input 
-                  placeholder="Nº da coleta" 
-                  value={commonFields.numeroColeta}
-                  onChange={(e) => setCommonFields(prev => ({ ...prev, numeroColeta: e.target.value }))}
-                />
+                <Input placeholder="Nº da coleta" />
               </FormItem>
               
               <FormItem>
                 <FormLabel>Data de entrada</FormLabel>
-                <Input 
-                  type="datetime-local" 
-                  value={commonFields.dataEntrada}
-                  onChange={(e) => setCommonFields(prev => ({ ...prev, dataEntrada: e.target.value }))}
-                />
+                <Input type="datetime-local" />
               </FormItem>
             </div>
           </div>

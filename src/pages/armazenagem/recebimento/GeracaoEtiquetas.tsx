@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { buscarNotasFiscais } from '@/services/notaFiscal/fetchNotaFiscalService';
 
 // Import refactored components
 import GerarEtiquetasTab from './components/etiquetas/GerarEtiquetasTab';
@@ -12,21 +10,13 @@ import FormInitializer from './components/etiquetas/FormInitializer';
 import ConsultaEtiquetasTab from './components/etiquetas/ConsultaEtiquetasTab';
 import EtiquetasMaeTab from './components/etiquetas/EtiquetasMaeTab';
 import ClassifyVolumeDialog from './components/etiquetas/ClassifyVolumeDialog';
-import NotaFiscalSelector from './components/etiquetas/NotaFiscalSelector';
 import { useGeracaoEtiquetas } from './hooks/useGeracaoEtiquetas';
 
 const GeracaoEtiquetas: React.FC = () => {
   const location = useLocation();
   const initialTab = location.state?.activeTab || 'gerar';
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [selectedNotaId, setSelectedNotaId] = useState<string>('');
   
-  // Fetch notas fiscais from database
-  const { data: notasFiscais = [], isLoading: loadingNotas } = useQuery({
-    queryKey: ['notas-fiscais'],
-    queryFn: () => buscarNotasFiscais({ status: 'entrada' })
-  });
-
   const {
     form,
     notaFiscalData,
@@ -47,31 +37,6 @@ const GeracaoEtiquetas: React.FC = () => {
     handleVincularVolumes
   } = useGeracaoEtiquetas();
 
-  // Handle data from navigation state (when coming from ConsultaNotas)
-  useEffect(() => {
-    if (location.state?.notaFiscalData) {
-      const notaData = location.state.notaFiscalData;
-      console.log('Preenchendo formulário com dados da nota:', notaData);
-      
-      // Populate form with nota fiscal data
-      form.setValue('notaFiscal', notaData.numero || '');
-      form.setValue('volumesTotal', notaData.quantidade_volumes?.toString() || '');
-      form.setValue('pesoTotalBruto', notaData.peso_bruto?.toString() || '');
-      
-      // Set additional fields for etiqueta generation
-      form.setValue('formatoImpressao', '150x100'); // Default to new format
-      form.setValue('layoutStyle', 'alta-legibilidade'); // Default to new layout
-      
-      // Auto-generate volumes if autoGenerate is true
-      if (location.state?.autoGenerate && notaData.quantidade_volumes) {
-        setTimeout(() => {
-          console.log('Auto-gerando volumes para a nota fiscal');
-          handleGenerateVolumes();
-        }, 500);
-      }
-    }
-  }, [location.state, form, handleGenerateVolumes]);
-
   // Set initial form values if opening specifically for etiquetas mãe creation
   useEffect(() => {
     if (initialTab === 'etiquetasMae') {
@@ -80,26 +45,6 @@ const GeracaoEtiquetas: React.FC = () => {
     }
   }, [initialTab, form]);
 
-  // Handle nota fiscal selection
-  const handleNotaSelection = (notaId: string) => {
-    setSelectedNotaId(notaId);
-    const selectedNota = notasFiscais.find(nota => nota.id === notaId);
-    
-    if (selectedNota) {
-      // Populate form with selected nota data
-      form.setValue('notaFiscal', selectedNota.numero);
-      form.setValue('volumesTotal', selectedNota.quantidade_volumes?.toString() || '');
-      form.setValue('pesoTotalBruto', selectedNota.peso_bruto?.toString() || '');
-      
-      // Trigger volume generation automatically if volumes are specified
-      if (selectedNota.quantidade_volumes && selectedNota.quantidade_volumes > 0) {
-        setTimeout(() => {
-          handleGenerateVolumes();
-        }, 300);
-      }
-    }
-  };
-
   return (
     <MainLayout title="Geração de Etiquetas">
       <div className="mb-6">
@@ -107,20 +52,10 @@ const GeracaoEtiquetas: React.FC = () => {
         <p className="text-gray-600">Gere etiquetas de identificação única para cada volume ou etiquetas mãe para agrupamento</p>
       </div>
       
-      {/* Nota Fiscal Selector - Hide if coming from ConsultaNotas */}
-      {!location.state?.notaFiscalData && (
-        <NotaFiscalSelector 
-          notasFiscais={notasFiscais}
-          selectedNotaId={selectedNotaId}
-          onNotaSelection={handleNotaSelection}
-          isLoading={loadingNotas}
-        />
-      )}
-      
       {/* Use the FormInitializer to handle form data initialization */}
       <FormInitializer 
         form={form} 
-        notaFiscalData={location.state?.notaFiscalData || notaFiscalData}
+        notaFiscalData={notaFiscalData}
         onInitialized={handleGenerateVolumes}
       />
       

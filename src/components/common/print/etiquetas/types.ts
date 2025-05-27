@@ -1,6 +1,7 @@
+
 import { ReactNode } from 'react';
 
-export type LayoutStyle = 'standard' | 'compact' | 'modern' | 'enhanced' | 'alta-legibilidade';
+export type LayoutStyle = 'standard' | 'compact' | 'modern' | 'enhanced';
 
 export interface VolumeData {
   id: string;
