@@ -1,5 +1,4 @@
-
-export type LayoutStyle = 'standard' | 'compact' | 'modern';
+export type LayoutStyle = 'standard' | 'compact' | 'modern' | 'enhanced';
 
 export interface GenerationOptions {
   formatoImpressao?: string;

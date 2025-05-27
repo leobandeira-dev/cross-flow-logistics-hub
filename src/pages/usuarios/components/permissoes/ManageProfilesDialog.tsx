@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Pencil } from 'lucide-react';
 import {
@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -23,27 +22,25 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Profile } from './types';
 
 interface ManageProfilesDialogProps { 
-  profiles: Array<{ id: string, nome: string, descricao?: string }>;
-  onEditProfile: (profile: any) => void;
+  profiles: Profile[];
+  onEditProfile: (profile: Profile) => void;
   onDeleteProfile: (id: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const ManageProfilesDialog: React.FC<ManageProfilesDialogProps> = ({ 
   profiles, 
   onEditProfile, 
-  onDeleteProfile 
+  onDeleteProfile,
+  open,
+  onOpenChange
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="ml-2">
-          Gerenciar Perfis
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Gerenciar Perfis de Usuário</DialogTitle>
@@ -72,7 +69,7 @@ const ManageProfilesDialog: React.FC<ManageProfilesDialogProps> = ({
                       size="sm" 
                       onClick={() => {
                         onEditProfile(profile);
-                        setIsOpen(false);
+                        onOpenChange(false);
                       }}
                     >
                       <Pencil size={16} className="mr-1" />
@@ -98,7 +95,7 @@ const ManageProfilesDialog: React.FC<ManageProfilesDialogProps> = ({
                             className="bg-red-600 hover:bg-red-700"
                             onClick={() => {
                               onDeleteProfile(profile.id);
-                              setIsOpen(false);
+                              onOpenChange(false);
                             }}
                           >
                             Excluir
@@ -114,7 +111,7 @@ const ManageProfilesDialog: React.FC<ManageProfilesDialogProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>Fechar</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

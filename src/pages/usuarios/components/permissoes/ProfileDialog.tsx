@@ -12,10 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Profile } from './types';
 
 interface ProfileDialogProps { 
   onSavePerfil: (nome: string, descricao: string, id?: string) => void;
-  editingProfile?: { id: string, nome: string, descricao?: string } | null;
+  editingProfile?: Profile | null;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 }

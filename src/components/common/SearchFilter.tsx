@@ -31,6 +31,7 @@ interface SearchFilterProps {
   onFilterChange?: (filter: string, value: string) => void;
   className?: string;
   type?: "search";
+  searchButtonHandler?: () => void; // New prop for custom search button handler
 }
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
@@ -40,7 +41,8 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   onSearch,
   onFilterChange,
   className,
-  type = "search"
+  type = "search",
+  searchButtonHandler
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
@@ -67,7 +69,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   };
 
   const handleSearch = () => {
-    if (onSearch) {
+    if (searchButtonHandler) {
+      // Use custom handler if provided
+      searchButtonHandler();
+    } else if (onSearch) {
+      // Use default behavior
       onSearch(searchTerm, activeFilters);
     }
   };

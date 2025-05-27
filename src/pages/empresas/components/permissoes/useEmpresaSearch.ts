@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EmpresaMock } from './types';
 
@@ -7,51 +7,55 @@ export const useEmpresaSearch = () => {
   const [selectedEmpresa, setSelectedEmpresa] = useState<string>('');
   const [empresas, setEmpresas] = useState<EmpresaMock[]>([]);
   const [filteredEmpresas, setFilteredEmpresas] = useState<EmpresaMock[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Buscar empresas do Supabase ao carregar o componente
-  useEffect(() => {
-    const fetchEmpresas = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('empresas')
-          .select('id, razao_social, nome_fantasia, cnpj, perfil, status')
-          .eq('status', 'ativo');
+  // Função para buscar empresas do Supabase quando solicitado
+  const fetchEmpresas = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('empresas')
+        .select('id, razao_social, nome_fantasia, cnpj, perfil, status')
+        .eq('status', 'ativo');
 
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        console.log('Empresas carregadas do Supabase:', data);
-
-        // Mapear os dados do Supabase para o formato esperado pelo componente
-        const formattedData: EmpresaMock[] = data.map(item => ({
-          id: item.id,
-          nome: item.nome_fantasia || item.razao_social,
-          cnpj: item.cnpj || '',
-          perfil: item.perfil || 'Cliente',
-        }));
-
-        setEmpresas(formattedData);
-        setFilteredEmpresas(formattedData);
-      } catch (err: any) {
-        console.error('Erro ao buscar empresas:', err);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
+      if (error) {
+        throw new Error(error.message);
       }
-    };
 
-    fetchEmpresas();
-  }, []);
+      console.log('Empresas carregadas do Supabase:', data);
+
+      // Mapear os dados do Supabase para o formato esperado pelo componente
+      const formattedData: EmpresaMock[] = data.map(item => ({
+        id: item.id,
+        nome: item.nome_fantasia || item.razao_social,
+        cnpj: item.cnpj || '',
+        perfil: item.perfil || 'Cliente',
+      }));
+
+      setEmpresas(formattedData);
+      setFilteredEmpresas(formattedData);
+      setIsInitialized(true);
+    } catch (err: any) {
+      console.error('Erro ao buscar empresas:', err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleEmpresaChange = (value: string) => {
     setSelectedEmpresa(value);
   };
 
   const handleSearch = (term: string, activeFilters?: Record<string, string[]>) => {
+    // Se os dados ainda não foram carregados, carrega-os agora
+    if (!isInitialized) {
+      fetchEmpresas();
+      return;
+    }
+
     let filtered = [...empresas];
 
     // Filtrar por termo de busca (nome ou CNPJ)
@@ -89,5 +93,7 @@ export const useEmpresaSearch = () => {
     getEmpresaName,
     isLoading,
     error,
+    fetchEmpresas,
+    isInitialized
   };
 };

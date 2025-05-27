@@ -1,13 +1,10 @@
 
-export interface RotinaEmpresa {
-  id: string;
-  nome: string;
-}
+export type Permission = Record<string, Record<string, Record<string, boolean>>>;
 
-export interface TabelaEmpresa {
+export interface Profile {
   id: string;
   nome: string;
-  rotinas: RotinaEmpresa[];
+  descricao?: string;
 }
 
 export interface ModuloEmpresa {
@@ -16,18 +13,13 @@ export interface ModuloEmpresa {
   tabelas: TabelaEmpresa[];
 }
 
-export interface UserProfile {
+export interface TabelaEmpresa {
   id: string;
   nome: string;
-  descricao?: string;
+  rotinas: RotinaEmpresa[];
 }
 
-export interface UserPermissionProps {
-  moduleId: string;
-  modulePermission: boolean;
-  tabId: string;
-  tabPermission: boolean;
-  routineId: string;
-  routinePermission: boolean;
-  onPermissionChange: (key: string, checked: boolean) => void;
+export interface RotinaEmpresa {
+  id: string;
+  nome: string;
 }

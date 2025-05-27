@@ -1,90 +1,112 @@
 
 import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ModuloEmpresa } from './types';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Save } from 'lucide-react';
+import { Permission } from './types';
 
 interface PermissionTableProps {
-  systemModules: ModuloEmpresa[];
-  permissions: Record<string, boolean>;
-  handlePermissionChange: (key: string, checked: boolean) => void;
+  permissions: Permission | null;
+  isLoading: boolean;
+  onPermissionChange: (moduleId: string, tableId: string, routineId: string, allowed: boolean) => void;
+  onSave: () => void;
+  isSaving: boolean;
+  disabled: boolean;
 }
 
 const PermissionTable: React.FC<PermissionTableProps> = ({
-  systemModules,
   permissions,
-  handlePermissionChange
+  isLoading,
+  onPermissionChange,
+  onSave,
+  isSaving,
+  disabled
 }) => {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <Skeleton className="h-8 w-full max-w-md mb-4" />
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!permissions || Object.keys(permissions).length === 0) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center p-8">
+            <h3 className="text-lg font-medium">Nenhuma permissão encontrada</h3>
+            <p className="text-gray-500 mt-2">
+              Selecione um perfil para gerenciar suas permissões
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <div className="border rounded-md">
-      <table className="w-full">
-        <thead>
-          <tr className="bg-gray-100 border-b">
-            <th className="px-4 py-2 text-left font-medium">Módulo / Aba / Rotina</th>
-            <th className="px-4 py-2 text-center w-24 font-medium">Acesso</th>
-          </tr>
-        </thead>
-        <tbody>
-          {systemModules.map(module => (
-            <React.Fragment key={module.id}>
-              {/* Module row */}
-              <tr className="bg-gray-50 hover:bg-gray-100 border-b">
-                <td className="px-4 py-3 font-medium">
-                  {module.nome}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <Checkbox
-                    id={`module_${module.id}`}
-                    checked={permissions[`module_${module.id}`] || false}
-                    onCheckedChange={(checked) => 
-                      handlePermissionChange(`module_${module.id}`, checked === true)
-                    }
+    <div>
+      <div className="flex justify-between mb-4">
+        <h3 className="text-lg font-medium">Permissões</h3>
+        <Button 
+          onClick={onSave} 
+          disabled={disabled || isSaving}
+          className="gap-2"
+        >
+          <Save size={16} />
+          {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+        </Button>
+      </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Módulo</TableHead>
+            <TableHead>Tabela/Recurso</TableHead>
+            <TableHead>Visualizar</TableHead>
+            <TableHead>Editar</TableHead>
+            <TableHead>Remover</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Object.entries(permissions).map(([moduleId, tables]) => (
+            Object.entries(tables).map(([tableId, routines]) => (
+              <TableRow key={`${moduleId}-${tableId}`}>
+                <TableCell className="font-medium">{moduleId}</TableCell>
+                <TableCell>{tableId}</TableCell>
+                <TableCell>
+                  <Checkbox 
+                    checked={routines.view === true} 
+                    onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'view', checked === true)}
+                    disabled={disabled}
                   />
-                </td>
-              </tr>
-              
-              {/* Tab rows */}
-              {module.tabelas.map(tab => (
-                <React.Fragment key={`${module.id}_${tab.id}`}>
-                  <tr className="hover:bg-gray-50 border-b">
-                    <td className="px-4 py-2 pl-8">
-                      {tab.nome}
-                    </td>
-                    <td className="px-4 py-2 text-center">
-                      <Checkbox
-                        id={`tab_${module.id}_${tab.id}`}
-                        checked={permissions[`tab_${module.id}_${tab.id}`] || false}
-                        disabled={!permissions[`module_${module.id}`]}
-                        onCheckedChange={(checked) => 
-                          handlePermissionChange(`tab_${module.id}_${tab.id}`, checked === true)
-                        }
-                      />
-                    </td>
-                  </tr>
-                  
-                  {/* Routine rows */}
-                  {tab.rotinas.map(routine => (
-                    <tr key={`${module.id}_${tab.id}_${routine.id}`} className="hover:bg-gray-50 border-b">
-                      <td className="px-4 py-2 pl-12 text-sm">
-                        {routine.nome}
-                      </td>
-                      <td className="px-4 py-2 text-center">
-                        <Checkbox
-                          id={`routine_${module.id}_${tab.id}_${routine.id}`}
-                          checked={permissions[`routine_${module.id}_${tab.id}_${routine.id}`] || false}
-                          disabled={!permissions[`tab_${module.id}_${tab.id}`]}
-                          onCheckedChange={(checked) => 
-                            handlePermissionChange(`routine_${module.id}_${tab.id}_${routine.id}`, checked === true)
-                          }
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </React.Fragment>
-              ))}
-            </React.Fragment>
+                </TableCell>
+                <TableCell>
+                  <Checkbox 
+                    checked={routines.edit === true} 
+                    onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'edit', checked === true)}
+                    disabled={disabled}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Checkbox 
+                    checked={routines.delete === true} 
+                    onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'delete', checked === true)}
+                    disabled={disabled}
+                  />
+                </TableCell>
+              </TableRow>
+            ))
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 };
