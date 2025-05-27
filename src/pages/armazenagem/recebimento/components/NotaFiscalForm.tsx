@@ -21,9 +21,9 @@ const NotaFiscalForm: React.FC = () => {
       numeroNF: '',
       serieNF: '',
       chaveNF: '',
-      valorTotal: 0,
-      pesoTotalBruto: 0,
-      volumesTotal: 0,
+      valorTotal: '0',
+      pesoTotalBruto: '0',
+      volumesTotal: '0',
       emitenteRazaoSocial: '',
       emitenteCNPJ: '',
       destinatarioRazaoSocial: '',
@@ -37,7 +37,7 @@ const NotaFiscalForm: React.FC = () => {
     // Populate form fields with imported data
     Object.entries(formData).forEach(([field, value]) => {
       if (value !== null && value !== undefined && value !== '') {
-        form.setValue(field as keyof NotaFiscalSchemaType, value);
+        form.setValue(field as keyof NotaFiscalSchemaType, String(value));
       }
     });
     
@@ -64,7 +64,6 @@ const NotaFiscalForm: React.FC = () => {
         
         <TabsContent value="manual">
           <CadastroManual 
-            form={form} 
             onSubmit={handleSubmit} 
             isLoading={isLoading}
           />
@@ -72,8 +71,7 @@ const NotaFiscalForm: React.FC = () => {
         
         <TabsContent value="chave">
           <ImportarPorChave 
-            form={form} 
-            onKeySearch={() => handleKeySearch(form.getValues, form.setValue)}
+            onBuscarNota={() => handleKeySearch(form.getValues, form.setValue)}
             isLoading={isLoading}
           />
         </TabsContent>

@@ -43,7 +43,6 @@ const ImportarViaXMLWithSave: React.FC<ImportarViaXMLWithSaveProps> = ({
           peso_bruto: parseFloat(extractedData.pesoTotalBruto?.toString() || '0'),
           quantidade_volumes: parseInt(extractedData.volumesTotal?.toString() || '0'),
           data_emissao: extractedData.dataHoraEmissao || new Date().toISOString(),
-          data_hora_emissao: extractedData.dataHoraEmissao || new Date().toISOString(),
           
           // Emitter data
           emitente_cnpj: extractedData.emitenteCNPJ || '',
