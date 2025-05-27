@@ -47,6 +47,10 @@ const PrintConfigFields: React.FC<PrintConfigFieldsProps> = ({ form }) => {
             <SelectItem value="compact">Compacto (Braspress)</SelectItem>
             <SelectItem value="modern">Moderno (Jadlog/UPS)</SelectItem>
             <SelectItem value="portrait">Retrato (Itens Grandes)</SelectItem>
+            <SelectItem value="portrait_blue">Retrato Azul (Alto Contraste)</SelectItem>
+            <SelectItem value="portrait_green">Retrato Verde (Alto Contraste)</SelectItem>
+            <SelectItem value="portrait_red">Retrato Vermelho (Alto Contraste)</SelectItem>
+            <SelectItem value="portrait_purple">Retrato Roxo (Alto Contraste)</SelectItem>
           </SelectContent>
         </Select>
       </div>

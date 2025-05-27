@@ -1,6 +1,7 @@
+
 import { ReactNode } from 'react';
 
-export type LayoutStyle = 'standard' | 'compact' | 'modern' | 'enhanced' | 'portrait';
+export type LayoutStyle = 'standard' | 'compact' | 'modern' | 'enhanced' | 'portrait' | 'portrait_blue' | 'portrait_green' | 'portrait_red' | 'portrait_purple';
 
 export interface VolumeData {
   id: string;

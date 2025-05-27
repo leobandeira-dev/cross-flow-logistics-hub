@@ -33,6 +33,10 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
               <SelectItem value="compact">Compacto (Braspress)</SelectItem>
               <SelectItem value="modern">Moderno (Jadlog/UPS)</SelectItem>
               <SelectItem value="portrait">Retrato (Itens Grandes)</SelectItem>
+              <SelectItem value="portrait_blue">Retrato Azul (Alto Contraste)</SelectItem>
+              <SelectItem value="portrait_green">Retrato Verde (Alto Contraste)</SelectItem>
+              <SelectItem value="portrait_red">Retrato Vermelho (Alto Contraste)</SelectItem>
+              <SelectItem value="portrait_purple">Retrato Roxo (Alto Contraste)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -62,6 +66,26 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
             {layoutStyle === 'portrait' && (
               // Portrait layout preview
               renderPortraitPreview(tipoEtiqueta, isQuimico)
+            )}
+            
+            {layoutStyle === 'portrait_blue' && (
+              // Portrait Blue layout preview
+              renderPortraitBluePreview(tipoEtiqueta, isQuimico)
+            )}
+            
+            {layoutStyle === 'portrait_green' && (
+              // Portrait Green layout preview
+              renderPortraitGreenPreview(tipoEtiqueta, isQuimico)
+            )}
+            
+            {layoutStyle === 'portrait_red' && (
+              // Portrait Red layout preview
+              renderPortraitRedPreview(tipoEtiqueta, isQuimico)
+            )}
+            
+            {layoutStyle === 'portrait_purple' && (
+              // Portrait Purple layout preview
+              renderPortraitPurplePreview(tipoEtiqueta, isQuimico)
             )}
           </div>
         </div>
@@ -351,6 +375,207 @@ const renderPortraitPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolea
             <span className="text-xs font-bold text-red-600">QUÍMICO</span>
           </div>
           <div className="text-xs text-center">ONU:1090</div>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+// Helper function to render the portrait blue layout preview
+const renderPortraitBluePreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
+  <div className={`p-3 border-2 border-blue-600 bg-blue-50 relative min-h-[300px] w-[200px]`}>
+    <div className="flex flex-col space-y-2 h-full">
+      {/* Header */}
+      <div className={`text-center py-1 px-2 rounded text-white text-xs font-bold bg-blue-700`}>
+        {tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'VOLUME 1/2'}
+      </div>
+      
+      {/* QR Code */}
+      <div className="flex justify-center py-1">
+        <div className="bg-white p-1 rounded">
+          <QrCode size={20} className="mx-auto" />
+        </div>
+      </div>
+      
+      {/* NF - Destaque MÁXIMO */}
+      <div className="bg-blue-100 border-2 border-blue-600 rounded p-2 text-center shadow-md">
+        <div className="text-xs text-blue-800 font-bold">NOTA FISCAL</div>
+        <div className="text-xl font-black text-blue-900">123456</div>
+      </div>
+      
+      {/* Cidade - Destaque MÁXIMO */}
+      <div className="bg-blue-200 border-2 border-blue-700 rounded p-2 text-center shadow-md">
+        <div className="text-xs text-blue-800 font-bold">CIDADE DESTINO</div>
+        <div className="text-lg font-black text-blue-900">SÃO PAULO</div>
+        <div className="text-sm font-bold text-blue-800">SP</div>
+      </div>
+      
+      {/* Remetente - Destaque MÁXIMO */}
+      <div className="bg-blue-300 border-2 border-blue-800 rounded p-2 shadow-md">
+        <div className="text-xs text-blue-900 font-bold">REMETENTE</div>
+        <div className="text-sm font-black text-blue-900 leading-tight">EMPRESA XYZ</div>
+      </div>
+      
+      {tipoEtiqueta === 'mae' && (
+        <div className="bg-blue-400 border-2 border-blue-900 rounded p-2 text-center shadow-md">
+          <div className="text-xs text-blue-900 font-bold">QTD VOLUMES</div>
+          <div className="text-xl font-black text-blue-900">25</div>
+        </div>
+      )}
+      
+      {isQuimico && (
+        <div className="bg-red-100 border border-red-500 rounded p-1 mt-auto">
+          <div className="flex items-center justify-center">
+            <Biohazard size={10} className="text-red-600 mr-1" />
+            <span className="text-xs font-bold text-red-600">QUÍMICO</span>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+// Helper function to render the portrait green layout preview
+const renderPortraitGreenPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
+  <div className={`p-3 border-2 border-green-600 bg-green-50 relative min-h-[300px] w-[200px]`}>
+    <div className="flex flex-col space-y-2 h-full">
+      <div className={`text-center py-1 px-2 rounded text-white text-xs font-bold bg-green-700`}>
+        {tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'VOLUME 1/2'}
+      </div>
+      
+      <div className="flex justify-center py-1">
+        <div className="bg-white p-1 rounded">
+          <QrCode size={20} className="mx-auto" />
+        </div>
+      </div>
+      
+      <div className="bg-amber-100 border-2 border-amber-500 rounded p-2 text-center shadow-md">
+        <div className="text-xs text-amber-800 font-bold">NOTA FISCAL</div>
+        <div className="text-xl font-black text-amber-900">123456</div>
+      </div>
+      
+      <div className="bg-green-200 border-2 border-green-600 rounded p-2 text-center shadow-md">
+        <div className="text-xs text-green-800 font-bold">CIDADE DESTINO</div>
+        <div className="text-lg font-black text-green-900">SÃO PAULO</div>
+        <div className="text-sm font-bold text-green-800">SP</div>
+      </div>
+      
+      <div className="bg-green-300 border-2 border-green-700 rounded p-2 shadow-md">
+        <div className="text-xs text-green-900 font-bold">REMETENTE</div>
+        <div className="text-sm font-black text-green-900 leading-tight">EMPRESA XYZ</div>
+      </div>
+      
+      {tipoEtiqueta === 'mae' && (
+        <div className="bg-green-400 border-2 border-green-800 rounded p-2 text-center shadow-md">
+          <div className="text-xs text-green-900 font-bold">QTD VOLUMES</div>
+          <div className="text-xl font-black text-green-900">25</div>
+        </div>
+      )}
+      
+      {isQuimico && (
+        <div className="bg-red-100 border border-red-500 rounded p-1 mt-auto">
+          <div className="flex items-center justify-center">
+            <Biohazard size={10} className="text-red-600 mr-1" />
+            <span className="text-xs font-bold text-red-600">QUÍMICO</span>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+// Helper function to render the portrait red layout preview
+const renderPortraitRedPreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
+  <div className={`p-3 border-2 border-red-600 bg-red-50 relative min-h-[300px] w-[200px]`}>
+    <div className="flex flex-col space-y-2 h-full">
+      <div className={`text-center py-1 px-2 rounded text-white text-xs font-bold bg-red-700`}>
+        {tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'VOLUME 1/2'}
+      </div>
+      
+      <div className="flex justify-center py-1">
+        <div className="bg-white p-1 rounded">
+          <QrCode size={20} className="mx-auto" />
+        </div>
+      </div>
+      
+      <div className="bg-yellow-100 border-2 border-yellow-500 rounded p-2 text-center shadow-md">
+        <div className="text-xs text-yellow-800 font-bold">NOTA FISCAL</div>
+        <div className="text-xl font-black text-yellow-900">123456</div>
+      </div>
+      
+      <div className="bg-red-200 border-2 border-red-600 rounded p-2 text-center shadow-md">
+        <div className="text-xs text-red-800 font-bold">CIDADE DESTINO</div>
+        <div className="text-lg font-black text-red-900">SÃO PAULO</div>
+        <div className="text-sm font-bold text-red-800">SP</div>
+      </div>
+      
+      <div className="bg-red-300 border-2 border-red-700 rounded p-2 shadow-md">
+        <div className="text-xs text-red-900 font-bold">REMETENTE</div>
+        <div className="text-sm font-black text-red-900 leading-tight">EMPRESA XYZ</div>
+      </div>
+      
+      {tipoEtiqueta === 'mae' && (
+        <div className="bg-red-400 border-2 border-red-800 rounded p-2 text-center shadow-md">
+          <div className="text-xs text-red-900 font-bold">QTD VOLUMES</div>
+          <div className="text-xl font-black text-red-900">25</div>
+        </div>
+      )}
+      
+      {isQuimico && (
+        <div className="bg-orange-100 border border-orange-500 rounded p-1 mt-auto">
+          <div className="flex items-center justify-center">
+            <Biohazard size={10} className="text-orange-600 mr-1" />
+            <span className="text-xs font-bold text-orange-600">QUÍMICO</span>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+// Helper function to render the portrait purple layout preview
+const renderPortraitPurplePreview = (tipoEtiqueta: 'volume' | 'mae', isQuimico: boolean) => (
+  <div className={`p-3 border-2 border-purple-600 bg-purple-50 relative min-h-[300px] w-[200px]`}>
+    <div className="flex flex-col space-y-2 h-full">
+      <div className={`text-center py-1 px-2 rounded text-white text-xs font-bold bg-purple-700`}>
+        {tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'VOLUME 1/2'}
+      </div>
+      
+      <div className="flex justify-center py-1">
+        <div className="bg-white p-1 rounded">
+          <QrCode size={20} className="mx-auto" />
+        </div>
+      </div>
+      
+      <div className="bg-yellow-100 border-2 border-yellow-500 rounded p-2 text-center shadow-md">
+        <div className="text-xs text-yellow-800 font-bold">NOTA FISCAL</div>
+        <div className="text-xl font-black text-yellow-900">123456</div>
+      </div>
+      
+      <div className="bg-purple-200 border-2 border-purple-600 rounded p-2 text-center shadow-md">
+        <div className="text-xs text-purple-800 font-bold">CIDADE DESTINO</div>
+        <div className="text-lg font-black text-purple-900">SÃO PAULO</div>
+        <div className="text-sm font-bold text-purple-800">SP</div>
+      </div>
+      
+      <div className="bg-purple-300 border-2 border-purple-700 rounded p-2 shadow-md">
+        <div className="text-xs text-purple-900 font-bold">REMETENTE</div>
+        <div className="text-sm font-black text-purple-900 leading-tight">EMPRESA XYZ</div>
+      </div>
+      
+      {tipoEtiqueta === 'mae' && (
+        <div className="bg-purple-400 border-2 border-purple-800 rounded p-2 text-center shadow-md">
+          <div className="text-xs text-purple-900 font-bold">QTD VOLUMES</div>
+          <div className="text-xl font-black text-purple-900">25</div>
+        </div>
+      )}
+      
+      {isQuimico && (
+        <div className="bg-red-100 border border-red-500 rounded p-1 mt-auto">
+          <div className="flex items-center justify-center">
+            <Biohazard size={10} className="text-red-600 mr-1" />
+            <span className="text-xs font-bold text-red-600">QUÍMICO</span>
+          </div>
         </div>
       )}
     </div>
