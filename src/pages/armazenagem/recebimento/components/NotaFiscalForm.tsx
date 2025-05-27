@@ -58,6 +58,18 @@ const NotaFiscalForm: React.FC = () => {
     form.reset(defaultValues);
   };
 
+  // Helper function to convert File[] to FileList-like object
+  const handleBatchFiles = (files: File[]) => {
+    // Create a FileList-like object from File[]
+    const fileList = {
+      ...files,
+      item: (index: number) => files[index] || null,
+      length: files.length
+    } as FileList;
+    
+    handleBatchImport(fileList, form.setValue);
+  };
+
   return (
     <>
       <Form {...form}>
@@ -86,7 +98,7 @@ const NotaFiscalForm: React.FC = () => {
             
             <TabsContent value="lote" className="space-y-4 py-4">
               <ImportarXMLEmLote 
-                onBatchImport={(files) => handleBatchImport(files, form.setValue)}
+                onBatchImport={handleBatchFiles}
                 isLoading={isLoading}
               />
             </TabsContent>

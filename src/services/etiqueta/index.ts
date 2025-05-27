@@ -3,6 +3,7 @@ import etiquetaBasicService from './etiquetaBasicService';
 import etiquetaMaeService from './etiquetaMaeService';
 import unitizacaoService from './unitizacaoService';
 import movimentacaoService from './movimentacaoService';
+import etiquetaCrudService from './etiquetaCrudService';
 
 // Export a combined service with all functionalities
 const etiquetaService = {
@@ -10,6 +11,7 @@ const etiquetaService = {
   ...etiquetaMaeService,
   ...unitizacaoService,
   ...movimentacaoService,
+  ...etiquetaCrudService,
 };
 
 // Export individual services for more granular imports
@@ -18,6 +20,7 @@ export {
   etiquetaMaeService,
   unitizacaoService,
   movimentacaoService,
+  etiquetaCrudService,
 };
 
 export default etiquetaService;
