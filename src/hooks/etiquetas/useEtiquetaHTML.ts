@@ -1,3 +1,4 @@
+
 // useEtiquetaHTML.ts
 import { LayoutStyle } from './types';
 import { getClassificacaoText } from '../../components/common/print/etiquetas/utils';
@@ -35,14 +36,6 @@ export const useEtiquetaHTML = () => {
       </div>
     ` : (tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : (volume.transportadora || 'TRANSPORTADORA'));
 
-    // Área HTML - Destaque principal - SEMPRE VISÍVEL SE EXISTIR
-    const areaHTML = volume.area ? `
-      <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 20px; text-center; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <div style="color: white; font-size: 16px; font-weight: 900; margin-bottom: 8px; letter-spacing: 0.1em;">ÁREA</div>
-        <div style="color: white; font-size: 56px; font-weight: 900; letter-spacing: 0.2em;">${volume.area}</div>
-      </div>
-    ` : '';
-    
     // Enhanced Contrast layout template
     if (layoutStyle === 'enhanced_contrast') {
       return `
@@ -53,8 +46,6 @@ export const useEtiquetaHTML = () => {
           <div style="text-align: center; font-size: 18px; font-weight: 900; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 15px;">
             ${headerHTML}
           </div>
-
-          ${areaHTML}
           
           <div style="display: flex;">
             <!-- Coluna principal com informações -->
@@ -114,6 +105,14 @@ export const useEtiquetaHTML = () => {
                 `<div style="width: 100px; height: 100px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 12px; background: white; border-radius: 6px;">QR: ${volume.id}</div>`
               }
               <div style="text-align: center; font-size: 12px; margin-top: 8px; font-weight: 700;">${volume.id}</div>
+              
+              <!-- Área - DESTAQUE COM ALTO CONTRASTE ABAIXO DO QR CODE -->
+              ${volume.area ? `
+                <div style="margin-top: 16px; background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 20px; text-center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px; letter-spacing: 0.1em;">ÁREA</div>
+                  <div style="color: white; font-size: 60px; font-weight: 900; letter-spacing: 0.2em;">${volume.area}</div>
+                </div>
+              ` : ''}
             </div>
           </div>
           
@@ -156,7 +155,13 @@ export const useEtiquetaHTML = () => {
             `}
           </div>
 
-          ${areaHTML}
+          ${volume.area ? `
+          <!-- Área - DESTAQUE PRINCIPAL -->
+          <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="color: white; font-size: 14px; font-weight: 900; margin-bottom: 8px;">ÁREA</div>
+            <div style="color: white; font-size: 40px; font-weight: 900; letter-spacing: 0.2em;">${volume.area}</div>
+          </div>
+          ` : ''}
 
           ${tipoEtiqueta !== 'mae' && volumeNumber && totalVolumes ? `
           <!-- Contagem de Volumes - CONTAINER LARANJA APRIMORADO -->
@@ -375,7 +380,6 @@ export const useEtiquetaHTML = () => {
           <div style="font-size: 18px; font-weight: 900; text-align: center; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 15px;">
             ${headerHTML}
           </div>
-          ${areaHTML}
           <div style="display: flex; margin-top: 10px;">
             <div style="flex: 2; padding-right: 15px;">
               <div style="font-size: 14px; margin-bottom: 8px;">
@@ -421,6 +425,14 @@ export const useEtiquetaHTML = () => {
                 `<div style="width: 100px; height: 100px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 12px; background: white; border-radius: 6px;">QR: ${volume.id}</div>`
               }
               <div style="text-align: center; font-size: 12px; margin-top: 8px; font-weight: 700;">${volume.id}</div>
+              
+              <!-- Área - DESTAQUE ABAIXO DO QR CODE -->
+              ${volume.area ? `
+                <div style="margin-top: 16px; background: #4338CA; border: 4px solid #312E81; border-radius: 12px; padding: 20px; text-center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px; letter-spacing: 0.1em;">ÁREA</div>
+                  <div style="color: white; font-size: 60px; font-weight: 900; letter-spacing: 0.2em;">${volume.area}</div>
+                </div>
+              ` : ''}
             </div>
           </div>
           ${volume.descricao ? `
@@ -494,6 +506,12 @@ export const useEtiquetaHTML = () => {
               `<div style="width: 80px; height: 80px; border: 1px solid #000; display: flex; justify-content: center; align-items: center; font-size: 10px;">QR Code: ${volume.id}</div>`
             }
             <div style="text-align: center; font-size: 10px; margin-top: 5px;">${volume.id}</div>
+            ${volume.area ? `
+              <div style="margin-top: 10px; background-color: #E0E7FF; padding: 10px; border: 2px solid #C7D2FE; border-radius: 6px; text-align: center;">
+                <div style="font-size: 10px; font-weight: bold; margin-bottom: 5px;">ÁREA</div>
+                <div style="font-size: 32px; font-weight: bold;">${volume.area}</div>
+              </div>
+            ` : ''}
           </div>
         </div>
         ${volume.descricao ? `
