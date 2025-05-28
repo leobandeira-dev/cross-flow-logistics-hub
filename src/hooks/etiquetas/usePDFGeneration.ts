@@ -42,8 +42,8 @@ export const usePDFGeneration = () => {
         classificacaoQuimica: preparedVolume.classificacaoQuimica || 'nao_classificada',
         area: preparedVolume.area || '01', // Garantir que a área seja incluída
         quantidade: preparedVolume.quantidade || 1, // Garantir que a quantidade seja incluída
-        volumeNumber: preparedVolume.volumeNumber || 1, // Garantir número do volume
-        totalVolumes: preparedVolume.totalVolumes || 1, // Garantir total de volumes
+        volumeNumber: preparedVolume.volumeNumber || vol.volumeNumber || 1, // Garantir número do volume
+        totalVolumes: preparedVolume.totalVolumes || vol.totalVolumes || 1, // Garantir total de volumes
         qrCode: qrCodeDataURL
       } as VolumeData);  // Type assertion to make TypeScript recognize all properties
     }

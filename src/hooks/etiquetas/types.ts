@@ -70,4 +70,6 @@ export interface VolumeData {
   transportadora?: string;
   qrCode?: string;
   area?: string;
+  volumeNumber?: number;
+  totalVolumes?: number;
 }
