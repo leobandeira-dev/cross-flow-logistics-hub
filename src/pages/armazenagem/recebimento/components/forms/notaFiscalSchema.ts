@@ -57,10 +57,26 @@ export const notaFiscalSchema = z.object({
   dataHoraEntrada: z.string().optional(),
   statusEmbarque: z.string().optional(),
   responsavelEntrega: z.string().optional(),
-  quimico: z.string().optional(),  // Changed from boolean to string to match the Select component usage
-  fracionado: z.string().optional(),  // Changed from boolean to string to match the Select component usage
+  quimico: z.string().optional(),
+  fracionado: z.string().optional(),
   motorista: z.string().optional(),
   tempoArmazenamento: z.string().optional(),
+  
+  // Additional fields for database mapping
+  remetente_id: z.string().optional(),
+  destinatario_id: z.string().optional(),
+  transportadora_id: z.string().optional(),
+  ordem_carregamento_id: z.string().optional(),
+  coleta_id: z.string().optional(),
+  
+  // Items array
+  itens: z.array(z.object({
+    codigoProduto: z.string(),
+    descricao: z.string(),
+    quantidade: z.string(),
+    valorUnitario: z.string(),
+    valorTotal: z.string()
+  })).optional(),
 });
 
 // Create a type from the schema
@@ -107,8 +123,14 @@ export const defaultValues: NotaFiscalSchemaType = {
   dataHoraEntrada: '',
   statusEmbarque: '',
   responsavelEntrega: '',
-  quimico: '',  // Changed default from false to empty string
-  fracionado: '', // Changed default from false to empty string
+  quimico: '',
+  fracionado: '',
   motorista: '',
   tempoArmazenamento: '',
+  remetente_id: undefined,
+  destinatario_id: undefined,
+  transportadora_id: undefined,
+  ordem_carregamento_id: undefined,
+  coleta_id: undefined,
+  itens: undefined,
 };

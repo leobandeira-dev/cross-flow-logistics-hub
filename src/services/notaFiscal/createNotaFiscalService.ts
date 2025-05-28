@@ -68,22 +68,12 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
       quimico: Boolean(notaFiscal.quimico),
       fracionado: Boolean(notaFiscal.fracionado),
       
-      // Campos de data adicionais
-      data_hora_emissao: notaFiscal.data_hora_emissao || notaFiscal.data_emissao || null,
-      data_hora_entrada: notaFiscal.data_hora_entrada || notaFiscal.data_entrada || null,
-      
       // Referências para outras tabelas
       remetente_id: notaFiscal.remetente_id || null,
       destinatario_id: notaFiscal.destinatario_id || null,
       transportadora_id: notaFiscal.transportadora_id || null,
       ordem_carregamento_id: notaFiscal.ordem_carregamento_id || null,
       coleta_id: notaFiscal.coleta_id || null,
-      
-      // Campos de arquivo/documento
-      arquivo_cte_coleta: notaFiscal.arquivo_cte_coleta || null,
-      arquivo_cte_viagem: notaFiscal.arquivo_cte_viagem || null,
-      lista_romaneio: notaFiscal.lista_romaneio || null,
-      arquivos_diversos: notaFiscal.arquivos_diversos || null,
       
       // Tipo da nota fiscal
       tipo: notaFiscal.tipo || 'entrada'

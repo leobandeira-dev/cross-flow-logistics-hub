@@ -24,8 +24,6 @@ export const useFormSubmission = () => {
         quantidade_volumes: data.volumesTotal ? parseInt(data.volumesTotal) : null,
         data_emissao: data.dataHoraEmissao ? new Date(data.dataHoraEmissao).toISOString() : new Date().toISOString(),
         data_entrada: data.dataHoraEntrada ? new Date(data.dataHoraEntrada).toISOString() : null,
-        data_hora_emissao: data.dataHoraEmissao ? new Date(data.dataHoraEmissao).toISOString() : null,
-        data_hora_entrada: data.dataHoraEntrada ? new Date(data.dataHoraEntrada).toISOString() : null,
         tipo_operacao: data.tipoOperacao || null,
         numero_pedido: data.numeroPedido || null,
         status: 'pendente',
@@ -68,9 +66,9 @@ export const useFormSubmission = () => {
         entregue_ao_fornecedor: data.entregueAoFornecedor || null,
         observacoes: data.informacoesComplementares || null,
         
-        // Campos boolean
-        quimico: data.quimico === 'sim' || data.quimico === true,
-        fracionado: data.fracionado === 'sim' || data.fracionado === true,
+        // Campos boolean - fix type conversion
+        quimico: data.quimico === 'sim',
+        fracionado: data.fracionado === 'sim',
         
         // Referências (se existirem)
         remetente_id: data.remetente_id || null,
