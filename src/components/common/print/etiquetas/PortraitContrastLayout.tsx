@@ -19,100 +19,103 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
   transportadoraLogo
 }) => {
   return (
-    <div className="h-full flex flex-col p-4 space-y-4 bg-gray-50">
-      {/* Header - Tipo de Etiqueta */}
-      <div className={`text-center py-4 px-6 rounded-lg shadow-lg ${isMae ? 'bg-red-800 text-white' : 'bg-blue-700 text-white'}`}>
-        <span className="text-2xl font-black">
-          {isMae ? 'ETIQUETA MÃE' : `VOLUME ${volumeNumber}/${totalVolumes}`}
+    <div className="h-full flex flex-col p-4 space-y-4">
+      {/* Ícone químico se aplicável */}
+      {isQuimico && (
+        <div className="absolute top-3 right-3 text-red-600 text-3xl">⚠</div>
+      )}
+      
+      {/* Header */}
+      <div className={`text-center p-3 rounded ${isMae ? 'bg-red-500' : 'bg-blue-600'} text-white`}>
+        <span className="text-lg font-bold">
+          {isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
         </span>
       </div>
-
+      
       {/* Logo da Transportadora */}
       {transportadoraLogo && (
-        <div className="flex justify-center py-3">
-          <div className="bg-white p-3 rounded-lg shadow-md border" style={{ width: '120px', height: '40px' }}>
-            <img 
-              src={transportadoraLogo} 
-              alt="Logo Transportadora" 
-              className="w-full h-full object-contain"
-            />
-          </div>
+        <div className="flex justify-center">
+          <img 
+            src={transportadoraLogo} 
+            alt="Logo Transportadora" 
+            className="max-h-10 object-contain"
+          />
         </div>
       )}
-
-      {/* QR Code Section */}
-      <div className="flex justify-center py-3">
-        <div className="text-center bg-white p-4 rounded-lg shadow-md">
-          <QRCodeGenerator text={volumeData.id} size={80} />
-          <div className="text-base font-bold mt-2">{volumeData.id}</div>
-        </div>
+      
+      {/* QR Code */}
+      <div className="text-center">
+        <QRCodeGenerator text={volumeData.id} size={100} />
+        <div className="text-sm mt-2 font-bold">{volumeData.id}</div>
       </div>
-
-      {/* Nota Fiscal - CONTAINER PRETO */}
-      <div className="bg-black border-4 border-gray-800 rounded-xl p-6 text-center shadow-lg">
-        <div className="text-xl text-white font-black">NOTA FISCAL</div>
-        <div className="text-6xl font-black text-white mt-4 tracking-wider">{volumeData.notaFiscal || 'N/A'}</div>
+      
+      {/* Nota Fiscal - DESTAQUE */}
+      <div className="bg-black text-white border-3 border-gray-800 rounded-lg p-3 text-center">
+        <div className="text-xs text-white">NOTA FISCAL</div>
+        <div className="text-2xl font-bold text-white">{volumeData.notaFiscal || 'N/A'}</div>
       </div>
-
-      {/* Cidade Destino - CONTAINER PRETO */}
-      <div className="bg-black border-4 border-gray-800 rounded-xl p-6 text-center shadow-lg">
-        <div className="text-xl text-white font-black">CIDADE DESTINO</div>
-        <div className="text-5xl font-black text-white mt-4 leading-tight">{displayCidade}</div>
-        <div className="text-4xl font-black text-white mt-3">{volumeData.uf}</div>
+      
+      {/* Cidade Destino - DESTAQUE */}
+      <div className="bg-black text-white border-3 border-gray-800 rounded-lg p-3 text-center">
+        <div className="text-xs text-white">CIDADE DESTINO</div>
+        <div className="text-xl font-bold text-white">{displayCidade || 'N/A'}</div>
+        <div className="text-lg font-semibold text-white">{volumeData.uf || 'N/A'}</div>
       </div>
-
-      {/* Remetente - CONTAINER PRETO */}
-      <div className="bg-black border-4 border-gray-800 rounded-xl p-6 shadow-lg">
-        <div className="text-xl text-white font-black">REMETENTE</div>
-        <div className="text-4xl font-black text-white leading-tight mt-4">{volumeData.remetente || 'N/A'}</div>
+      
+      {/* Remetente - DESTAQUE */}
+      <div className="bg-black text-white border-3 border-gray-800 rounded-lg p-3">
+        <div className="text-xs text-white font-semibold">REMETENTE</div>
+        <div className="text-lg font-bold text-white leading-tight">{volumeData.remetente || 'N/A'}</div>
       </div>
-
-      {/* Quantidade de Volumes - CONTAINER PRETO (para etiqueta mãe) */}
-      {isMae && (
-        <div className="bg-black border-4 border-gray-800 rounded-xl p-6 text-center shadow-lg">
-          <div className="text-xl text-white font-black">QUANTIDADE DE VOLUMES</div>
-          <div className="text-6xl font-black text-white mt-4">{volumeData.quantidade || '0'}</div>
-        </div>
-      )}
-
-      {/* Destinatário */}
-      <div className="bg-blue-100 border-2 border-blue-500 rounded-lg p-4 shadow-md">
-        <div className="text-sm text-blue-700 font-bold">DESTINATÁRIO</div>
-        <div className="text-lg font-bold text-blue-900 leading-tight mt-1">{volumeData.destinatario || 'N/A'}</div>
+      
+      {/* Destinatário - DESTAQUE */}
+      <div className="bg-purple-100 border-3 border-purple-500 rounded-lg p-3">
+        <div className="text-xs text-purple-700 font-semibold">DESTINATÁRIO</div>
+        <div className="text-lg font-bold text-purple-900 leading-tight">{volumeData.destinatario || 'N/A'}</div>
       </div>
-
+      
       {/* Informações Adicionais */}
-      <div className="grid grid-cols-2 gap-3 text-base">
-        <div className="bg-gray-100 border border-gray-300 p-3 rounded">
-          <span className="text-gray-600 font-medium">Peso:</span>
-          <div className="font-bold text-gray-800 text-lg">{volumeData.pesoTotal}</div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-gray-100 p-2 rounded">
+          <span className="text-xs text-gray-600">Peso:</span>
+          <div className="text-sm font-semibold">{volumeData.pesoTotal || '0 Kg'}</div>
         </div>
-        <div className="bg-gray-100 border border-gray-300 p-3 rounded">
-          <span className="text-gray-600 font-medium">Transp:</span>
-          <div className="font-bold text-gray-800 text-sm">{volumeData.transportadora || 'N/D'}</div>
+        <div className="bg-gray-100 p-2 rounded">
+          <span className="text-xs text-gray-600">Transp:</span>
+          <div className="text-xs font-semibold">{volumeData.transportadora || 'N/D'}</div>
         </div>
       </div>
-
-      {/* Produto Químico */}
+      
       {isQuimico && (
-        <div className="bg-red-100 border-2 border-red-500 rounded p-3">
-          <div className="flex items-center justify-center mb-2">
-            <Biohazard size={18} className="text-red-600 mr-2" />
-            <span className="text-base font-bold text-red-600">PRODUTO QUÍMICO</span>
-            <TestTube size={16} className="text-red-600 ml-2" />
+        <div className="bg-red-100 border-3 border-red-500 rounded-lg p-3 mt-auto">
+          <div className="text-center mb-2">
+            <span className="text-sm font-bold text-red-600">⚠ PRODUTO QUÍMICO ⚠</span>
           </div>
-          <div className="text-center text-sm">
+          <div className="text-center text-xs">
             <div><span className="font-bold">ONU:</span> {volumeData.codigoONU || 'N/A'}</div>
             <div><span className="font-bold">RISCO:</span> {volumeData.codigoRisco || 'N/A'}</div>
             <div><span className="font-bold">CLASS:</span> {getClassificacaoText()}</div>
           </div>
         </div>
       )}
-
-      {/* Endereço */}
+      
       {volumeData.endereco && (
-        <div className="text-sm text-gray-600 text-center border-t pt-2">
+        <div className="text-xs text-gray-600 text-center border-t pt-2 mt-auto">
           <span className="font-medium">End:</span> {volumeData.endereco}
+        </div>
+      )}
+      
+      {volumeData.descricao && (
+        <div className="text-xs mt-2 pt-2 border-t-2 border-gray-300">
+          <span className="font-bold">Descrição:</span> {volumeData.descricao}
+        </div>
+      )}
+      
+      {/* Quantidade de Volumes - DESTAQUE (para etiqueta mãe) */}
+      {isMae && (
+        <div className="bg-black text-white border-3 border-gray-800 rounded-lg p-3 text-center mt-2">
+          <div className="text-xs text-white">TOTAL DE VOLUMES</div>
+          <div className="text-2xl font-bold text-white">{volumeData.quantidade || '0'}</div>
         </div>
       )}
     </div>
