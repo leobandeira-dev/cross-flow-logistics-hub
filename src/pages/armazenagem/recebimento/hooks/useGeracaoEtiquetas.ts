@@ -1,3 +1,4 @@
+
 import { useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -6,6 +7,7 @@ import { useVolumeActions } from './etiquetas/useVolumeActions';
 import { useEtiquetasPrinting } from './etiquetas/useEtiquetasPrinting';
 import { useDialogState } from './etiquetas/useDialogState';
 import { LayoutStyle } from '@/hooks/etiquetas/types';
+import { useEtiquetasDatabase } from '@/hooks/useEtiquetasDatabase';
 
 // Import refactored hooks
 import { useVolumeState } from './etiquetas/useVolumeState';
@@ -17,6 +19,7 @@ import { useVolumeGeneration } from './etiquetas/useVolumeGeneration';
 export const useGeracaoEtiquetas = () => {
   const location = useLocation();
   const notaFiscalData = location.state || {};
+  const { marcarComoEtiquetada } = useEtiquetasDatabase();
   
   // Use refactored hooks
   const { volumes, generatedVolumes, setVolumes, setGeneratedVolumes } = useVolumeState();
@@ -69,7 +72,7 @@ export const useGeracaoEtiquetas = () => {
     return generateVolumesHandler(generateVolumes, setVolumes, setGeneratedVolumes)(form.getValues(), notaFiscalData);
   };
 
-  const handlePrintEtiquetasImpl = (volume: Volume) => {
+  const handlePrintEtiquetasImpl = async (volume: Volume) => {
     // Garantir que pegamos o valor atual do formulário
     const currentFormValues = form.getValues();
     const formatoImpressao = currentFormValues.formatoImpressao;
@@ -80,7 +83,7 @@ export const useGeracaoEtiquetas = () => {
     const result = handlePrintEtiquetas(printEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
     
     if (result && typeof result.then === 'function') {
-      result.then((res) => {
+      result.then(async (res) => {
         if (res && res.status === 'success' && res.volumes) {
           setVolumes(prevVolumes => 
             prevVolumes.map(vol => {
@@ -88,6 +91,19 @@ export const useGeracaoEtiquetas = () => {
               return updatedVol || vol;
             })
           );
+          
+          // Marcar como etiquetada no banco de dados se o volume tem um ID válido
+          try {
+            // Buscar etiqueta correspondente no banco
+            const etiquetaCorrespondente = await fetch('/api/etiquetas').then(r => r.json())
+              .then(etiquetas => etiquetas.find((e: any) => e.codigo === volume.id));
+              
+            if (etiquetaCorrespondente) {
+              await marcarComoEtiquetada(etiquetaCorrespondente.id);
+            }
+          } catch (error) {
+            console.error('Erro ao atualizar status da etiqueta no banco:', error);
+          }
           
           toast({
             title: "Etiquetas Geradas",
@@ -98,13 +114,26 @@ export const useGeracaoEtiquetas = () => {
     }
   };
 
-  const handleReimprimirEtiquetasImpl = (volume: Volume) => {
+  const handleReimprimirEtiquetasImpl = async (volume: Volume) => {
     // Garantir que pegamos o valor atual do formulário
     const currentFormValues = form.getValues();
     const formatoImpressao = currentFormValues.formatoImpressao;
     const layoutStyle = currentFormValues.layoutStyle as LayoutStyle;
     
     console.log('Reprinting with layout style:', layoutStyle); // Para debug
+    
+    // Marcar como etiquetada no banco de dados
+    try {
+      // Buscar etiqueta correspondente no banco
+      const etiquetaCorrespondente = await fetch('/api/etiquetas').then(r => r.json())
+        .then(etiquetas => etiquetas.find((e: any) => e.codigo === volume.id));
+        
+      if (etiquetaCorrespondente) {
+        await marcarComoEtiquetada(etiquetaCorrespondente.id);
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar status da etiqueta no banco:', error);
+    }
     
     handleReimprimirEtiquetas(reimprimirEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
   };

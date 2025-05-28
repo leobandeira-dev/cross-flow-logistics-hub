@@ -333,6 +333,10 @@ export type Database = {
       etiquetas: {
         Row: {
           altura: number | null
+          area: string | null
+          cep: string | null
+          chave_nf: string | null
+          cidade: string | null
           classificacao_quimica: string | null
           codigo: string
           codigo_onu: string | null
@@ -341,20 +345,38 @@ export type Database = {
           created_at: string | null
           dados_json: Json | null
           data_geracao: string
+          data_impressao: string | null
+          data_inutilizacao: string | null
+          descricao: string | null
+          destinatario: string | null
+          endereco: string | null
           etiqueta_mae_id: string | null
+          etiquetado: boolean | null
           fragil: boolean | null
           id: string
           largura: number | null
+          motivo_inutilizacao: string | null
           nota_fiscal_id: string | null
+          numero_pedido: string | null
           peso: number | null
+          peso_total_bruto: string | null
+          quantidade: number | null
+          remetente: string | null
           status: string
           tipo: string
           total_volumes: number | null
+          transportadora: string | null
+          uf: string | null
           updated_at: string | null
+          usuario_inutilizacao_id: string | null
           volume_numero: number | null
         }
         Insert: {
           altura?: number | null
+          area?: string | null
+          cep?: string | null
+          chave_nf?: string | null
+          cidade?: string | null
           classificacao_quimica?: string | null
           codigo: string
           codigo_onu?: string | null
@@ -363,20 +385,38 @@ export type Database = {
           created_at?: string | null
           dados_json?: Json | null
           data_geracao?: string
+          data_impressao?: string | null
+          data_inutilizacao?: string | null
+          descricao?: string | null
+          destinatario?: string | null
+          endereco?: string | null
           etiqueta_mae_id?: string | null
+          etiquetado?: boolean | null
           fragil?: boolean | null
           id?: string
           largura?: number | null
+          motivo_inutilizacao?: string | null
           nota_fiscal_id?: string | null
+          numero_pedido?: string | null
           peso?: number | null
+          peso_total_bruto?: string | null
+          quantidade?: number | null
+          remetente?: string | null
           status?: string
           tipo: string
           total_volumes?: number | null
+          transportadora?: string | null
+          uf?: string | null
           updated_at?: string | null
+          usuario_inutilizacao_id?: string | null
           volume_numero?: number | null
         }
         Update: {
           altura?: number | null
+          area?: string | null
+          cep?: string | null
+          chave_nf?: string | null
+          cidade?: string | null
           classificacao_quimica?: string | null
           codigo?: string
           codigo_onu?: string | null
@@ -385,16 +425,30 @@ export type Database = {
           created_at?: string | null
           dados_json?: Json | null
           data_geracao?: string
+          data_impressao?: string | null
+          data_inutilizacao?: string | null
+          descricao?: string | null
+          destinatario?: string | null
+          endereco?: string | null
           etiqueta_mae_id?: string | null
+          etiquetado?: boolean | null
           fragil?: boolean | null
           id?: string
           largura?: number | null
+          motivo_inutilizacao?: string | null
           nota_fiscal_id?: string | null
+          numero_pedido?: string | null
           peso?: number | null
+          peso_total_bruto?: string | null
+          quantidade?: number | null
+          remetente?: string | null
           status?: string
           tipo?: string
           total_volumes?: number | null
+          transportadora?: string | null
+          uf?: string | null
           updated_at?: string | null
+          usuario_inutilizacao_id?: string | null
           volume_numero?: number | null
         }
         Relationships: [
