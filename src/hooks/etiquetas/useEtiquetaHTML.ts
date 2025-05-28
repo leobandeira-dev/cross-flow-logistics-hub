@@ -1,3 +1,4 @@
+
 // useEtiquetaHTML.ts
 import { LayoutStyle } from './types';
 import { getClassificacaoText } from '../../components/common/print/etiquetas/utils';
@@ -403,7 +404,7 @@ export const useEtiquetaHTML = () => {
       <div class="etiqueta" style="width: 100%; height: 100%; padding: 10px; font-family: Arial; border: 1px solid #ccc; position: relative;">
         ${quimicoIconHTML}
         <div style="font-size: 16px; font-weight: bold; text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
-          ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+          ${headerHTML}
         </div>
         <div style="display: flex; margin-top: 10px;">
           <div style="flex: 2; padding-right: 10px;">
@@ -431,8 +432,6 @@ export const useEtiquetaHTML = () => {
             <div style="font-size: 12px; margin-bottom: 5px;">
               <span style="font-weight: bold;">Transportadora:</span> ${volume.transportadora || 'N/D'}
             </div>
-            
-            ${logoHTML}
             
             ${isQuimico ? `
             <div style="font-size: 12px; margin-bottom: 5px; background-color: #FFEBEE; padding: 2px 5px; border: 1px solid #FFCDD2; border-radius: 3px;">
