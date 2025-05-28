@@ -20,7 +20,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const { handleGerarEtiquetasClick } = useNotasNavigation();
 
   const notasFormatadas = formatarNotasParaTabela(notasFiscais);
-  const columns = createNotasTableColumns({ onPrintClick, onGerarEtiquetasClick });
+  const columns = createNotasTableColumns({ onPrintClick, onGerarEtiquetasClick: handleGerarEtiquetasClick });
 
   if (isLoading) {
     return <NotasLoadingState />;
