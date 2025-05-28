@@ -25,54 +25,13 @@ export interface NotaFiscal {
   created_at: string;
   updated_at: string;
   
-  // Additional properties from the database schema
-  numero_pedido?: string;
-  tipo_operacao?: string;
-  tempo_armazenamento_horas?: number;
-  
-  // Emitente fields
-  emitente_cnpj?: string;
-  emitente_razao_social?: string;
-  emitente_telefone?: string;
-  emitente_uf?: string;
-  emitente_cidade?: string;
-  emitente_bairro?: string;
-  emitente_endereco?: string;
-  emitente_numero?: string;
-  emitente_cep?: string;
-  
-  // Destinatário fields
-  destinatario_cnpj?: string;
-  destinatario_razao_social?: string;
-  destinatario_telefone?: string;
-  destinatario_uf?: string;
-  destinatario_cidade?: string;
-  destinatario_bairro?: string;
-  destinatario_endereco?: string;
-  destinatario_numero?: string;
-  destinatario_cep?: string;
-  
-  // Transport and logistics fields
-  fob_cif?: string;
-  numero_coleta?: string;
-  valor_coleta?: number;
-  numero_cte_coleta?: string;
-  numero_cte_viagem?: string;
-  data_embarque?: string;
-  status_embarque?: string;
-  responsavel_entrega?: string;
-  quimico?: boolean;
-  fracionado?: boolean;
-  motorista?: string;
-  entregue_ao_fornecedor?: string;
-  informacoes_complementares?: string;
-  
   // Additional properties for createNotaFiscalService
   valor?: number;
   tipo?: string;
   empresa_emitente_id?: string;
   empresa_destinatario_id?: string;
   filial_id?: string;
+  tempo_armazenamento_horas?: number;
   
   // Relacionamentos
   remetente?: Empresa;
