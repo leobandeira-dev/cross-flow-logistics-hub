@@ -43,6 +43,14 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
         )}
       </div>
       
+      {/* Volume - DESTAQUE COM ALTO CONTRASTE EXTREMAMENTE MAIOR E MAIS VISÍVEL NO TOPO */}
+      {!isMae && volumeNumber && totalVolumes && (
+        <div className="text-xl mb-6 bg-black text-white p-6 rounded-lg font-bold text-center border-4 border-gray-900 shadow-xl">
+          <div className="text-lg font-bold mb-2">VOLUME</div>
+          <div className="text-6xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
+        </div>
+      )}
+      
       {/* Seção principal de informações */}
       <div className="flex-1">
         <div className="text-sm mb-2">
@@ -109,14 +117,6 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
           </div>
         )}
       </div>
-      
-      {/* Volume - DESTAQUE COM ALTO CONTRASTE MAIOR - SEMPRE EXIBIDO */}
-      {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 bg-black text-white p-4 rounded font-bold text-center border-4 border-gray-800">
-          <span className="font-bold text-lg">Volume:</span> 
-          <span className="text-4xl font-black ml-2">{volumeNumber}/{totalVolumes}</span>
-        </div>
-      )}
       
       {/* Quantidade de Volumes - DESTAQUE COM ALTO CONTRASTE MAIOR (para etiqueta mãe) */}
       {isMae && (

@@ -43,6 +43,14 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
         )}
       </div>
       
+      {/* Volume - DESTAQUE EXTREMAMENTE MAIOR E MAIS VISÍVEL NO TOPO */}
+      {!isMae && volumeNumber && totalVolumes && (
+        <div className="text-xl mb-6 bg-blue-600 text-white p-6 rounded-lg font-bold text-center border-4 border-blue-800 shadow-xl">
+          <div className="text-lg font-bold mb-2">VOLUME</div>
+          <div className="text-6xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
+        </div>
+      )}
+      
       {/* Seção principal de informações */}
       <div className="flex-1">
         <div className="text-sm mb-2">
@@ -109,14 +117,6 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
           </div>
         )}
       </div>
-      
-      {/* Volume - DESTAQUE MAIOR com estilo igual ao remetente - SEMPRE EXIBIDO */}
-      {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-4 bg-blue-100 border-4 border-blue-300 rounded">
-          <span className="font-bold text-lg">Volume:</span> 
-          <span className="text-4xl font-black ml-2 text-blue-800">{volumeNumber}/{totalVolumes}</span>
-        </div>
-      )}
       
       {/* Quantidade de Volumes - DESTAQUE MAIOR (para etiqueta mãe) */}
       {isMae && (

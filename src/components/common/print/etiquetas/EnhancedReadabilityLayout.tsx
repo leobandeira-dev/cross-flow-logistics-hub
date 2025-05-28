@@ -19,7 +19,7 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
   transportadoraLogo
 }) => {
   return (
-    <div className="h-full flex p-4">
+    <div className="h-full flex flex-col p-4">
       {/* Ícone químico se aplicável */}
       {isQuimico && (
         <div className="absolute top-3 right-3 bg-red-100 border-2 border-red-500 rounded-full p-2">
@@ -28,7 +28,7 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
       )}
       
       {/* Header */}
-      <div className="text-center text-lg font-bold border-b-2 border-gray-300 pb-2 mb-4 w-full">
+      <div className="text-center text-lg font-bold border-b-2 border-gray-300 pb-2 mb-4">
         {transportadoraLogo ? (
           <div className="flex justify-center">
             <img 
@@ -43,6 +43,14 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
         )}
       </div>
       
+      {/* Volume - DESTAQUE EXTREMAMENTE MAIOR E MAIS VISÍVEL NO TOPO */}
+      {!isMae && volumeNumber && totalVolumes && (
+        <div className="text-xl mb-6 bg-blue-600 text-white p-8 rounded-lg border-4 border-blue-800 text-center shadow-xl">
+          <div className="text-xl font-bold mb-3">VOLUME</div>
+          <div className="text-7xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
+        </div>
+      )}
+
       <div className="flex flex-1">
         {/* Coluna principal com informações */}
         <div className="flex-[2] pr-4">
@@ -118,14 +126,6 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
           )}
         </div>
       </div>
-      
-      {/* Volume - DESTAQUE MAIOR com estilo igual ao remetente - SEMPRE EXIBIDO */}
-      {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-xl mt-2 pt-2 border-t-2 border-gray-300 bg-blue-100 p-4 rounded border-4 border-blue-300">
-          <span className="font-bold text-lg">Volume:</span> 
-          <span className="text-4xl font-black ml-2 text-blue-800">{volumeNumber}/{totalVolumes}</span>
-        </div>
-      )}
       
       {/* Quantidade de Volumes - DESTAQUE MAIOR (para etiqueta mãe) */}
       {isMae && (
