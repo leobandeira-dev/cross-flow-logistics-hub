@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Save, RefreshCw } from 'lucide-react';
 import FormLayout from './form/FormLayout';
 import GeneratedVolumesPanel from './GeneratedVolumesPanel';
-import { Volume } from './VolumesTable';
+import { Volume } from '../../hooks/etiquetas/useVolumeState';
 import { useBatchAreaClassification } from '../../hooks/etiquetas/useBatchAreaClassification';
 import { useEtiquetasDatabase } from '@/hooks/useEtiquetasDatabase';
 import { CreateEtiquetaData } from '@/services/etiquetaService';
