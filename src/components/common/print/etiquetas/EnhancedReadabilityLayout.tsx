@@ -101,11 +101,11 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
           <QRCodeGenerator text={volumeData.id} size={100} />
           <div className="text-center text-xs mt-2 font-bold">{volumeData.id}</div>
           
-          {/* Área - DESTAQUE ABAIXO DO QR CODE */}
+          {/* Área - DESTAQUE LOGO ABAIXO DO QR CODE */}
           {volumeData.area && (
-            <div className="mt-4 bg-indigo-600 text-white p-4 rounded-lg border-4 border-indigo-800 text-center shadow-lg">
-              <div className="text-xs font-bold mb-1">ÁREA</div>
-              <div className="text-6xl font-black">{volumeData.area}</div>
+            <div className="mt-4 bg-indigo-600 text-white p-5 rounded-lg border-4 border-indigo-800 text-center shadow-lg">
+              <div className="text-sm font-bold mb-2">ÁREA</div>
+              <div className="text-7xl font-black">{volumeData.area}</div>
             </div>
           )}
         </div>
