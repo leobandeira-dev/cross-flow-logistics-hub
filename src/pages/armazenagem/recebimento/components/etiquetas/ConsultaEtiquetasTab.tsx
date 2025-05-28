@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Printer, Biohazard, LinkIcon, AlertTriangle, Trash2 } from 'lucide-react';
+import { FileText, Printer, Biohazard, LinkIcon, AlertTriangle, Trash2, Edit } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
@@ -20,7 +20,15 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
   volumes,
   handleReimprimirEtiquetas
 }) => {
-  const { etiquetas, isLoading, buscarEtiquetas, inutilizarEtiqueta, marcarComoEtiquetada } = useEtiquetasDatabase();
+  const { 
+    etiquetas, 
+    isLoading, 
+    buscarEtiquetas, 
+    inutilizarEtiqueta, 
+    marcarComoEtiquetada, 
+    excluirEtiqueta 
+  } = useEtiquetasDatabase();
+  
   const [filteredEtiquetas, setFilteredEtiquetas] = useState<Etiqueta[]>([]);
   const [inutilizarDialogOpen, setInutilizarDialogOpen] = useState(false);
   const [etiquetaSelecionada, setEtiquetaSelecionada] = useState<Etiqueta | null>(null);
@@ -146,6 +154,25 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
     }
   };
 
+  const handleExcluirEtiqueta = async (etiqueta: Etiqueta) => {
+    if (etiqueta.etiquetado) {
+      toast({
+        title: "Erro",
+        description: "Não é possível excluir uma etiqueta que já foi impressa. Use a função de inutilizar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (window.confirm(`Tem certeza que deseja excluir a etiqueta ${etiqueta.codigo}? Esta ação não pode ser desfeita.`)) {
+      try {
+        await excluirEtiqueta(etiqueta.id);
+      } catch (error) {
+        console.error('Erro ao excluir etiqueta:', error);
+      }
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'etiquetada':
@@ -248,11 +275,22 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
                           variant="outline" 
                           size="sm"
                           onClick={() => handleInutilizarClick(row)}
-                          className="border-red-500 text-red-600 hover:bg-red-50"
+                          className="border-orange-500 text-orange-600 hover:bg-orange-50"
                         >
-                          <Trash2 size={16} className="mr-1" />
+                          <Edit size={16} className="mr-1" />
                           Inutilizar
                         </Button>
+                        {!row.etiquetado && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleExcluirEtiqueta(row)}
+                            className="border-red-500 text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 size={16} className="mr-1" />
+                            Excluir
+                          </Button>
+                        )}
                       </>
                     )}
                   </div>
