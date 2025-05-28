@@ -4,25 +4,25 @@ import { Etiqueta } from "@/types/supabase/armazem.types";
 export interface CreateEtiquetaData {
   codigo: string;
   tipo: string;
-  area?: string;
-  remetente?: string;
-  destinatario?: string;
-  endereco?: string;
-  cidade?: string;
-  uf?: string;
-  cep?: string;
-  descricao?: string;
-  transportadora?: string;
-  chave_nf?: string;
+  area?: string | null;
+  remetente?: string | null;
+  destinatario?: string | null;
+  endereco?: string | null;
+  cidade?: string | null;
+  uf?: string | null;
+  cep?: string | null;
+  descricao?: string | null;
+  transportadora?: string | null;
+  chave_nf?: string | null;
   quantidade?: number;
-  peso_total_bruto?: string;
-  numero_pedido?: string;
+  peso_total_bruto?: string | null;
+  numero_pedido?: string | null;
   volume_numero?: number;
   total_volumes?: number;
-  codigo_onu?: string;
-  codigo_risco?: string;
-  classificacao_quimica?: string;
-  etiqueta_mae_id?: string;
+  codigo_onu?: string | null;
+  codigo_risco?: string | null;
+  classificacao_quimica?: string | null;
+  etiqueta_mae_id?: string | null;
   status?: string;
 }
 
@@ -37,18 +37,19 @@ const etiquetaService = {
    */
   async buscarEtiquetas(): Promise<Etiqueta[]> {
     try {
-      console.log('🔍 Buscando etiquetas do banco de dados...');
+      console.log('🔍 Buscando etiquetas...');
+      
       const { data, error } = await supabase
         .from('etiquetas')
         .select('*')
         .order('data_geracao', { ascending: false });
       
       if (error) {
-        console.error('❌ Erro no Supabase ao buscar etiquetas:', error);
+        console.error('❌ Erro ao buscar etiquetas:', error);
         throw new Error(`Erro ao buscar etiquetas: ${error.message}`);
       }
       
-      console.log(`✅ Encontradas ${data?.length || 0} etiquetas`);
+      console.log(`✅ ${data?.length || 0} etiquetas encontradas`);
       return data || [];
     } catch (error) {
       console.error('💥 Erro no serviço buscarEtiquetas:', error);
@@ -117,10 +118,11 @@ const etiquetaService = {
    */
   async criarEtiqueta(etiquetaData: CreateEtiquetaData): Promise<Etiqueta> {
     try {
-      console.log('💾 Criando nova etiqueta:', etiquetaData);
+      console.log('💾 Criando etiqueta:', etiquetaData.codigo);
+      console.log('📋 Dados recebidos:', etiquetaData);
       
-      // Validações antes de criar
-      if (!etiquetaData.codigo) {
+      // Validações básicas
+      if (!etiquetaData.codigo || etiquetaData.codigo.trim() === '') {
         throw new Error('Código da etiqueta é obrigatório');
       }
       
@@ -128,35 +130,35 @@ const etiquetaService = {
         throw new Error('Tipo da etiqueta é obrigatório');
       }
 
-      // Preparar dados para inserção
+      // Preparar dados para inserção, removendo campos undefined
       const etiquetaToInsert = {
         codigo: etiquetaData.codigo,
         tipo: etiquetaData.tipo,
-        area: etiquetaData.area || null,
-        remetente: etiquetaData.remetente || null,
-        destinatario: etiquetaData.destinatario || null,
-        endereco: etiquetaData.endereco || null,
-        cidade: etiquetaData.cidade || null,
-        uf: etiquetaData.uf || null,
-        cep: etiquetaData.cep || null,
-        descricao: etiquetaData.descricao || null,
-        transportadora: etiquetaData.transportadora || null,
-        chave_nf: etiquetaData.chave_nf || null,
+        area: etiquetaData.area,
+        remetente: etiquetaData.remetente,
+        destinatario: etiquetaData.destinatario,
+        endereco: etiquetaData.endereco,
+        cidade: etiquetaData.cidade,
+        uf: etiquetaData.uf,
+        cep: etiquetaData.cep,
+        descricao: etiquetaData.descricao,
+        transportadora: etiquetaData.transportadora,
+        chave_nf: etiquetaData.chave_nf,
         quantidade: etiquetaData.quantidade || 1,
-        peso_total_bruto: etiquetaData.peso_total_bruto || null,
-        numero_pedido: etiquetaData.numero_pedido || null,
+        peso_total_bruto: etiquetaData.peso_total_bruto,
+        numero_pedido: etiquetaData.numero_pedido,
         volume_numero: etiquetaData.volume_numero || 1,
         total_volumes: etiquetaData.total_volumes || 1,
-        codigo_onu: etiquetaData.codigo_onu || null,
-        codigo_risco: etiquetaData.codigo_risco || null,
-        classificacao_quimica: etiquetaData.classificacao_quimica || null,
-        etiqueta_mae_id: etiquetaData.etiqueta_mae_id || null,
+        codigo_onu: etiquetaData.codigo_onu,
+        codigo_risco: etiquetaData.codigo_risco,
+        classificacao_quimica: etiquetaData.classificacao_quimica,
+        etiqueta_mae_id: etiquetaData.etiqueta_mae_id,
         status: etiquetaData.status || 'gerada',
         etiquetado: false,
         fragil: false
       };
 
-      console.log('📤 Enviando dados para Supabase:', etiquetaToInsert);
+      console.log('📤 Enviando para Supabase:', etiquetaToInsert);
 
       const { data, error } = await supabase
         .from('etiquetas')
@@ -165,9 +167,9 @@ const etiquetaService = {
         .single();
       
       if (error) {
-        console.error('❌ Erro no Supabase ao criar etiqueta:', error);
-        console.error('📋 Detalhes do erro:', error.details);
-        console.error('💡 Dica:', error.hint);
+        console.error('❌ Erro do Supabase:', error);
+        console.error('📋 Detalhes:', error.details);
+        console.error('💡 Sugestão:', error.hint);
         throw new Error(`Erro ao criar etiqueta: ${error.message}`);
       }
       
@@ -175,7 +177,7 @@ const etiquetaService = {
         throw new Error('Etiqueta criada mas dados não retornados');
       }
       
-      console.log('✅ Etiqueta criada com sucesso:', data);
+      console.log('✅ Etiqueta criada com sucesso:', data.id);
       return data;
     } catch (error) {
       console.error('💥 Erro no serviço criarEtiqueta:', error);

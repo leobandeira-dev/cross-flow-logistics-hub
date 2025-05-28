@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
 import etiquetaService, { CreateEtiquetaData, InutilizarEtiquetaData } from '@/services/etiquetaService';
@@ -12,13 +11,13 @@ export const useEtiquetasDatabase = () => {
   const buscarEtiquetas = useCallback(async () => {
     setIsLoading(true);
     try {
-      console.log('Iniciando busca de etiquetas...');
+      console.log('🔄 Hook: Iniciando busca de etiquetas...');
       const data = await etiquetaService.buscarEtiquetas();
       setEtiquetas(data);
-      console.log(`Etiquetas carregadas: ${data.length}`);
+      console.log(`📊 Hook: ${data.length} etiquetas carregadas no estado`);
       return data;
     } catch (error) {
-      console.error('Erro ao buscar etiquetas:', error);
+      console.error('❌ Hook: Erro ao buscar etiquetas:', error);
       toast({
         title: "Erro",
         description: "Erro ao buscar etiquetas do banco de dados.",
@@ -73,24 +72,22 @@ export const useEtiquetasDatabase = () => {
   const salvarEtiqueta = useCallback(async (etiquetaData: CreateEtiquetaData) => {
     setIsLoading(true);
     try {
-      console.log('Salvando nova etiqueta:', etiquetaData);
+      console.log('🔄 Hook: Salvando etiqueta:', etiquetaData.codigo);
+      
       const novaEtiqueta = await etiquetaService.criarEtiqueta(etiquetaData);
       
       // Atualizar lista automaticamente
-      setEtiquetas(prev => [novaEtiqueta, ...prev]);
-      
-      toast({
-        title: "Sucesso",
-        description: "Etiqueta gravada no Supabase com sucesso!",
+      setEtiquetas(prev => {
+        console.log('📝 Hook: Adicionando etiqueta ao estado');
+        return [novaEtiqueta, ...prev];
       });
+      
+      console.log('✅ Hook: Etiqueta salva e adicionada ao estado');
       return novaEtiqueta;
     } catch (error) {
-      console.error('Erro ao salvar etiqueta:', error);
-      toast({
-        title: "Erro na Gravação",
-        description: error instanceof Error ? error.message : "Erro ao gravar etiqueta no banco de dados Supabase.",
-        variant: "destructive"
-      });
+      console.error('❌ Hook: Erro ao salvar etiqueta:', error);
+      
+      // Re-lançar o erro para que seja tratado no componente
       throw error;
     } finally {
       setIsLoading(false);
