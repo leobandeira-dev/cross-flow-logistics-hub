@@ -126,107 +126,107 @@ export const useEtiquetaHTML = () => {
     // Portrait Contrast layout template
     if (layoutStyle === 'portrait_contrast') {
       return `
-        <div class="etiqueta" style="width: 100%; height: 100%; padding: 15px; font-family: Arial; border: 3px solid #333; position: relative; display: flex; flex-direction: column; background-color: #F9FAFB;">
-          ${isQuimico ? `<div style="position: absolute; top: 10px; right: 10px; color: #DC2626; font-size: 24px;">⚠</div>` : ''}
+        <div class="etiqueta" style="width: 100%; height: 100%; padding: 12px; font-family: Arial, sans-serif; border: 3px solid #333; position: relative; display: flex; flex-direction: column; background-color: #F9FAFB; font-size: 14px; line-height: 1.2;">
+          ${isQuimico ? `<div style="position: absolute; top: 8px; right: 8px; color: #DC2626; font-size: 20px; font-weight: 900;">⚠</div>` : ''}
           
           <!-- Header -->
-          <div style="text-align: center; padding: 12px; background: ${tipoEtiqueta === 'mae' ? '#EF4444' : '#2563EB'}; color: white; border-radius: 6px; margin-bottom: 15px;">
+          <div style="text-align: center; padding: 12px 8px; background: ${tipoEtiqueta === 'mae' ? '#B91C1C' : '#1E40AF'}; color: white; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             ${transportadoraLogo ? `
               <div style="display: flex; justify-content: center;">
                 <img 
                   src="${transportadoraLogo}" 
                   alt="Logo Transportadora" 
-                  style="width: auto; height: 32px; max-width: 150px; object-fit: contain;"
+                  style="width: auto; height: 36px; max-width: 160px; object-fit: contain;"
                 />
               </div>
             ` : `
-              <span style="font-size: 18px; font-weight: 900;">
+              <span style="font-size: 16px; font-weight: 900; letter-spacing: 0.05em;">
                 ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : (volume.transportadora || 'TRANSPORTADORA')}
               </span>
             `}
           </div>
 
           ${tipoEtiqueta !== 'mae' && volumeNumber && totalVolumes ? `
-          <!-- Contagem de Volumes - CONTAINER LARANJA -->
-          <div style="background: #FFF7ED; border: 3px solid #F97316; border-radius: 8px; padding: 16px; text-center; margin-bottom: 12px;">
-            <div style="color: #C2410C; font-size: 12px; font-weight: 900; margin-bottom: 8px;">VOLUME</div>
-            <div style="color: #EA580C; font-size: 24px; font-weight: 900;">${volumeNumber}/${totalVolumes}</div>
+          <!-- Contagem de Volumes - CONTAINER LARANJA APRIMORADO -->
+          <div style="background: #FFF7ED; border: 4px solid #EA580C; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="color: #9A3412; font-size: 12px; font-weight: 900; margin-bottom: 8px;">VOLUME</div>
+            <div style="color: #EA580C; font-size: 32px; font-weight: 900; letter-spacing: 0.1em;">${volumeNumber}/${totalVolumes}</div>
           </div>
           ` : ''}
           
           <!-- QR Code Section -->
-          <div style="text-align: center; margin-bottom: 15px;">
-            <div style="background: white; display: inline-block; padding: 12px; border-radius: 6px;">
+          <div style="text-align: center; margin-bottom: 12px;">
+            <div style="background: white; display: inline-block; padding: 12px; border-radius: 8px; border: 2px solid #D1D5DB; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
               ${volume.qrCode ? 
-                `<img src="${volume.qrCode}" alt="QR Code" style="width: 100px; height: 100px;">` : 
-                `<div style="width: 100px; height: 100px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 12px;">QR: ${volume.id}</div>`
+                `<img src="${volume.qrCode}" alt="QR Code" style="width: 130px; height: 130px;">` : 
+                `<div style="width: 130px; height: 130px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 12px;">QR: ${volume.id}</div>`
               }
             </div>
-            <div style="font-size: 14px; margin-top: 8px; font-weight: 700;">${volume.id}</div>
+            <div style="font-size: 14px; margin-top: 8px; font-weight: 900; color: #1F2937;">${volume.id}</div>
           </div>
           
-          <!-- Nota Fiscal - CONTAINER PRETO -->
-          <div style="background: #000000; border: 3px solid #374151; border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 12px;">
+          <!-- Nota Fiscal - CONTAINER PRETO APRIMORADO -->
+          <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px;">NOTA FISCAL</div>
-            <div style="color: white; font-size: 24px; font-weight: 900;">${volume.notaFiscal || 'N/A'}</div>
+            <div style="color: white; font-size: 28px; font-weight: 900; letter-spacing: 0.1em;">${volume.notaFiscal || 'N/A'}</div>
           </div>
           
-          <!-- Cidade Destino - CONTAINER PRETO -->
-          <div style="background: #000000; border: 3px solid #374151; border-radius: 8px; padding: 16px; text-center; margin-bottom: 12px;">
+          <!-- Cidade Destino - CONTAINER PRETO APRIMORADO -->
+          <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px;">CIDADE DESTINO</div>
-            <div style="color: white; font-size: 20px; font-weight: 900; margin-bottom: 4px;">${volume.cidade || 'N/A'}</div>
-            <div style="color: white; font-size: 16px; font-weight: 700;">${volume.uf || 'N/A'}</div>
+            <div style="color: white; font-size: 22px; font-weight: 900; margin-bottom: 4px; line-height: 1.1;">${volume.cidade || 'N/A'}</div>
+            <div style="color: white; font-size: 18px; font-weight: 900;">${volume.uf || 'N/A'}</div>
           </div>
           
-          <!-- Remetente - CONTAINER PRETO -->
-          <div style="background: #000000; border: 3px solid #374151; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+          <!-- Remetente - CONTAINER PRETO APRIMORADO -->
+          <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px;">REMETENTE</div>
-            <div style="color: white; font-size: 16px; font-weight: 900; line-height: 1.2;">${volume.remetente || 'N/A'}</div>
+            <div style="color: white; font-size: 16px; font-weight: 900; line-height: 1.1;">${volume.remetente || 'N/A'}</div>
           </div>
 
           ${tipoEtiqueta === 'mae' ? `
-          <!-- Quantidade de Volumes - CONTAINER PRETO -->
-          <div style="background: #000000; border: 3px solid #374151; border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 12px;">
+          <!-- Quantidade de Volumes - CONTAINER PRETO APRIMORADO -->
+          <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px;">TOTAL DE VOLUMES</div>
-            <div style="color: white; font-size: 24px; font-weight: 900;">${volume.quantidade || '0'}</div>
+            <div style="color: white; font-size: 32px; font-weight: 900; letter-spacing: 0.1em;">${volume.quantidade || '0'}</div>
           </div>
           ` : ''}
 
           <!-- Destinatário -->
-          <div style="background: #EDE9FE; border: 3px solid #8B5CF6; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-            <div style="font-size: 12px; color: #5B21B6; font-weight: 700; margin-bottom: 4px;">DESTINATÁRIO</div>
-            <div style="font-size: 16px; font-weight: 700; color: #1F2937; line-height: 1.2;">${volume.destinatario || 'N/A'}</div>
+          <div style="background: #EDE9FE; border: 3px solid #7C3AED; border-radius: 8px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 12px; color: #5B21B6; font-weight: 900; margin-bottom: 4px;">DESTINATÁRIO</div>
+            <div style="font-size: 16px; font-weight: 700; color: #1F2937; line-height: 1.1;">${volume.destinatario || 'N/A'}</div>
           </div>
 
           <!-- Informações Adicionais -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-            <div style="background: #F3F4F6; padding: 8px; border-radius: 4px;">
-              <span style="font-size: 12px; color: #6B7280;">Peso:</span>
-              <div style="font-size: 14px; font-weight: 700; margin-top: 4px;">${volume.pesoTotal}</div>
+            <div style="background: #F3F4F6; border: 2px solid #9CA3AF; padding: 8px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+              <span style="font-size: 12px; color: #6B7280; font-weight: 700;">Peso:</span>
+              <div style="font-size: 14px; font-weight: 900; color: #1F2937;">${volume.pesoTotal}</div>
             </div>
-            <div style="background: #F3F4F6; padding: 8px; border-radius: 4px;">
-              <span style="font-size: 12px; color: #6B7280;">Transp:</span>
-              <div style="font-size: 12px; font-weight: 700; margin-top: 4px;">${volume.transportadora || 'N/D'}</div>
+            <div style="background: #F3F4F6; border: 2px solid #9CA3AF; padding: 8px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+              <span style="font-size: 12px; color: #6B7280; font-weight: 700;">Transp:</span>
+              <div style="font-size: 12px; font-weight: 900; color: #1F2937; line-height: 1.1;">${volume.transportadora || 'N/D'}</div>
             </div>
           </div>
 
           ${isQuimico ? `
           <!-- Produto Químico -->
-          <div style="background: #FEE2E2; border: 2px solid #EF4444; border-radius: 6px; padding: 10px; margin-top: auto;">
+          <div style="background: #FEE2E2; border: 3px solid #EF4444; border-radius: 8px; padding: 12px; margin-top: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
             <div style="text-align: center; margin-bottom: 8px;">
-              <span style="font-size: 14px; font-weight: 700; color: #DC2626;">⚠ PRODUTO QUÍMICO ⚠</span>
+              <span style="font-size: 14px; font-weight: 900; color: #DC2626;">⚠ PRODUTO QUÍMICO ⚠</span>
             </div>
-            <div style="text-align: center; font-size: 12px;">
-              <div><span style="font-weight: 700;">ONU:</span> ${volume.codigoONU || 'N/A'}</div>
-              <div><span style="font-weight: 700;">RISCO:</span> ${volume.codigoRisco || 'N/A'}</div>
-              <div><span style="font-weight: 700;">CLASS:</span> ${classificacaoText}</div>
+            <div style="text-align: center; font-size: 12px; font-weight: 700;">
+              <div><span style="font-weight: 900;">ONU:</span> ${volume.codigoONU || 'N/A'}</div>
+              <div><span style="font-weight: 900;">RISCO:</span> ${volume.codigoRisco || 'N/A'}</div>
+              <div><span style="font-weight: 900;">CLASS:</span> ${classificacaoText}</div>
             </div>
           </div>
           ` : ''}
           
           ${volume.endereco ? `
-            <div style="font-size: 12px; color: #6B7280; text-align: center; border-top: 1px solid #D1D5DB; padding-top: 8px; margin-top: auto;">
-              <span style="font-weight: 600;">End:</span> ${volume.endereco}
+            <div style="font-size: 12px; color: #4B5563; text-align: center; border-top: 2px solid #9CA3AF; padding-top: 8px; margin-top: auto; font-weight: 700;">
+              <span style="font-weight: 900;">End:</span> ${volume.endereco}
             </div>
           ` : ''}
         </div>
@@ -236,86 +236,88 @@ export const useEtiquetaHTML = () => {
     // Portrait layout template for larger text size and vertical orientation
     if (layoutStyle === 'portrait') {
       return `
-        <div class="etiqueta" style="width: 100%; height: 100%; padding: 15px; font-family: Arial; border: 3px solid #333; position: relative; display: flex; flex-direction: column;">
-          ${isQuimico ? `<div style="position: absolute; top: 10px; right: 10px; color: #DC2626; font-size: 24px;">⚠</div>` : ''}
+        <div class="etiqueta" style="width: 100%; height: 100%; padding: 12px; font-family: Arial, sans-serif; border: 3px solid #333; position: relative; display: flex; flex-direction: column; font-size: 14px; line-height: 1.2;">
+          ${isQuimico ? `<div style="position: absolute; top: 8px; right: 8px; color: #DC2626; font-size: 20px; font-weight: 900;">⚠</div>` : ''}
           
           <!-- Header -->
-          <div style="text-align: center; padding: 12px; background: ${tipoEtiqueta === 'mae' ? '#EF4444' : '#2563EB'}; color: white; border-radius: 6px; margin-bottom: 15px;">
+          <div style="text-align: center; padding: 12px 8px; background: ${tipoEtiqueta === 'mae' ? '#EF4444' : '#2563EB'}; color: white; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             ${transportadoraLogo ? `
               <div style="display: flex; justify-content: center;">
                 <img 
                   src="${transportadoraLogo}" 
                   alt="Logo Transportadora" 
-                  style="width: auto; height: 32px; max-width: 150px; object-fit: contain;"
+                  style="width: auto; height: 36px; max-width: 160px; object-fit: contain;"
                 />
               </div>
             ` : `
-              <span style="font-size: 18px; font-weight: 900;">
+              <span style="font-size: 16px; font-weight: 900; letter-spacing: 0.05em;">
                 ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : (volume.transportadora || 'TRANSPORTADORA')}
               </span>
             `}
           </div>
 
           ${tipoEtiqueta !== 'mae' && volumeNumber && totalVolumes ? `
-          <!-- Contagem de Volumes - DESTAQUE LARANJA -->
-          <div style="background: #FFF7ED; border: 3px solid #F97316; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 12px;">
-            <div style="font-size: 12px; color: #C2410C;">VOLUME</div>
-            <div style="font-size: 24px; font-weight: 900; color: #EA580C;">${volumeNumber}/${totalVolumes}</div>
+          <!-- Contagem de Volumes - DESTAQUE LARANJA APRIMORADO -->
+          <div style="background: #FFF7ED; border: 2px solid #F97316; border-radius: 8px; padding: 12px; text-center; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 12px; color: #9A3412; font-weight: 700; margin-bottom: 4px;">VOLUME</div>
+            <div style="font-size: 28px; font-weight: 900; color: #EA580C; letter-spacing: 0.1em;">${volumeNumber}/${totalVolumes}</div>
           </div>
           ` : ''}
           
           <!-- QR Code -->
-          <div style="text-align: center; margin-bottom: 15px;">
-            ${volume.qrCode ? 
-              `<img src="${volume.qrCode}" alt="QR Code" style="width: 100px; height: 100px;">` : 
-              `<div style="width: 100px; height: 100px; border: 2px solid #000; display: inline-flex; justify-content: center; align-items: center; font-size: 12px;">QR: ${volume.id}</div>`
-            }
-            <div style="font-size: 14px; margin-top: 8px; font-weight: 700;">${volume.id}</div>
+          <div style="text-align: center; margin-bottom: 8px;">
+            <div style="background: white; display: inline-block; padding: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              ${volume.qrCode ? 
+                `<img src="${volume.qrCode}" alt="QR Code" style="width: 120px; height: 120px;">` : 
+                `<div style="width: 120px; height: 120px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 12px;">QR: ${volume.id}</div>`
+              }
+            </div>
+            <div style="font-size: 14px; margin-top: 8px; font-weight: 700; color: #1F2937;">${volume.id}</div>
           </div>
           
-          <!-- Nota Fiscal - DESTAQUE -->
-          <div style="background: #FEF3C7; border: 3px solid #F59E0B; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 12px;">
-            <div style="font-size: 12px; color: #92400E;">NOTA FISCAL</div>
-            <div style="font-size: 24px; font-weight: 900; color: #1F2937;">${volume.notaFiscal || 'N/A'}</div>
+          <!-- Nota Fiscal - DESTAQUE APRIMORADO -->
+          <div style="background: #FEF3C7; border: 2px solid #F59E0B; border-radius: 8px; padding: 12px; text-center; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 12px; color: #92400E; font-weight: 700; margin-bottom: 4px;">NOTA FISCAL</div>
+            <div style="font-size: 24px; font-weight: 900; color: #1F2937; letter-spacing: 0.1em;">${volume.notaFiscal || 'N/A'}</div>
           </div>
           
-          <!-- Cidade Destino - DESTAQUE -->
-          <div style="background: #D1FAE5; border: 3px solid #10B981; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 12px;">
-            <div style="font-size: 12px; color: #065F46;">CIDADE DESTINO</div>
-            <div style="font-size: 20px; font-weight: 900; color: #1F2937;">${volume.cidade || 'N/A'}</div>
+          <!-- Cidade Destino - DESTAQUE APRIMORADO -->
+          <div style="background: #D1FAE5; border: 2px solid #10B981; border-radius: 8px; padding: 12px; text-center; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 12px; color: #065F46; font-weight: 700; margin-bottom: 4px;">CIDADE DESTINO</div>
+            <div style="font-size: 20px; font-weight: 900; color: #1F2937; margin-bottom: 2px;">${volume.cidade || 'N/A'}</div>
             <div style="font-size: 16px; font-weight: 700; color: #374151;">${volume.uf || 'N/A'}</div>
           </div>
           
-          <!-- Remetente - DESTAQUE -->
-          <div style="background: #DBEAFE; border: 3px solid #3B82F6; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-            <div style="font-size: 12px; color: #1E40AF; font-weight: 700;">REMETENTE</div>
-            <div style="font-size: 16px; font-weight: 900; color: #1F2937; line-height: 1.2;">${volume.remetente || 'N/A'}</div>
+          <!-- Remetente - DESTAQUE APRIMORADO -->
+          <div style="background: #DBEAFE; border: 2px solid #3B82F6; border-radius: 8px; padding: 8px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 12px; color: #1E40AF; font-weight: 700; margin-bottom: 4px;">REMETENTE</div>
+            <div style="font-size: 16px; font-weight: 900; color: #1F2937; line-height: 1.1;">${volume.remetente || 'N/A'}</div>
           </div>
           
-          <!-- Destinatário - DESTAQUE -->
-          <div style="background: #EDE9FE; border: 3px solid #8B5CF6; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-            <div style="font-size: 12px; color: #5B21B6; font-weight: 700;">DESTINATÁRIO</div>
-            <div style="font-size: 16px; font-weight: 900; color: #1F2937; line-height: 1.2;">${volume.destinatario || 'N/A'}</div>
+          <!-- Destinatário - DESTAQUE APRIMORADO -->
+          <div style="background: #EDE9FE; border: 2px solid #8B5CF6; border-radius: 8px; padding: 8px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 12px; color: #5B21B6; font-weight: 700; margin-bottom: 4px;">DESTINATÁRIO</div>
+            <div style="font-size: 16px; font-weight: 700; color: #1F2937; line-height: 1.1;">${volume.destinatario || 'N/A'}</div>
           </div>
           
           <!-- Informações Adicionais -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-            <div style="background: #F3F4F6; padding: 8px; border-radius: 6px;">
-              <span style="font-size: 12px; color: #6B7280;">Peso:</span>
-              <div style="font-size: 14px; font-weight: 700;">${volume.pesoTotal || '0 Kg'}</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div style="background: #F3F4F6; padding: 8px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+              <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Peso:</span>
+              <div style="font-size: 14px; font-weight: 700; color: #1F2937;">${volume.pesoTotal || '0 Kg'}</div>
             </div>
-            <div style="background: #F3F4F6; padding: 8px; border-radius: 6px;">
-              <span style="font-size: 12px; color: #6B7280;">Transp:</span>
-              <div style="font-size: 12px; font-weight: 700;">${volume.transportadora || 'N/D'}</div>
+            <div style="background: #F3F4F6; padding: 8px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+              <span style="font-size: 12px; color: #6B7280; font-weight: 600;">Transp:</span>
+              <div style="font-size: 12px; font-weight: 700; color: #1F2937; line-height: 1.1;">${volume.transportadora || 'N/D'}</div>
             </div>
           </div>
           
           ${isQuimico ? `
-          <div style="background: #FEE2E2; border: 3px solid #EF4444; border-radius: 8px; padding: 12px; margin-top: auto;">
+          <div style="background: #FEE2E2; border: 2px solid #EF4444; border-radius: 8px; padding: 8px; margin-top: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
             <div style="text-align: center; margin-bottom: 8px;">
               <span style="font-size: 14px; font-weight: 900; color: #DC2626;">⚠ PRODUTO QUÍMICO ⚠</span>
             </div>
-            <div style="text-align: center; font-size: 12px;">
+            <div style="text-align: center; font-size: 12px; font-weight: 600;">
               <div><span style="font-weight: 900;">ONU:</span> ${volume.codigoONU || 'N/A'}</div>
               <div><span style="font-weight: 900;">RISCO:</span> ${volume.codigoRisco || 'N/A'}</div>
               <div><span style="font-weight: 900;">CLASS:</span> ${classificacaoText}</div>
@@ -324,21 +326,21 @@ export const useEtiquetaHTML = () => {
           ` : ''}
           
           ${volume.endereco ? `
-            <div style="font-size: 12px; color: #6B7280; text-align: center; border-top: 1px solid #D1D5DB; padding-top: 8px; margin-top: auto;">
+            <div style="font-size: 12px; color: #6B7280; text-align: center; border-top: 1px solid #D1D5DB; padding-top: 8px; margin-top: auto; font-weight: 600;">
               <span style="font-weight: 700;">End:</span> ${volume.endereco}
             </div>
           ` : ''}
           
           ${volume.descricao ? `
-            <div style="font-size: 12px; margin-top: 8px; padding-top: 8px; border-top: 2px solid #D1D5DB;">
+            <div style="font-size: 12px; margin-top: 4px; padding-top: 8px; border-top: 2px solid #D1D5DB; font-weight: 600;">
               <span style="font-weight: 900;">Descrição:</span> ${volume.descricao}
             </div>
           ` : ''}
           
           ${tipoEtiqueta === 'mae' ? `
-            <div style="background: #EDE9FE; border: 3px solid #8B5CF6; border-radius: 8px; padding: 12px; text-align: center; margin-top: 8px;">
-              <div style="font-size: 12px; color: #5B21B6;">TOTAL DE VOLUMES</div>
-              <div style="font-size: 24px; font-weight: 900; color: #1F2937;">${volume.quantidade || '0'}</div>
+            <div style="background: #EDE9FE; border: 2px solid #8B5CF6; border-radius: 8px; padding: 12px; text-center; margin-top: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+              <div style="font-size: 12px; color: #5B21B6; font-weight: 700; margin-bottom: 4px;">TOTAL DE VOLUMES</div>
+              <div style="font-size: 28px; font-weight: 900; color: #1F2937; letter-spacing: 0.1em;">${volume.quantidade || '0'}</div>
             </div>
           ` : ''}
         </div>
@@ -362,7 +364,7 @@ export const useEtiquetaHTML = () => {
                 <span style="font-weight: 700;">NF:</span> <span style="font-size: 20px; font-weight: 900;">${volume.notaFiscal || 'N/A'}</span>
               </div>
               <div style="font-size: 14px; margin-bottom: 8px; background-color: #DBEAFE; padding: 8px; border: 2px solid #3B82F6; border-radius: 6px;">
-                <span style="font-weight: 700;">Remetente:</span> <span style="font-size: 16px; font-weight: 700;">${volume.remetente || 'N/A'}</span>
+                <span style="font-weight: 700;">Remetente:</span> <span style="font-size: 16px; font-weight: 900;">${volume.remetente || 'N/A'}</span>
               </div>
               <div style="font-size: 14px; margin-bottom: 8px;">
                 <span style="font-weight: 700;">Destinatário:</span> ${volume.destinatario || 'N/A'}
