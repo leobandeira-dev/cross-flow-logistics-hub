@@ -43,11 +43,17 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
         )}
       </div>
 
-      {/* Área - DESTAQUE PRINCIPAL COM ALTO CONTRASTE */}
+      {/* QR Code */}
+      <div className="text-center bg-white p-3 rounded-lg shadow-lg border-2 border-gray-300">
+        <QRCodeGenerator text={volumeData.id} size={150} />
+        <div className="text-base mt-2 font-black text-gray-900">{volumeData.id}</div>
+      </div>
+
+      {/* Área - DESTAQUE PRINCIPAL COM ALTO CONTRASTE LOGO ABAIXO DO QR CODE */}
       {volumeData.area && (
         <div className="bg-black text-white border-4 border-gray-900 rounded-xl p-5 text-center shadow-lg">
           <div className="text-sm text-white font-black mb-2">ÁREA</div>
-          <div className="text-6xl font-black text-white tracking-widest">{volumeData.area}</div>
+          <div className="text-7xl font-black text-white tracking-widest">{volumeData.area}</div>
         </div>
       )}
       
@@ -58,12 +64,6 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
           <div className="text-5xl font-black text-orange-900 tracking-widest">{volumeNumber}/{totalVolumes}</div>
         </div>
       )}
-      
-      {/* QR Code */}
-      <div className="text-center bg-white p-3 rounded-lg shadow-lg border-2 border-gray-300">
-        <QRCodeGenerator text={volumeData.id} size={150} />
-        <div className="text-base mt-2 font-black text-gray-900">{volumeData.id}</div>
-      </div>
       
       {/* Nota Fiscal - DESTAQUE COM ALTO CONTRASTE */}
       <div className="bg-black text-white border-4 border-gray-900 rounded-xl p-4 text-center shadow-lg">

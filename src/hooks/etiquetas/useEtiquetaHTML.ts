@@ -106,7 +106,7 @@ export const useEtiquetaHTML = () => {
               }
               <div style="text-align: center; font-size: 12px; margin-top: 8px; font-weight: 700;">${volume.id}</div>
               
-              <!-- Área - DESTAQUE COM ALTO CONTRASTE ABAIXO DO QR CODE -->
+              <!-- Área - DESTAQUE COM ALTO CONTRASTE LOGO ABAIXO DO QR CODE -->
               ${volume.area ? `
                 <div style="margin-top: 16px; background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 20px; text-center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                   <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px; letter-spacing: 0.1em;">ÁREA</div>
@@ -155,8 +155,19 @@ export const useEtiquetaHTML = () => {
             `}
           </div>
 
+          <!-- QR Code Section -->
+          <div style="text-center; margin-bottom: 12px;">
+            <div style="background: white; display: inline-block; padding: 12px; border-radius: 8px; border: 2px solid #D1D5DB; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              ${volume.qrCode ? 
+                `<img src="${volume.qrCode}" alt="QR Code" style="width: 150px; height: 150px;">` : 
+                `<div style="width: 150px; height: 150px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 14px;">QR: ${volume.id}</div>`
+              }
+            </div>
+            <div style="font-size: 16px; margin-top: 8px; font-weight: 900; color: #1F2937;">${volume.id}</div>
+          </div>
+
+          <!-- Área - DESTAQUE PRINCIPAL COM ALTO CONTRASTE LOGO ABAIXO DO QR CODE -->
           ${volume.area ? `
-          <!-- Área - DESTAQUE PRINCIPAL -->
           <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="color: white; font-size: 14px; font-weight: 900; margin-bottom: 8px;">ÁREA</div>
             <div style="color: white; font-size: 40px; font-weight: 900; letter-spacing: 0.2em;">${volume.area}</div>
@@ -170,17 +181,6 @@ export const useEtiquetaHTML = () => {
             <div style="color: #EA580C; font-size: 40px; font-weight: 900; letter-spacing: 0.1em;">${volumeNumber}/${totalVolumes}</div>
           </div>
           ` : ''}
-          
-          <!-- QR Code Section -->
-          <div style="text-center; margin-bottom: 12px;">
-            <div style="background: white; display: inline-block; padding: 12px; border-radius: 8px; border: 2px solid #D1D5DB; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-              ${volume.qrCode ? 
-                `<img src="${volume.qrCode}" alt="QR Code" style="width: 150px; height: 150px;">` : 
-                `<div style="width: 150px; height: 150px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 14px;">QR: ${volume.id}</div>`
-              }
-            </div>
-            <div style="font-size: 16px; margin-top: 8px; font-weight: 900; color: #1F2937;">${volume.id}</div>
-          </div>
           
           <!-- Nota Fiscal - CONTAINER PRETO APRIMORADO -->
           <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -273,8 +273,19 @@ export const useEtiquetaHTML = () => {
             `}
           </div>
 
+          <!-- QR Code -->
+          <div style="text-center; margin-bottom: 8px;">
+            <div style="background: white; display: inline-block; padding: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              ${volume.qrCode ? 
+                `<img src="${volume.qrCode}" alt="QR Code" style="width: 140px; height: 140px;">` : 
+                `<div style="width: 140px; height: 140px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 14px;">QR: ${volume.id}</div>`
+              }
+            </div>
+            <div style="font-size: 16px; margin-top: 8px; font-weight: 700; color: #1F2937;">${volume.id}</div>
+          </div>
+
+          <!-- Área - DESTAQUE PRINCIPAL LOGO ABAIXO DO QR CODE -->
           ${volume.area ? `
-          <!-- Área - DESTAQUE PRINCIPAL -->
           <div style="background: #4338CA; border: 4px solid #312E81; border-radius: 12px; padding: 16px; text-center; margin-bottom: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 14px; color: white; font-weight: 900; margin-bottom: 8px;">ÁREA</div>
             <div style="font-size: 48px; font-weight: 900; color: white; letter-spacing: 0.2em;">${volume.area}</div>
@@ -288,17 +299,6 @@ export const useEtiquetaHTML = () => {
             <div style="font-size: 32px; font-weight: 900; color: #EA580C; letter-spacing: 0.1em;">${volumeNumber}/${totalVolumes}</div>
           </div>
           ` : ''}
-          
-          <!-- QR Code -->
-          <div style="text-align: center; margin-bottom: 8px;">
-            <div style="background: white; display: inline-block; padding: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-              ${volume.qrCode ? 
-                `<img src="${volume.qrCode}" alt="QR Code" style="width: 140px; height: 140px;">` : 
-                `<div style="width: 140px; height: 140px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 14px;">QR: ${volume.id}</div>`
-              }
-            </div>
-            <div style="font-size: 16px; margin-top: 8px; font-weight: 700; color: #1F2937;">${volume.id}</div>
-          </div>
           
           <!-- Nota Fiscal - DESTAQUE APRIMORADO -->
           <div style="background: #FEF3C7; border: 3px solid #F59E0B; border-radius: 8px; padding: 12px; text-center; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
@@ -426,7 +426,7 @@ export const useEtiquetaHTML = () => {
               }
               <div style="text-align: center; font-size: 12px; margin-top: 8px; font-weight: 700;">${volume.id}</div>
               
-              <!-- Área - DESTAQUE ABAIXO DO QR CODE -->
+              <!-- Área - DESTAQUE LOGO ABAIXO DO QR CODE -->
               ${volume.area ? `
                 <div style="margin-top: 16px; background: #4338CA; border: 4px solid #312E81; border-radius: 12px; padding: 20px; text-center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                   <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px; letter-spacing: 0.1em;">ÁREA</div>
@@ -456,11 +456,6 @@ export const useEtiquetaHTML = () => {
         <div style="font-size: 16px; font-weight: bold; text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
           ${headerHTML}
         </div>
-        ${volume.area ? `
-        <div style="font-size: 12px; margin-bottom: 5px; background-color: #E0E7FF; padding: 5px; border: 1px solid #C7D2FE; border-radius: 3px; text-align: center;">
-          <span style="font-weight: bold;">Área:</span> <span style="font-size: 24px; font-weight: bold;">${volume.area}</span>
-        </div>
-        ` : ''}
         <div style="display: flex; margin-top: 10px;">
           <div style="flex: 2; padding-right: 10px;">
             <div style="font-size: 12px; margin-bottom: 5px;">
@@ -506,8 +501,10 @@ export const useEtiquetaHTML = () => {
               `<div style="width: 80px; height: 80px; border: 1px solid #000; display: flex; justify-content: center; align-items: center; font-size: 10px;">QR Code: ${volume.id}</div>`
             }
             <div style="text-align: center; font-size: 10px; margin-top: 5px;">${volume.id}</div>
+            
+            <!-- Área - DESTAQUE LOGO ABAIXO DO QR CODE -->
             ${volume.area ? `
-              <div style="margin-top: 10px; background-color: #E0E7FF; padding: 10px; border: 2px solid #C7D2FE; border-radius: 6px; text-align: center;">
+              <div style="margin-top: 10px; background-color: #E0E7FF; padding: 10px; border: 2px solid #C7D2FE; border-radius: 6px; text-center;">
                 <div style="font-size: 10px; font-weight: bold; margin-bottom: 5px;">ÁREA</div>
                 <div style="font-size: 32px; font-weight: bold;">${volume.area}</div>
               </div>

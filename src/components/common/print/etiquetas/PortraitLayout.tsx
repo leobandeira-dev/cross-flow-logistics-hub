@@ -43,11 +43,17 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
         )}
       </div>
 
-      {/* Área - DESTAQUE PRINCIPAL */}
+      {/* QR Code */}
+      <div className="text-center bg-white p-3 rounded-lg shadow-sm">
+        <QRCodeGenerator text={volumeData.id} size={140} />
+        <div className="text-base mt-2 font-bold text-gray-800">{volumeData.id}</div>
+      </div>
+
+      {/* Área - DESTAQUE PRINCIPAL LOGO ABAIXO DO QR CODE */}
       {volumeData.area && (
-        <div className="bg-indigo-100 border-4 border-indigo-600 rounded-xl p-4 text-center shadow-lg">
-          <div className="text-sm text-indigo-800 font-black mb-2">ÁREA</div>
-          <div className="text-5xl font-black text-indigo-900 tracking-wider">{volumeData.area}</div>
+        <div className="bg-indigo-600 text-white border-4 border-indigo-800 rounded-xl p-5 text-center shadow-lg">
+          <div className="text-sm text-white font-black mb-2">ÁREA</div>
+          <div className="text-7xl font-black text-white tracking-widest">{volumeData.area}</div>
         </div>
       )}
       
@@ -58,12 +64,6 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
           <div className="text-4xl font-black text-orange-900 tracking-wider">{volumeNumber}/{totalVolumes}</div>
         </div>
       )}
-      
-      {/* QR Code */}
-      <div className="text-center bg-white p-3 rounded-lg shadow-sm">
-        <QRCodeGenerator text={volumeData.id} size={140} />
-        <div className="text-base mt-2 font-bold text-gray-800">{volumeData.id}</div>
-      </div>
       
       {/* Nota Fiscal - DESTAQUE */}
       <div className="bg-yellow-50 border-3 border-yellow-400 rounded-lg p-3 text-center shadow-sm">
