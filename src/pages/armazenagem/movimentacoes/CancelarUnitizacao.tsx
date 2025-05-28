@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -94,11 +93,13 @@ const CancelarUnitizacao: React.FC = () => {
       // Update unitizacao status to 'cancelada'
       await unitizacaoService.cancelarUnitizacao(id as string);
       
-      // Update etiquetas status to 'gerada'
+      // Update etiquetas status to 'gerada' individually
       if (selected && selected.etiquetas_unitizacao) {
         const etiquetas = selected.etiquetas_unitizacao.map((etiqueta: any) => etiqueta.etiqueta_id);
-        // Use atualizarEtiquetas from etiquetaService
-        await etiquetaService.atualizarEtiquetas(etiquetas, { status: 'gerada' });
+        // Update each etiqueta individually
+        for (const etiquetaId of etiquetas) {
+          await etiquetaService.atualizarEtiqueta(etiquetaId, { status: 'gerada' });
+        }
       }
       
       toast({
