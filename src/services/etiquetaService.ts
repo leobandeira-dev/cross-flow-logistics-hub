@@ -24,6 +24,7 @@ export interface CreateEtiquetaData {
   codigo_risco?: string;
   classificacao_quimica?: string;
   etiqueta_mae_id?: string;
+  status?: string;
 }
 
 export interface InutilizarEtiquetaData {
@@ -56,7 +57,7 @@ const etiquetaService = {
       .from('etiquetas')
       .insert({
         ...etiquetaData,
-        status: 'gerada',
+        status: etiquetaData.status || 'gerada',
         data_geracao: new Date().toISOString(),
         etiquetado: false
       })
