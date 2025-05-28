@@ -7,27 +7,69 @@ import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase.types";
  */
 export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNotaFiscal?: Partial<ItemNotaFiscal>[]): Promise<NotaFiscal> => {
   try {
-    // Create a properly typed object with required fields
+    console.log('Criando nota fiscal:', notaFiscal);
+    
+    // Preparar dados para inserção, garantindo que campos obrigatórios existam
     const notaFiscalToInsert = {
       numero: notaFiscal.numero || '',
-      valor: notaFiscal.valor || 0,
-      data_emissao: notaFiscal.data_emissao || new Date().toISOString().split('T')[0],
-      tipo: notaFiscal.tipo || 'entrada',
+      valor_total: notaFiscal.valor_total || 0,
+      data_emissao: notaFiscal.data_emissao || new Date().toISOString(),
       status: notaFiscal.status || 'pendente',
-      // Optional fields
-      chave_acesso: notaFiscal.chave_acesso,
+      // Campos opcionais
       serie: notaFiscal.serie,
+      chave_acesso: notaFiscal.chave_acesso,
       peso_bruto: notaFiscal.peso_bruto,
       quantidade_volumes: notaFiscal.quantidade_volumes,
       data_entrada: notaFiscal.data_entrada,
       data_saida: notaFiscal.data_saida,
-      empresa_emitente_id: notaFiscal.empresa_emitente_id,
-      empresa_destinatario_id: notaFiscal.empresa_destinatario_id,
-      filial_id: notaFiscal.filial_id,
-      ordem_carregamento_id: notaFiscal.ordem_carregamento_id,
-      coleta_id: notaFiscal.coleta_id,
+      tipo_operacao: notaFiscal.tipo_operacao,
+      numero_pedido: notaFiscal.numero_pedido,
+      
+      // Dados do emitente
+      emitente_cnpj: notaFiscal.emitente_cnpj,
+      emitente_razao_social: notaFiscal.emitente_razao_social,
+      emitente_telefone: notaFiscal.emitente_telefone,
+      emitente_uf: notaFiscal.emitente_uf,
+      emitente_cidade: notaFiscal.emitente_cidade,
+      emitente_bairro: notaFiscal.emitente_bairro,
+      emitente_endereco: notaFiscal.emitente_endereco,
+      emitente_numero: notaFiscal.emitente_numero,
+      emitente_cep: notaFiscal.emitente_cep,
+      
+      // Dados do destinatário
+      destinatario_cnpj: notaFiscal.destinatario_cnpj,
+      destinatario_razao_social: notaFiscal.destinatario_razao_social,
+      destinatario_telefone: notaFiscal.destinatario_telefone,
+      destinatario_uf: notaFiscal.destinatario_uf,
+      destinatario_cidade: notaFiscal.destinatario_cidade,
+      destinatario_bairro: notaFiscal.destinatario_bairro,
+      destinatario_endereco: notaFiscal.destinatario_endereco,
+      destinatario_numero: notaFiscal.destinatario_numero,
+      destinatario_cep: notaFiscal.destinatario_cep,
+      
+      // Informações adicionais
+      informacoes_complementares: notaFiscal.informacoes_complementares,
+      fob_cif: notaFiscal.fob_cif,
+      numero_coleta: notaFiscal.numero_coleta,
+      valor_coleta: notaFiscal.valor_coleta,
+      numero_cte_coleta: notaFiscal.numero_cte_coleta,
+      numero_cte_viagem: notaFiscal.numero_cte_viagem,
+      data_embarque: notaFiscal.data_embarque,
+      status_embarque: notaFiscal.status_embarque,
+      responsavel_entrega: notaFiscal.responsavel_entrega,
+      quimico: notaFiscal.quimico,
+      fracionado: notaFiscal.fracionado,
+      motorista: notaFiscal.motorista,
+      tempo_armazenamento_horas: notaFiscal.tempo_armazenamento_horas,
+      entregue_ao_fornecedor: notaFiscal.entregue_ao_fornecedor,
       observacoes: notaFiscal.observacoes,
-      tempo_armazenamento_horas: notaFiscal.tempo_armazenamento_horas
+      
+      // Referências
+      remetente_id: notaFiscal.remetente_id,
+      destinatario_id: notaFiscal.destinatario_id,
+      transportadora_id: notaFiscal.transportadora_id,
+      ordem_carregamento_id: notaFiscal.ordem_carregamento_id,
+      coleta_id: notaFiscal.coleta_id
     };
     
     const { data, error } = await supabase
@@ -37,10 +79,13 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
       .single();
     
     if (error) {
+      console.error('Erro ao inserir nota fiscal:', error);
       throw new Error(`Erro ao criar nota fiscal: ${error.message}`);
     }
     
-    // Se houver itens, cria-os vinculados à nota fiscal
+    console.log('Nota fiscal criada com sucesso:', data);
+    
+    // Se houver itens, criar os itens da nota fiscal
     if (itensNotaFiscal && itensNotaFiscal.length > 0) {
       const itensComNotaId = itensNotaFiscal.map(item => ({
         ...item,
@@ -64,22 +109,16 @@ export const criarItensNotaFiscal = async (itensNotaFiscal: Partial<ItemNotaFisc
   try {
     if (!itensNotaFiscal.length) return [];
     
-    // Ensure all required properties are present for each item
-    const itemsWithRequiredProps = itensNotaFiscal.map(item => {
-      return {
-        codigo_produto: item.codigo_produto || 'N/A',
-        descricao: item.descricao || 'N/A',
-        quantidade: item.quantidade || 0,
-        valor_unitario: item.valor_unitario || 0,
-        valor_total: item.valor_total || 0,
-        sequencia: item.sequencia || 1,
-        nota_fiscal_id: item.nota_fiscal_id,
-        // Optional fields
-        id: item.id,
-        created_at: item.created_at,
-        updated_at: item.updated_at
-      } as ItemNotaFiscal;
-    });
+    // Garantir que todos os campos obrigatórios existam
+    const itemsWithRequiredProps = itensNotaFiscal.map((item, index) => ({
+      codigo_produto: item.codigo_produto || `PROD${index + 1}`,
+      descricao: item.descricao || 'Produto',
+      quantidade: item.quantidade || 0,
+      valor_unitario: item.valor_unitario || 0,
+      valor_total: item.valor_total || 0,
+      sequencia: item.sequencia || index + 1,
+      nota_fiscal_id: item.nota_fiscal_id
+    }));
     
     const { data, error } = await supabase
       .from('itens_nota_fiscal')
@@ -87,10 +126,11 @@ export const criarItensNotaFiscal = async (itensNotaFiscal: Partial<ItemNotaFisc
       .select();
     
     if (error) {
+      console.error('Erro ao inserir itens da nota fiscal:', error);
       throw new Error(`Erro ao criar itens da nota fiscal: ${error.message}`);
     }
     
-    return data as ItemNotaFiscal[];
+    return (data || []) as ItemNotaFiscal[];
   } catch (error: any) {
     console.error('Erro ao criar itens da nota fiscal:', error);
     throw error;

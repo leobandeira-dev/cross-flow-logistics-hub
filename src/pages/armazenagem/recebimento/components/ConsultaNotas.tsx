@@ -21,12 +21,6 @@ const notasFilterConfig = [
       { label: "Pendente", value: "pendente" },
       { label: "Rejeitada", value: "rejeitada" }
     ]
-  },
-  {
-    name: "Fornecedor",
-    options: [
-      { label: "Todos", value: "all" }
-    ]
   }
 ];
 
