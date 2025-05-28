@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { QrCode, Biohazard, TestTube } from 'lucide-react';
 import QRCodeGenerator from '../QRCodeGenerator';
@@ -38,7 +37,7 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
           </div>
         ) : (
           <span className="text-lg font-bold">
-            {isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+            {isMae ? 'ETIQUETA MÃE' : (volumeData.transportadora || 'TRANSPORTADORA')}
           </span>
         )}
       </div>

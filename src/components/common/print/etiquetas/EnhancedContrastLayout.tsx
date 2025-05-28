@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TestTube, Biohazard } from 'lucide-react';
 import QRCodeGenerator from '../QRCodeGenerator';
@@ -39,7 +38,7 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
             />
           </div>
         ) : (
-          isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'
+          isMae ? 'ETIQUETA MÃE' : (volumeData.transportadora || 'TRANSPORTADORA')
         )}
       </div>
       

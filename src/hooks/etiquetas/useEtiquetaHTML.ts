@@ -25,7 +25,7 @@ export const useEtiquetaHTML = () => {
     // Get classification text
     const classificacaoText = getClassificacaoText(volume.classificacaoQuimica);
     
-    // Header HTML with logo or text
+    // Header HTML with logo or transport company name
     const headerHTML = transportadoraLogo ? `
       <div style="display: flex; justify-content: center;">
         <img 
@@ -34,7 +34,7 @@ export const useEtiquetaHTML = () => {
           style="width: auto; height: 48px; max-width: 200px; object-fit: contain;"
         />
       </div>
-    ` : (tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME');
+    ` : (tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : (volume.transportadora || 'TRANSPORTADORA'));
     
     // Enhanced Contrast layout template
     if (layoutStyle === 'enhanced_contrast') {
@@ -142,7 +142,7 @@ export const useEtiquetaHTML = () => {
               </div>
             ` : `
               <span style="font-size: 18px; font-weight: 900;">
-                ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+                ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : (volume.transportadora || 'TRANSPORTADORA')}
               </span>
             `}
           </div>
@@ -244,7 +244,7 @@ export const useEtiquetaHTML = () => {
               </div>
             ` : `
               <span style="font-size: 18px; font-weight: 900;">
-                ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+                ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : (volume.transportadora || 'TRANSPORTADORA')}
               </span>
             `}
           </div>
