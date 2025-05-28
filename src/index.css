@@ -21,100 +21,44 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
     --primary: 199 100% 43%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 215 23% 21%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 199 100% 43%;
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 240 10% 3.9%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 199 100% 43%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 199 100% 43%;
-
-    /* Gradientes modernos */
-    --gradient-primary: linear-gradient(135deg, #0098DA 0%, #33ADDF 100%);
-    --gradient-secondary: linear-gradient(135deg, #2D363F 0%, #505A64 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    --gradient-dark-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%);
-    
-    /* Shadows para Glassmorphism */
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
-    --glass-border: 1px solid rgba(255, 255, 255, 0.18);
-    --backdrop-filter: blur(20px);
-  }
-
-  .light,
-  [data-theme="light"] {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
-    --primary: 199 100% 43%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 199 100% 43%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 11%;
-    --sidebar-primary: 199 100% 43%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 199 100% 43%;
+    --radius: 0.5rem;
 
-    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
-    --gradient-dark-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.05) 100%);
-    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-    --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+    --sidebar-background: 215 23% 21%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 199 100% 43%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 23% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 215 23% 25%;
+    --sidebar-ring: 199 100% 43%;
   }
 
   * {
@@ -123,9 +67,6 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-    min-height: 100vh;
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -134,188 +75,51 @@
 }
 
 @layer components {
-  /* Glassmorphism Cards */
-  .glass-card {
-    background: var(--gradient-glass);
-    backdrop-filter: var(--backdrop-filter);
-    -webkit-backdrop-filter: var(--backdrop-filter);
-    border: var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    @apply rounded-xl border border-white/10;
+  .card-dashboard {
+    @apply rounded-lg border bg-card p-5 shadow hover:shadow-md transition-all;
   }
 
-  .glass-card-dark {
-    background: var(--gradient-dark-glass);
-    backdrop-filter: var(--backdrop-filter);
-    -webkit-backdrop-filter: var(--backdrop-filter);
-    border: var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    @apply rounded-xl border border-black/10;
+  .btn-primary {
+    @apply bg-cross-blue text-white hover:bg-cross-blueDark px-4 py-2 rounded-md font-medium transition-colors;
   }
 
-  /* Floating Labels */
-  .floating-label-group {
-    @apply relative;
+  .btn-secondary {
+    @apply bg-cross-gray text-white hover:bg-cross-grayDark px-4 py-2 rounded-md font-medium transition-colors;
   }
 
-  .floating-label {
-    @apply absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-all duration-200 pointer-events-none;
+  .status-badge {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
   }
 
-  .floating-input:focus + .floating-label,
-  .floating-input:not(:placeholder-shown) + .floating-label {
-    @apply text-xs -top-2 left-3 bg-background px-1 text-primary;
+  .status-badge-success {
+    @apply status-badge bg-green-100 text-green-800;
   }
 
-  /* Modern Buttons */
-  .btn-glass {
-    background: var(--gradient-glass);
-    backdrop-filter: var(--backdrop-filter);
-    -webkit-backdrop-filter: var(--backdrop-filter);
-    border: var(--glass-border);
-    @apply rounded-xl border border-white/10 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95;
+  .status-badge-warning {
+    @apply status-badge bg-amber-100 text-amber-800;
   }
 
-  .btn-primary-modern {
-    background: var(--gradient-primary);
-    @apply rounded-xl px-6 py-3 text-white font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 border-0;
+  .status-badge-error {
+    @apply status-badge bg-red-100 text-red-800;
   }
 
-  .btn-secondary-modern {
-    background: var(--gradient-secondary);
-    @apply rounded-xl px-6 py-3 text-white font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 border-0;
+  .status-badge-info {
+    @apply status-badge bg-blue-100 text-blue-800;
   }
 
-  /* Microinterações */
-  .interactive-element {
-    @apply transition-all duration-300 ease-out;
+  .data-table {
+    @apply w-full border-collapse;
   }
 
-  .interactive-element:hover {
-    @apply scale-105 shadow-lg;
+  .data-table th {
+    @apply bg-gray-50 text-left px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider;
   }
 
-  .interactive-element:active {
-    @apply scale-95;
+  .data-table td {
+    @apply border-t px-4 py-2;
   }
 
-  /* Skeleton Loaders */
-  .skeleton {
-    @apply bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%];
-    animation: skeleton-loading 1.5s ease-in-out infinite;
-  }
-
-  @keyframes skeleton-loading {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
-  }
-
-  /* Status Badges Modernos */
-  .status-badge-modern {
-    @apply px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border;
-  }
-
-  .status-success-modern {
-    @apply status-badge-modern bg-emerald-500/20 text-emerald-300 border-emerald-500/30;
-  }
-
-  .status-warning-modern {
-    @apply status-badge-modern bg-amber-500/20 text-amber-300 border-amber-500/30;
-  }
-
-  .status-error-modern {
-    @apply status-badge-modern bg-red-500/20 text-red-300 border-red-500/30;
-  }
-
-  .status-info-modern {
-    @apply status-badge-modern bg-blue-500/20 text-blue-300 border-blue-500/30;
-  }
-
-  /* Data Table Moderna */
-  .data-table-modern {
-    @apply w-full border-collapse glass-card;
-  }
-
-  .data-table-modern th {
-    @apply bg-muted/50 text-left px-6 py-4 text-sm font-semibold text-foreground/80 backdrop-blur-md;
-  }
-
-  .data-table-modern td {
-    @apply border-t border-border/50 px-6 py-4 backdrop-blur-md;
-  }
-
-  .data-table-modern tr {
-    @apply transition-all duration-200 hover:bg-muted/30;
-  }
-
-  /* Animações fluidas - removido @apply fade-in para evitar dependência circular */
-  .fade-in {
-    opacity: 0;
-    transform: translateY(10px);
-    animation: fade-in 0.3s ease-out forwards;
-  }
-
-  .slide-in-from-bottom {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slide-in-from-bottom 0.3s ease-out forwards;
-  }
-
-  .scale-in {
-    opacity: 0;
-    transform: scale(0.95);
-    animation: scale-in 0.2s ease-out forwards;
-  }
-}
-
-/* Animações customizadas */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(0, 152, 218, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(0, 152, 218, 0);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
-/* Responsividade moderna */
-@media (max-width: 768px) {
-  .glass-card {
-    @apply mx-2;
-  }
-  
-  .btn-primary-modern,
-  .btn-secondary-modern {
-    @apply px-4 py-2 text-sm;
-  }
-}
-
-/* Safe areas para dispositivos com notch */
-@supports (padding: max(0px)) {
-  .safe-area-top {
-    padding-top: max(1rem, env(safe-area-inset-top));
-  }
-  
-  .safe-area-bottom {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  }
-}
-
-/* Preferências de movimento reduzido */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .data-table tr:hover {
+    @apply bg-gray-50;
   }
 }

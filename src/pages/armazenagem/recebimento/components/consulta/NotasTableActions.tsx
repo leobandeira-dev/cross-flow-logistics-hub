@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ModernButton from '@/components/modern/ModernButton';
+import { Button } from '@/components/ui/button';
 import { FileText, Printer, Tag } from 'lucide-react';
 import { NotaFiscal } from '@/types/supabase.types';
 
@@ -17,29 +17,29 @@ const NotasTableActions: React.FC<NotasTableActionsProps> = ({
 }) => {
   return (
     <div className="flex space-x-2">
-      <ModernButton
-        size="sm"
-        variant="glass"
-        onClick={() => onPrintClick(nota.id)}
-        icon={<Printer className="h-4 w-4" />}
-      >
-        DANFE
-      </ModernButton>
-      <ModernButton
+      <Button
         size="sm"
         variant="outline"
-        icon={<FileText className="h-4 w-4" />}
+        onClick={() => onPrintClick(nota.id)}
       >
-        Detalhes
-      </ModernButton>
-      <ModernButton
+        <Printer className="h-4 w-4 mr-1" />
+        DANFE
+      </Button>
+      <Button
         size="sm"
-        variant="ghost"
-        onClick={() => onGerarEtiquetasClick(nota)}
-        icon={<Tag className="h-4 w-4" />}
+        variant="outline"
       >
+        <FileText className="h-4 w-4 mr-1" />
+        Detalhes
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onGerarEtiquetasClick(nota)}
+      >
+        <Tag className="h-4 w-4 mr-1" />
         Etiquetas
-      </ModernButton>
+      </Button>
     </div>
   );
 };

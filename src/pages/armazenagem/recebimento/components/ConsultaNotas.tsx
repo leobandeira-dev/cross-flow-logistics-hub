@@ -1,9 +1,8 @@
 
 import React from 'react';
-import ModernCard from '@/components/modern/ModernCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '@/components/common/DataTable';
 import SearchFilter from '@/components/common/SearchFilter';
-import { FileText } from 'lucide-react';
 import { notasFilterConfig } from './consulta/NotasFilterConfig';
 import { createNotasTableColumns } from './consulta/NotasTableColumns';
 import { useNotasData } from './consulta/useNotasData';
@@ -28,34 +27,18 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   }
 
   return (
-    <div className="fade-in">
-      <ModernCard className="p-6">
-        {/* Header com ícone e título */}
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="p-2 rounded-xl bg-primary/10 text-primary">
-            <FileText size={24} />
-          </div>
-          <div>
-            <h2 className="text-xl font-heading text-foreground">
-              Consulta de Notas Fiscais
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Gerencie e acompanhe suas notas fiscais
-            </p>
-          </div>
-        </div>
-
-        {/* Filtros de busca com estilo moderno */}
-        <div className="mb-6">
-          <SearchFilter 
-            placeholder="Buscar por número, chave de acesso ou razão social..." 
-            filters={notasFilterConfig} 
-            onSearch={handleSearch}
-          />
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Consulta de Notas Fiscais</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <SearchFilter 
+          placeholder="Buscar por número, chave de acesso ou razão social..." 
+          filters={notasFilterConfig} 
+          onSearch={handleSearch}
+        />
         
-        {/* Tabela com estilo glassmorphism */}
-        <div className="glass-card rounded-xl overflow-hidden border border-border/20">
+        <div className="rounded-md border">
           <DataTable
             columns={columns}
             data={notasFormatadas}
@@ -63,8 +46,8 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
         </div>
         
         <NotasEmptyState isLoading={isLoading} notasCount={notasFormatadas.length} />
-      </ModernCard>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
