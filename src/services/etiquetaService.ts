@@ -38,15 +38,18 @@ const etiquetaService = {
    */
   async buscarEtiquetas(): Promise<Etiqueta[]> {
     try {
+      console.log('Buscando etiquetas do banco de dados...');
       const { data, error } = await supabase
         .from('etiquetas')
         .select('*')
         .order('data_geracao', { ascending: false });
       
       if (error) {
+        console.error('Erro no Supabase ao buscar etiquetas:', error);
         throw new Error(`Erro ao buscar etiquetas: ${error.message}`);
       }
       
+      console.log(`Encontradas ${data?.length || 0} etiquetas`);
       return data || [];
     } catch (error) {
       console.error('Erro no serviço buscarEtiquetas:', error);
@@ -59,6 +62,12 @@ const etiquetaService = {
    */
   async buscarEtiquetaPorId(id: string): Promise<Etiqueta> {
     try {
+      console.log(`Buscando etiqueta por ID: ${id}`);
+      
+      if (!id || id.trim() === '') {
+        throw new Error('ID da etiqueta é obrigatório');
+      }
+
       const { data, error } = await supabase
         .from('etiquetas')
         .select('*')
@@ -66,9 +75,15 @@ const etiquetaService = {
         .single();
       
       if (error) {
+        console.error('Erro no Supabase ao buscar etiqueta por ID:', error);
         throw new Error(`Erro ao buscar etiqueta por ID: ${error.message}`);
       }
       
+      if (!data) {
+        throw new Error(`Etiqueta com ID ${id} não encontrada`);
+      }
+      
+      console.log('Etiqueta encontrada:', data);
       return data;
     } catch (error) {
       console.error('Erro no serviço buscarEtiquetaPorId:', error);
@@ -103,6 +118,8 @@ const etiquetaService = {
    */
   async criarEtiqueta(etiquetaData: CreateEtiquetaData): Promise<Etiqueta> {
     try {
+      console.log('Criando nova etiqueta:', etiquetaData);
+      
       // Validações antes de criar
       if (!etiquetaData.codigo) {
         throw new Error('Código da etiqueta é obrigatório');
@@ -112,21 +129,51 @@ const etiquetaService = {
         throw new Error('Tipo da etiqueta é obrigatório');
       }
 
+      const etiquetaToInsert = {
+        codigo: etiquetaData.codigo,
+        tipo: etiquetaData.tipo,
+        area: etiquetaData.area,
+        remetente: etiquetaData.remetente,
+        destinatario: etiquetaData.destinatario,
+        endereco: etiquetaData.endereco,
+        cidade: etiquetaData.cidade,
+        uf: etiquetaData.uf,
+        cep: etiquetaData.cep,
+        descricao: etiquetaData.descricao,
+        transportadora: etiquetaData.transportadora,
+        chave_nf: etiquetaData.chave_nf,
+        quantidade: etiquetaData.quantidade,
+        peso_total_bruto: etiquetaData.peso_total_bruto,
+        numero_pedido: etiquetaData.numero_pedido,
+        volume_numero: etiquetaData.volume_numero,
+        total_volumes: etiquetaData.total_volumes,
+        codigo_onu: etiquetaData.codigo_onu,
+        codigo_risco: etiquetaData.codigo_risco,
+        classificacao_quimica: etiquetaData.classificacao_quimica,
+        etiqueta_mae_id: etiquetaData.etiqueta_mae_id,
+        status: etiquetaData.status || 'gerada',
+        data_geracao: new Date().toISOString(),
+        etiquetado: false
+      };
+
+      console.log('Dados para inserção:', etiquetaToInsert);
+
       const { data, error } = await supabase
         .from('etiquetas')
-        .insert({
-          ...etiquetaData,
-          status: etiquetaData.status || 'gerada',
-          data_geracao: new Date().toISOString(),
-          etiquetado: false
-        })
+        .insert(etiquetaToInsert)
         .select()
         .single();
       
       if (error) {
+        console.error('Erro no Supabase ao criar etiqueta:', error);
         throw new Error(`Erro ao criar etiqueta: ${error.message}`);
       }
       
+      if (!data) {
+        throw new Error('Etiqueta criada mas dados não retornados');
+      }
+      
+      console.log('Etiqueta criada com sucesso:', data);
       return data;
     } catch (error) {
       console.error('Erro no serviço criarEtiqueta:', error);
@@ -135,35 +182,47 @@ const etiquetaService = {
   },
 
   /**
-   * Atualiza uma etiqueta existente (UPDATE)
+   * Atualiza uma etiqueta existente usando ID como chave primária (UPDATE)
    */
   async atualizarEtiqueta(id: string, etiquetaData: Partial<CreateEtiquetaData>): Promise<Etiqueta> {
     try {
+      console.log(`Atualizando etiqueta com ID: ${id}`, etiquetaData);
+      
       // Validação de ID
-      if (!id) {
+      if (!id || id.trim() === '') {
         throw new Error('ID da etiqueta é obrigatório para atualização');
       }
 
-      // Verificar se a etiqueta existe
+      // Verificar se a etiqueta existe usando o ID como chave primária
       const etiquetaExistente = await this.buscarEtiquetaPorId(id);
       if (!etiquetaExistente) {
-        throw new Error('Etiqueta não encontrada');
+        throw new Error(`Etiqueta com ID ${id} não encontrada`);
       }
+
+      const updateData = {
+        ...etiquetaData,
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('Dados para atualização:', updateData);
 
       const { data, error } = await supabase
         .from('etiquetas')
-        .update({
-          ...etiquetaData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
+        .update(updateData)
+        .eq('id', id) // Usando ID como chave primária
         .select()
         .single();
       
       if (error) {
+        console.error('Erro no Supabase ao atualizar etiqueta:', error);
         throw new Error(`Erro ao atualizar etiqueta: ${error.message}`);
       }
       
+      if (!data) {
+        throw new Error('Etiqueta atualizada mas dados não retornados');
+      }
+      
+      console.log('Etiqueta atualizada com sucesso:', data);
       return data;
     } catch (error) {
       console.error('Erro no serviço atualizarEtiqueta:', error);
@@ -172,19 +231,21 @@ const etiquetaService = {
   },
 
   /**
-   * Exclui uma etiqueta (DELETE)
+   * Exclui uma etiqueta usando ID como chave primária (DELETE)
    */
   async excluirEtiqueta(id: string): Promise<void> {
     try {
+      console.log(`Excluindo etiqueta com ID: ${id}`);
+      
       // Validação de ID
-      if (!id) {
+      if (!id || id.trim() === '') {
         throw new Error('ID da etiqueta é obrigatório para exclusão');
       }
 
-      // Verificar se a etiqueta existe
+      // Verificar se a etiqueta existe usando o ID como chave primária
       const etiquetaExistente = await this.buscarEtiquetaPorId(id);
       if (!etiquetaExistente) {
-        throw new Error('Etiqueta não encontrada');
+        throw new Error(`Etiqueta com ID ${id} não encontrada`);
       }
 
       // Verificar se a etiqueta pode ser excluída (não está etiquetada)
@@ -195,11 +256,14 @@ const etiquetaService = {
       const { error } = await supabase
         .from('etiquetas')
         .delete()
-        .eq('id', id);
+        .eq('id', id); // Usando ID como chave primária
       
       if (error) {
+        console.error('Erro no Supabase ao excluir etiqueta:', error);
         throw new Error(`Erro ao excluir etiqueta: ${error.message}`);
       }
+      
+      console.log('Etiqueta excluída com sucesso');
     } catch (error) {
       console.error('Erro no serviço excluirEtiqueta:', error);
       throw error;
@@ -207,27 +271,34 @@ const etiquetaService = {
   },
 
   /**
-   * Marca etiqueta como etiquetada (impressa) (UPDATE)
+   * Marca etiqueta como etiquetada (impressa) usando ID como chave primária (UPDATE)
    */
   async marcarComoEtiquetada(id: string): Promise<void> {
     try {
-      if (!id) {
+      console.log(`Marcando etiqueta como etiquetada - ID: ${id}`);
+      
+      if (!id || id.trim() === '') {
         throw new Error('ID da etiqueta é obrigatório');
       }
 
+      const updateData = {
+        status: 'etiquetada',
+        etiquetado: true,
+        data_impressao: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
       const { error } = await supabase
         .from('etiquetas')
-        .update({
-          status: 'etiquetada',
-          etiquetado: true,
-          data_impressao: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id);
+        .update(updateData)
+        .eq('id', id); // Usando ID como chave primária
       
       if (error) {
+        console.error('Erro no Supabase ao marcar etiqueta como etiquetada:', error);
         throw new Error(`Erro ao marcar etiqueta como etiquetada: ${error.message}`);
       }
+      
+      console.log('Etiqueta marcada como etiquetada com sucesso');
     } catch (error) {
       console.error('Erro no serviço marcarComoEtiquetada:', error);
       throw error;
@@ -235,32 +306,39 @@ const etiquetaService = {
   },
 
   /**
-   * Inutiliza uma etiqueta (UPDATE)
+   * Inutiliza uma etiqueta usando ID como chave primária (UPDATE)
    */
   async inutilizarEtiqueta(id: string, dados: InutilizarEtiquetaData): Promise<void> {
     try {
-      if (!id) {
+      console.log(`Inutilizando etiqueta com ID: ${id}`, dados);
+      
+      if (!id || id.trim() === '') {
         throw new Error('ID da etiqueta é obrigatório');
       }
 
-      if (!dados.motivo_inutilizacao) {
+      if (!dados.motivo_inutilizacao || dados.motivo_inutilizacao.trim() === '') {
         throw new Error('Motivo de inutilização é obrigatório');
       }
 
+      const updateData = {
+        status: 'inutilizada',
+        motivo_inutilizacao: dados.motivo_inutilizacao,
+        data_inutilizacao: new Date().toISOString(),
+        usuario_inutilizacao_id: dados.usuario_inutilizacao_id,
+        updated_at: new Date().toISOString()
+      };
+
       const { error } = await supabase
         .from('etiquetas')
-        .update({
-          status: 'inutilizada',
-          motivo_inutilizacao: dados.motivo_inutilizacao,
-          data_inutilizacao: new Date().toISOString(),
-          usuario_inutilizacao_id: dados.usuario_inutilizacao_id,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id);
+        .update(updateData)
+        .eq('id', id); // Usando ID como chave primária
       
       if (error) {
+        console.error('Erro no Supabase ao inutilizar etiqueta:', error);
         throw new Error(`Erro ao inutilizar etiqueta: ${error.message}`);
       }
+      
+      console.log('Etiqueta inutilizada com sucesso');
     } catch (error) {
       console.error('Erro no serviço inutilizarEtiqueta:', error);
       throw error;

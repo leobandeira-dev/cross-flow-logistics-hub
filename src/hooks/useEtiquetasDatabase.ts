@@ -12,8 +12,10 @@ export const useEtiquetasDatabase = () => {
   const buscarEtiquetas = useCallback(async () => {
     setIsLoading(true);
     try {
+      console.log('Iniciando busca de etiquetas...');
       const data = await etiquetaService.buscarEtiquetas();
       setEtiquetas(data);
+      console.log(`Etiquetas carregadas: ${data.length}`);
       return data;
     } catch (error) {
       console.error('Erro ao buscar etiquetas:', error);
@@ -32,6 +34,7 @@ export const useEtiquetasDatabase = () => {
   const buscarEtiquetaPorId = useCallback(async (id: string) => {
     setIsLoading(true);
     try {
+      console.log(`Buscando etiqueta por ID: ${id}`);
       const etiqueta = await etiquetaService.buscarEtiquetaPorId(id);
       return etiqueta;
     } catch (error) {
@@ -70,6 +73,7 @@ export const useEtiquetasDatabase = () => {
   const salvarEtiqueta = useCallback(async (etiquetaData: CreateEtiquetaData) => {
     setIsLoading(true);
     try {
+      console.log('Salvando nova etiqueta:', etiquetaData);
       const novaEtiqueta = await etiquetaService.criarEtiqueta(etiquetaData);
       
       // Atualizar lista automaticamente
@@ -77,14 +81,14 @@ export const useEtiquetasDatabase = () => {
       
       toast({
         title: "Sucesso",
-        description: "Etiqueta criada com sucesso!",
+        description: "Etiqueta gravada no Supabase com sucesso!",
       });
       return novaEtiqueta;
     } catch (error) {
       console.error('Erro ao salvar etiqueta:', error);
       toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao salvar etiqueta no banco de dados.",
+        title: "Erro na Gravação",
+        description: error instanceof Error ? error.message : "Erro ao gravar etiqueta no banco de dados Supabase.",
         variant: "destructive"
       });
       throw error;
@@ -93,25 +97,26 @@ export const useEtiquetasDatabase = () => {
     }
   }, []);
 
-  // UPDATE - Atualizar etiqueta existente
+  // UPDATE - Atualizar etiqueta existente usando ID como chave primária
   const atualizarEtiqueta = useCallback(async (id: string, etiquetaData: Partial<CreateEtiquetaData>) => {
     setIsLoading(true);
     try {
+      console.log(`Atualizando etiqueta com ID: ${id}`, etiquetaData);
       const etiquetaAtualizada = await etiquetaService.atualizarEtiqueta(id, etiquetaData);
       
-      // Atualizar lista automaticamente
+      // Atualizar lista automaticamente usando ID como chave
       setEtiquetas(prev => prev.map(etq => etq.id === id ? etiquetaAtualizada : etq));
       
       toast({
         title: "Sucesso",
-        description: "Etiqueta atualizada com sucesso!",
+        description: "Etiqueta atualizada no Supabase com sucesso!",
       });
       return etiquetaAtualizada;
     } catch (error) {
       console.error('Erro ao atualizar etiqueta:', error);
       toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao atualizar etiqueta no banco de dados.",
+        title: "Erro na Atualização",
+        description: error instanceof Error ? error.message : "Erro ao atualizar etiqueta no banco de dados Supabase.",
         variant: "destructive"
       });
       throw error;
@@ -120,24 +125,25 @@ export const useEtiquetasDatabase = () => {
     }
   }, []);
 
-  // DELETE - Excluir etiqueta
+  // DELETE - Excluir etiqueta usando ID como chave primária
   const excluirEtiqueta = useCallback(async (id: string) => {
     setIsLoading(true);
     try {
+      console.log(`Excluindo etiqueta com ID: ${id}`);
       await etiquetaService.excluirEtiqueta(id);
       
-      // Remover da lista automaticamente
+      // Remover da lista automaticamente usando ID como chave
       setEtiquetas(prev => prev.filter(etq => etq.id !== id));
       
       toast({
         title: "Sucesso",
-        description: "Etiqueta excluída com sucesso!",
+        description: "Etiqueta excluída do Supabase com sucesso!",
       });
     } catch (error) {
       console.error('Erro ao excluir etiqueta:', error);
       toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao excluir etiqueta.",
+        title: "Erro na Exclusão",
+        description: error instanceof Error ? error.message : "Erro ao excluir etiqueta do banco de dados Supabase.",
         variant: "destructive"
       });
       throw error;
@@ -146,12 +152,13 @@ export const useEtiquetasDatabase = () => {
     }
   }, []);
 
-  // UPDATE - Marcar como etiquetada
+  // UPDATE - Marcar como etiquetada usando ID como chave primária
   const marcarComoEtiquetada = useCallback(async (id: string) => {
     try {
+      console.log(`Marcando como etiquetada - ID: ${id}`);
       await etiquetaService.marcarComoEtiquetada(id);
       
-      // Atualizar lista automaticamente
+      // Atualizar lista automaticamente usando ID como chave
       setEtiquetas(prev => prev.map(etq => 
         etq.id === id 
           ? { ...etq, status: 'etiquetada', etiquetado: true, data_impressao: new Date().toISOString() }
@@ -161,20 +168,21 @@ export const useEtiquetasDatabase = () => {
       console.error('Erro ao marcar etiqueta como etiquetada:', error);
       toast({
         title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao atualizar status da etiqueta.",
+        description: error instanceof Error ? error.message : "Erro ao atualizar status da etiqueta no Supabase.",
         variant: "destructive"
       });
       throw error;
     }
   }, []);
 
-  // UPDATE - Inutilizar etiqueta
+  // UPDATE - Inutilizar etiqueta usando ID como chave primária
   const inutilizarEtiqueta = useCallback(async (id: string, dados: InutilizarEtiquetaData) => {
     setIsLoading(true);
     try {
+      console.log(`Inutilizando etiqueta com ID: ${id}`, dados);
       await etiquetaService.inutilizarEtiqueta(id, dados);
       
-      // Atualizar lista automaticamente
+      // Atualizar lista automaticamente usando ID como chave
       setEtiquetas(prev => prev.map(etq => 
         etq.id === id 
           ? { 
@@ -188,13 +196,13 @@ export const useEtiquetasDatabase = () => {
       
       toast({
         title: "Sucesso",
-        description: "Etiqueta inutilizada com sucesso!",
+        description: "Etiqueta inutilizada no Supabase com sucesso!",
       });
     } catch (error) {
       console.error('Erro ao inutilizar etiqueta:', error);
       toast({
         title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao inutilizar etiqueta.",
+        description: error instanceof Error ? error.message : "Erro ao inutilizar etiqueta no Supabase.",
         variant: "destructive"
       });
       throw error;
