@@ -81,11 +81,11 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
           <span className="font-bold">Peso:</span> {volumeData.pesoTotal || '0 Kg'}
         </div>
         
-        {/* Quantidade - DESTAQUE MUITO MAIOR */}
+        {/* Quantidade - DESTAQUE MUITO MAIOR com fonte aumentada em 100% */}
         {volumeData.quantidade && (
           <div className="text-xl mb-4 font-bold text-center p-4 bg-orange-100 border-4 border-orange-300 rounded">
-            <span className="font-bold text-lg">Quantidade:</span> 
-            <span className="text-4xl font-black ml-2 text-orange-800">{volumeData.quantidade}</span>
+            <span className="font-bold text-2xl">Quantidade:</span> 
+            <span className="text-8xl font-black ml-2 text-orange-800">{volumeData.quantidade}</span>
           </div>
         )}
         
@@ -118,11 +118,11 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
         )}
       </div>
       
-      {/* Quantidade de Volumes - DESTAQUE MAIOR (para etiqueta mãe) */}
+      {/* Quantidade de Volumes - DESTAQUE MAIOR (para etiqueta mãe) com fonte aumentada em 100% */}
       {isMae && (
         <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-4 bg-purple-100 border-4 border-purple-300 rounded">
-          <span className="font-bold text-lg">Total de volumes:</span> 
-          <span className="text-4xl font-black ml-2 text-purple-800">{volumeData.quantidade || '0'}</span>
+          <span className="font-bold text-2xl">Total de volumes:</span> 
+          <span className="text-8xl font-black ml-2 text-purple-800">{volumeData.quantidade || '0'}</span>
         </div>
       )}
     </div>

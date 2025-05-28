@@ -89,11 +89,11 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
             <span className="font-bold">Transportadora:</span> {volumeData.transportadora || 'N/D'}
           </div>
           
-          {/* Quantidade - DESTAQUE COM ALTO CONTRASTE MUITO MAIOR */}
+          {/* Quantidade - DESTAQUE COM ALTO CONTRASTE MUITO MAIOR com fonte aumentada em 100% */}
           {volumeData.quantidade && (
             <div className="text-xl mb-2 bg-black text-white p-4 rounded border-4 border-gray-800">
-              <span className="font-bold text-lg">Quantidade:</span> 
-              <span className="text-4xl font-black ml-2">{volumeData.quantidade}</span>
+              <span className="font-bold text-2xl">Quantidade:</span> 
+              <span className="text-8xl font-black ml-2">{volumeData.quantidade}</span>
             </div>
           )}
           
@@ -127,11 +127,11 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
         </div>
       </div>
       
-      {/* Quantidade de Volumes - DESTAQUE COM ALTO CONTRASTE MAIOR (para etiqueta mãe) */}
+      {/* Quantidade de Volumes - DESTAQUE COM ALTO CONTRASTE MAIOR (para etiqueta mãe) com fonte aumentada em 100% */}
       {isMae && (
         <div className="text-xl mt-2 pt-2 border-t-2 border-gray-300 bg-black text-white p-4 rounded border-4 border-gray-800">
-          <span className="font-bold text-lg">Total de volumes:</span> 
-          <span className="text-4xl font-black ml-2">{volumeData.quantidade || '0'}</span>
+          <span className="font-bold text-2xl">Total de volumes:</span> 
+          <span className="text-8xl font-black ml-2">{volumeData.quantidade || '0'}</span>
         </div>
       )}
     </div>
