@@ -124,23 +124,23 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         try {
           console.log(`💾 Processando volume: ${volume.id}`, volume);
           
-          // Preparar dados da etiqueta com mapeamento correto
+          // Preparar dados da etiqueta com mapeamento correto e simplificado
           const etiquetaData: CreateEtiquetaData = {
             codigo: volume.id,
             tipo: 'volume',
-            area: volume.area || 'geral',
-            remetente: volume.remetente || 'N/A',
-            destinatario: volume.destinatario || 'N/A',
-            endereco: volume.endereco || '',
-            cidade: volume.cidade || '',
-            uf: volume.uf || '',
-            cep: '', // CEP não está disponível no Volume interface, usando string vazia
+            area: volume.area || null,
+            remetente: volume.remetente || null,
+            destinatario: volume.destinatario || null,
+            endereco: volume.endereco || null,
+            cidade: volume.cidade || null,
+            uf: volume.uf || null,
+            cep: null, // CEP não está disponível no Volume
             descricao: volume.descricao || 'Volume gerado automaticamente',
-            transportadora: volume.transportadora || '',
-            chave_nf: volume.chaveNF || volume.notaFiscal,
+            transportadora: volume.transportadora || null,
+            chave_nf: volume.chaveNF || volume.notaFiscal || null,
             quantidade: volume.quantidade || 1,
-            peso_total_bruto: volume.pesoTotal || '0',
-            numero_pedido: volume.numeroPedido || '',
+            peso_total_bruto: volume.pesoTotal || null,
+            numero_pedido: volume.numeroPedido || null,
             volume_numero: volume.volumeNumber || 1,
             total_volumes: volume.totalVolumes || 1,
             codigo_onu: volume.codigoONU || null,

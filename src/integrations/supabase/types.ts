@@ -321,13 +321,6 @@ export type Database = {
             referencedRelation: "carregamentos"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "enderecamento_caminhao_etiqueta_id_fkey"
-            columns: ["etiqueta_id"]
-            isOneToOne: false
-            referencedRelation: "etiquetas"
-            referencedColumns: ["id"]
-          },
         ]
       }
       etiquetas: {
@@ -342,8 +335,7 @@ export type Database = {
           codigo_onu: string | null
           codigo_risco: string | null
           comprimento: number | null
-          created_at: string | null
-          dados_json: Json | null
+          created_at: string
           data_geracao: string
           data_impressao: string | null
           data_inutilizacao: string | null
@@ -367,7 +359,7 @@ export type Database = {
           total_volumes: number | null
           transportadora: string | null
           uf: string | null
-          updated_at: string | null
+          updated_at: string
           usuario_inutilizacao_id: string | null
           volume_numero: number | null
         }
@@ -382,48 +374,7 @@ export type Database = {
           codigo_onu?: string | null
           codigo_risco?: string | null
           comprimento?: number | null
-          created_at?: string | null
-          dados_json?: Json | null
-          data_geracao?: string
-          data_impressao?: string | null
-          data_inutilizacao?: string | null
-          descricao?: string | null
-          destinatario?: string | null
-          endereco?: string | null
-          etiqueta_mae_id?: string | null
-          etiquetado?: boolean | null
-          fragil?: boolean | null
-          id?: string
-          largura?: number | null
-          motivo_inutilizacao?: string | null
-          nota_fiscal_id?: string | null
-          numero_pedido?: string | null
-          peso?: number | null
-          peso_total_bruto?: string | null
-          quantidade?: number | null
-          remetente?: string | null
-          status?: string
-          tipo: string
-          total_volumes?: number | null
-          transportadora?: string | null
-          uf?: string | null
-          updated_at?: string | null
-          usuario_inutilizacao_id?: string | null
-          volume_numero?: number | null
-        }
-        Update: {
-          altura?: number | null
-          area?: string | null
-          cep?: string | null
-          chave_nf?: string | null
-          cidade?: string | null
-          classificacao_quimica?: string | null
-          codigo?: string
-          codigo_onu?: string | null
-          codigo_risco?: string | null
-          comprimento?: number | null
-          created_at?: string | null
-          dados_json?: Json | null
+          created_at?: string
           data_geracao?: string
           data_impressao?: string | null
           data_inutilizacao?: string | null
@@ -447,26 +398,50 @@ export type Database = {
           total_volumes?: number | null
           transportadora?: string | null
           uf?: string | null
-          updated_at?: string | null
+          updated_at?: string
           usuario_inutilizacao_id?: string | null
           volume_numero?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "etiquetas_etiqueta_mae_id_fkey"
-            columns: ["etiqueta_mae_id"]
-            isOneToOne: false
-            referencedRelation: "etiquetas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "etiquetas_nota_fiscal_id_fkey"
-            columns: ["nota_fiscal_id"]
-            isOneToOne: false
-            referencedRelation: "notas_fiscais"
-            referencedColumns: ["id"]
-          },
-        ]
+        Update: {
+          altura?: number | null
+          area?: string | null
+          cep?: string | null
+          chave_nf?: string | null
+          cidade?: string | null
+          classificacao_quimica?: string | null
+          codigo?: string
+          codigo_onu?: string | null
+          codigo_risco?: string | null
+          comprimento?: number | null
+          created_at?: string
+          data_geracao?: string
+          data_impressao?: string | null
+          data_inutilizacao?: string | null
+          descricao?: string | null
+          destinatario?: string | null
+          endereco?: string | null
+          etiqueta_mae_id?: string | null
+          etiquetado?: boolean | null
+          fragil?: boolean | null
+          id?: string
+          largura?: number | null
+          motivo_inutilizacao?: string | null
+          nota_fiscal_id?: string | null
+          numero_pedido?: string | null
+          peso?: number | null
+          peso_total_bruto?: string | null
+          quantidade?: number | null
+          remetente?: string | null
+          status?: string
+          tipo?: string
+          total_volumes?: number | null
+          transportadora?: string | null
+          uf?: string | null
+          updated_at?: string
+          usuario_inutilizacao_id?: string | null
+          volume_numero?: number | null
+        }
+        Relationships: []
       }
       etiquetas_unitizacao: {
         Row: {
@@ -485,13 +460,6 @@ export type Database = {
           unitizacao_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "etiquetas_unitizacao_etiqueta_id_fkey"
-            columns: ["etiqueta_id"]
-            isOneToOne: false
-            referencedRelation: "etiquetas"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "etiquetas_unitizacao_unitizacao_id_fkey"
             columns: ["unitizacao_id"]
@@ -737,13 +705,6 @@ export type Database = {
           usuario_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "movimentacoes_etiqueta_id_fkey"
-            columns: ["etiqueta_id"]
-            isOneToOne: false
-            referencedRelation: "etiquetas"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "movimentacoes_localizacao_destino_id_fkey"
             columns: ["localizacao_destino_id"]

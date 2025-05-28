@@ -128,23 +128,23 @@ const etiquetaService = {
         throw new Error('Tipo da etiqueta é obrigatório');
       }
 
-      // Preparar dados para inserção com valores padrão
+      // Preparar dados para inserção
       const etiquetaToInsert = {
         codigo: etiquetaData.codigo,
-        tipo: etiquetaData.tipo || 'volume',
-        area: etiquetaData.area || 'geral',
-        remetente: etiquetaData.remetente || 'N/A',
-        destinatario: etiquetaData.destinatario || 'N/A',
-        endereco: etiquetaData.endereco || '',
-        cidade: etiquetaData.cidade || '',
-        uf: etiquetaData.uf || '',
-        cep: etiquetaData.cep || '',
-        descricao: etiquetaData.descricao || 'Volume gerado automaticamente',
-        transportadora: etiquetaData.transportadora || '',
-        chave_nf: etiquetaData.chave_nf || '',
+        tipo: etiquetaData.tipo,
+        area: etiquetaData.area || null,
+        remetente: etiquetaData.remetente || null,
+        destinatario: etiquetaData.destinatario || null,
+        endereco: etiquetaData.endereco || null,
+        cidade: etiquetaData.cidade || null,
+        uf: etiquetaData.uf || null,
+        cep: etiquetaData.cep || null,
+        descricao: etiquetaData.descricao || null,
+        transportadora: etiquetaData.transportadora || null,
+        chave_nf: etiquetaData.chave_nf || null,
         quantidade: etiquetaData.quantidade || 1,
-        peso_total_bruto: etiquetaData.peso_total_bruto || '0',
-        numero_pedido: etiquetaData.numero_pedido || '',
+        peso_total_bruto: etiquetaData.peso_total_bruto || null,
+        numero_pedido: etiquetaData.numero_pedido || null,
         volume_numero: etiquetaData.volume_numero || 1,
         total_volumes: etiquetaData.total_volumes || 1,
         codigo_onu: etiquetaData.codigo_onu || null,
@@ -152,13 +152,8 @@ const etiquetaService = {
         classificacao_quimica: etiquetaData.classificacao_quimica || null,
         etiqueta_mae_id: etiquetaData.etiqueta_mae_id || null,
         status: etiquetaData.status || 'gerada',
-        data_geracao: new Date().toISOString(),
         etiquetado: false,
-        fragil: false,
-        peso: null,
-        altura: null,
-        largura: null,
-        comprimento: null
+        fragil: false
       };
 
       console.log('📤 Enviando dados para Supabase:', etiquetaToInsert);
