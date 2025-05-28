@@ -111,7 +111,14 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
         </div>
       </div>
       
-      {volumeData.descricao && (
+      {/* Volume - DESTAQUE COM ALTO CONTRASTE (mesmo estilo do remetente) */}
+      {!isMae && volumeNumber && totalVolumes && (
+        <div className="text-sm mt-2 pt-2 border-t-2 border-gray-300 bg-black text-white p-2 rounded border-2 border-gray-800">
+          <span className="font-bold">Volume:</span> <span className="text-base font-bold">{volumeNumber}/{totalVolumes}</span>
+        </div>
+      )}
+      
+      {volumeData.descricao && volumeData.descricao !== `Volume ${volumeNumber}/${totalVolumes}` && (
         <div className="text-sm mt-2 pt-2 border-t-2 border-gray-300">
           <span className="font-bold">Descrição:</span> {volumeData.descricao}
         </div>

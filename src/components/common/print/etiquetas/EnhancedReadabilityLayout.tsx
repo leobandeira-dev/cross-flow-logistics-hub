@@ -111,7 +111,14 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
         </div>
       </div>
       
-      {volumeData.descricao && (
+      {/* Volume - DESTAQUE (mesmo estilo do remetente) */}
+      {!isMae && volumeNumber && totalVolumes && (
+        <div className="text-sm mt-2 pt-2 border-t-2 border-gray-300 bg-blue-100 p-2 rounded border-2 border-blue-300">
+          <span className="font-bold">Volume:</span> <span className="text-base font-bold">{volumeNumber}/{totalVolumes}</span>
+        </div>
+      )}
+      
+      {volumeData.descricao && volumeData.descricao !== `Volume ${volumeNumber}/${totalVolumes}` && (
         <div className="text-sm mt-2 pt-2 border-t-2 border-gray-300">
           <span className="font-bold">Descrição:</span> {volumeData.descricao}
         </div>

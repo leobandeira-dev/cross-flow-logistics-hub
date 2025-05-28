@@ -130,6 +130,12 @@ const etiquetaService = {
         throw new Error('Tipo da etiqueta é obrigatório');
       }
 
+      // Preparar descrição no novo formato se for volume
+      let descricaoFormatada = etiquetaData.descricao;
+      if (etiquetaData.tipo === 'volume' && etiquetaData.volume_numero && etiquetaData.total_volumes) {
+        descricaoFormatada = `Volume ${etiquetaData.volume_numero}/${etiquetaData.total_volumes}`;
+      }
+
       // Preparar dados para inserção, removendo campos undefined
       const etiquetaToInsert = {
         codigo: etiquetaData.codigo,
@@ -141,7 +147,7 @@ const etiquetaService = {
         cidade: etiquetaData.cidade,
         uf: etiquetaData.uf,
         cep: etiquetaData.cep,
-        descricao: etiquetaData.descricao,
+        descricao: descricaoFormatada,
         transportadora: etiquetaData.transportadora,
         chave_nf: etiquetaData.chave_nf,
         quantidade: etiquetaData.quantidade || 1,

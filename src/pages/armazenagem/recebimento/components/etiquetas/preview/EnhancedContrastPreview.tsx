@@ -117,6 +117,15 @@ const EnhancedContrastPreview: React.FC<EnhancedContrastPreviewProps> = ({ tipoE
           )}
         </div>
       </div>
+      
+      {/* Volume destacado - CONTAINER PRETO (mesmo estilo do remetente) */}
+      {tipoEtiqueta === 'volume' && (
+        <div className="mt-3 bg-black border-2 border-gray-800 rounded p-2 shadow-lg">
+          <div className="text-sm text-white font-bold">
+            <span className="font-bold">Volume:</span> <span className="text-base font-bold">1/2</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

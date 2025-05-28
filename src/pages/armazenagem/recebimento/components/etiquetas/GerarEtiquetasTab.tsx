@@ -56,6 +56,9 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
   const prepareEtiquetaData = (volume: Volume): CreateEtiquetaData => {
     console.log('📋 Preparando dados da etiqueta para volume:', volume.id);
     
+    // Usar o novo formato Volume X/Y ao invés de Volume X de Y
+    const descricaoVolume = `Volume ${volume.volumeNumber || 1}/${volume.totalVolumes || 1}`;
+    
     const etiquetaData: CreateEtiquetaData = {
       codigo: volume.id,
       tipo: 'volume',
@@ -66,7 +69,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       cidade: volume.cidade || null,
       uf: volume.uf || null,
       cep: null, // Volume não tem CEP
-      descricao: volume.descricao || `Volume ${volume.volumeNumber || 1} de ${volume.totalVolumes || 1}`,
+      descricao: descricaoVolume,
       transportadora: volume.transportadora || null,
       chave_nf: volume.chaveNF || volume.notaFiscal || null,
       quantidade: volume.quantidade || 1,
