@@ -69,6 +69,18 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
 
   const handleGravarEtiquetas = async () => {
     try {
+      console.log('Iniciando processo de gravação de etiquetas no Supabase...');
+      
+      // Validar se há volumes para gravar
+      if (generatedVolumes.length === 0) {
+        toast({
+          title: "Nenhuma Etiqueta para Gravar",
+          description: "Gere volumes primeiro antes de tentar gravar as etiquetas.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Validar campos obrigatórios para todos os volumes
       const volumesWithErrors: { volume: Volume; missingFields: string[] }[] = [];
       
@@ -86,8 +98,8 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         ).join('\n');
         
         toast({
-          title: "Campos Obrigatórios Faltando",
-          description: `Os seguintes campos são obrigatórios:\n${errorMessages}`,
+          title: "Validação de Campos Obrigatórios",
+          description: `Os seguintes campos são obrigatórios e estão faltando:\n${errorMessages}`,
           variant: "destructive",
         });
         return;
@@ -98,8 +110,12 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       let volumesComErro = 0;
       const erros: string[] = [];
 
-      const promises = generatedVolumes.map(async (volume) => {
+      console.log(`Iniciando gravação de ${generatedVolumes.length} etiquetas...`);
+
+      const promises = generatedVolumes.map(async (volume, index) => {
         try {
+          console.log(`Processando etiqueta ${index + 1}/${generatedVolumes.length}: ${volume.id}`);
+          
           const etiquetaData: CreateEtiquetaData = {
             codigo: volume.id,
             tipo: 'volume',
@@ -123,45 +139,68 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
             status: 'gerada'
           };
           
-          await salvarEtiqueta(etiquetaData);
+          console.log(`Salvando etiqueta no Supabase:`, etiquetaData);
+          const etiquetaSalva = await salvarEtiqueta(etiquetaData);
+          console.log(`Etiqueta ${volume.id} salva com sucesso. ID no banco: ${etiquetaSalva.id}`);
           volumesSalvos++;
         } catch (error) {
           volumesComErro++;
-          erros.push(`Volume ${volume.id}: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+          erros.push(`Volume ${volume.id}: ${errorMessage}`);
           console.error(`Erro ao gravar etiqueta do volume ${volume.id}:`, error);
         }
       });
 
       await Promise.all(promises);
 
-      // Mostrar mensagem de confirmação detalhada
+      console.log(`Processo de gravação concluído. Salvos: ${volumesSalvos}, Erros: ${volumesComErro}`);
+
+      // Mostrar mensagem de confirmação detalhada e clara
       if (volumesSalvos > 0 && volumesComErro === 0) {
         toast({
-          title: "Etiquetas Gravadas com Sucesso",
-          description: `${volumesSalvos} etiqueta(s) foram gravadas no sistema com todas as informações obrigatórias:
-          • Nota Fiscal
-          • Tipo de Volume
-          ${generatedVolumes.some(v => v.tipoVolume === 'quimico') ? '• Código ONU\n• Código de Risco\n• Classificação Química' : ''}`,
+          title: "✅ Etiquetas Gravadas com Sucesso",
+          description: `${volumesSalvos} etiqueta(s) foram gravadas no banco de dados Supabase com sucesso! 
+          
+Todas as informações obrigatórias foram validadas e salvas:
+• Nota Fiscal ✓
+• Tipo de Volume ✓
+${generatedVolumes.some(v => v.tipoVolume === 'quimico') ? '• Código ONU ✓\n• Código de Risco ✓\n• Classificação Química ✓' : ''}
+
+As etiquetas estão prontas para impressão e consulta.`,
         });
       } else if (volumesSalvos > 0 && volumesComErro > 0) {
         toast({
-          title: "Gravação Parcialmente Concluída",
-          description: `${volumesSalvos} etiqueta(s) gravadas com sucesso. ${volumesComErro} etiqueta(s) com erro.`,
+          title: "⚠️ Gravação Parcialmente Concluída",
+          description: `${volumesSalvos} etiqueta(s) gravadas com sucesso no Supabase.
+${volumesComErro} etiqueta(s) apresentaram erro durante a gravação.
+
+Verifique os dados dos volumes com erro e tente novamente.`,
           variant: "destructive",
         });
+        console.error('Erros encontrados:', erros);
       } else {
         toast({
-          title: "Erro na Gravação",
-          description: `Nenhuma etiqueta foi gravada. Erros encontrados:\n${erros.join('\n')}`,
+          title: "❌ Falha na Gravação",
+          description: `Nenhuma etiqueta foi gravada no banco de dados Supabase.
+
+Erros encontrados:
+${erros.slice(0, 3).join('\n')}${erros.length > 3 ? `\n... e mais ${erros.length - 3} erro(s)` : ''}
+
+Verifique os dados e tente novamente.`,
           variant: "destructive",
         });
+        console.error('Todos os erros:', erros);
       }
 
     } catch (error) {
-      console.error('Erro ao gravar etiquetas:', error);
+      console.error('Erro crítico no processo de gravação:', error);
       toast({
-        title: "Erro no Sistema",
-        description: "Erro inesperado ao gravar etiquetas. Tente novamente.",
+        title: "❌ Erro Crítico no Sistema",
+        description: `Erro inesperado durante a gravação das etiquetas no Supabase.
+
+Detalhes: ${error instanceof Error ? error.message : 'Erro desconhecido'}
+
+Tente novamente ou contate o suporte técnico.`,
         variant: "destructive",
       });
     }
@@ -169,16 +208,22 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
 
   const handleAtualizarEtiquetas = async () => {
     try {
+      console.log('Atualizando lista de etiquetas do Supabase...');
       await buscarEtiquetas();
       toast({
-        title: "Etiquetas Atualizadas",
-        description: "Lista de etiquetas atualizada com sucesso.",
+        title: "✅ Etiquetas Atualizadas",
+        description: "A lista de etiquetas foi atualizada com sucesso a partir do banco de dados Supabase.",
       });
+      console.log('Lista de etiquetas atualizada com sucesso');
     } catch (error) {
       console.error('Erro ao atualizar etiquetas:', error);
       toast({
-        title: "Erro ao Atualizar",
-        description: "Não foi possível atualizar a lista de etiquetas.",
+        title: "❌ Erro ao Atualizar",
+        description: `Não foi possível atualizar a lista de etiquetas do Supabase.
+
+Detalhes: ${error instanceof Error ? error.message : 'Erro desconhecido'}
+
+Tente novamente.`,
         variant: "destructive",
       });
     }
@@ -203,15 +248,15 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
               className="flex items-center gap-2"
             >
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Atualizar
+              Atualizar Lista
             </Button>
             <Button
               onClick={handleGravarEtiquetas}
-              disabled={isLoading}
-              className="flex items-center gap-2"
+              disabled={isLoading || generatedVolumes.length === 0}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
             >
               <Save className="h-4 w-4" />
-              Gravar Etiquetas
+              {isLoading ? 'Gravando...' : 'Gravar no Supabase'}
             </Button>
           </div>
           
