@@ -134,7 +134,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
             endereco: volume.endereco || '',
             cidade: volume.cidade || '',
             uf: volume.uf || '',
-            cep: volume.cep || '',
+            cep: '', // CEP não está disponível no Volume interface, usando string vazia
             descricao: volume.descricao || 'Volume gerado automaticamente',
             transportadora: volume.transportadora || '',
             chave_nf: volume.chaveNF || volume.notaFiscal,
