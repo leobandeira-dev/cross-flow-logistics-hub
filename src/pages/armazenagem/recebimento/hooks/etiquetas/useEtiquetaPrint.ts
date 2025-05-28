@@ -35,7 +35,7 @@ export const useEtiquetaPrint = () => {
   };
 
   /**
-   * Function to handle reprinting etiquetas for all volumes
+   * Function to handle reprinting etiquetas for specific volume only
    */
   const reimprimirEtiquetas = (
     volume: Volume, 
@@ -44,16 +44,16 @@ export const useEtiquetaPrint = () => {
     formatoImpressao: string,
     layoutStyle: LayoutStyle
   ) => {
-    // For reimprimir, we generate etiquetas regardless of etiquetado status
-    const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
+    // Para reimprimir, gerar etiqueta APENAS para o volume específico selecionado
+    const volumeEspecifico = [volume]; // Array com apenas o volume selecionado
     
     const notaData = prepareNotaData(volume, notaFiscalData);
     
-    generateEtiquetasPDF(volumesNota, notaData, formatoImpressao, 'volume', layoutStyle);
+    generateEtiquetasPDF(volumeEspecifico, notaData, formatoImpressao, 'volume', layoutStyle);
     
     toast({
-      title: "Etiquetas Reimpressas",
-      description: `Etiquetas para NF ${volume.notaFiscal} reimpressas com sucesso.`,
+      title: "Etiqueta Reimpressa",
+      description: `Etiqueta para volume ${volume.id} reimpressa com sucesso.`,
     });
   };
 

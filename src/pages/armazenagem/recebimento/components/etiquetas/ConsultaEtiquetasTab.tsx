@@ -112,10 +112,11 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
     }
     
     // Converter etiqueta do banco para o formato esperado pelo handleReimprimirEtiquetas
+    // IMPORTANTE: Criar apenas UM volume específico para reimpressão
     const volumeFormatted = {
       id: etiqueta.codigo,
       notaFiscal: etiqueta.chave_nf || 'N/A',
-      descricao: etiqueta.descricao || 'N/A',
+      descricao: `Volume ${etiqueta.volume_numero || 1}/${etiqueta.total_volumes || 1}`,
       tipoVolume: etiqueta.codigo_onu ? 'quimico' : 'geral',
       quantidade: etiqueta.quantidade || 1,
       etiquetado: etiqueta.etiquetado || false,
@@ -134,6 +135,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
       totalVolumes: etiqueta.total_volumes || 1
     };
     
+    // Passar apenas este volume específico para reimpressão
     handleReimprimirEtiquetas(volumeFormatted);
   };
 

@@ -81,11 +81,11 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
             <span className="font-bold">Transportadora:</span> {volumeData.transportadora || 'N/D'}
           </div>
           
-          {/* Quantidade - DESTAQUE MAIOR */}
+          {/* Quantidade - DESTAQUE MUITO MAIOR */}
           {volumeData.quantidade && (
-            <div className="text-lg mb-2 bg-orange-100 p-3 rounded border-2 border-orange-400">
-              <span className="font-bold">Quantidade:</span> 
-              <span className="text-2xl font-black ml-2 text-orange-800">{volumeData.quantidade}</span>
+            <div className="text-xl mb-2 bg-orange-100 p-4 rounded border-4 border-orange-400">
+              <span className="font-bold text-lg">Quantidade:</span> 
+              <span className="text-4xl font-black ml-2 text-orange-800">{volumeData.quantidade}</span>
             </div>
           )}
           
@@ -109,35 +109,29 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
           <QRCodeGenerator text={volumeData.id} size={100} />
           <div className="text-center text-xs mt-2 font-bold">{volumeData.id}</div>
           
-          {/* Área - DESTAQUE MAIOR E MAIS LEGÍVEL LOGO ABAIXO DO QR CODE */}
+          {/* Área - APENAS O NÚMERO, DESTAQUE MUITO MAIOR */}
           {volumeData.area && (
-            <div className="mt-4 bg-indigo-600 text-white p-6 rounded-lg border-4 border-indigo-800 text-center shadow-lg">
-              <div className="text-lg font-bold mb-2">ÁREA</div>
-              <div className="text-8xl font-black leading-none">{volumeData.area}</div>
+            <div className="mt-4 bg-indigo-600 text-white p-8 rounded-lg border-4 border-indigo-800 text-center shadow-lg">
+              <div className="text-xl font-bold mb-3">ÁREA</div>
+              <div className="text-9xl font-black leading-none">{volumeData.area}</div>
             </div>
           )}
         </div>
       </div>
       
-      {/* Volume - DESTAQUE MAIOR (mesmo estilo do remetente) */}
+      {/* Volume - DESTAQUE MAIOR com estilo igual ao remetente */}
       {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-lg mt-2 pt-2 border-t-2 border-gray-300 bg-blue-100 p-3 rounded border-2 border-blue-300">
-          <span className="font-bold">Volume:</span> 
-          <span className="text-2xl font-black ml-2 text-blue-800">{volumeNumber}/{totalVolumes}</span>
-        </div>
-      )}
-      
-      {volumeData.descricao && volumeData.descricao !== `Volume ${volumeNumber}/${totalVolumes}` && (
-        <div className="text-sm mt-2 pt-2 border-t-2 border-gray-300">
-          <span className="font-bold">Descrição:</span> {volumeData.descricao}
+        <div className="text-xl mt-2 pt-2 border-t-2 border-gray-300 bg-blue-100 p-4 rounded border-4 border-blue-300">
+          <span className="font-bold text-lg">Volume:</span> 
+          <span className="text-4xl font-black ml-2 text-blue-800">{volumeNumber}/{totalVolumes}</span>
         </div>
       )}
       
       {/* Quantidade de Volumes - DESTAQUE MAIOR (para etiqueta mãe) */}
       {isMae && (
-        <div className="text-xl mt-2 pt-2 border-t-2 border-gray-300 bg-purple-100 p-3 rounded border-2 border-purple-400">
-          <span className="font-bold">Total de volumes:</span> 
-          <span className="text-3xl font-black ml-2 text-purple-800">{volumeData.quantidade || '0'}</span>
+        <div className="text-xl mt-2 pt-2 border-t-2 border-gray-300 bg-purple-100 p-4 rounded border-4 border-purple-400">
+          <span className="font-bold text-lg">Total de volumes:</span> 
+          <span className="text-4xl font-black ml-2 text-purple-800">{volumeData.quantidade || '0'}</span>
         </div>
       )}
     </div>

@@ -73,11 +73,11 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
           <span className="font-bold">Peso:</span> {volumeData.pesoTotal || '0 Kg'}
         </div>
         
-        {/* Quantidade - DESTAQUE MAIOR */}
+        {/* Quantidade - DESTAQUE MUITO MAIOR */}
         {volumeData.quantidade && (
-          <div className="text-lg mb-4 font-bold text-center p-3 bg-orange-100 border-2 border-orange-300 rounded">
-            <span className="font-bold">Quantidade:</span> 
-            <span className="text-2xl font-black ml-2 text-orange-800">{volumeData.quantidade}</span>
+          <div className="text-xl mb-4 font-bold text-center p-4 bg-orange-100 border-4 border-orange-300 rounded">
+            <span className="font-bold text-lg">Quantidade:</span> 
+            <span className="text-4xl font-black ml-2 text-orange-800">{volumeData.quantidade}</span>
           </div>
         )}
         
@@ -101,34 +101,28 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
         <QRCodeGenerator text={volumeData.id} size={120} />
         <div className="text-xs mt-2 font-bold">{volumeData.id}</div>
         
-        {/* Área - DESTAQUE MAIOR E MAIS LEGÍVEL */}
+        {/* Área - APENAS O NÚMERO, DESTAQUE MUITO MAIOR E MAIS LEGÍVEL */}
         {volumeData.area && (
-          <div className="mt-4 bg-indigo-600 text-white p-5 rounded-lg text-center border-4 border-indigo-800 shadow-lg">
-            <div className="text-lg font-bold mb-2">ÁREA</div>
-            <div className="text-7xl font-black leading-none">{volumeData.area}</div>
+          <div className="mt-4 bg-indigo-600 text-white p-6 rounded-lg text-center border-4 border-indigo-800 shadow-lg">
+            <div className="text-xl font-bold mb-3">ÁREA</div>
+            <div className="text-8xl font-black leading-none">{volumeData.area}</div>
           </div>
         )}
       </div>
       
-      {/* Volume - DESTAQUE MAIOR (mesmo estilo do remetente) */}
+      {/* Volume - DESTAQUE MAIOR com estilo igual ao remetente */}
       {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-3 bg-blue-100 border-2 border-blue-300 rounded">
-          <span className="font-bold">Volume:</span> 
-          <span className="text-2xl font-black ml-2 text-blue-800">{volumeNumber}/{totalVolumes}</span>
-        </div>
-      )}
-      
-      {volumeData.descricao && volumeData.descricao !== `Volume ${volumeNumber}/${totalVolumes}` && (
-        <div className="text-sm mt-2 pt-2 border-t-2 border-gray-300">
-          <span className="font-bold">Descrição:</span> {volumeData.descricao}
+        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-4 bg-blue-100 border-4 border-blue-300 rounded">
+          <span className="font-bold text-lg">Volume:</span> 
+          <span className="text-4xl font-black ml-2 text-blue-800">{volumeNumber}/{totalVolumes}</span>
         </div>
       )}
       
       {/* Quantidade de Volumes - DESTAQUE MAIOR (para etiqueta mãe) */}
       {isMae && (
-        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-3 bg-purple-100 border-2 border-purple-300 rounded">
-          <span className="font-bold">Total de volumes:</span> 
-          <span className="text-3xl font-black ml-2 text-purple-800">{volumeData.quantidade || '0'}</span>
+        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-4 bg-purple-100 border-4 border-purple-300 rounded">
+          <span className="font-bold text-lg">Total de volumes:</span> 
+          <span className="text-4xl font-black ml-2 text-purple-800">{volumeData.quantidade || '0'}</span>
         </div>
       )}
     </div>
