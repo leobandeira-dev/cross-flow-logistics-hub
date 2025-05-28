@@ -28,7 +28,7 @@ export const useNotasData = () => {
       
       const notas = await buscarNotasFiscais(filtros);
       console.log('Notas fiscais carregadas:', notas);
-      setNotasFiscais(notas || []); // Garantir que sempre seja um array
+      setNotasFiscais(notas);
     } catch (error) {
       console.error('Erro ao carregar notas fiscais:', error);
       toast({
