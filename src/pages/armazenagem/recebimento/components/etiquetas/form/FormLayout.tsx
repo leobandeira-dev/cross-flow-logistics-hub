@@ -13,10 +13,16 @@ import FormActions from './FormActions';
 interface FormLayoutProps {
   form: any;
   onGenerateVolumes: () => void;
+  onBatchClassifyArea?: (area: string) => void;
   isGenerating: boolean;
 }
 
-const FormLayout: React.FC<FormLayoutProps> = ({ form, onGenerateVolumes, isGenerating }) => {
+const FormLayout: React.FC<FormLayoutProps> = ({ 
+  form, 
+  onGenerateVolumes, 
+  onBatchClassifyArea,
+  isGenerating 
+}) => {
   return (
     <Card>
       <CardHeader>
@@ -31,7 +37,7 @@ const FormLayout: React.FC<FormLayoutProps> = ({ form, onGenerateVolumes, isGene
             <Separator />
             <VolumeTypeFields form={form} />
             <Separator />
-            <VolumeAreaFields form={form} />
+            <VolumeAreaFields form={form} onBatchClassifyArea={onBatchClassifyArea} />
             <Separator />
             <PrintConfigFields form={form} />
             <Separator />

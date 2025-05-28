@@ -49,6 +49,13 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
             <span className="font-bold">ID:</span> {volumeData.id}
           </div>
           
+          {/* Área - DESTAQUE PRINCIPAL COM ALTO CONTRASTE */}
+          {volumeData.area && (
+            <div className="text-lg mb-2 bg-black text-white p-3 rounded border-2 border-gray-800">
+              <span className="font-bold">ÁREA:</span> <span className="text-2xl font-bold">{volumeData.area}</span>
+            </div>
+          )}
+          
           {/* Nota Fiscal - DESTAQUE COM ALTO CONTRASTE */}
           <div className="text-sm mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
             <span className="font-bold">NF:</span> <span className="text-xl font-bold">{volumeData.notaFiscal || 'N/A'}</span>

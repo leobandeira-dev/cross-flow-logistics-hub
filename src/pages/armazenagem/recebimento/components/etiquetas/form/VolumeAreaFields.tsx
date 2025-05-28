@@ -2,14 +2,23 @@
 import React from 'react';
 import { FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MapPin, Users } from 'lucide-react';
 
 interface VolumeAreaFieldsProps {
   form: any;
+  onBatchClassifyArea?: (area: string) => void;
 }
 
-const VolumeAreaFields: React.FC<VolumeAreaFieldsProps> = ({ form }) => {
+const VolumeAreaFields: React.FC<VolumeAreaFieldsProps> = ({ form, onBatchClassifyArea }) => {
   const areas = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'];
+
+  const handleBatchClassify = () => {
+    const selectedArea = form.getValues('area');
+    if (selectedArea && onBatchClassifyArea) {
+      onBatchClassifyArea(selectedArea);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -44,6 +53,24 @@ const VolumeAreaFields: React.FC<VolumeAreaFieldsProps> = ({ form }) => {
           </FormItem>
         )}
       />
+
+      {onBatchClassifyArea && (
+        <div className="pt-3 border-t border-gray-200">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleBatchClassify}
+            disabled={!form.watch('area')}
+          >
+            <Users size={16} className="mr-2" />
+            Classificar Todos os Volumes desta Área
+          </Button>
+          <p className="text-xs text-gray-500 mt-2">
+            Aplica a área selecionada a todos os volumes gerados da nota fiscal
+          </p>
+        </div>
+      )}
     </div>
   );
 };

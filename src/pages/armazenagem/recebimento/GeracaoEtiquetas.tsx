@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -34,7 +33,9 @@ const GeracaoEtiquetas: React.FC = () => {
     handleCreateEtiquetaMae,
     handleClassifyVolume,
     handleSaveVolumeClassification,
-    handleVincularVolumes
+    handleVincularVolumes,
+    setVolumes,
+    setGeneratedVolumes
   } = useGeracaoEtiquetas();
 
   // Set initial form values if opening specifically for etiquetas mãe creation
@@ -73,6 +74,8 @@ const GeracaoEtiquetas: React.FC = () => {
             handleGenerateVolumes={handleGenerateVolumes}
             handlePrintEtiquetas={handlePrintEtiquetas}
             handleClassifyVolume={handleClassifyVolume}
+            setVolumes={setVolumes}
+            setGeneratedVolumes={setGeneratedVolumes}
           />
         </TabsContent>
         

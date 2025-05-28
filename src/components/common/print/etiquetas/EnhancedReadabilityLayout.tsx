@@ -49,6 +49,13 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
             <span className="font-bold">ID:</span> {volumeData.id}
           </div>
           
+          {/* Área - DESTAQUE PRINCIPAL */}
+          {volumeData.area && (
+            <div className="text-lg mb-2 bg-indigo-200 p-3 rounded border-2 border-indigo-500">
+              <span className="font-bold">ÁREA:</span> <span className="text-2xl font-bold">{volumeData.area}</span>
+            </div>
+          )}
+          
           {/* Nota Fiscal - DESTAQUE */}
           <div className="text-sm mb-2 bg-yellow-200 p-2 rounded border-2 border-yellow-400">
             <span className="font-bold">NF:</span> <span className="text-xl font-bold">{volumeData.notaFiscal || 'N/A'}</span>

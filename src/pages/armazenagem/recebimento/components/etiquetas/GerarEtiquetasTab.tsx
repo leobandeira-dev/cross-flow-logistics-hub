@@ -1,59 +1,54 @@
 
 import React from 'react';
-import { Volume } from './VolumesTable';
-import { UseFormReturn } from 'react-hook-form';
-import { LayoutStyle } from '@/hooks/etiquetas/types';
-import EtiquetaFormPanel from './EtiquetaFormPanel';
-import EtiquetaPreview from './EtiquetaPreview';
+import FormLayout from './form/FormLayout';
 import GeneratedVolumesPanel from './GeneratedVolumesPanel';
+import { Volume } from './VolumesTable';
+import { useBatchAreaClassification } from '../../hooks/etiquetas/useBatchAreaClassification';
 
 interface GerarEtiquetasTabProps {
-  form: UseFormReturn<any>;
+  form: any;
   generatedVolumes: Volume[];
   handleGenerateVolumes: () => void;
   handlePrintEtiquetas: (volume: Volume) => void;
   handleClassifyVolume: (volume: Volume) => void;
+  setVolumes?: React.Dispatch<React.SetStateAction<Volume[]>>;
+  setGeneratedVolumes?: React.Dispatch<React.SetStateAction<Volume[]>>;
 }
 
-const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({ 
-  form, 
-  generatedVolumes, 
-  handleGenerateVolumes, 
-  handlePrintEtiquetas, 
-  handleClassifyVolume 
+const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
+  form,
+  generatedVolumes,
+  handleGenerateVolumes,
+  handlePrintEtiquetas,
+  handleClassifyVolume,
+  setVolumes,
+  setGeneratedVolumes
 }) => {
-  const currentLayoutStyle = form.watch('layoutStyle') as LayoutStyle;
+  const { handleBatchClassifyArea } = useBatchAreaClassification();
 
-  const handleLayoutChange = (newLayout: LayoutStyle) => {
-    form.setValue('layoutStyle', newLayout);
+  const onBatchClassifyArea = (area: string) => {
+    if (setVolumes && setGeneratedVolumes) {
+      handleBatchClassifyArea(area, setVolumes, setGeneratedVolumes);
+    }
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2">
-        <EtiquetaFormPanel 
-          form={form}
-          tipoEtiqueta="volume"
-          isQuimico={form.watch('tipoVolume') === 'quimico'}
-          handleGenerateVolumes={handleGenerateVolumes} 
-          showEtiquetaMaeOption={false}
-        />
-        
-        <GeneratedVolumesPanel 
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <FormLayout 
+        form={form}
+        onGenerateVolumes={handleGenerateVolumes}
+        onBatchClassifyArea={setVolumes && setGeneratedVolumes ? onBatchClassifyArea : undefined}
+        isGenerating={false}
+      />
+      
+      {generatedVolumes.length > 0 && (
+        <GeneratedVolumesPanel
           volumes={generatedVolumes}
           handlePrintEtiquetas={handlePrintEtiquetas}
           handleClassifyVolume={handleClassifyVolume}
+          showEtiquetaMaeColumn={false}
         />
-      </div>
-      
-      <div>
-        <EtiquetaPreview 
-          tipoEtiqueta="volume"
-          isQuimico={form.watch('tipoVolume') === 'quimico'}
-          formLayoutStyle={currentLayoutStyle}
-          onLayoutChange={handleLayoutChange}
-        />
-      </div>
+      )}
     </div>
   );
 };
