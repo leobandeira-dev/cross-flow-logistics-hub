@@ -39,12 +39,12 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
             <span className="font-bold">ID:</span> {volumeData.id}
           </div>
           
-          {/* Nota Fiscal - DESTAQUE */}
+          {/* Nota Fiscal - DESTAQUE COM ALTO CONTRASTE */}
           <div className="text-sm mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
             <span className="font-bold">NF:</span> <span className="text-xl font-bold">{volumeData.notaFiscal || 'N/A'}</span>
           </div>
           
-          {/* Remetente - DESTAQUE */}
+          {/* Remetente - DESTAQUE COM ALTO CONTRASTE */}
           <div className="text-sm mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
             <span className="font-bold">Remetente:</span> {volumeData.remetente || 'N/A'}
           </div>
@@ -57,7 +57,7 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
             <span className="font-bold">Endereço:</span> {volumeData.endereco || 'N/A'}
           </div>
           
-          {/* Cidade Destino - DESTAQUE */}
+          {/* Cidade Destino - DESTAQUE COM ALTO CONTRASTE */}
           <div className="text-lg mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
             <span className="font-bold">Cidade/UF:</span> <span className="text-xl font-bold">{displayCidade}</span>/<span className="text-xl font-bold">{volumeData.uf || 'N/A'}</span>
           </div>
@@ -109,7 +109,7 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
         </div>
       )}
       
-      {/* Quantidade de Volumes - DESTAQUE (para etiqueta mãe) */}
+      {/* Quantidade de Volumes - DESTAQUE COM ALTO CONTRASTE (para etiqueta mãe) */}
       {isMae && (
         <div className="text-lg mt-2 pt-2 border-t-2 border-gray-300 bg-black text-white p-2 rounded border-2 border-gray-800">
           <span className="font-bold">Total de volumes:</span> <span className="text-xl font-bold">{volumeData.quantidade || '0'}</span>

@@ -49,26 +49,26 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
         <div className="text-sm mt-2 font-bold">{volumeData.id}</div>
       </div>
       
-      {/* Nota Fiscal - DESTAQUE */}
+      {/* Nota Fiscal - DESTAQUE COM ALTO CONTRASTE */}
       <div className="bg-black text-white border-3 border-gray-800 rounded-lg p-3 text-center">
         <div className="text-xs text-white">NOTA FISCAL</div>
         <div className="text-2xl font-bold text-white">{volumeData.notaFiscal || 'N/A'}</div>
       </div>
       
-      {/* Cidade Destino - DESTAQUE */}
+      {/* Cidade Destino - DESTAQUE COM ALTO CONTRASTE */}
       <div className="bg-black text-white border-3 border-gray-800 rounded-lg p-3 text-center">
         <div className="text-xs text-white">CIDADE DESTINO</div>
         <div className="text-xl font-bold text-white">{displayCidade || 'N/A'}</div>
         <div className="text-lg font-semibold text-white">{volumeData.uf || 'N/A'}</div>
       </div>
       
-      {/* Remetente - DESTAQUE */}
+      {/* Remetente - DESTAQUE COM ALTO CONTRASTE */}
       <div className="bg-black text-white border-3 border-gray-800 rounded-lg p-3">
         <div className="text-xs text-white font-semibold">REMETENTE</div>
         <div className="text-lg font-bold text-white leading-tight">{volumeData.remetente || 'N/A'}</div>
       </div>
       
-      {/* Destinatário - DESTAQUE */}
+      {/* Destinatário - Manter layout original */}
       <div className="bg-purple-100 border-3 border-purple-500 rounded-lg p-3">
         <div className="text-xs text-purple-700 font-semibold">DESTINATÁRIO</div>
         <div className="text-lg font-bold text-purple-900 leading-tight">{volumeData.destinatario || 'N/A'}</div>
@@ -111,7 +111,7 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
         </div>
       )}
       
-      {/* Quantidade de Volumes - DESTAQUE (para etiqueta mãe) */}
+      {/* Quantidade de Volumes - DESTAQUE COM ALTO CONTRASTE (para etiqueta mãe) */}
       {isMae && (
         <div className="bg-black text-white border-3 border-gray-800 rounded-lg p-3 text-center mt-2">
           <div className="text-xs text-white">TOTAL DE VOLUMES</div>
