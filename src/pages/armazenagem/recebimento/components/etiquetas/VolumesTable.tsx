@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -32,9 +33,15 @@ interface VolumesTableProps {
   volumes: Volume[];
   handlePrintEtiquetas: (volume: Volume) => void;
   handleClassifyVolume: (volume: Volume) => void;
+  showEtiquetaMaeColumn?: boolean;
 }
 
-const VolumesTable: React.FC<VolumesTableProps> = ({ volumes, handlePrintEtiquetas, handleClassifyVolume }) => {
+const VolumesTable: React.FC<VolumesTableProps> = ({ 
+  volumes, 
+  handlePrintEtiquetas, 
+  handleClassifyVolume,
+  showEtiquetaMaeColumn = false 
+}) => {
   return (
     <div className="w-full overflow-x-auto">
       <Table>
@@ -44,6 +51,7 @@ const VolumesTable: React.FC<VolumesTableProps> = ({ volumes, handlePrintEtiquet
             <TableHead>Nota Fiscal</TableHead>
             <TableHead>Descrição</TableHead>
             <TableHead>Área</TableHead>
+            {showEtiquetaMaeColumn && <TableHead>Etiqueta Mãe</TableHead>}
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
@@ -55,6 +63,9 @@ const VolumesTable: React.FC<VolumesTableProps> = ({ volumes, handlePrintEtiquet
               <TableCell>{volume.notaFiscal}</TableCell>
               <TableCell>{volume.descricao}</TableCell>
               <TableCell>{volume.area}</TableCell>
+              {showEtiquetaMaeColumn && (
+                <TableCell>{volume.etiquetaMae || '-'}</TableCell>
+              )}
               <TableCell>
                 {volume.etiquetado ? (
                   <Badge variant="outline">
