@@ -34,23 +34,18 @@ const PrintConfigFields: React.FC<PrintConfigFieldsProps> = ({ form }) => {
       <div>
         <Label htmlFor="layoutStyle">Layout da Etiqueta</Label>
         <Select 
-          defaultValue="standard"
+          defaultValue="enhanced"
           onValueChange={(value) => form.setValue('layoutStyle', value)}
-          value={watch('layoutStyle', 'standard')}
+          value={watch('layoutStyle', 'enhanced')}
         >
           <SelectTrigger id="layoutStyle">
             <SelectValue placeholder="Selecione um layout" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="standard">Padrão (Sedex)</SelectItem>
             <SelectItem value="enhanced">Alta Legibilidade (Texto Grande)</SelectItem>
-            <SelectItem value="compact">Compacto (Braspress)</SelectItem>
-            <SelectItem value="modern">Moderno (Jadlog/UPS)</SelectItem>
             <SelectItem value="portrait">Retrato (Itens Grandes)</SelectItem>
-            <SelectItem value="portrait_blue">Retrato Azul (Alto Contraste)</SelectItem>
-            <SelectItem value="portrait_green">Retrato Verde (Alto Contraste)</SelectItem>
-            <SelectItem value="portrait_red">Retrato Vermelho (Alto Contraste)</SelectItem>
-            <SelectItem value="portrait_purple">Retrato Roxo (Alto Contraste)</SelectItem>
+            <SelectItem value="enhanced_contrast">Alta Legibilidade (Alto Contraste)</SelectItem>
+            <SelectItem value="portrait_contrast">Retrato (Alto Contraste)</SelectItem>
           </SelectContent>
         </Select>
       </div>
