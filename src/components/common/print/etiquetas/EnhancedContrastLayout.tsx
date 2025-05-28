@@ -45,9 +45,9 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
       
       {/* Volume - DESTAQUE COM ALTO CONTRASTE EXTREMAMENTE MAIOR E MAIS VISÍVEL NO TOPO */}
       {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-xl mb-6 bg-black text-white p-8 rounded-lg border-4 border-gray-900 text-center shadow-xl">
-          <div className="text-xl font-bold mb-3">VOLUME</div>
-          <div className="text-7xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
+        <div className="text-xl mb-6 bg-black text-white p-10 rounded-lg border-4 border-gray-900 text-center shadow-xl">
+          <div className="text-2xl font-bold mb-4">VOLUME</div>
+          <div className="text-9xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
         </div>
       )}
 

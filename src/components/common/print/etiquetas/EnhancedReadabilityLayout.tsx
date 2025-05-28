@@ -45,9 +45,9 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
       
       {/* Volume - DESTAQUE EXTREMAMENTE MAIOR E MAIS VISÍVEL NO TOPO */}
       {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-xl mb-6 bg-blue-600 text-white p-8 rounded-lg border-4 border-blue-800 text-center shadow-xl">
-          <div className="text-xl font-bold mb-3">VOLUME</div>
-          <div className="text-7xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
+        <div className="text-xl mb-6 bg-blue-600 text-white p-10 rounded-lg border-4 border-blue-800 text-center shadow-xl">
+          <div className="text-2xl font-bold mb-4">VOLUME</div>
+          <div className="text-9xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
         </div>
       )}
 

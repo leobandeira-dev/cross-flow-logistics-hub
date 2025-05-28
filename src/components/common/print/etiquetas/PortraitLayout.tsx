@@ -45,9 +45,9 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
       
       {/* Volume - DESTAQUE EXTREMAMENTE MAIOR E MAIS VISÍVEL NO TOPO */}
       {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-xl mb-6 bg-blue-600 text-white p-6 rounded-lg font-bold text-center border-4 border-blue-800 shadow-xl">
-          <div className="text-lg font-bold mb-2">VOLUME</div>
-          <div className="text-6xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
+        <div className="text-xl mb-6 bg-blue-600 text-white p-8 rounded-lg font-bold text-center border-4 border-blue-800 shadow-xl">
+          <div className="text-2xl font-bold mb-4">VOLUME</div>
+          <div className="text-9xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
         </div>
       )}
       
