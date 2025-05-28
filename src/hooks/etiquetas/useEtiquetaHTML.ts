@@ -35,11 +35,11 @@ export const useEtiquetaHTML = () => {
       </div>
     ` : (tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : (volume.transportadora || 'TRANSPORTADORA'));
 
-    // Área HTML - Destaque principal
+    // Área HTML - Destaque principal - SEMPRE VISÍVEL SE EXISTIR
     const areaHTML = volume.area ? `
-      <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <div style="color: white; font-size: 14px; font-weight: 900; margin-bottom: 8px;">ÁREA</div>
-        <div style="color: white; font-size: 48px; font-weight: 900; letter-spacing: 0.2em;">${volume.area}</div>
+      <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 20px; text-center; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="color: white; font-size: 16px; font-weight: 900; margin-bottom: 8px; letter-spacing: 0.1em;">ÁREA</div>
+        <div style="color: white; font-size: 56px; font-weight: 900; letter-spacing: 0.2em;">${volume.area}</div>
       </div>
     ` : '';
     
@@ -83,7 +83,7 @@ export const useEtiquetaHTML = () => {
               
               <!-- Cidade Destino - CONTAINER PRETO -->
               <div style="background: #000000; border: 2px solid #374151; border-radius: 6px; padding: 8px; margin-bottom: 8px;">
-                <span style="color: white; font-weight: 700;">Cidade/UF:</span> <span style="color: white; font-size: 20px; font-weight: 900;">${volume.cidade || 'N/A'}</span>/<span style="color: white; font-size: 20px; font-weight: 900;">${volume.uf || 'N/A'}</span>
+                <span style="color: white; font-weight: 700;">Cidade/UF:</span> <span style="color: white; font-size: 20px; font-weight: 900;">${volume.cidade || volume.cidadeCompleta || 'N/A'}</span>/<span style="color: white; font-size: 20px; font-weight: 900;">${volume.uf || 'N/A'}</span>
               </div>
               
               <div style="font-size: 14px; margin-bottom: 8px;">
@@ -156,13 +156,7 @@ export const useEtiquetaHTML = () => {
             `}
           </div>
 
-          ${volume.area ? `
-          <!-- Área - DESTAQUE PRINCIPAL COM ALTO CONTRASTE -->
-          <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 20px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <div style="color: white; font-size: 14px; font-weight: 900; margin-bottom: 8px;">ÁREA</div>
-            <div style="color: white; font-size: 60px; font-weight: 900; letter-spacing: 0.2em;">${volume.area}</div>
-          </div>
-          ` : ''}
+          ${areaHTML}
 
           ${tipoEtiqueta !== 'mae' && volumeNumber && totalVolumes ? `
           <!-- Contagem de Volumes - CONTAINER LARANJA APRIMORADO -->
@@ -192,7 +186,7 @@ export const useEtiquetaHTML = () => {
           <!-- Cidade Destino - CONTAINER PRETO APRIMORADO -->
           <div style="background: #000000; border: 4px solid #374151; border-radius: 12px; padding: 16px; text-center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="color: white; font-size: 14px; font-weight: 900; margin-bottom: 8px;">CIDADE DESTINO</div>
-            <div style="color: white; font-size: 26px; font-weight: 900; margin-bottom: 4px; line-height: 1.1;">${volume.cidade || 'N/A'}</div>
+            <div style="color: white; font-size: 26px; font-weight: 900; margin-bottom: 4px; line-height: 1.1;">${volume.cidade || volume.cidadeCompleta || 'N/A'}</div>
             <div style="color: white; font-size: 22px; font-weight: 900;">${volume.uf || 'N/A'}</div>
           </div>
           
@@ -310,7 +304,7 @@ export const useEtiquetaHTML = () => {
           <!-- Cidade Destino - DESTAQUE APRIMORADO -->
           <div style="background: #D1FAE5; border: 3px solid #10B981; border-radius: 8px; padding: 12px; text-center; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
             <div style="font-size: 14px; color: #065F46; font-weight: 700; margin-bottom: 4px;">CIDADE DESTINO</div>
-            <div style="font-size: 24px; font-weight: 900; color: #1F2937; margin-bottom: 2px;">${volume.cidade || 'N/A'}</div>
+            <div style="font-size: 24px; font-weight: 900; color: #1F2937; margin-bottom: 2px;">${volume.cidade || volume.cidadeCompleta || 'N/A'}</div>
             <div style="font-size: 20px; font-weight: 700; color: #374151;">${volume.uf || 'N/A'}</div>
           </div>
           
@@ -381,11 +375,7 @@ export const useEtiquetaHTML = () => {
           <div style="font-size: 18px; font-weight: 900; text-align: center; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 15px;">
             ${headerHTML}
           </div>
-          ${volume.area ? `
-          <div style="font-size: 16px; margin-bottom: 8px; background-color: #EDE9FE; padding: 12px; border-radius: 6px; border: 4px solid #8B5CF6; text-align: center;">
-            <span style="font-weight: 700;">Área:</span> <span style="font-size: 36px; font-weight: 900;">${volume.area}</span>
-          </div>
-          ` : ''}
+          ${areaHTML}
           <div style="display: flex; margin-top: 10px;">
             <div style="flex: 2; padding-right: 15px;">
               <div style="font-size: 14px; margin-bottom: 8px;">
@@ -404,7 +394,7 @@ export const useEtiquetaHTML = () => {
                 <span style="font-weight: 700;">Endereço:</span> ${volume.endereco || 'N/A'}
               </div>
               <div style="font-size: 16px; margin-bottom: 8px; background-color: #D1FAE5; padding: 8px; border: 2px solid #10B981; border-radius: 6px;">
-                <span style="font-weight: 700;">Cidade/UF:</span> <span style="font-size: 20px; font-weight: 900;">${volume.cidade || 'N/A'}</span>/<span style="font-size: 20px; font-weight: 900;">${volume.uf || 'N/A'}</span>
+                <span style="font-weight: 700;">Cidade/UF:</span> <span style="font-size: 20px; font-weight: 900;">${volume.cidade || volume.cidadeCompleta || 'N/A'}</span>/<span style="font-size: 20px; font-weight: 900;">${volume.uf || 'N/A'}</span>
               </div>
               <div style="font-size: 14px; margin-bottom: 8px;">
                 <span style="font-weight: 700;">Peso:</span> ${volume.pesoTotal || '0 Kg'}
@@ -477,7 +467,7 @@ export const useEtiquetaHTML = () => {
               <span style="font-weight: bold;">Endereço:</span> ${volume.endereco || 'N/A'}
             </div>
             <div style="font-size: 12px; margin-bottom: 5px; background-color: #E8F5E9; padding: 2px 5px; border: 1px solid #C8E6C9; border-radius: 3px;">
-              <span style="font-weight: bold;">Cidade/UF:</span> ${volume.cidade || 'N/A'}/${volume.uf || 'N/A'}
+              <span style="font-weight: bold;">Cidade/UF:</span> ${volume.cidade || volume.cidadeCompleta || 'N/A'}/${volume.uf || 'N/A'}
             </div>
             <div style="font-size: 12px; margin-bottom: 5px;">
               <span style="font-weight: bold;">Peso:</span> ${volume.pesoTotal || '0 Kg'}
@@ -512,13 +502,15 @@ export const useEtiquetaHTML = () => {
           </div>
         ` : ''}
         ${tipoEtiqueta === 'mae' ? `
-          <div style="font-size: 12px; margin-top: 5px; padding-top: 5px; border-top: 1px solid #ccc;">
-            <span style="font-weight: bold;">Total de volumes:</span> ${volume.quantidade || '0'}
+          <div style="font-size: 12px; margin-top: 5px; padding-top: 5px; border-top: 1px solid #ccc; background-color: #E0E7FF; padding: 5px; border-radius: 3px; border: 1px solid #C7D2FE;">
+            <span style="font-weight: bold;">Total de volumes:</span> <span style="font-size: 16px; font-weight: bold;">${volume.quantidade || '0'}</span>
           </div>
         ` : ''}
       </div>
     `;
   };
 
-  return { generateEtiquetaHTML };
+  return {
+    generateEtiquetaHTML
+  };
 };
