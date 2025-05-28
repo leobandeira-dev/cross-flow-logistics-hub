@@ -53,7 +53,8 @@ export const usePDFGeneration = () => {
     notaData: any,
     formatoImpressao: string, 
     tipoEtiqueta: 'volume' | 'mae' = 'volume',
-    layoutStyle: LayoutStyle = 'enhanced'
+    layoutStyle: LayoutStyle = 'enhanced',
+    transportadoraLogo?: string
   ) => {
     if (!volumes || volumes.length === 0) return;
     setIsLoading(true);
@@ -66,9 +67,9 @@ export const usePDFGeneration = () => {
       // Prepare volumes for printing
       const volumesParaImprimir = await prepareVolumesForPrinting(volumes, notaData);
       
-      // Generate HTML for each volume
+      // Generate HTML for each volume with the logo
       const etiquetasHTML = volumesParaImprimir.map(vol => 
-        generateEtiquetaHTML(vol, tipoEtiqueta, layoutStyle)
+        generateEtiquetaHTML(vol, tipoEtiqueta, layoutStyle, transportadoraLogo)
       );
       
       // Generate PDF
@@ -90,9 +91,10 @@ export const usePDFGeneration = () => {
     notaData: any,
     formatoImpressao: string,
     etiquetaMaeId: string,
-    layoutStyle: LayoutStyle = 'enhanced'
+    layoutStyle: LayoutStyle = 'enhanced',
+    transportadoraLogo?: string
   ) => {
-    return generateEtiquetaPDF(masterVolume, notaData, formatoImpressao, 'mae', layoutStyle);
+    return generateEtiquetaPDF(masterVolume, notaData, formatoImpressao, 'mae', layoutStyle, transportadoraLogo);
   };
 
   return {

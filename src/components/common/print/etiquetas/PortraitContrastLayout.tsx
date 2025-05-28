@@ -38,7 +38,8 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
           <img 
             src={transportadoraLogo} 
             alt="Logo Transportadora" 
-            className="max-h-10 object-contain"
+            className="object-contain"
+            style={{ width: 'auto', height: '32px', maxWidth: '120px' }}
           />
         </div>
       )}
@@ -68,7 +69,7 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
         <div className="text-lg font-bold text-white leading-tight">{volumeData.remetente || 'N/A'}</div>
       </div>
       
-      {/* Destinatário - Manter layout original */}
+      {/* Destinatário */}
       <div className="bg-purple-100 border-3 border-purple-500 rounded-lg p-3">
         <div className="text-xs text-purple-700 font-semibold">DESTINATÁRIO</div>
         <div className="text-lg font-bold text-purple-900 leading-tight">{volumeData.destinatario || 'N/A'}</div>

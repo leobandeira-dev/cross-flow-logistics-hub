@@ -39,7 +39,7 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
             src={transportadoraLogo} 
             alt="Logo Transportadora" 
             className="object-contain"
-            style={{ width: '90mm', height: '25mm', maxWidth: '120px', maxHeight: '32px' }}
+            style={{ width: 'auto', height: '32px', maxWidth: '120px' }}
           />
         </div>
       )}

@@ -46,7 +46,7 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
           
           {/* Remetente - DESTAQUE */}
           <div className="text-sm mb-2 bg-blue-100 p-2 rounded border-2 border-blue-300">
-            <span className="font-bold">Remetente:</span> {volumeData.remetente || 'N/A'}
+            <span className="font-bold">Remetente:</span> <span className="text-base font-bold">{volumeData.remetente || 'N/A'}</span>
           </div>
           
           <div className="text-sm mb-2">
@@ -77,7 +77,7 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
                 src={transportadoraLogo} 
                 alt="Logo Transportadora" 
                 className="max-h-8 object-contain"
-                style={{ width: '90mm', height: '25mm', maxWidth: '120px', maxHeight: '32px' }}
+                style={{ width: 'auto', height: '32px', maxWidth: '120px' }}
               />
             </div>
           )}

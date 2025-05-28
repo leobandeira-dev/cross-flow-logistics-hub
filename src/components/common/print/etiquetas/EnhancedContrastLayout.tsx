@@ -46,7 +46,7 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
           
           {/* Remetente - DESTAQUE COM ALTO CONTRASTE */}
           <div className="text-sm mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
-            <span className="font-bold">Remetente:</span> {volumeData.remetente || 'N/A'}
+            <span className="font-bold">Remetente:</span> <span className="text-base font-bold">{volumeData.remetente || 'N/A'}</span>
           </div>
           
           <div className="text-sm mb-2">
@@ -77,6 +77,7 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
                 src={transportadoraLogo} 
                 alt="Logo Transportadora" 
                 className="max-h-8 object-contain"
+                style={{ width: 'auto', height: '32px', maxWidth: '120px' }}
               />
             </div>
           )}
