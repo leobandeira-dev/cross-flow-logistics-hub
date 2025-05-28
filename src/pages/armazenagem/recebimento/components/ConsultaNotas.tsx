@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,9 @@ import { FileText, Printer, Tag } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
-import { notasFiscais } from '../data/mockData';
+import { buscarNotasFiscais } from '@/services/notaFiscal/fetchNotaFiscalService';
+import { NotaFiscal } from '@/types/supabase.types';
+import { useToast } from '@/hooks/use-toast';
 
 // Define filter config directly inside this component instead of importing
 const notasFilterConfig = [
@@ -15,18 +17,15 @@ const notasFilterConfig = [
     name: "Status",
     options: [
       { label: "Todos", value: "all" },
-      { label: "Processada", value: "completed" },
-      { label: "Aguardando", value: "pending" },
-      { label: "Rejeitada", value: "processing" }
+      { label: "Processada", value: "processada" },
+      { label: "Pendente", value: "pendente" },
+      { label: "Rejeitada", value: "rejeitada" }
     ]
   },
   {
     name: "Fornecedor",
     options: [
-      { label: "Todos", value: "all" },
-      { label: "Fornecedor A", value: "Fornecedor A" },
-      { label: "Fornecedor B", value: "Fornecedor B" },
-      { label: "Fornecedor C", value: "Fornecedor C" }
+      { label: "Todos", value: "all" }
     ]
   }
 ];
@@ -37,38 +36,49 @@ interface ConsultaNotasProps {
 
 const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
+  const [notasFiscais, setNotasFiscais] = useState<NotaFiscal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Filter the notes based on search term and filters
-  const filteredNotas = notasFiscais.filter(nota => {
-    // Apply search term filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch = 
-        nota.id.toLowerCase().includes(searchLower) ||
-        nota.fornecedor.toLowerCase().includes(searchLower) ||
-        nota.destinatarioRazaoSocial?.toLowerCase().includes(searchLower);
-      
-      if (!matchesSearch) return false;
-    }
-    
-    // Apply status filter
-    if (activeFilters.Status && activeFilters.Status.length > 0) {
-      if (!activeFilters.Status.includes(nota.status)) {
-        return false;
+  // Carregar notas fiscais do Supabase
+  useEffect(() => {
+    const carregarNotasFiscais = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Carregando notas fiscais do Supabase...');
+        
+        const filtros: any = {};
+        
+        // Aplicar filtros de status
+        if (activeFilters.Status && activeFilters.Status.length > 0 && !activeFilters.Status.includes('all')) {
+          filtros.status = activeFilters.Status[0];
+        }
+        
+        // Aplicar filtro de termo de busca
+        if (searchTerm.trim()) {
+          filtros.termo = searchTerm.trim();
+        }
+        
+        const notas = await buscarNotasFiscais(filtros);
+        console.log('Notas fiscais carregadas:', notas);
+        setNotasFiscais(notas);
+      } catch (error) {
+        console.error('Erro ao carregar notas fiscais:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar notas fiscais. Tente novamente.",
+          variant: "destructive"
+        });
+        setNotasFiscais([]);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    
-    // Apply fornecedor filter
-    if (activeFilters.Fornecedor && activeFilters.Fornecedor.length > 0) {
-      if (!activeFilters.Fornecedor.includes(nota.fornecedor)) {
-        return false;
-      }
-    }
-    
-    return true;
-  });
+    };
+
+    carregarNotasFiscais();
+  }, [searchTerm, activeFilters, toast]);
 
   const handleSearch = (value: string, filters?: Record<string, string[]>) => {
     setSearchTerm(value);
@@ -77,22 +87,14 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
     }
   };
 
-  const handleGerarEtiquetasClick = (nota: any) => {
+  const handleGerarEtiquetasClick = (nota: NotaFiscal) => {
     console.log("Nota sendo passada para geração de etiquetas:", nota);
     
     // Calculate or extract volumesTotal based on available information
     let volumesTotal = '';
     
-    // Check for volumesTotal in different properties
-    if (nota.volumesTotal) {
-      volumesTotal = String(nota.volumesTotal).trim();
-    } else if (nota.volumes) {
-      // If nota has a volumes array, use its length
-      volumesTotal = String(nota.volumes.length);
-    } else if (nota.itens && nota.itens.length > 0) {
-      // If nota has items, we could estimate volumes based on items
-      // This is a fallback and may not be accurate in all cases
-      volumesTotal = String(nota.itens.length);
+    if (nota.quantidade_volumes) {
+      volumesTotal = String(nota.quantidade_volumes);
     }
     
     console.log("Volume total extracted for etiquetas:", volumesTotal);
@@ -100,32 +102,67 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
     // Navigate to GeracaoEtiquetas with complete nota data
     navigate('/armazenagem/recebimento/etiquetas', { 
       state: {
-        notaFiscal: nota.id,
-        numeroPedido: nota.numeroPedido || '',
+        notaFiscal: nota.numero,
+        numeroPedido: nota.numero_pedido || '',
         volumesTotal: volumesTotal,
         // Sender data
-        remetente: nota.fornecedor || '',
-        emitente: nota.emitenteRazaoSocial || '',
+        remetente: nota.emitente_razao_social || '',
+        emitente: nota.emitente_razao_social || '',
         // Recipient data - ensure all required fields are included
-        destinatario: nota.destinatarioRazaoSocial || '',
-        endereco: nota.destinatarioEndereco || '',
-        cidade: nota.destinatarioCidade || '',
-        cidadeCompleta: `${nota.destinatarioCidade || ''} - ${nota.destinatarioUF || ''}`,
-        uf: nota.destinatarioUF || '',
+        destinatario: nota.destinatario_razao_social || '',
+        endereco: nota.destinatario_endereco || '',
+        cidade: nota.destinatario_cidade || '',
+        cidadeCompleta: `${nota.destinatario_cidade || ''} - ${nota.destinatario_uf || ''}`,
+        uf: nota.destinatario_uf || '',
         // Weight information
-        pesoTotal: nota.pesoTotalBruto || nota.pesoTotal || '',
-        chaveNF: nota.chaveNF || '',
+        pesoTotal: nota.peso_bruto ? `${nota.peso_bruto} Kg` : '',
+        chaveNF: nota.chave_acesso || '',
         // Additional recipient address details
-        enderecoDestinatario: nota.destinatarioEndereco || '',
-        bairroDestinatario: nota.destinatarioBairro || '',
-        cidadeDestinatario: nota.destinatarioCidade || '',
-        cepDestinatario: nota.destinatarioCEP || '',
-        ufDestinatario: nota.destinatarioUF || '',
+        enderecoDestinatario: nota.destinatario_endereco || '',
+        bairroDestinatario: nota.destinatario_bairro || '',
+        cidadeDestinatario: nota.destinatario_cidade || '',
+        cepDestinatario: nota.destinatario_cep || '',
+        ufDestinatario: nota.destinatario_uf || '',
         // Date information
-        dataEmissao: nota.dataHoraEmissao || nota.data || '',
+        dataEmissao: nota.data_emissao || '',
       }
     });
   };
+
+  // Converter NotaFiscal para o formato esperado pela tabela
+  const formatarNotasParaTabela = (notas: NotaFiscal[]) => {
+    return notas.map(nota => ({
+      id: nota.id,
+      numero: nota.numero,
+      fornecedor: nota.emitente_razao_social || 'N/A',
+      destinatarioRazaoSocial: nota.destinatario_razao_social || 'N/A',
+      valor: nota.valor_total ? `R$ ${nota.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00',
+      dataEmissao: nota.data_emissao ? new Date(nota.data_emissao).toLocaleDateString('pt-BR') : 'N/A',
+      status: nota.status,
+      // Dados originais para etiquetas
+      ...nota
+    }));
+  };
+
+  const notasFormatadas = formatarNotasParaTabela(notasFiscais);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Consulta de Notas Fiscais</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cross-blue mx-auto mb-4"></div>
+              <p>Carregando notas fiscais...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -134,7 +171,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       </CardHeader>
       <CardContent>
         <SearchFilter 
-          placeholder="Buscar por número, fornecedor ou destinatário..." 
+          placeholder="Buscar por número, chave de acesso ou razão social..." 
           filters={notasFilterConfig} 
           onSearch={handleSearch}
         />
@@ -142,7 +179,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
         <div className="rounded-md border">
           <DataTable
             columns={[
-              { header: 'Número NF', accessor: 'id' },
+              { header: 'Número NF', accessor: 'numero' },
               { header: 'Fornecedor', accessor: 'fornecedor' },
               { header: 'Destinatário', accessor: 'destinatarioRazaoSocial' },
               { header: 'Valor Total', accessor: 'valor' },
@@ -152,11 +189,11 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
                 accessor: 'status',
                 cell: (row) => {
                   switch (row.status) {
-                    case 'completed':
+                    case 'processada':
                       return <StatusBadge status="success" text="Processada" />;
-                    case 'pending':
-                      return <StatusBadge status="pending" text="Aguardando" />;
-                    case 'processing':
+                    case 'pendente':
+                      return <StatusBadge status="pending" text="Pendente" />;
+                    case 'rejeitada':
                       return <StatusBadge status="error" text="Rejeitada" />;
                     default:
                       return <StatusBadge status="pending" text={row.status} />;
@@ -195,9 +232,15 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
                 )
               }
             ]}
-            data={filteredNotas}
+            data={notasFormatadas}
           />
         </div>
+        
+        {notasFormatadas.length === 0 && !isLoading && (
+          <div className="text-center py-8">
+            <p className="text-gray-500">Nenhuma nota fiscal encontrada.</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

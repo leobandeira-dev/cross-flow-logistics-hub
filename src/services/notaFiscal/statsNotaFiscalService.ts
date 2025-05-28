@@ -2,42 +2,35 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Gets statistics about notas fiscais
+ * Busca estatísticas das notas fiscais
  */
-export const obterEstatisticasNotasFiscais = async (): Promise<any> => {
+export const buscarEstatisticasNotasFiscais = async () => {
   try {
-    // Total de notas fiscais
-    const { count: totalNotas } = await supabase
+    const { data, error } = await supabase
       .from('notas_fiscais')
-      .select('*', { count: 'exact', head: true });
+      .select('status, valor_total, data_emissao')
+      .order('created_at', { ascending: false });
     
-    // Notas fiscais por status
-    const statusList = ['pendente', 'em_processamento', 'conferida', 'divergente', 'finalizada'];
-    const statusCounts = {};
-    
-    for (const status of statusList) {
-      const { count } = await supabase
-        .from('notas_fiscais')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', status);
-      
-      statusCounts[status] = count || 0;
+    if (error) {
+      throw new Error(`Erro ao buscar estatísticas: ${error.message}`);
     }
     
-    // Valor total das notas fiscais - using a direct sum query
-    const { data: notasFiscaisValores } = await supabase
-      .from('notas_fiscais')
-      .select('valor');
-    
-    const valorTotal = notasFiscaisValores?.reduce((acc, nf) => acc + (nf.valor || 0), 0) || 0;
+    // Calcular estatísticas
+    const total = data?.length || 0;
+    const processadas = data?.filter(nf => nf.status === 'processada').length || 0;
+    const pendentes = data?.filter(nf => nf.status === 'pendente').length || 0;
+    const rejeitadas = data?.filter(nf => nf.status === 'rejeitada').length || 0;
+    const valorTotal = data?.reduce((sum, nf) => sum + (nf.valor_total || 0), 0) || 0;
     
     return {
-      totalNotas,
-      statusCounts,
+      total,
+      processadas,
+      pendentes,
+      rejeitadas,
       valorTotal
     };
   } catch (error: any) {
-    console.error('Erro ao obter estatísticas de notas fiscais:', error);
+    console.error('Erro ao buscar estatísticas:', error);
     throw error;
   }
 };
