@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TestTube, Biohazard } from 'lucide-react';
 import QRCodeGenerator from '../QRCodeGenerator';
@@ -49,13 +50,6 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
             <span className="font-bold">ID:</span> {volumeData.id}
           </div>
           
-          {/* Área - DESTAQUE PRINCIPAL */}
-          {volumeData.area && (
-            <div className="text-lg mb-2 bg-indigo-200 p-3 rounded border-2 border-indigo-500">
-              <span className="font-bold">ÁREA:</span> <span className="text-2xl font-bold">{volumeData.area}</span>
-            </div>
-          )}
-          
           {/* Nota Fiscal - DESTAQUE */}
           <div className="text-sm mb-2 bg-yellow-200 p-2 rounded border-2 border-yellow-400">
             <span className="font-bold">NF:</span> <span className="text-xl font-bold">{volumeData.notaFiscal || 'N/A'}</span>
@@ -106,6 +100,14 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
         <div className="flex-1 flex flex-col justify-center items-center">
           <QRCodeGenerator text={volumeData.id} size={100} />
           <div className="text-center text-xs mt-2 font-bold">{volumeData.id}</div>
+          
+          {/* Área - DESTAQUE ABAIXO DO QR CODE */}
+          {volumeData.area && (
+            <div className="mt-4 bg-indigo-600 text-white p-4 rounded-lg border-4 border-indigo-800 text-center shadow-lg">
+              <div className="text-xs font-bold mb-1">ÁREA</div>
+              <div className="text-6xl font-black">{volumeData.area}</div>
+            </div>
+          )}
         </div>
       </div>
       

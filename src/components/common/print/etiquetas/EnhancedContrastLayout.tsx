@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TestTube, Biohazard } from 'lucide-react';
 import QRCodeGenerator from '../QRCodeGenerator';
@@ -49,13 +50,6 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
             <span className="font-bold">ID:</span> {volumeData.id}
           </div>
           
-          {/* Área - DESTAQUE PRINCIPAL COM ALTO CONTRASTE */}
-          {volumeData.area && (
-            <div className="text-lg mb-2 bg-black text-white p-3 rounded border-2 border-gray-800">
-              <span className="font-bold">ÁREA:</span> <span className="text-2xl font-bold">{volumeData.area}</span>
-            </div>
-          )}
-          
           {/* Nota Fiscal - DESTAQUE COM ALTO CONTRASTE */}
           <div className="text-sm mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
             <span className="font-bold">NF:</span> <span className="text-xl font-bold">{volumeData.notaFiscal || 'N/A'}</span>
@@ -106,6 +100,14 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
         <div className="flex-1 flex flex-col justify-center items-center">
           <QRCodeGenerator text={volumeData.id} size={100} />
           <div className="text-center text-xs mt-2 font-bold">{volumeData.id}</div>
+          
+          {/* Área - DESTAQUE COM ALTO CONTRASTE ABAIXO DO QR CODE */}
+          {volumeData.area && (
+            <div className="mt-4 bg-black text-white p-4 rounded-lg border-4 border-gray-900 text-center shadow-lg">
+              <div className="text-xs font-bold mb-1">ÁREA</div>
+              <div className="text-6xl font-black">{volumeData.area}</div>
+            </div>
+          )}
         </div>
       </div>
       
