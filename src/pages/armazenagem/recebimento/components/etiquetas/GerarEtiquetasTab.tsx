@@ -2,6 +2,7 @@
 import React from 'react';
 import { Volume } from './VolumesTable';
 import { UseFormReturn } from 'react-hook-form';
+import { LayoutStyle } from '@/hooks/etiquetas/types';
 import EtiquetaFormPanel from './EtiquetaFormPanel';
 import EtiquetaPreview from './EtiquetaPreview';
 import GeneratedVolumesPanel from './GeneratedVolumesPanel';
@@ -21,6 +22,12 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
   handlePrintEtiquetas, 
   handleClassifyVolume 
 }) => {
+  const currentLayoutStyle = form.watch('layoutStyle') as LayoutStyle;
+
+  const handleLayoutChange = (newLayout: LayoutStyle) => {
+    form.setValue('layoutStyle', newLayout);
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
@@ -43,6 +50,8 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         <EtiquetaPreview 
           tipoEtiqueta="volume"
           isQuimico={form.watch('tipoVolume') === 'quimico'}
+          formLayoutStyle={currentLayoutStyle}
+          onLayoutChange={handleLayoutChange}
         />
       </div>
     </div>

@@ -54,7 +54,7 @@ export const useGeracaoEtiquetas = () => {
       tipoEtiqueta: 'volume',
       volumesTotal: '',
       formatoImpressao: '50x100',
-      layoutStyle: 'standard' as LayoutStyle,
+      layoutStyle: 'enhanced' as LayoutStyle,
       tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
@@ -71,8 +71,12 @@ export const useGeracaoEtiquetas = () => {
   };
 
   const handlePrintEtiquetasImpl = (volume: Volume) => {
-    const formatoImpressao = form.getValues('formatoImpressao');
-    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
+    // Garantir que pegamos o valor atual do formulário
+    const currentFormValues = form.getValues();
+    const formatoImpressao = currentFormValues.formatoImpressao;
+    const layoutStyle = currentFormValues.layoutStyle as LayoutStyle;
+    
+    console.log('Printing with layout style:', layoutStyle); // Para debug
     
     const result = handlePrintEtiquetas(printEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
     
@@ -88,7 +92,7 @@ export const useGeracaoEtiquetas = () => {
           
           toast({
             title: "Etiquetas Geradas",
-            description: `Etiquetas para NF ${volume.notaFiscal} geradas com sucesso.`,
+            description: `Etiquetas para NF ${volume.notaFiscal} geradas com sucesso com layout ${layoutStyle}.`,
           });
         }
       });
@@ -96,8 +100,12 @@ export const useGeracaoEtiquetas = () => {
   };
 
   const handleReimprimirEtiquetasImpl = (volume: Volume) => {
-    const formatoImpressao = form.getValues('formatoImpressao');
-    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
+    // Garantir que pegamos o valor atual do formulário
+    const currentFormValues = form.getValues();
+    const formatoImpressao = currentFormValues.formatoImpressao;
+    const layoutStyle = currentFormValues.layoutStyle as LayoutStyle;
+    
+    console.log('Reprinting with layout style:', layoutStyle); // Para debug
     
     handleReimprimirEtiquetas(reimprimirEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
   };
@@ -109,8 +117,12 @@ export const useGeracaoEtiquetas = () => {
   };
 
   const handlePrintEtiquetaMaeImpl = (etiquetaMae: any) => {
-    const formatoImpressao = form.getValues('formatoImpressao');
-    const layoutStyle = form.getValues('layoutStyle') as LayoutStyle;
+    // Garantir que pegamos o valor atual do formulário
+    const currentFormValues = form.getValues();
+    const formatoImpressao = currentFormValues.formatoImpressao;
+    const layoutStyle = currentFormValues.layoutStyle as LayoutStyle;
+    
+    console.log('Printing master label with layout style:', layoutStyle); // Para debug
     
     handlePrintEtiquetaMae(printEtiquetaMae)(etiquetaMae, volumes, formatoImpressao, layoutStyle);
   };

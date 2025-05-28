@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LayoutStyle } from '@/hooks/etiquetas/types';
@@ -14,14 +14,32 @@ import LogoUploadField from './preview/LogoUploadField';
 interface EtiquetaPreviewProps {
   tipoEtiqueta: 'volume' | 'mae';
   isQuimico: boolean;
+  formLayoutStyle?: LayoutStyle; // Receber o layout do formulário
+  onLayoutChange?: (layout: LayoutStyle) => void; // Callback para sincronizar
 }
 
 const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({ 
   tipoEtiqueta,
-  isQuimico 
+  isQuimico,
+  formLayoutStyle,
+  onLayoutChange 
 }) => {
-  const [layoutStyle, setLayoutStyle] = useState<LayoutStyle>('enhanced');
+  const [layoutStyle, setLayoutStyle] = useState<LayoutStyle>(formLayoutStyle || 'enhanced');
   const [transportadoraLogo, setTransportadoraLogo] = useState<string>();
+
+  // Sincronizar com o layout do formulário
+  useEffect(() => {
+    if (formLayoutStyle && formLayoutStyle !== layoutStyle) {
+      setLayoutStyle(formLayoutStyle);
+    }
+  }, [formLayoutStyle]);
+
+  const handleLayoutChange = (newLayout: LayoutStyle) => {
+    setLayoutStyle(newLayout);
+    if (onLayoutChange) {
+      onLayoutChange(newLayout);
+    }
+  };
 
   const handleLogoChange = (file: File | null) => {
     if (file) {
@@ -60,7 +78,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
       <CardContent>
         <div className="mb-4">
           <label className="text-sm font-medium mb-2 block">Layout da Etiqueta</label>
-          <Select value={layoutStyle} onValueChange={(value: LayoutStyle) => setLayoutStyle(value)}>
+          <Select value={layoutStyle} onValueChange={handleLayoutChange}>
             <SelectTrigger>
               <SelectValue placeholder="Selecione um layout" />
             </SelectTrigger>
