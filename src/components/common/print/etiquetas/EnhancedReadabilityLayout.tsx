@@ -4,118 +4,118 @@ import { TestTube, Biohazard } from 'lucide-react';
 import QRCodeGenerator from '../QRCodeGenerator';
 import { EtiquetaLayoutProps } from './types';
 
-const EnhancedReadabilityLayout: React.FC<EtiquetaLayoutProps> = ({
+interface EnhancedReadabilityLayoutProps extends EtiquetaLayoutProps {
+  transportadoraLogo?: string;
+}
+
+const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
   volumeData,
   volumeNumber,
   totalVolumes,
   isMae,
   isQuimico,
   displayCidade,
-  getClassificacaoText
+  getClassificacaoText,
+  transportadoraLogo
 }) => {
   return (
-    <div className="grid grid-cols-3 gap-3">
-      {/* Coluna 1: Dados do remetente e Nota Fiscal */}
-      <div className="flex flex-col space-y-2">
-        {/* Remetente - Highlighted */}
-        <div className="p-1 bg-blue-100 border border-blue-300 rounded">
-          <div className="text-xs text-gray-600">FORNECEDOR</div>
-          <div className="font-bold text-lg">{volumeData.remetente || 'A definir'}</div>
+    <div className="h-full flex p-4">
+      {/* Ícone químico se aplicável */}
+      {isQuimico && (
+        <div className="absolute top-3 right-3 bg-red-100 border-2 border-red-500 rounded-full p-2">
+          <Biohazard size={32} className="text-red-600" />
         </div>
-        
-        {/* Nota Fiscal - Enhanced Highlighting */}
-        <div className="p-2 bg-yellow-200 border-2 border-yellow-400 rounded">
-          <div className="text-sm font-bold text-gray-700">NOTA FISCAL</div>
-          <div className="font-bold text-2xl">{volumeData.notaFiscal || 'N/A'}</div>
-        </div>
-        
-        {/* Transportadora */}
-        <div className="p-1 bg-gray-100">
-          <div className="text-xs text-gray-600">TRANSPORTADORA</div>
-          <div className="font-bold text-base">
-            {volumeData.transportadora || 'N/D'}
-          </div>
-        </div>
-        
-        {/* Tipo de Volume */}
-        <div className="p-1 bg-gray-100">
-          <div className="text-xs text-gray-600">TIPO DE VOLUME</div>
-          <div className="font-bold text-base">
-            {isQuimico ? 'QUÍMICO' : 'CARGA GERAL'}
-          </div>
-        </div>
+      )}
+      
+      {/* Header */}
+      <div className="text-center text-lg font-bold border-b-2 border-gray-300 pb-2 mb-4 w-full">
+        {isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
       </div>
       
-      {/* Coluna 2: Destinatário e código do volume */}
-      <div className="flex flex-col space-y-2">
-        {/* Destinatário */}
-        <div className="p-1 bg-gray-100">
-          <div className="text-xs text-gray-600">DESTINATÁRIO</div>
-          <div className="font-bold text-lg">{volumeData.destinatario || 'A definir'}</div>
-          <div className="text-sm">{volumeData.endereco || ''}</div>
-        </div>
-        
-        {/* Destino - Enhanced Highlighted city */}
-        <div className="flex space-x-2 items-center">
-          <div className="flex-1 p-2 bg-green-200 border-2 border-green-400 rounded">
-            <div className="text-sm font-bold text-gray-700">CIDADE</div>
-            <div className="font-bold text-xl">{displayCidade}</div>
+      <div className="flex flex-1">
+        {/* Coluna principal com informações */}
+        <div className="flex-[2] pr-4">
+          <div className="text-sm mb-2">
+            <span className="font-bold">ID:</span> {volumeData.id}
           </div>
-          <div className="w-16 p-1 border-2 border-black flex items-center justify-center">
-            <div className="font-bold text-2xl">{volumeData.uf || '-'}</div>
+          
+          {/* Nota Fiscal - DESTAQUE */}
+          <div className="text-sm mb-2 bg-yellow-200 p-2 rounded border-2 border-yellow-400">
+            <span className="font-bold">NF:</span> <span className="text-xl font-bold">{volumeData.notaFiscal || 'N/A'}</span>
           </div>
-        </div>
-        
-        {/* QR Code - Larger */}
-        <div className="flex flex-col items-center justify-center pt-1">
-          <QRCodeGenerator text={volumeData.id} size={90} />
-          <div className="text-sm mt-1 font-mono font-bold">{volumeData.id}</div>
-        </div>
-      </div>
-      
-      {/* Coluna 3: Número de volume e informações químicas */}
-      <div className="flex flex-col space-y-2">
-        {/* Cabeçalho - Número do Volume */}
-        <div className="text-center bg-gray-100 p-2 border-2 border-gray-300">
-          <div className="text-sm">ETIQUETA DE {isMae ? 'MÃE' : 'VOLUME'}</div>
-          {isMae ? (
-            <div className="font-bold text-2xl">
-              Volumes: {volumeData.quantidade || '0'}
+          
+          {/* Remetente - DESTAQUE */}
+          <div className="text-sm mb-2 bg-blue-100 p-2 rounded border-2 border-blue-300">
+            <span className="font-bold">Remetente:</span> {volumeData.remetente || 'N/A'}
+          </div>
+          
+          <div className="text-sm mb-2">
+            <span className="font-bold">Destinatário:</span> {volumeData.destinatario || 'N/A'}
+          </div>
+          
+          <div className="text-sm mb-2">
+            <span className="font-bold">Endereço:</span> {volumeData.endereco || 'N/A'}
+          </div>
+          
+          {/* Cidade Destino - DESTAQUE */}
+          <div className="text-lg mb-2 bg-green-100 p-2 rounded border-2 border-green-400">
+            <span className="font-bold">Cidade/UF:</span> <span className="text-xl font-bold">{displayCidade}</span>/<span className="text-xl font-bold">{volumeData.uf || 'N/A'}</span>
+          </div>
+          
+          <div className="text-sm mb-2">
+            <span className="font-bold">Peso:</span> {volumeData.pesoTotal || '0 Kg'}
+          </div>
+          
+          <div className="text-sm mb-2">
+            <span className="font-bold">Transportadora:</span> {volumeData.transportadora || 'N/D'}
+          </div>
+          
+          {/* Logo da Transportadora */}
+          {transportadoraLogo && (
+            <div className="mb-2">
+              <img 
+                src={transportadoraLogo} 
+                alt="Logo Transportadora" 
+                className="max-h-8 object-contain"
+                style={{ width: '90mm', height: '25mm', maxWidth: '120px', maxHeight: '32px' }}
+              />
             </div>
-          ) : (
-            <div className="font-bold text-2xl">
-              {volumeNumber}/{totalVolumes}
-            </div>
+          )}
+          
+          {isQuimico && (
+            <>
+              <div className="text-sm mb-2 bg-red-100 p-2 rounded border-2 border-red-300">
+                <span className="font-bold">Código ONU:</span> {volumeData.codigoONU || 'N/A'}
+              </div>
+              <div className="text-sm mb-2 bg-red-100 p-2 rounded border-2 border-red-300">
+                <span className="font-bold">Código de Risco:</span> {volumeData.codigoRisco || 'N/A'}
+              </div>
+              <div className="text-sm mb-2 bg-red-100 p-2 rounded border-2 border-red-300">
+                <span className="font-bold">Classificação:</span> {getClassificacaoText()}
+              </div>
+            </>
           )}
         </div>
         
-        {/* Peso total */}
-        <div className="p-1 bg-gray-100">
-          <div className="text-xs text-gray-600">PESO TOTAL</div>
-          <div className="font-bold text-lg">{volumeData.pesoTotal || '0 Kg'}</div>
+        {/* Coluna do QR Code */}
+        <div className="flex-1 flex flex-col justify-center items-center">
+          <QRCodeGenerator text={volumeData.id} size={100} />
+          <div className="text-center text-xs mt-2 font-bold">{volumeData.id}</div>
         </div>
-        
-        {/* Informações de produto químico se aplicável */}
-        {isQuimico && (
-          <div className="bg-yellow-100 p-2 border-2 border-yellow-500 rounded">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-bold">PRODUTO QUÍMICO</div>
-                <div className="text-base">
-                  <span className="font-bold">ONU:</span> {volumeData.codigoONU || 'N/A'}
-                </div>
-                <div className="text-base">
-                  <span className="font-bold">RISCO:</span> {volumeData.codigoRisco || 'N/A'}
-                </div>
-                <div className="text-base mt-1 border-t pt-1">
-                  <span className="font-bold">CLASSIFICAÇÃO:</span> {getClassificacaoText()}
-                </div>
-              </div>
-              <Biohazard size={40} className="text-red-600" />
-            </div>
-          </div>
-        )}
       </div>
+      
+      {volumeData.descricao && (
+        <div className="text-sm mt-2 pt-2 border-t-2 border-gray-300">
+          <span className="font-bold">Descrição:</span> {volumeData.descricao}
+        </div>
+      )}
+      
+      {/* Quantidade de Volumes - DESTAQUE (para etiqueta mãe) */}
+      {isMae && (
+        <div className="text-lg mt-2 pt-2 border-t-2 border-gray-300 bg-purple-100 p-2 rounded border-2 border-purple-400">
+          <span className="font-bold">Total de volumes:</span> <span className="text-xl font-bold">{volumeData.quantidade || '0'}</span>
+        </div>
+      )}
     </div>
   );
 };
