@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,10 +30,22 @@ interface Volume {
   descricao: string;
   quantidade: number;
   etiquetado: boolean;
+  remetente: string;
+  destinatario: string;
+  endereco: string;
+  cidade: string;
+  cidadeCompleta?: string;
+  uf: string;
+  pesoTotal: string;
+  chaveNF: string;
+  etiquetaMae?: string;
+  tipoEtiquetaMae?: 'geral' | 'palete';
   tipoVolume?: 'geral' | 'quimico';
   codigoONU?: string;
   codigoRisco?: string;
-  etiquetaMae?: string;
+  classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
+  transportadora?: string;
+  area?: string;
 }
 
 interface EtiquetasMaeTabProps {
