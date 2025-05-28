@@ -36,14 +36,22 @@ const NotaFiscalForm: React.FC = () => {
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   
+  const resetForm = () => {
+    form.reset(defaultValues);
+  };
+  
   const onSubmit = (data: NotaFiscalSchemaType) => {
     setConfirmSubmitOpen(true);
   };
   
-  const onConfirmSubmit = () => {
+  const onConfirmSubmit = async () => {
     const data = form.getValues();
-    handleSubmit(data);
-    form.reset(defaultValues);
+    try {
+      await handleSubmit(data, resetForm);
+      setConfirmSubmitOpen(false);
+    } catch (error) {
+      setConfirmSubmitOpen(false);
+    }
   };
   
   const handleCancel = () => {
@@ -51,11 +59,12 @@ const NotaFiscalForm: React.FC = () => {
   };
   
   const onConfirmCancel = () => {
-    form.reset(defaultValues);
+    resetForm();
+    setConfirmCancelOpen(false);
   };
   
   const handleClear = () => {
-    form.reset(defaultValues);
+    resetForm();
   };
 
   return (
