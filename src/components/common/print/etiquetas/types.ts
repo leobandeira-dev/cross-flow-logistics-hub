@@ -1,7 +1,7 @@
 
 import { ReactNode } from 'react';
 
-export type LayoutStyle = 'standard' | 'compact' | 'modern' | 'enhanced' | 'portrait' | 'portrait_blue' | 'portrait_green' | 'portrait_red' | 'portrait_purple';
+export type LayoutStyle = 'enhanced' | 'portrait' | 'enhanced_contrast' | 'portrait_contrast';
 
 export interface VolumeData {
   id: string;
@@ -31,6 +31,7 @@ export interface EtiquetaProps {
   format?: 'small' | 'a4';
   tipo?: 'volume' | 'mae';
   layoutStyle?: LayoutStyle;
+  transportadoraLogo?: string;
 }
 
 export interface EtiquetaLayoutProps {

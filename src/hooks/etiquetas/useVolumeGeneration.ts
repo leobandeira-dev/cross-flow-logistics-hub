@@ -13,7 +13,7 @@ export const useVolumeGeneration = () => {
     notaData: any, 
     formatoImpressao: string,
     tipoEtiqueta: 'volume' | 'mae' = 'volume',
-    layoutStyle: LayoutStyle = 'standard'
+    layoutStyle: LayoutStyle = 'enhanced'
   ): Promise<EtiquetaGenerationResult> => {
     setIsGenerating(true);
     try {

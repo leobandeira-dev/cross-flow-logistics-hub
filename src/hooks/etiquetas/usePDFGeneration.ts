@@ -53,7 +53,7 @@ export const usePDFGeneration = () => {
     notaData: any,
     formatoImpressao: string, 
     tipoEtiqueta: 'volume' | 'mae' = 'volume',
-    layoutStyle: LayoutStyle = 'standard'
+    layoutStyle: LayoutStyle = 'enhanced'
   ) => {
     if (!volumes || volumes.length === 0) return;
     setIsLoading(true);
@@ -90,7 +90,7 @@ export const usePDFGeneration = () => {
     notaData: any,
     formatoImpressao: string,
     etiquetaMaeId: string,
-    layoutStyle: LayoutStyle = 'standard'
+    layoutStyle: LayoutStyle = 'enhanced'
   ) => {
     return generateEtiquetaPDF(masterVolume, notaData, formatoImpressao, 'mae', layoutStyle);
   };

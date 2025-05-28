@@ -1,3 +1,4 @@
+
 export type LayoutStyle = 
   | 'enhanced'
   | 'portrait'
@@ -66,5 +67,5 @@ export interface VolumeData {
   codigoRisco?: string;
   classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   transportadora?: string;
-  qrCode?: string;  // Added this property as it's used in the prepared volumes
+  qrCode?: string;
 }

@@ -13,7 +13,7 @@ export const useEtiquetaMaeGeneration = () => {
     notaData: any,
     formatoImpressao: string,
     etiquetaMaeId: string,
-    layoutStyle: LayoutStyle = 'standard'
+    layoutStyle: LayoutStyle = 'enhanced'
   ): Promise<EtiquetaGenerationResult> => {
     setIsGenerating(true);
     try {
