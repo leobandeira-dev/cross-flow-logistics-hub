@@ -72,6 +72,7 @@
     --backdrop-filter: blur(20px);
   }
 
+  .light,
   [data-theme="light"] {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -124,6 +125,7 @@
     @apply bg-background text-foreground font-sans;
     background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -11,22 +11,27 @@ export const useFormSubmission = () => {
   const handleSubmit = async (data: NotaFiscalSchemaType, resetForm?: () => void) => {
     setIsLoading(true);
     try {
-      console.log('Dados do formulário:', data);
+      console.log('Dados do formulário recebidos:', data);
       
-      // Converter os dados do formulário para o formato da tabela notas_fiscais
+      // Mapear todos os campos do formulário para a estrutura da tabela notas_fiscais
       const notaFiscalData = {
+        // Campos básicos obrigatórios
         numero: data.numeroNF || '',
         serie: data.serieNF || null,
         chave_acesso: data.chaveNF || null,
-        valor_total: parseFloat(data.valorTotal || '0'),
+        valor_total: data.valorTotal ? parseFloat(data.valorTotal) : 0,
         peso_bruto: data.pesoTotalBruto ? parseFloat(data.pesoTotalBruto) : null,
         quantidade_volumes: data.volumesTotal ? parseInt(data.volumesTotal) : null,
         data_emissao: data.dataHoraEmissao ? new Date(data.dataHoraEmissao).toISOString() : new Date().toISOString(),
         data_entrada: data.dataHoraEntrada ? new Date(data.dataHoraEntrada).toISOString() : null,
+        data_hora_emissao: data.dataHoraEmissao ? new Date(data.dataHoraEmissao).toISOString() : null,
+        data_hora_entrada: data.dataHoraEntrada ? new Date(data.dataHoraEntrada).toISOString() : null,
         tipo_operacao: data.tipoOperacao || null,
+        numero_pedido: data.numeroPedido || null,
         status: 'pendente',
+        tipo: 'entrada',
         
-        // Dados do emitente
+        // Dados completos do emitente
         emitente_cnpj: data.emitenteCNPJ || null,
         emitente_razao_social: data.emitenteRazaoSocial || null,
         emitente_telefone: data.emitenteTelefone || null,
@@ -37,7 +42,7 @@ export const useFormSubmission = () => {
         emitente_numero: data.emitenteNumero || null,
         emitente_cep: data.emitenteCEP || null,
         
-        // Dados do destinatário
+        // Dados completos do destinatário
         destinatario_cnpj: data.destinatarioCNPJ || null,
         destinatario_razao_social: data.destinatarioRazaoSocial || null,
         destinatario_telefone: data.destinatarioTelefone || null,
@@ -48,8 +53,7 @@ export const useFormSubmission = () => {
         destinatario_numero: data.destinatarioNumero || null,
         destinatario_cep: data.destinatarioCEP || null,
         
-        // Informações adicionais
-        numero_pedido: data.numeroPedido || null,
+        // Informações de transporte e logística
         informacoes_complementares: data.informacoesComplementares || null,
         fob_cif: data.fobCif || null,
         numero_coleta: data.numeroColeta || null,
@@ -59,18 +63,41 @@ export const useFormSubmission = () => {
         data_embarque: data.dataEmbarque ? new Date(data.dataEmbarque).toISOString() : null,
         status_embarque: data.statusEmbarque || null,
         responsavel_entrega: data.responsavelEntrega || null,
-        quimico: data.quimico === 'sim',
-        fracionado: data.fracionado === 'sim',
         motorista: data.motorista || null,
         tempo_armazenamento_horas: data.tempoArmazenamento ? parseFloat(data.tempoArmazenamento) : null,
         entregue_ao_fornecedor: data.entregueAoFornecedor || null,
-        observacoes: data.informacoesComplementares || null
+        observacoes: data.informacoesComplementares || null,
+        
+        // Campos boolean
+        quimico: data.quimico === 'sim' || data.quimico === true,
+        fracionado: data.fracionado === 'sim' || data.fracionado === true,
+        
+        // Referências (se existirem)
+        remetente_id: data.remetente_id || null,
+        destinatario_id: data.destinatario_id || null,
+        transportadora_id: data.transportadora_id || null,
+        ordem_carregamento_id: data.ordem_carregamento_id || null,
+        coleta_id: data.coleta_id || null
       };
       
-      console.log('Dados para salvar no Supabase:', notaFiscalData);
+      console.log('Dados mapeados para o Supabase:', notaFiscalData);
+      
+      // Preparar itens da nota fiscal se existirem
+      let itensNotaFiscal = [];
+      if (data.itens && Array.isArray(data.itens) && data.itens.length > 0) {
+        itensNotaFiscal = data.itens.map((item, index) => ({
+          codigo_produto: item.codigoProduto || `PROD${index + 1}`,
+          descricao: item.descricao || 'Produto',
+          quantidade: parseFloat(item.quantidade) || 0,
+          valor_unitario: parseFloat(item.valorUnitario) || 0,
+          valor_total: parseFloat(item.valorTotal) || 0,
+          sequencia: index + 1
+        }));
+        console.log('Itens da nota fiscal preparados:', itensNotaFiscal);
+      }
       
       // Criar a nota fiscal usando o serviço
-      const notaCriada = await criarNotaFiscal(notaFiscalData);
+      const notaCriada = await criarNotaFiscal(notaFiscalData, itensNotaFiscal);
       
       console.log('Nota fiscal criada com sucesso:', notaCriada);
       
