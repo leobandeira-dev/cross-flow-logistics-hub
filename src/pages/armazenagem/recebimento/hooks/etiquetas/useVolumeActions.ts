@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Volume } from '../../components/etiquetas/VolumesTable';
+import { Volume } from './useVolumeState'; // Use the correct Volume interface
 import { EtiquetaGenerationResult } from '@/hooks/etiquetas/types';
 
 export const useVolumeActions = () => {
