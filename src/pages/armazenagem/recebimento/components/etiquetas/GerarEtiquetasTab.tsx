@@ -29,7 +29,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
   setGeneratedVolumes
 }) => {
   const { handleBatchClassifyArea } = useBatchAreaClassification();
-  const { salvarEtiqueta, atualizarEtiqueta, buscarEtiquetas, isLoading } = useEtiquetasDatabase();
+  const { salvarEtiqueta, buscarEtiquetas, isLoading } = useEtiquetasDatabase();
 
   const onBatchClassifyArea = (area: string) => {
     if (setVolumes && setGeneratedVolumes) {
@@ -54,9 +54,9 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
           chave_nf: volume.chaveNF,
           quantidade: volume.quantidade,
           peso_total_bruto: volume.pesoTotal,
-          numero_pedido: volume.numeroPedido,
-          volume_numero: volume.volumeNumber,
-          total_volumes: volume.totalVolumes,
+          numero_pedido: volume.numeroPedido || '',
+          volume_numero: volume.volumeNumber || 1,
+          total_volumes: volume.totalVolumes || 1,
           codigo_onu: volume.codigoONU,
           codigo_risco: volume.codigoRisco,
           classificacao_quimica: volume.classificacaoQuimica

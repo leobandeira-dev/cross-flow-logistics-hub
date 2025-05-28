@@ -26,6 +26,26 @@ export interface Etiqueta {
   created_at: string;
   updated_at: string;
   
+  // Campos adicionais necessários
+  area?: string;
+  remetente?: string;
+  destinatario?: string;
+  endereco?: string;
+  cidade?: string;
+  uf?: string;
+  cep?: string;
+  descricao?: string;
+  transportadora?: string;
+  chave_nf?: string;
+  quantidade?: number;
+  peso_total_bruto?: string;
+  numero_pedido?: string;
+  etiquetado?: boolean;
+  data_impressao?: string;
+  motivo_inutilizacao?: string;
+  data_inutilizacao?: string;
+  usuario_inutilizacao_id?: string;
+  
   // Relacionamentos
   nota_fiscal?: NotaFiscal;
   etiqueta_mae?: Etiqueta;

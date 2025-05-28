@@ -103,7 +103,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
       descricao: etiqueta.descricao || 'N/A',
       tipoVolume: etiqueta.codigo_onu ? 'quimico' : 'geral',
       quantidade: etiqueta.quantidade || 1,
-      etiquetado: etiqueta.etiquetado,
+      etiquetado: etiqueta.etiquetado || false,
       area: etiqueta.area,
       remetente: etiqueta.remetente,
       destinatario: etiqueta.destinatario,
@@ -260,8 +260,13 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               }
             ]}
             data={filteredEtiquetas}
-            isLoading={isLoading}
           />
+          
+          {isLoading && (
+            <div className="flex justify-center items-center py-8">
+              <div className="text-gray-500">Carregando etiquetas...</div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

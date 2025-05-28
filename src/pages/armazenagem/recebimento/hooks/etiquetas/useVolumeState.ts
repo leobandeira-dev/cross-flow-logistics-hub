@@ -26,6 +26,10 @@ export interface Volume {
   classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   transportadora?: string;
   area?: string;
+  // Campos adicionais necessários
+  numeroPedido?: string;
+  volumeNumber?: number;
+  totalVolumes?: number;
 }
 
 /**
