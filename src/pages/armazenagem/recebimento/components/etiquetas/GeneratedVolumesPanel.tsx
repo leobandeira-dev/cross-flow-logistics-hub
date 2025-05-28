@@ -7,12 +7,14 @@ interface GeneratedVolumesPanelProps {
   volumes: Volume[];
   handlePrintEtiquetas: (volume: Volume) => void;
   handleClassifyVolume: (volume: Volume) => void;
+  showEtiquetaMaeColumn?: boolean;
 }
 
 const GeneratedVolumesPanel: React.FC<GeneratedVolumesPanelProps> = ({ 
   volumes, 
   handlePrintEtiquetas, 
-  handleClassifyVolume 
+  handleClassifyVolume,
+  showEtiquetaMaeColumn = false
 }) => {
   if (volumes.length === 0) {
     return (
@@ -29,7 +31,7 @@ const GeneratedVolumesPanel: React.FC<GeneratedVolumesPanelProps> = ({
       volumes={volumes}
       handlePrintEtiquetas={handlePrintEtiquetas}
       handleClassifyVolume={handleClassifyVolume}
-      showEtiquetaMaeColumn={true}
+      showEtiquetaMaeColumn={showEtiquetaMaeColumn}
     />
   );
 };
