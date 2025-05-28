@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { QrCode, Biohazard, TestTube } from 'lucide-react';
 import QRCodeGenerator from '../QRCodeGenerator';
@@ -18,7 +19,7 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
   transportadoraLogo
 }) => {
   return (
-    <div className="h-full flex flex-col p-4 space-y-4">
+    <div className="h-full flex flex-col p-4 space-y-3">
       {/* Ícone químico se aplicável */}
       {isQuimico && (
         <div className="absolute top-3 right-3 text-red-600 text-3xl">⚠</div>
@@ -41,6 +42,14 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
           </span>
         )}
       </div>
+      
+      {/* Contagem de Volumes - DESTAQUE (para etiquetas de volume) */}
+      {!isMae && volumeNumber && totalVolumes && (
+        <div className="bg-orange-100 border-3 border-orange-500 rounded-lg p-3 text-center">
+          <div className="text-xs text-orange-700">VOLUME</div>
+          <div className="text-2xl font-bold text-orange-900">{volumeNumber}/{totalVolumes}</div>
+        </div>
+      )}
       
       {/* QR Code */}
       <div className="text-center">

@@ -1,11 +1,10 @@
-
 // useEtiquetaHTML.ts
 import { LayoutStyle } from './types';
 import { getClassificacaoText } from '../../components/common/print/etiquetas/utils';
 
 export const useEtiquetaHTML = () => {
   // Generate HTML for a label
-  const generateEtiquetaHTML = (volume: any, tipoEtiqueta: string, layoutStyle: LayoutStyle, transportadoraLogo?: string) => {
+  const generateEtiquetaHTML = (volume: any, tipoEtiqueta: string, layoutStyle: LayoutStyle, transportadoraLogo?: string, volumeNumber?: number, totalVolumes?: number) => {
     // Check if it's a chemical product
     const isQuimico = volume.tipoVolume === 'quimico';
     
@@ -147,6 +146,14 @@ export const useEtiquetaHTML = () => {
             `}
           </div>
 
+          ${tipoEtiqueta !== 'mae' && volumeNumber && totalVolumes ? `
+          <!-- Contagem de Volumes - CONTAINER LARANJA -->
+          <div style="background: #FFF7ED; border: 3px solid #F97316; border-radius: 8px; padding: 16px; text-center; margin-bottom: 12px;">
+            <div style="color: #C2410C; font-size: 12px; font-weight: 900; margin-bottom: 8px;">VOLUME</div>
+            <div style="color: #EA580C; font-size: 24px; font-weight: 900;">${volumeNumber}/${totalVolumes}</div>
+          </div>
+          ` : ''}
+          
           <!-- QR Code Section -->
           <div style="text-align: center; margin-bottom: 15px;">
             <div style="background: white; display: inline-block; padding: 12px; border-radius: 6px;">
@@ -165,7 +172,7 @@ export const useEtiquetaHTML = () => {
           </div>
           
           <!-- Cidade Destino - CONTAINER PRETO -->
-          <div style="background: #000000; border: 3px solid #374151; border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 12px;">
+          <div style="background: #000000; border: 3px solid #374151; border-radius: 8px; padding: 16px; text-center; margin-bottom: 12px;">
             <div style="color: white; font-size: 12px; font-weight: 900; margin-bottom: 8px;">CIDADE DESTINO</div>
             <div style="color: white; font-size: 20px; font-weight: 900; margin-bottom: 4px;">${volume.cidade || 'N/A'}</div>
             <div style="color: white; font-size: 16px; font-weight: 700;">${volume.uf || 'N/A'}</div>
@@ -248,6 +255,14 @@ export const useEtiquetaHTML = () => {
               </span>
             `}
           </div>
+
+          ${tipoEtiqueta !== 'mae' && volumeNumber && totalVolumes ? `
+          <!-- Contagem de Volumes - DESTAQUE LARANJA -->
+          <div style="background: #FFF7ED; border: 3px solid #F97316; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 12px;">
+            <div style="font-size: 12px; color: #C2410C;">VOLUME</div>
+            <div style="font-size: 24px; font-weight: 900; color: #EA580C;">${volumeNumber}/${totalVolumes}</div>
+          </div>
+          ` : ''}
           
           <!-- QR Code -->
           <div style="text-align: center; margin-bottom: 15px;">
