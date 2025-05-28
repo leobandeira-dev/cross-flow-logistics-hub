@@ -1,26 +1,23 @@
-
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Skull, Printer, Edit, LinkIcon } from 'lucide-react';
-import DataTable from '@/components/common/DataTable';
-import StatusBadge from '@/components/common/StatusBadge';
+import { Badge } from '@/components/ui/badge';
+import { Printer, Settings, CheckCircle, AlertTriangle } from 'lucide-react';
 
-// Updated Volume interface to include all necessary properties
 export interface Volume {
   id: string;
   notaFiscal: string;
   descricao: string;
   quantidade: number;
   etiquetado: boolean;
-  remetente?: string;
-  destinatario?: string;
-  endereco?: string;
-  cidade?: string;
+  remetente: string;
+  destinatario: string;
+  endereco: string;
+  cidade: string;
   cidadeCompleta?: string;
-  uf?: string;
-  pesoTotal?: string;
-  chaveNF?: string;
+  uf: string;
+  pesoTotal: string;
+  chaveNF: string;
   etiquetaMae?: string;
   tipoEtiquetaMae?: 'geral' | 'palete';
   tipoVolume?: 'geral' | 'quimico';
@@ -28,118 +25,73 @@ export interface Volume {
   codigoRisco?: string;
   classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   transportadora?: string;
+  area?: string;
 }
 
 interface VolumesTableProps {
   volumes: Volume[];
-  notaFiscalFilter?: string;
   handlePrintEtiquetas: (volume: Volume) => void;
-  handleClassifyVolume?: (volume: Volume) => void;
-  showEtiquetaMaeColumn?: boolean;
+  handleClassifyVolume: (volume: Volume) => void;
 }
 
-const VolumesTable: React.FC<VolumesTableProps> = ({
-  volumes,
-  notaFiscalFilter,
-  handlePrintEtiquetas,
-  handleClassifyVolume,
-  showEtiquetaMaeColumn = false
-}) => {
-  // Filter volumes based on the nota fiscal if provided
-  const filteredVolumes = notaFiscalFilter
-    ? volumes.filter(vol => vol.notaFiscal === notaFiscalFilter)
-    : volumes;
-
-  // Create columns array, conditionally including the etiquetaMae column
-  const columns = [
-    { header: 'ID', accessor: 'id' },
-    { header: 'Nota Fiscal', accessor: 'notaFiscal' },
-    { header: 'Descrição', accessor: 'descricao' },
-    { 
-      header: 'Tipo', 
-      accessor: 'tipoVolume',
-      cell: (row) => {
-        return row.tipoVolume === 'quimico' ? 
-          <div className="flex items-center">
-            <Skull size={40} className="text-red-600 mr-1" />
-            <span>Químico</span>
-          </div> : 
-          <span>Carga Geral</span>;
-      }
-    },
-    { header: 'Quantidade', accessor: 'quantidade' },
-  ];
-  
-  // Add etiquetaMae column if showEtiquetaMaeColumn is true
-  if (showEtiquetaMaeColumn) {
-    columns.push({ 
-      header: 'Etiqueta Mãe', 
-      accessor: 'etiquetaMae',
-      cell: (row) => {
-        if (!row.etiquetaMae) return <span className="text-gray-400">-</span>;
-        return (
-          <div className="flex items-center">
-            <LinkIcon size={14} className="mr-1 text-blue-500" />
-            <span>{row.etiquetaMae}</span>
-          </div>
-        );
-      }
-    });
-  }
-  
-  // Add status column
-  columns.push({ 
-    header: 'Status', 
-    accessor: 'etiquetado',
-    cell: (row) => {
-      return row.etiquetado ? 
-        <StatusBadge status="success" text="Etiquetado" /> : 
-        <StatusBadge status="warning" text="Pendente" />;
-    }
-  });
-  
-  // Add actions column
-  columns.push({
-    header: 'Ações',
-    accessor: 'actions',
-    cell: (row) => (
-      <div className="flex gap-2">
-        {handleClassifyVolume && (
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => handleClassifyVolume(row)}
-          >
-            <Edit size={16} className="mr-1" />
-            Classificar
-          </Button>
-        )}
-        <Button 
-          variant="outline" 
-          size="sm"
-          disabled={row.etiquetado}
-          onClick={() => handlePrintEtiquetas(row)}
-          className={`${!row.etiquetado ? 'bg-cross-blue text-white hover:bg-cross-blue/90' : ''}`}
-        >
-          <Printer size={16} className="mr-1" />
-          Imprimir
-        </Button>
-      </div>
-    )
-  });
-
+const VolumesTable: React.FC<VolumesTableProps> = ({ volumes, handlePrintEtiquetas, handleClassifyVolume }) => {
   return (
-    <Card className="mt-6">
-      <CardHeader>
-        <CardTitle className="text-lg">Volumes para Etiquetar</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <DataTable
-          columns={columns}
-          data={filteredVolumes}
-        />
-      </CardContent>
-    </Card>
+    <div className="w-full overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Nota Fiscal</TableHead>
+            <TableHead>Descrição</TableHead>
+            <TableHead>Área</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Ações</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {volumes.map((volume) => (
+            <TableRow key={volume.id}>
+              <TableCell className="font-medium">{volume.id}</TableCell>
+              <TableCell>{volume.notaFiscal}</TableCell>
+              <TableCell>{volume.descricao}</TableCell>
+              <TableCell>{volume.area}</TableCell>
+              <TableCell>
+                {volume.etiquetado ? (
+                  <Badge variant="outline">
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Etiquetado
+                  </Badge>
+                ) : (
+                  <Badge variant="destructive">
+                    <AlertTriangle className="mr-2 h-4 w-4" />
+                    Pendente
+                  </Badge>
+                )}
+              </TableCell>
+              <TableCell className="text-right">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handlePrintEtiquetas(volume)}
+                  disabled={volume.etiquetado}
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Imprimir
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleClassifyVolume(volume)}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Classificar
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

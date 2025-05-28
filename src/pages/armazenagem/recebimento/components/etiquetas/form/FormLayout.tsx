@@ -35,7 +35,11 @@ const FormLayout: React.FC<FormLayoutProps> = ({ form, onGenerateVolumes, isGene
             <Separator />
             <PrintConfigFields form={form} />
             <Separator />
-            <FormActions onGenerateVolumes={onGenerateVolumes} isGenerating={isGenerating} />
+            <FormActions 
+              isVolumeEtiqueta={true}
+              handleGenerateVolumes={onGenerateVolumes} 
+              isGenerating={isGenerating} 
+            />
           </div>
         </ScrollArea>
       </CardContent>

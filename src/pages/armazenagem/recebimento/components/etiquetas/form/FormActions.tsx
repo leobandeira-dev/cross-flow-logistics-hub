@@ -7,12 +7,14 @@ interface FormActionsProps {
   isVolumeEtiqueta: boolean;
   handleGenerateVolumes?: () => void;
   handleCreateEtiquetaMae?: () => void;
+  isGenerating?: boolean;
 }
 
 const FormActions: React.FC<FormActionsProps> = ({ 
   isVolumeEtiqueta, 
   handleGenerateVolumes, 
-  handleCreateEtiquetaMae 
+  handleCreateEtiquetaMae,
+  isGenerating = false
 }) => {
   return (
     <>
@@ -21,15 +23,17 @@ const FormActions: React.FC<FormActionsProps> = ({
           type="button"
           className="w-full"
           onClick={handleGenerateVolumes}
+          disabled={isGenerating}
         >
           <FileOutput className="mr-2 h-4 w-4" />
-          Gerar Volumes
+          {isGenerating ? 'Gerando...' : 'Gerar Volumes'}
         </Button>
       ) : (
         <Button
           type="button"
           className="w-full"
           onClick={handleCreateEtiquetaMae}
+          disabled={isGenerating}
         >
           <Package className="mr-2 h-4 w-4" />
           Adicionar Etiqueta Mãe
