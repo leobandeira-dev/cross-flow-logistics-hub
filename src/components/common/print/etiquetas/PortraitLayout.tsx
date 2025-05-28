@@ -73,6 +73,14 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
           <span className="font-bold">Peso:</span> {volumeData.pesoTotal || '0 Kg'}
         </div>
         
+        {/* Quantidade - DESTAQUE MAIOR */}
+        {volumeData.quantidade && (
+          <div className="text-lg mb-4 font-bold text-center p-3 bg-orange-100 border-2 border-orange-300 rounded">
+            <span className="font-bold">Quantidade:</span> 
+            <span className="text-2xl font-black ml-2 text-orange-800">{volumeData.quantidade}</span>
+          </div>
+        )}
+        
         {isQuimico && (
           <>
             <div className="text-sm mb-2 bg-red-100 p-2 rounded">
@@ -93,18 +101,20 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
         <QRCodeGenerator text={volumeData.id} size={120} />
         <div className="text-xs mt-2 font-bold">{volumeData.id}</div>
         
+        {/* Área - DESTAQUE MAIOR E MAIS LEGÍVEL */}
         {volumeData.area && (
-          <div className="mt-4 bg-indigo-600 text-white p-4 rounded-lg text-center">
-            <div className="text-sm font-bold">ÁREA</div>
-            <div className="text-6xl font-black">{volumeData.area}</div>
+          <div className="mt-4 bg-indigo-600 text-white p-5 rounded-lg text-center border-4 border-indigo-800 shadow-lg">
+            <div className="text-lg font-bold mb-2">ÁREA</div>
+            <div className="text-7xl font-black leading-none">{volumeData.area}</div>
           </div>
         )}
       </div>
       
-      {/* Volume (mesmo estilo do remetente) */}
+      {/* Volume - DESTAQUE MAIOR (mesmo estilo do remetente) */}
       {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-lg mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center">
-          <span className="font-bold">Volume:</span> {volumeNumber}/{totalVolumes}
+        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-3 bg-blue-100 border-2 border-blue-300 rounded">
+          <span className="font-bold">Volume:</span> 
+          <span className="text-2xl font-black ml-2 text-blue-800">{volumeNumber}/{totalVolumes}</span>
         </div>
       )}
       
@@ -114,10 +124,11 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
         </div>
       )}
       
-      {/* Quantidade de Volumes (para etiqueta mãe) */}
+      {/* Quantidade de Volumes - DESTAQUE MAIOR (para etiqueta mãe) */}
       {isMae && (
-        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center">
-          <span className="font-bold">Total de volumes:</span> {volumeData.quantidade || '0'}
+        <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-3 bg-purple-100 border-2 border-purple-300 rounded">
+          <span className="font-bold">Total de volumes:</span> 
+          <span className="text-3xl font-black ml-2 text-purple-800">{volumeData.quantidade || '0'}</span>
         </div>
       )}
     </div>

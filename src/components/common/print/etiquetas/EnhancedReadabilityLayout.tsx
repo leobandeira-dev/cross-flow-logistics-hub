@@ -81,6 +81,14 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
             <span className="font-bold">Transportadora:</span> {volumeData.transportadora || 'N/D'}
           </div>
           
+          {/* Quantidade - DESTAQUE MAIOR */}
+          {volumeData.quantidade && (
+            <div className="text-lg mb-2 bg-orange-100 p-3 rounded border-2 border-orange-400">
+              <span className="font-bold">Quantidade:</span> 
+              <span className="text-2xl font-black ml-2 text-orange-800">{volumeData.quantidade}</span>
+            </div>
+          )}
+          
           {isQuimico && (
             <>
               <div className="text-sm mb-2 bg-red-100 p-2 rounded border-2 border-red-300">
@@ -101,20 +109,21 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
           <QRCodeGenerator text={volumeData.id} size={100} />
           <div className="text-center text-xs mt-2 font-bold">{volumeData.id}</div>
           
-          {/* Área - DESTAQUE LOGO ABAIXO DO QR CODE */}
+          {/* Área - DESTAQUE MAIOR E MAIS LEGÍVEL LOGO ABAIXO DO QR CODE */}
           {volumeData.area && (
-            <div className="mt-4 bg-indigo-600 text-white p-5 rounded-lg border-4 border-indigo-800 text-center shadow-lg">
-              <div className="text-sm font-bold mb-2">ÁREA</div>
-              <div className="text-7xl font-black">{volumeData.area}</div>
+            <div className="mt-4 bg-indigo-600 text-white p-6 rounded-lg border-4 border-indigo-800 text-center shadow-lg">
+              <div className="text-lg font-bold mb-2">ÁREA</div>
+              <div className="text-8xl font-black leading-none">{volumeData.area}</div>
             </div>
           )}
         </div>
       </div>
       
-      {/* Volume - DESTAQUE (mesmo estilo do remetente) */}
+      {/* Volume - DESTAQUE MAIOR (mesmo estilo do remetente) */}
       {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-sm mt-2 pt-2 border-t-2 border-gray-300 bg-blue-100 p-2 rounded border-2 border-blue-300">
-          <span className="font-bold">Volume:</span> <span className="text-base font-bold">{volumeNumber}/{totalVolumes}</span>
+        <div className="text-lg mt-2 pt-2 border-t-2 border-gray-300 bg-blue-100 p-3 rounded border-2 border-blue-300">
+          <span className="font-bold">Volume:</span> 
+          <span className="text-2xl font-black ml-2 text-blue-800">{volumeNumber}/{totalVolumes}</span>
         </div>
       )}
       
@@ -124,10 +133,11 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
         </div>
       )}
       
-      {/* Quantidade de Volumes - DESTAQUE (para etiqueta mãe) */}
+      {/* Quantidade de Volumes - DESTAQUE MAIOR (para etiqueta mãe) */}
       {isMae && (
-        <div className="text-lg mt-2 pt-2 border-t-2 border-gray-300 bg-purple-100 p-2 rounded border-2 border-purple-400">
-          <span className="font-bold">Total de volumes:</span> <span className="text-xl font-bold">{volumeData.quantidade || '0'}</span>
+        <div className="text-xl mt-2 pt-2 border-t-2 border-gray-300 bg-purple-100 p-3 rounded border-2 border-purple-400">
+          <span className="font-bold">Total de volumes:</span> 
+          <span className="text-3xl font-black ml-2 text-purple-800">{volumeData.quantidade || '0'}</span>
         </div>
       )}
     </div>

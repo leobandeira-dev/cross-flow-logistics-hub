@@ -7,6 +7,7 @@ import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import InutilizarEtiquetaDialog from '@/components/etiquetas/InutilizarEtiquetaDialog';
+import EtiquetaDetalhesDialog from '@/components/etiquetas/EtiquetaDetalhesDialog';
 import { toast } from '@/hooks/use-toast';
 import { useEtiquetasDatabase } from '@/hooks/useEtiquetasDatabase';
 import { Etiqueta } from '@/types/supabase/armazem.types';
@@ -31,6 +32,7 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
   
   const [filteredEtiquetas, setFilteredEtiquetas] = useState<Etiqueta[]>([]);
   const [inutilizarDialogOpen, setInutilizarDialogOpen] = useState(false);
+  const [detalhesDialogOpen, setDetalhesDialogOpen] = useState(false);
   const [etiquetaSelecionada, setEtiquetaSelecionada] = useState<Etiqueta | null>(null);
 
   // Carregar etiquetas do banco ao montar o componente
@@ -88,6 +90,11 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
     setFilteredEtiquetas(filtered);
   };
 
+  const handleDetalhesClick = (etiqueta: Etiqueta) => {
+    setEtiquetaSelecionada(etiqueta);
+    setDetalhesDialogOpen(true);
+  };
+
   const handleReimprimirClick = async (etiqueta: Etiqueta) => {
     if (etiqueta.etiquetado) {
       toast({
@@ -122,7 +129,9 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
       pesoTotal: etiqueta.peso_total_bruto,
       codigoONU: etiqueta.codigo_onu,
       codigoRisco: etiqueta.codigo_risco,
-      classificacaoQuimica: etiqueta.classificacao_quimica
+      classificacaoQuimica: etiqueta.classificacao_quimica,
+      volumeNumber: etiqueta.volume_numero || 1,
+      totalVolumes: etiqueta.total_volumes || 1
     };
     
     handleReimprimirEtiquetas(volumeFormatted);
@@ -234,8 +243,39 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
                     <span>Carga Geral</span>;
                 }
               },
-              { header: 'Área', accessor: 'area' },
-              { header: 'Quantidade', accessor: 'quantidade' },
+              { 
+                header: 'Área', 
+                accessor: 'area',
+                cell: (row) => {
+                  return row.area ? 
+                    <div className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded font-bold text-center">
+                      {row.area}
+                    </div> : 
+                    <span>-</span>;
+                }
+              },
+              { 
+                header: 'Quantidade', 
+                accessor: 'quantidade',
+                cell: (row) => {
+                  return (
+                    <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold text-center">
+                      {row.quantidade || 1}
+                    </div>
+                  );
+                }
+              },
+              { 
+                header: 'Volume', 
+                accessor: 'volume_numero',
+                cell: (row) => {
+                  return (
+                    <div className="bg-green-100 text-green-800 px-2 py-1 rounded font-bold text-center">
+                      {row.volume_numero || 1}/{row.total_volumes || 1}
+                    </div>
+                  );
+                }
+              },
               { 
                 header: 'Status', 
                 accessor: 'status',
@@ -255,7 +295,11 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
                 accessor: 'actions',
                 cell: (row) => (
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDetalhesClick(row)}
+                    >
                       <FileText size={16} className="mr-1" />
                       Detalhes
                     </Button>
@@ -314,6 +358,12 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
         etiqueta={etiquetaSelecionada}
         onConfirm={handleConfirmInutilizar}
         isLoading={isLoading}
+      />
+
+      <EtiquetaDetalhesDialog
+        open={detalhesDialogOpen}
+        onOpenChange={setDetalhesDialogOpen}
+        etiqueta={etiquetaSelecionada}
       />
     </>
   );
