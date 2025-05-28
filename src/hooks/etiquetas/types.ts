@@ -1,4 +1,8 @@
-export type LayoutStyle = 'standard' | 'compact' | 'modern' | 'enhanced' | 'portrait' | 'portrait_blue' | 'portrait_green' | 'portrait_red' | 'portrait_purple';
+export type LayoutStyle = 
+  | 'enhanced'
+  | 'portrait'
+  | 'enhanced_contrast'
+  | 'portrait_contrast';
 
 export interface GenerationOptions {
   formatoImpressao?: string;
