@@ -3,7 +3,6 @@ import React from 'react';
 import { Search, Bell, User } from 'lucide-react';
 import ModernButton from '@/components/modern/ModernButton';
 import ModernInput from '@/components/modern/ModernInput';
-import ThemeToggle from '@/components/modern/ThemeToggle';
 import { UserNotifications } from './UserNotifications';
 import { UserProfileMenu } from './UserProfileMenu';
 
@@ -31,7 +30,6 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         </div>
         
         <div className="flex items-center space-x-2">
-          <ThemeToggle />
           <UserNotifications />
           <UserProfileMenu />
         </div>

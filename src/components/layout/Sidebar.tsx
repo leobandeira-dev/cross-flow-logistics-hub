@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import ThemeToggle from '@/components/modern/ThemeToggle';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
   Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
@@ -83,11 +83,14 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="w-64 bg-sidebar h-screen flex flex-col fixed left-0 top-0">
       <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center">
-          <div className="w-10 h-10 bg-cross-blue rounded flex items-center justify-center text-white font-heading text-xl">
-            CX
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-cross-blue rounded flex items-center justify-center text-white font-heading text-xl">
+              CX
+            </div>
+            <span className="ml-3 text-white font-heading text-xl">CROSS</span>
           </div>
-          <span className="ml-3 text-white font-heading text-xl">CROSS</span>
+          <ThemeToggle />
         </div>
       </div>
       
