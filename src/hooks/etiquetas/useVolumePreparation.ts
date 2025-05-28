@@ -34,7 +34,12 @@ export const useVolumePreparation = () => {
       codigoONU: volume.codigoONU || '',
       codigoRisco: volume.codigoRisco || '',
       transportadora: transportadora,
-      classificacaoQuimica: volume.classificacaoQuimica || 'nao_classificada'
+      classificacaoQuimica: volume.classificacaoQuimica || 'nao_classificada',
+      // Garantir que a área seja capturada corretamente do volume original
+      area: volume.area || '01',
+      // Garantir que os números de volume sejam capturados corretamente
+      volumeNumber: volume.volumeNumber || 1,
+      totalVolumes: volume.totalVolumes || 1
     };
   };
 

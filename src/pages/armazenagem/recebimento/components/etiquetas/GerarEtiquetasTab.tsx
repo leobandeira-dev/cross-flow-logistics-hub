@@ -55,6 +55,11 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
 
   const prepareEtiquetaData = (volume: Volume): CreateEtiquetaData => {
     console.log('📋 Preparando dados da etiqueta para volume:', volume.id);
+    console.log('📊 Dados do volume:', {
+      volumeNumber: volume.volumeNumber,
+      totalVolumes: volume.totalVolumes,
+      area: volume.area
+    });
     
     // Usar o novo formato Volume X/Y ao invés de Volume X de Y
     const descricaoVolume = `Volume ${volume.volumeNumber || 1}/${volume.totalVolumes || 1}`;
@@ -62,7 +67,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
     const etiquetaData: CreateEtiquetaData = {
       codigo: volume.id,
       tipo: 'volume',
-      area: volume.area || null,
+      area: volume.area || null, // Usar a área do volume, não um valor padrão
       remetente: volume.remetente || null,
       destinatario: volume.destinatario || null,
       endereco: volume.endereco || null,
@@ -75,8 +80,8 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       quantidade: volume.quantidade || 1,
       peso_total_bruto: volume.pesoTotal ? String(volume.pesoTotal) : null,
       numero_pedido: volume.numeroPedido || null,
-      volume_numero: volume.volumeNumber || 1,
-      total_volumes: volume.totalVolumes || 1,
+      volume_numero: volume.volumeNumber || 1, // Usar o número do volume real
+      total_volumes: volume.totalVolumes || 1,  // Usar o total de volumes real
       codigo_onu: volume.codigoONU || null,
       codigo_risco: volume.codigoRisco || null,
       classificacao_quimica: volume.classificacaoQuimica === 'nao_classificada' ? null : volume.classificacaoQuimica,
@@ -84,7 +89,12 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       status: 'gerada'
     };
     
-    console.log('📤 Dados preparados:', etiquetaData);
+    console.log('📤 Dados preparados:', {
+      area: etiquetaData.area,
+      volume_numero: etiquetaData.volume_numero,
+      total_volumes: etiquetaData.total_volumes,
+      descricao: etiquetaData.descricao
+    });
     return etiquetaData;
   };
 
@@ -140,6 +150,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         
         try {
           console.log(`💾 [${i + 1}/${generatedVolumes.length}] Processando: ${volume.id}`);
+          console.log(`📍 Volume ${volume.volumeNumber}/${volume.totalVolumes}, Área: ${volume.area}`);
           
           // Preparar dados da etiqueta
           const etiquetaData = prepareEtiquetaData(volume);
