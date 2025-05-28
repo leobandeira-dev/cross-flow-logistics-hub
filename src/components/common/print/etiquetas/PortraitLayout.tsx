@@ -110,7 +110,7 @@ const PortraitLayout: React.FC<PortraitLayoutProps> = ({
         )}
       </div>
       
-      {/* Volume - DESTAQUE MAIOR com estilo igual ao remetente */}
+      {/* Volume - DESTAQUE MAIOR com estilo igual ao remetente - SEMPRE EXIBIDO */}
       {!isMae && volumeNumber && totalVolumes && (
         <div className="text-xl mt-4 pt-2 border-t-2 border-gray-300 font-bold text-center p-4 bg-blue-100 border-4 border-blue-300 rounded">
           <span className="font-bold text-lg">Volume:</span> 

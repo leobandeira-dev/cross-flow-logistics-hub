@@ -119,7 +119,7 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
         </div>
       </div>
       
-      {/* Volume - DESTAQUE COM ALTO CONTRASTE MAIOR com estilo igual ao remetente */}
+      {/* Volume - DESTAQUE COM ALTO CONTRASTE MAIOR - SEMPRE EXIBIDO */}
       {!isMae && volumeNumber && totalVolumes && (
         <div className="text-xl mt-2 pt-2 border-t-2 border-gray-300 bg-black text-white p-4 rounded border-4 border-gray-800">
           <span className="font-bold text-lg">Volume:</span> 

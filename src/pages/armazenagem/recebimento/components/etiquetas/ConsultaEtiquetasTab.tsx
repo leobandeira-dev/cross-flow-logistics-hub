@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -271,9 +270,12 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
                 header: 'Volume', 
                 accessor: 'volume_numero',
                 cell: (row) => {
+                  // Aplicar a mesma lógica da descrição para mostrar Volume X/Y
+                  const volumeNumber = row.volume_numero || 1;
+                  const totalVolumes = row.total_volumes || 1;
                   return (
                     <div className="bg-green-100 text-green-800 px-2 py-1 rounded font-bold text-center">
-                      {row.volume_numero || 1}/{row.total_volumes || 1}
+                      {volumeNumber}/{totalVolumes}
                     </div>
                   );
                 }
