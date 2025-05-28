@@ -100,8 +100,9 @@ export const useFormSubmission = () => {
       console.log('Nota fiscal criada com sucesso:', notaCriada);
       
       toast({
-        title: "Nota fiscal cadastrada",
-        description: `Nota fiscal ${notaCriada.numero} foi cadastrada com sucesso.`,
+        title: "✅ Nota fiscal cadastrada com sucesso!",
+        description: `A nota fiscal nº ${notaCriada.numero} foi registrada e está disponível para consulta. ${itensNotaFiscal.length > 0 ? `Foram cadastrados ${itensNotaFiscal.length} itens.` : ''}`,
+        duration: 5000,
       });
 
       // Reset form if function provided
@@ -114,9 +115,10 @@ export const useFormSubmission = () => {
     } catch (error) {
       console.error("Erro ao cadastrar nota fiscal:", error);
       toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao cadastrar a nota fiscal. Tente novamente.",
+        title: "❌ Erro no cadastro",
+        description: "Não foi possível cadastrar a nota fiscal. Verifique os dados e tente novamente.",
         variant: "destructive",
+        duration: 5000,
       });
       throw error;
     } finally {

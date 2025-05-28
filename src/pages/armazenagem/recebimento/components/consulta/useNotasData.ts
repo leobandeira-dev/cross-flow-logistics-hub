@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { NotaFiscal } from '@/types/supabase.types';
 import { buscarNotasFiscais } from '@/services/notaFiscal/fetchNotaFiscalService';
 import { useToast } from '@/hooks/use-toast';
@@ -7,9 +7,9 @@ import { useToast } from '@/hooks/use-toast';
 export const useNotasData = () => {
   const { toast } = useToast();
   const [notasFiscais, setNotasFiscais] = useState<NotaFiscal[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleSearch = useCallback(async (searchTerm: string, activeFilters?: Record<string, string[]>) => {
+  const handleSearch = useCallback(async (searchTerm: string = '', activeFilters?: Record<string, string[]>) => {
     try {
       setIsLoading(true);
       console.log('Carregando notas fiscais do Supabase...');
@@ -41,6 +41,11 @@ export const useNotasData = () => {
       setIsLoading(false);
     }
   }, [toast]);
+
+  // Carregar notas fiscais automaticamente ao montar o componente
+  useEffect(() => {
+    handleSearch();
+  }, [handleSearch]);
 
   return {
     notasFiscais,
