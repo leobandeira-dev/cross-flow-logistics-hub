@@ -101,24 +101,24 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       }
 
       // Validar campos obrigatórios básicos
-      const volumesComErro: { volume: Volume; missingFields: string[] }[] = [];
+      const volumesValidacao: { volume: Volume; missingFields: string[] }[] = [];
       
       generatedVolumes.forEach(volume => {
         const missingFields = validateBasicFields(volume);
         if (missingFields.length > 0) {
-          volumesComErro.push({ volume, missingFields });
+          volumesValidacao.push({ volume, missingFields });
         }
       });
 
       // Se houver erros críticos, mostrar e parar
-      if (volumesComErro.length > 0) {
-        const errorMessages = volumesComErro.slice(0, 3).map(({ volume, missingFields }) => 
+      if (volumesValidacao.length > 0) {
+        const errorMessages = volumesValidacao.slice(0, 3).map(({ volume, missingFields }) => 
           `Volume ${volume.id}: ${missingFields.join(', ')}`
         ).join('\n');
         
         toast({
           title: "⚠️ Campos Obrigatórios Faltando",
-          description: `${errorMessages}${volumesComErro.length > 3 ? '\n...' : ''}`,
+          description: `${errorMessages}${volumesValidacao.length > 3 ? '\n...' : ''}`,
           variant: "destructive",
         });
         return;
@@ -126,7 +126,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
 
       // Contadores de resultados
       let volumesSalvos = 0;
-      let volumesComErro = 0;
+      let contadorErros = 0;
       const erros: string[] = [];
 
       console.log(`📝 Processando ${generatedVolumes.length} etiquetas...`);
@@ -148,17 +148,17 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
           volumesSalvos++;
           
         } catch (error) {
-          volumesComErro++;
+          contadorErros++;
           const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
           erros.push(`${volume.id}: ${errorMessage}`);
           console.error(`❌ Erro ao gravar ${volume.id}:`, error);
         }
       }
 
-      console.log(`🏁 Processo concluído - Salvos: ${volumesSalvos}, Erros: ${volumesComErro}`);
+      console.log(`🏁 Processo concluído - Salvos: ${volumesSalvos}, Erros: ${contadorErros}`);
 
       // Mostrar resultado ao usuário
-      if (volumesSalvos > 0 && volumesComErro === 0) {
+      if (volumesSalvos > 0 && contadorErros === 0) {
         toast({
           title: "✅ Etiquetas Gravadas com Sucesso!",
           description: `${volumesSalvos} etiqueta(s) foram salvas no banco de dados.`,
@@ -167,10 +167,10 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         // Atualizar lista de etiquetas
         await buscarEtiquetas();
         
-      } else if (volumesSalvos > 0 && volumesComErro > 0) {
+      } else if (volumesSalvos > 0 && contadorErros > 0) {
         toast({
           title: "⚠️ Gravação Parcialmente Concluída",
-          description: `${volumesSalvos} salvas com sucesso, ${volumesComErro} com erro.`,
+          description: `${volumesSalvos} salvas com sucesso, ${contadorErros} com erro.`,
           variant: "destructive",
         });
         
