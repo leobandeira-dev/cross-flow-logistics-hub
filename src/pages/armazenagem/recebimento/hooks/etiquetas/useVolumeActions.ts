@@ -51,7 +51,8 @@ export const useVolumeActions = () => {
         notaFiscal,
         quantidade: 1,
         etiquetado: false,
-        descricao: `Volume ${i} de ${quantidadeVolumes}`,
+        // Corrigir a descrição para mostrar o número correto do volume e total
+        descricao: `Volume ${i}/${quantidadeVolumes}`,
         remetente: notaFiscalData?.fornecedor || '',
         destinatario: notaFiscalData?.destinatario || '',
         endereco: notaFiscalData?.endereco || '',
@@ -65,7 +66,10 @@ export const useVolumeActions = () => {
         codigoRisco,
         classificacaoQuimica: tipoVolume === 'quimico' ? classificacaoQuimica || 'nao_classificada' : undefined,
         etiquetaMae: '',
-        area: area || '01', // Default para área 01 se não especificada
+        area: area || '01',
+        // Corrigir os números de volume para refletir a posição atual e total corretos
+        volumeNumber: i,
+        totalVolumes: quantidadeVolumes
       });
     }
     

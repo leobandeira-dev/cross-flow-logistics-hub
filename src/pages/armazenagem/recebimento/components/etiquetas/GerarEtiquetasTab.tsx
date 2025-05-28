@@ -58,30 +58,31 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
     console.log('📊 Dados do volume:', {
       volumeNumber: volume.volumeNumber,
       totalVolumes: volume.totalVolumes,
-      area: volume.area
+      area: volume.area,
+      descricao: volume.descricao
     });
     
-    // Usar o novo formato Volume X/Y ao invés de Volume X de Y
-    const descricaoVolume = `Volume ${volume.volumeNumber || 1}/${volume.totalVolumes || 1}`;
+    // Garantir que a descrição use o formato correto Volume X/Y
+    const descricaoVolume = volume.descricao || `Volume ${volume.volumeNumber || 1}/${volume.totalVolumes || 1}`;
     
     const etiquetaData: CreateEtiquetaData = {
       codigo: volume.id,
       tipo: 'volume',
-      area: volume.area || null, // Usar a área do volume, não um valor padrão
+      area: volume.area || null,
       remetente: volume.remetente || null,
       destinatario: volume.destinatario || null,
       endereco: volume.endereco || null,
       cidade: volume.cidade || null,
       uf: volume.uf || null,
-      cep: null, // Volume não tem CEP
-      descricao: descricaoVolume,
+      cep: null,
+      descricao: descricaoVolume, // Usar a descrição correta do volume
       transportadora: volume.transportadora || null,
       chave_nf: volume.chaveNF || volume.notaFiscal || null,
       quantidade: volume.quantidade || 1,
       peso_total_bruto: volume.pesoTotal ? String(volume.pesoTotal) : null,
       numero_pedido: volume.numeroPedido || null,
-      volume_numero: volume.volumeNumber || 1, // Usar o número do volume real
-      total_volumes: volume.totalVolumes || 1,  // Usar o total de volumes real
+      volume_numero: volume.volumeNumber || 1,
+      total_volumes: volume.totalVolumes || 1,
       codigo_onu: volume.codigoONU || null,
       codigo_risco: volume.codigoRisco || null,
       classificacao_quimica: volume.classificacaoQuimica === 'nao_classificada' ? null : volume.classificacaoQuimica,
