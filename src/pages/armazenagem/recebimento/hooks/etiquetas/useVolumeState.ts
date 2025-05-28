@@ -25,6 +25,7 @@ export interface Volume {
   codigoRisco?: string;
   classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   transportadora?: string;
+  area?: string;
 }
 
 /**

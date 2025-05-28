@@ -22,6 +22,7 @@ export interface VolumeData {
   descricao?: string;
   quantidade?: number;
   transportadora?: string;
+  area?: string;
 }
 
 export interface EtiquetaProps {

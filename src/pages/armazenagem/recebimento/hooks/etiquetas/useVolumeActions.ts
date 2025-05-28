@@ -17,7 +17,8 @@ export const useVolumeActions = () => {
     tipoVolume: 'geral' | 'quimico' = 'geral',
     codigoONU?: string,
     codigoRisco?: string,
-    classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada'
+    classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada',
+    area?: string
   ): Volume[] => {
     if (!notaFiscal || quantidadeVolumes <= 0) return [];
     
@@ -64,6 +65,7 @@ export const useVolumeActions = () => {
         codigoRisco,
         classificacaoQuimica: tipoVolume === 'quimico' ? classificacaoQuimica || 'nao_classificada' : undefined,
         etiquetaMae: '',
+        area: area || '01', // Default para área 01 se não especificada
       });
     }
     
@@ -83,7 +85,8 @@ export const useVolumeActions = () => {
           tipoVolume: formData.tipoVolume,
           codigoONU: formData.codigoONU,
           codigoRisco: formData.codigoRisco,
-          classificacaoQuimica: formData.tipoVolume === 'quimico' ? formData.classificacaoQuimica : undefined
+          classificacaoQuimica: formData.tipoVolume === 'quimico' ? formData.classificacaoQuimica : undefined,
+          area: formData.area
         };
       }
       return vol;

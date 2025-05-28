@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Biohazard, Package } from 'lucide-react';
+import { Biohazard, Package, MapPin } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from '@/hooks/use-toast';
 
@@ -19,6 +19,7 @@ interface Volume {
   codigoONU?: string;
   codigoRisco?: string;
   classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
+  area?: string;
   [key: string]: any;
 }
 
@@ -40,7 +41,8 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
       tipoVolume: volume?.tipoVolume || 'geral',
       codigoONU: volume?.codigoONU || '',
       codigoRisco: volume?.codigoRisco || '',
-      classificacaoQuimica: volume?.classificacaoQuimica || 'nao_classificada'
+      classificacaoQuimica: volume?.classificacaoQuimica || 'nao_classificada',
+      area: volume?.area || '01'
     }
   });
 
@@ -51,13 +53,16 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
         tipoVolume: volume.tipoVolume || 'geral',
         codigoONU: volume.codigoONU || '',
         codigoRisco: volume.codigoRisco || '',
-        classificacaoQuimica: volume.classificacaoQuimica || 'nao_classificada'
+        classificacaoQuimica: volume.classificacaoQuimica || 'nao_classificada',
+        area: volume.area || '01'
       });
     }
   }, [volume, form]);
 
   const watchTipoVolume = form.watch('tipoVolume');
   const isQuimico = watchTipoVolume === 'quimico';
+
+  const areas = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'];
 
   const handleSubmit = (data: any) => {
     if (isQuimico && (!data.codigoONU || !data.codigoRisco)) {
@@ -92,6 +97,37 @@ const ClassifyVolumeDialog: React.FC<ClassifyVolumeDialogProps> = ({
               <p><strong>Nota Fiscal:</strong> {volume.notaFiscal}</p>
               <p><strong>Descrição:</strong> {volume.descricao}</p>
             </div>
+
+            <FormField
+              control={form.control}
+              name="area"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Área de Destino</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a área" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {areas.map((area) => (
+                        <SelectItem key={area} value={area}>
+                          <div className="flex items-center">
+                            <MapPin size={16} className="text-blue-500 mr-2" />
+                            <span className="font-medium">Área {area}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

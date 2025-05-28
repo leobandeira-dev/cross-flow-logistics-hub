@@ -11,6 +11,7 @@ export interface GenerationOptions {
   codigoRisco?: string;
   tipoVolume?: 'geral' | 'quimico';
   layoutStyle?: LayoutStyle;
+  area?: string;
 }
 
 export interface CurrentEtiqueta {
@@ -68,4 +69,5 @@ export interface VolumeData {
   classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   transportadora?: string;
   qrCode?: string;
+  area?: string;
 }
