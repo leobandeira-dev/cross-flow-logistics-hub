@@ -29,7 +29,18 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
       
       {/* Header */}
       <div className="text-center text-lg font-bold border-b-2 border-gray-300 pb-2 mb-4 w-full">
-        {isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+        {transportadoraLogo ? (
+          <div className="flex justify-center">
+            <img 
+              src={transportadoraLogo} 
+              alt="Logo Transportadora" 
+              className="max-h-12 object-contain"
+              style={{ width: 'auto', height: '48px', maxWidth: '200px' }}
+            />
+          </div>
+        ) : (
+          isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'
+        )}
       </div>
       
       <div className="flex flex-1">
@@ -69,18 +80,6 @@ const EnhancedReadabilityLayout: React.FC<EnhancedReadabilityLayoutProps> = ({
           <div className="text-sm mb-2">
             <span className="font-bold">Transportadora:</span> {volumeData.transportadora || 'N/D'}
           </div>
-          
-          {/* Logo da Transportadora */}
-          {transportadoraLogo && (
-            <div className="mb-2">
-              <img 
-                src={transportadoraLogo} 
-                alt="Logo Transportadora" 
-                className="max-h-8 object-contain"
-                style={{ width: 'auto', height: '32px', maxWidth: '120px' }}
-              />
-            </div>
-          )}
           
           {isQuimico && (
             <>

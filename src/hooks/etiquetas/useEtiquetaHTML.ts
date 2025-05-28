@@ -1,4 +1,3 @@
-
 // useEtiquetaHTML.ts
 import { LayoutStyle } from './types';
 import { getClassificacaoText } from '../../components/common/print/etiquetas/utils';
@@ -25,16 +24,16 @@ export const useEtiquetaHTML = () => {
     // Get classification text
     const classificacaoText = getClassificacaoText(volume.classificacaoQuimica);
     
-    // Logo HTML helper
-    const logoHTML = transportadoraLogo ? `
-      <div style="margin-bottom: 10px;">
+    // Header HTML with logo or text
+    const headerHTML = transportadoraLogo ? `
+      <div style="display: flex; justify-content: center;">
         <img 
           src="${transportadoraLogo}" 
           alt="Logo Transportadora" 
-          style="width: auto; height: 32px; max-width: 120px; object-fit: contain;"
+          style="width: auto; height: 48px; max-width: 200px; object-fit: contain;"
         />
       </div>
-    ` : '';
+    ` : (tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME');
     
     // Enhanced Contrast layout template
     if (layoutStyle === 'enhanced_contrast') {
@@ -44,7 +43,7 @@ export const useEtiquetaHTML = () => {
           
           <!-- Header -->
           <div style="text-align: center; font-size: 18px; font-weight: 900; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 15px;">
-            ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+            ${headerHTML}
           </div>
           
           <div style="display: flex;">
@@ -84,8 +83,6 @@ export const useEtiquetaHTML = () => {
               <div style="font-size: 14px; margin-bottom: 8px;">
                 <span style="font-weight: 700;">Transportadora:</span> ${volume.transportadora || 'N/D'}
               </div>
-              
-              ${logoHTML}
               
               ${isQuimico ? `
               <div style="font-size: 14px; margin-bottom: 8px; background-color: #FEE2E2; padding: 8px; border: 2px solid #FECACA; border-radius: 6px;">
@@ -134,12 +131,20 @@ export const useEtiquetaHTML = () => {
           
           <!-- Header -->
           <div style="text-align: center; padding: 12px; background: ${tipoEtiqueta === 'mae' ? '#EF4444' : '#2563EB'}; color: white; border-radius: 6px; margin-bottom: 15px;">
-            <span style="font-size: 18px; font-weight: 900;">
-              ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
-            </span>
+            ${transportadoraLogo ? `
+              <div style="display: flex; justify-content: center;">
+                <img 
+                  src="${transportadoraLogo}" 
+                  alt="Logo Transportadora" 
+                  style="width: auto; height: 32px; max-width: 150px; object-fit: contain;"
+                />
+              </div>
+            ` : `
+              <span style="font-size: 18px; font-weight: 900;">
+                ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+              </span>
+            `}
           </div>
-
-          ${logoHTML}
 
           <!-- QR Code Section -->
           <div style="text-align: center; margin-bottom: 15px;">
@@ -228,12 +233,20 @@ export const useEtiquetaHTML = () => {
           
           <!-- Header -->
           <div style="text-align: center; padding: 12px; background: ${tipoEtiqueta === 'mae' ? '#EF4444' : '#2563EB'}; color: white; border-radius: 6px; margin-bottom: 15px;">
-            <span style="font-size: 18px; font-weight: 900;">
-              ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
-            </span>
+            ${transportadoraLogo ? `
+              <div style="display: flex; justify-content: center;">
+                <img 
+                  src="${transportadoraLogo}" 
+                  alt="Logo Transportadora" 
+                  style="width: auto; height: 32px; max-width: 150px; object-fit: contain;"
+                />
+              </div>
+            ` : `
+              <span style="font-size: 18px; font-weight: 900;">
+                ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+              </span>
+            `}
           </div>
-          
-          ${logoHTML}
           
           <!-- QR Code -->
           <div style="text-align: center; margin-bottom: 15px;">
@@ -322,7 +335,7 @@ export const useEtiquetaHTML = () => {
         <div class="etiqueta" style="width: 100%; height: 100%; padding: 15px; font-family: Arial; border: 3px solid #333; position: relative;">
           ${quimicoIconHTML}
           <div style="font-size: 18px; font-weight: 900; text-align: center; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 15px;">
-            ${tipoEtiqueta === 'mae' ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+            ${headerHTML}
           </div>
           <div style="display: flex; margin-top: 10px;">
             <div style="flex: 2; padding-right: 15px;">
@@ -350,8 +363,6 @@ export const useEtiquetaHTML = () => {
               <div style="font-size: 14px; margin-bottom: 8px;">
                 <span style="font-weight: 700;">Transportadora:</span> ${volume.transportadora || 'N/D'}
               </div>
-              
-              ${logoHTML}
               
               ${isQuimico ? `
               <div style="font-size: 14px; margin-bottom: 8px; background-color: #FEE2E2; padding: 8px; border: 2px solid #FECACA; border-radius: 6px;">

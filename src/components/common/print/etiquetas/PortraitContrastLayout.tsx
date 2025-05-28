@@ -27,22 +27,21 @@ const PortraitContrastLayout: React.FC<PortraitContrastLayoutProps> = ({
       
       {/* Header */}
       <div className={`text-center p-3 rounded ${isMae ? 'bg-red-500' : 'bg-blue-600'} text-white`}>
-        <span className="text-lg font-bold">
-          {isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
-        </span>
+        {transportadoraLogo ? (
+          <div className="flex justify-center">
+            <img 
+              src={transportadoraLogo} 
+              alt="Logo Transportadora" 
+              className="object-contain"
+              style={{ width: 'auto', height: '32px', maxWidth: '150px' }}
+            />
+          </div>
+        ) : (
+          <span className="text-lg font-bold">
+            {isMae ? 'ETIQUETA MÃE' : 'ETIQUETA DE VOLUME'}
+          </span>
+        )}
       </div>
-      
-      {/* Logo da Transportadora */}
-      {transportadoraLogo && (
-        <div className="flex justify-center">
-          <img 
-            src={transportadoraLogo} 
-            alt="Logo Transportadora" 
-            className="object-contain"
-            style={{ width: 'auto', height: '32px', maxWidth: '120px' }}
-          />
-        </div>
-      )}
       
       {/* QR Code */}
       <div className="text-center">
