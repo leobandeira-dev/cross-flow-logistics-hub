@@ -54,7 +54,7 @@ export const buscarNotasFiscais = async (filtros?: {
     }
     
     if (filtros?.fornecedor) {
-      query = query.ilike('fornecedor', `%${filtros.fornecedor}%`);
+      query = query.ilike('emitente_razao_social', `%${filtros.fornecedor}%`);
     }
     
     if (filtros?.dataInicio) {
@@ -66,7 +66,7 @@ export const buscarNotasFiscais = async (filtros?: {
     }
     
     if (filtros?.termo) {
-      query = query.or(`numero.ilike.%${filtros.termo}%,chave_acesso.ilike.%${filtros.termo}%,fornecedor.ilike.%${filtros.termo}%`);
+      query = query.or(`numero.ilike.%${filtros.termo}%,chave_acesso.ilike.%${filtros.termo}%,emitente_razao_social.ilike.%${filtros.termo}%`);
     }
     
     const { data, error } = await query;

@@ -10,24 +10,69 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
     // Create a properly typed object with required fields
     const notaFiscalToInsert = {
       numero: notaFiscal.numero || '',
-      valor: notaFiscal.valor || 0,
-      data_emissao: notaFiscal.data_emissao || new Date().toISOString().split('T')[0],
-      tipo: notaFiscal.tipo || 'entrada',
-      status: notaFiscal.status || 'pendente',
-      // Optional fields
-      chave_acesso: notaFiscal.chave_acesso,
       serie: notaFiscal.serie,
-      peso_bruto: notaFiscal.peso_bruto,
+      chave_acesso: notaFiscal.chave_acesso,
+      data_emissao: notaFiscal.data_emissao || new Date().toISOString(),
+      valor_total: notaFiscal.valor_total || 0,
       quantidade_volumes: notaFiscal.quantidade_volumes,
-      data_entrada: notaFiscal.data_entrada,
-      data_saida: notaFiscal.data_saida,
-      empresa_emitente_id: notaFiscal.empresa_emitente_id,
-      empresa_destinatario_id: notaFiscal.empresa_destinatario_id,
-      filial_id: notaFiscal.filial_id,
+      peso_bruto: notaFiscal.peso_bruto,
+      status: notaFiscal.status || 'pendente',
+      tipo_operacao: notaFiscal.tipo_operacao,
+      
+      // Dados do emitente
+      emitente_cnpj: notaFiscal.emitente_cnpj,
+      emitente_razao_social: notaFiscal.emitente_razao_social,
+      emitente_telefone: notaFiscal.emitente_telefone,
+      emitente_uf: notaFiscal.emitente_uf,
+      emitente_cidade: notaFiscal.emitente_cidade,
+      emitente_bairro: notaFiscal.emitente_bairro,
+      emitente_endereco: notaFiscal.emitente_endereco,
+      emitente_numero: notaFiscal.emitente_numero,
+      emitente_cep: notaFiscal.emitente_cep,
+      
+      // Dados do destinatário
+      destinatario_cnpj: notaFiscal.destinatario_cnpj,
+      destinatario_razao_social: notaFiscal.destinatario_razao_social,
+      destinatario_telefone: notaFiscal.destinatario_telefone,
+      destinatario_uf: notaFiscal.destinatario_uf,
+      destinatario_cidade: notaFiscal.destinatario_cidade,
+      destinatario_bairro: notaFiscal.destinatario_bairro,
+      destinatario_endereco: notaFiscal.destinatario_endereco,
+      destinatario_numero: notaFiscal.destinatario_numero,
+      destinatario_cep: notaFiscal.destinatario_cep,
+      
+      // Relacionamentos
+      remetente_id: notaFiscal.remetente_id,
+      destinatario_id: notaFiscal.destinatario_id,
+      transportadora_id: notaFiscal.transportadora_id,
       ordem_carregamento_id: notaFiscal.ordem_carregamento_id,
       coleta_id: notaFiscal.coleta_id,
-      observacoes: notaFiscal.observacoes,
-      tempo_armazenamento_horas: notaFiscal.tempo_armazenamento_horas
+      
+      // Datas
+      data_entrada: notaFiscal.data_entrada,
+      data_saida: notaFiscal.data_saida,
+      data_embarque: notaFiscal.data_embarque,
+      
+      // Informações adicionais
+      informacoes_complementares: notaFiscal.informacoes_complementares,
+      numero_pedido: notaFiscal.numero_pedido,
+      fob_cif: notaFiscal.fob_cif,
+      
+      // Informações de transporte
+      numero_coleta: notaFiscal.numero_coleta,
+      valor_coleta: notaFiscal.valor_coleta,
+      numero_cte_coleta: notaFiscal.numero_cte_coleta,
+      numero_cte_viagem: notaFiscal.numero_cte_viagem,
+      
+      // Informações complementares
+      status_embarque: notaFiscal.status_embarque,
+      responsavel_entrega: notaFiscal.responsavel_entrega,
+      quimico: notaFiscal.quimico || false,
+      fracionado: notaFiscal.fracionado || false,
+      motorista: notaFiscal.motorista,
+      tempo_armazenamento_horas: notaFiscal.tempo_armazenamento_horas,
+      entregue_ao_fornecedor: notaFiscal.entregue_ao_fornecedor,
+      observacoes: notaFiscal.observacoes
     };
     
     const { data, error } = await supabase
