@@ -13,10 +13,17 @@ export const useNotaFiscalForm = () => {
   
   const handleSubmit = async (data: NotaFiscalSchemaType) => {
     try {
-      await submitForm(data);
+      console.log('=== HANDLE SUBMIT FORM ===');
+      console.log('Dados recebidos do formulário:', data);
+      
+      const result = await submitForm(data);
+      console.log('Resultado da submissão:', result);
+      
+      return result;
     } catch (error) {
-      // Erro já tratado no hook de submissão
+      console.error("=== ERRO NO HANDLE SUBMIT ===");
       console.error("Erro no formulário:", error);
+      throw error;
     }
   };
 

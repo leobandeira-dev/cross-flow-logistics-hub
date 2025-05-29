@@ -7,9 +7,23 @@ import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase/fiscal.types";
  */
 export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNotaFiscal?: Partial<ItemNotaFiscal>[]): Promise<NotaFiscal> => {
   try {
-    console.log('Criando nota fiscal com dados:', notaFiscal);
+    console.log('=== INÍCIO DO SERVIÇO CRIAR NOTA FISCAL ===');
+    console.log('Dados recebidos no serviço:', JSON.stringify(notaFiscal, null, 2));
     
-    // Create a properly typed object with all available fields from the database
+    // Verificar se a conexão com Supabase está funcionando
+    const { data: testConnection, error: testError } = await supabase
+      .from('notas_fiscais')
+      .select('count')
+      .limit(1);
+    
+    if (testError) {
+      console.error('Erro na conexão com Supabase:', testError);
+      throw new Error(`Erro de conexão: ${testError.message}`);
+    }
+    
+    console.log('Conexão com Supabase OK');
+    
+    // Preparar dados para inserção - garantindo que todos os campos estejam corretos
     const notaFiscalToInsert = {
       numero: notaFiscal.numero || '',
       serie: notaFiscal.serie,
@@ -54,6 +68,7 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
       data_entrada: notaFiscal.data_entrada,
       data_saida: notaFiscal.data_saida,
       data_embarque: notaFiscal.data_embarque,
+      data_inclusao: notaFiscal.data_inclusao || new Date().toISOString(),
       
       // Informações adicionais
       informacoes_complementares: notaFiscal.informacoes_complementares,
@@ -77,8 +92,10 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
       observacoes: notaFiscal.observacoes
     };
     
-    console.log('Dados preparados para inserção:', notaFiscalToInsert);
+    console.log('=== DADOS PREPARADOS PARA INSERÇÃO ===');
+    console.log('Dados finais para inserção:', JSON.stringify(notaFiscalToInsert, null, 2));
     
+    console.log('=== EXECUTANDO INSERT NO SUPABASE ===');
     const { data, error } = await supabase
       .from('notas_fiscais')
       .insert(notaFiscalToInsert)
@@ -86,14 +103,21 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
       .single();
     
     if (error) {
-      console.error('Erro ao inserir nota fiscal:', error);
+      console.error('=== ERRO NO INSERT ===');
+      console.error('Erro detalhado do Supabase:', error);
+      console.error('Código do erro:', error.code);
+      console.error('Mensagem do erro:', error.message);
+      console.error('Detalhes:', error.details);
+      console.error('Hint:', error.hint);
       throw new Error(`Erro ao criar nota fiscal: ${error.message}`);
     }
     
+    console.log('=== SUCESSO NO INSERT ===');
     console.log('Nota fiscal criada com sucesso:', data);
     
-    // Se houver itens, cria-os vinculados à nota fiscal
+    // Se houver itens, cria-los vinculados à nota fiscal
     if (itensNotaFiscal && itensNotaFiscal.length > 0) {
+      console.log('=== CRIANDO ITENS DA NOTA FISCAL ===');
       const itensComNotaId = itensNotaFiscal.map(item => ({
         ...item,
         nota_fiscal_id: data.id
@@ -104,7 +128,8 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
     
     return data as NotaFiscal;
   } catch (error) {
-    console.error('Erro ao criar nota fiscal:', error);
+    console.error('=== ERRO GERAL NO SERVIÇO ===');
+    console.error('Erro capturado:', error);
     throw error;
   }
 };
@@ -115,6 +140,9 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
 export const criarItensNotaFiscal = async (itensNotaFiscal: Partial<ItemNotaFiscal>[]): Promise<ItemNotaFiscal[]> => {
   try {
     if (!itensNotaFiscal.length) return [];
+    
+    console.log('=== CRIANDO ITENS DA NOTA FISCAL ===');
+    console.log('Itens a serem criados:', itensNotaFiscal);
     
     // Ensure all required properties are present for each item
     const itemsWithRequiredProps = itensNotaFiscal.map(item => {
@@ -139,9 +167,11 @@ export const criarItensNotaFiscal = async (itensNotaFiscal: Partial<ItemNotaFisc
       .select();
     
     if (error) {
+      console.error('Erro ao criar itens da nota fiscal:', error);
       throw new Error(`Erro ao criar itens da nota fiscal: ${error.message}`);
     }
     
+    console.log('Itens criados com sucesso:', data);
     return data as ItemNotaFiscal[];
   } catch (error: any) {
     console.error('Erro ao criar itens da nota fiscal:', error);
