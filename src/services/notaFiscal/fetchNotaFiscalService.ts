@@ -32,7 +32,7 @@ export const buscarNotaFiscalPorChave = async (chave: string): Promise<NotaFisca
 };
 
 /**
- * Fetches notas fiscais with optional filters, ordered by emission date (most recent first)
+ * Fetches notas fiscais with optional filters, ordered by inclusion date (most recent first)
  */
 export const buscarNotasFiscais = async (filtros?: {
   status?: string;
@@ -48,7 +48,7 @@ export const buscarNotasFiscais = async (filtros?: {
         *,
         itens:itens_nota_fiscal(*)
       `)
-      .order('data_emissao', { ascending: false }); // Ordenar por data de emissão (mais recente primeiro)
+      .order('data_inclusao', { ascending: false }); // Ordenar por data de inclusão (mais recente primeiro)
     
     if (filtros?.status) {
       query = query.eq('status', filtros.status);

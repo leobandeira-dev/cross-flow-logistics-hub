@@ -9,7 +9,7 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
   try {
     console.log('Criando nota fiscal com dados:', notaFiscal);
     
-    // Create a properly typed object with required fields
+    // Create a properly typed object with all available fields from the database
     const notaFiscalToInsert = {
       numero: notaFiscal.numero || '',
       serie: notaFiscal.serie,

@@ -212,6 +212,17 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
                 }
               },
               { 
+                header: 'Data Inclusão', 
+                accessor: 'data_inclusao',
+                cell: (row) => {
+                  try {
+                    return row.data_inclusao ? format(new Date(row.data_inclusao), 'dd/MM/yyyy HH:mm') : format(new Date(row.created_at), 'dd/MM/yyyy HH:mm');
+                  } catch {
+                    return '-';
+                  }
+                }
+              },
+              { 
                 header: 'Status', 
                 accessor: 'status',
                 cell: (row) => getStatusBadge(row.status)

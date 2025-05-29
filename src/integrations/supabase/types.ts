@@ -741,6 +741,7 @@ export type Database = {
           data_entrada: string | null
           data_hora_emissao: string | null
           data_hora_entrada: string | null
+          data_inclusao: string | null
           data_saida: string | null
           destinatario_bairro: string | null
           destinatario_cep: string | null
@@ -803,6 +804,7 @@ export type Database = {
           data_entrada?: string | null
           data_hora_emissao?: string | null
           data_hora_entrada?: string | null
+          data_inclusao?: string | null
           data_saida?: string | null
           destinatario_bairro?: string | null
           destinatario_cep?: string | null
@@ -865,6 +867,7 @@ export type Database = {
           data_entrada?: string | null
           data_hora_emissao?: string | null
           data_hora_entrada?: string | null
+          data_inclusao?: string | null
           data_saida?: string | null
           destinatario_bairro?: string | null
           destinatario_cep?: string | null

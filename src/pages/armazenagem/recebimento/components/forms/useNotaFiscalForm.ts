@@ -4,33 +4,19 @@ import { NotaFiscalSchemaType } from './notaFiscalSchema';
 import { useToast } from "@/hooks/use-toast";
 import { parseXmlFile } from '../../utils/xmlParser';
 import { extractDataFromXml, searchNotaFiscalByChave } from '../../utils/notaFiscalExtractor';
+import { useFormSubmission } from './hooks/useFormSubmission';
 
 export const useNotaFiscalForm = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { handleSubmit: submitForm } = useFormSubmission();
   
-  const handleSubmit = (data: NotaFiscalSchemaType) => {
-    setIsLoading(true);
+  const handleSubmit = async (data: NotaFiscalSchemaType) => {
     try {
-      console.log('Formulário enviado:', data);
-      // Here you can add logic to save the data
-      
-      // Simulate API call with timeout
-      setTimeout(() => {
-        setIsLoading(false);
-        toast({
-          title: "Nota fiscal cadastrada",
-          description: "Os dados da nota fiscal foram enviados e cadastrados com sucesso.",
-        });
-      }, 1000);
+      await submitForm(data);
     } catch (error) {
-      console.error("Erro ao cadastrar nota fiscal:", error);
-      setIsLoading(false);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao cadastrar a nota fiscal. Tente novamente.",
-        variant: "destructive",
-      });
+      // Erro já tratado no hook de submissão
+      console.error("Erro no formulário:", error);
     }
   };
 

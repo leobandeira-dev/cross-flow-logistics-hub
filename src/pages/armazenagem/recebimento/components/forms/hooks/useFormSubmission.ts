@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { NotaFiscalSchemaType } from '../notaFiscalSchema';
 import { useToast } from "@/hooks/use-toast";
 import { criarNotaFiscal } from '@/services/notaFiscal/createNotaFiscalService';
-import { NotaFiscal, ItemNotaFiscal } from '@/types/supabase/fiscal.types';
+import { NotaFiscal } from '@/types/supabase/fiscal.types';
 
 export const useFormSubmission = () => {
   const { toast } = useToast();
