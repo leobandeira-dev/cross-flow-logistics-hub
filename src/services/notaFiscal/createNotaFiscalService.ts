@@ -1,12 +1,14 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase.types";
+import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase/fiscal.types";
 
 /**
  * Creates a new nota fiscal in the database
  */
 export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNotaFiscal?: Partial<ItemNotaFiscal>[]): Promise<NotaFiscal> => {
   try {
+    console.log('Criando nota fiscal com dados:', notaFiscal);
+    
     // Create a properly typed object with required fields
     const notaFiscalToInsert = {
       numero: notaFiscal.numero || '',
@@ -75,6 +77,8 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
       observacoes: notaFiscal.observacoes
     };
     
+    console.log('Dados preparados para inserção:', notaFiscalToInsert);
+    
     const { data, error } = await supabase
       .from('notas_fiscais')
       .insert(notaFiscalToInsert)
@@ -82,8 +86,11 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
       .single();
     
     if (error) {
+      console.error('Erro ao inserir nota fiscal:', error);
       throw new Error(`Erro ao criar nota fiscal: ${error.message}`);
     }
+    
+    console.log('Nota fiscal criada com sucesso:', data);
     
     // Se houver itens, cria-os vinculados à nota fiscal
     if (itensNotaFiscal && itensNotaFiscal.length > 0) {

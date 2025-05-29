@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase.types";
+import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase/fiscal.types";
 
 /**
  * Fetches a nota fiscal by its access key
@@ -32,7 +32,7 @@ export const buscarNotaFiscalPorChave = async (chave: string): Promise<NotaFisca
 };
 
 /**
- * Fetches notas fiscais with optional filters
+ * Fetches notas fiscais with optional filters, ordered by emission date (most recent first)
  */
 export const buscarNotasFiscais = async (filtros?: {
   status?: string;
@@ -47,7 +47,8 @@ export const buscarNotasFiscais = async (filtros?: {
       .select(`
         *,
         itens:itens_nota_fiscal(*)
-      `);
+      `)
+      .order('data_emissao', { ascending: false }); // Ordenar por data de emissão (mais recente primeiro)
     
     if (filtros?.status) {
       query = query.eq('status', filtros.status);
@@ -58,15 +59,15 @@ export const buscarNotasFiscais = async (filtros?: {
     }
     
     if (filtros?.dataInicio) {
-      query = query.gte('data_entrada', filtros.dataInicio);
+      query = query.gte('data_emissao', filtros.dataInicio);
     }
     
     if (filtros?.dataFim) {
-      query = query.lte('data_entrada', filtros.dataFim);
+      query = query.lte('data_emissao', filtros.dataFim);
     }
     
     if (filtros?.termo) {
-      query = query.or(`numero.ilike.%${filtros.termo}%,chave_acesso.ilike.%${filtros.termo}%,emitente_razao_social.ilike.%${filtros.termo}%`);
+      query = query.or(`numero.ilike.%${filtros.termo}%,chave_acesso.ilike.%${filtros.termo}%,emitente_razao_social.ilike.%${filtros.termo}%,destinatario_razao_social.ilike.%${filtros.termo}%`);
     }
     
     const { data, error } = await query;
@@ -74,6 +75,8 @@ export const buscarNotasFiscais = async (filtros?: {
     if (error) {
       throw new Error(`Erro ao buscar notas fiscais: ${error.message}`);
     }
+    
+    console.log('Notas fiscais buscadas da tabela notas_fiscais:', data);
     
     return data as unknown as NotaFiscal[];
   } catch (error: any) {
@@ -90,7 +93,8 @@ export const buscarItensNotaFiscal = async (notaFiscalId: string): Promise<ItemN
     const { data, error } = await supabase
       .from('itens_nota_fiscal')
       .select('*')
-      .eq('nota_fiscal_id', notaFiscalId);
+      .eq('nota_fiscal_id', notaFiscalId)
+      .order('sequencia', { ascending: true });
     
     if (error) {
       throw new Error(`Erro ao buscar itens da nota fiscal: ${error.message}`);

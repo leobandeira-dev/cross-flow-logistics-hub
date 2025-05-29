@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { NotaFiscal } from '@/types/supabase.types';
+import { NotaFiscal } from '@/types/supabase/fiscal.types';
 import { 
   buscarNotasFiscais, 
   buscarNotaFiscalPorChave 
@@ -26,7 +26,7 @@ export const useNotasFiscaisData = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Query para buscar notas fiscais
+  // Query para buscar notas fiscais da tabela notas_fiscais com ordenação por data
   const {
     data: notasFiscais = [],
     isLoading,
@@ -34,9 +34,19 @@ export const useNotasFiscaisData = () => {
     refetch
   } = useQuery({
     queryKey: ['notas-fiscais', filtros],
-    queryFn: () => buscarNotasFiscais(filtros),
+    queryFn: () => {
+      console.log('Buscando notas fiscais da tabela notas_fiscais com filtros:', filtros);
+      return buscarNotasFiscais(filtros);
+    },
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
+
+  // Log dos dados carregados
+  useEffect(() => {
+    if (notasFiscais.length > 0) {
+      console.log('Notas fiscais carregadas:', notasFiscais);
+    }
+  }, [notasFiscais]);
 
   // Mutation para atualizar nota fiscal
   const updateNotaMutation = useMutation({
@@ -113,6 +123,7 @@ export const useNotasFiscaisData = () => {
 
   // Função para aplicar filtros
   const aplicarFiltros = (novosFiltros: FiltrosNotas) => {
+    console.log('Aplicando filtros:', novosFiltros);
     setFiltros(novosFiltros);
   };
 
