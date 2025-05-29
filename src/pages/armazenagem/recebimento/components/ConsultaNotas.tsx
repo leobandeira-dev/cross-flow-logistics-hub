@@ -56,9 +56,9 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = 
         nota.numero.toLowerCase().includes(searchLower) ||
-        nota.emitente_razao_social?.toLowerCase().includes(searchLower) ||
-        nota.destinatario_razao_social?.toLowerCase().includes(searchLower) ||
-        nota.chave_acesso?.toLowerCase().includes(searchLower);
+        (nota.emitente_razao_social?.toLowerCase().includes(searchLower)) ||
+        (nota.destinatario_razao_social?.toLowerCase().includes(searchLower)) ||
+        (nota.chave_acesso?.toLowerCase().includes(searchLower));
       
       if (!matchesSearch) return false;
     }
@@ -146,6 +146,24 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
           <p className="text-red-500">
             {error instanceof Error ? error.message : 'Erro desconhecido'}
           </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Consulta de Notas Fiscais</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center items-center py-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+              <p>Carregando notas fiscais...</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -241,7 +259,6 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
               }
             ]}
             data={filteredNotas}
-            loading={isLoading}
           />
         </div>
       </CardContent>

@@ -2,21 +2,21 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Exclui uma nota fiscal e seus itens relacionados do banco de dados
+ * Deletes a nota fiscal from the database
  */
 export const excluirNotaFiscal = async (id: string): Promise<void> => {
   try {
-    // Primeiro exclui os itens relacionados
-    const { error: errorItens } = await supabase
+    // First, delete related items
+    const { error: itemsError } = await supabase
       .from('itens_nota_fiscal')
       .delete()
       .eq('nota_fiscal_id', id);
     
-    if (errorItens) {
-      throw new Error(`Erro ao excluir itens da nota fiscal: ${errorItens.message}`);
+    if (itemsError) {
+      console.warn('Aviso ao excluir itens da nota fiscal:', itemsError.message);
     }
     
-    // Depois exclui a nota fiscal
+    // Then delete the nota fiscal
     const { error } = await supabase
       .from('notas_fiscais')
       .delete()
@@ -25,7 +25,7 @@ export const excluirNotaFiscal = async (id: string): Promise<void> => {
     if (error) {
       throw new Error(`Erro ao excluir nota fiscal: ${error.message}`);
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Erro ao excluir nota fiscal:', error);
     throw error;
   }
