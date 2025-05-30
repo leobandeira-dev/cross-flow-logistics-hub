@@ -15,6 +15,7 @@ export interface NotaFiscal {
   data_emissao: string;
   data_entrada?: string;
   data_saida?: string;
+  data_inclusao: string; // Campo adicionado
   status: string;
   remetente_id?: string;
   destinatario_id?: string;
