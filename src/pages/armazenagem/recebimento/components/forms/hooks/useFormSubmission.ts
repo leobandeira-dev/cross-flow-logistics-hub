@@ -15,66 +15,73 @@ export const useFormSubmission = () => {
       console.log('=== INÍCIO DA SUBMISSÃO ===');
       console.log('Dados do formulário recebidos:', data);
       
+      // Validar dados obrigatórios
+      if (!data.numeroNF || data.numeroNF.trim() === '') {
+        throw new Error('Número da nota fiscal é obrigatório');
+      }
+
       // Mapear os dados do formulário para o formato da NotaFiscal
       const notaFiscalData: Partial<NotaFiscal> = {
-        // Dados básicos da nota fiscal
-        numero: data.numeroNF || '',
-        serie: data.serieNF || undefined,
-        chave_acesso: data.chaveNF || undefined,
-        data_emissao: data.dataHoraEmissao ? new Date(data.dataHoraEmissao).toISOString() : new Date().toISOString(),
+        // Campos obrigatórios
+        numero: data.numeroNF,
         valor_total: data.valorTotal ? parseFloat(data.valorTotal.toString().replace(/[^\d.,]/g, '').replace(',', '.')) : 0,
-        peso_bruto: data.pesoTotalBruto ? parseFloat(data.pesoTotalBruto.toString().replace(/[^\d.,]/g, '').replace(',', '.')) : undefined,
-        quantidade_volumes: data.volumesTotal ? parseInt(data.volumesTotal.toString()) : undefined,
+        data_emissao: data.dataHoraEmissao ? new Date(data.dataHoraEmissao).toISOString() : new Date().toISOString(),
         status: 'pendente',
-        tipo_operacao: data.tipoOperacao || undefined,
-        
-        // Dados do emitente
-        emitente_cnpj: data.emitenteCNPJ || undefined,
-        emitente_razao_social: data.emitenteRazaoSocial || undefined,
-        emitente_telefone: data.emitenteTelefone || undefined,
-        emitente_uf: data.emitenteUF || undefined,
-        emitente_cidade: data.emitenteCidade || undefined,
-        emitente_bairro: data.emitenteBairro || undefined,
-        emitente_endereco: data.emitenteEndereco || undefined,
-        emitente_numero: data.emitenteNumero || undefined,
-        emitente_cep: data.emitenteCEP || undefined,
-        
-        // Dados do destinatário
-        destinatario_cnpj: data.destinatarioCNPJ || undefined,
-        destinatario_razao_social: data.destinatarioRazaoSocial || undefined,
-        destinatario_telefone: data.destinatarioTelefone || undefined,
-        destinatario_uf: data.destinatarioUF || undefined,
-        destinatario_cidade: data.destinatarioCidade || undefined,
-        destinatario_bairro: data.destinatarioBairro || undefined,
-        destinatario_endereco: data.destinatarioEndereco || undefined,
-        destinatario_numero: data.destinatarioNumero || undefined,
-        destinatario_cep: data.destinatarioCEP || undefined,
-        
-        // Informações adicionais
-        informacoes_complementares: data.informacoesComplementares || undefined,
-        numero_pedido: data.numeroPedido || undefined,
-        fob_cif: data.fobCif || undefined,
-        
-        // Informações de transporte
-        numero_coleta: data.numeroColeta || undefined,
-        valor_coleta: data.valorColeta ? parseFloat(data.valorColeta.toString().replace(/[^\d.,]/g, '').replace(',', '.')) : undefined,
-        numero_cte_coleta: data.numeroCTeColeta || undefined,
-        numero_cte_viagem: data.numeroCTeViagem || undefined,
-        data_embarque: data.dataEmbarque ? new Date(data.dataEmbarque).toISOString() : undefined,
-        
-        // Informações complementares
-        data_entrada: data.dataHoraEntrada ? new Date(data.dataHoraEntrada).toISOString() : undefined,
-        status_embarque: data.statusEmbarque || undefined,
-        responsavel_entrega: data.responsavelEntrega || undefined,
-        quimico: data.quimico === 'sim',
-        fracionado: data.fracionado === 'sim',
-        motorista: data.motorista || undefined,
-        tempo_armazenamento_horas: data.tempoArmazenamento ? parseFloat(data.tempoArmazenamento.toString()) : undefined,
-        entregue_ao_fornecedor: data.entregueAoFornecedor || undefined,
-        
-        // Garantir que data_inclusao seja definida
         data_inclusao: new Date().toISOString()
       };
+
+      // Adicionar campos opcionais apenas se tiverem valor
+      if (data.serieNF) notaFiscalData.serie = data.serieNF;
+      if (data.chaveNF) notaFiscalData.chave_acesso = data.chaveNF;
+      if (data.pesoTotalBruto) notaFiscalData.peso_bruto = parseFloat(data.pesoTotalBruto.toString().replace(/[^\d.,]/g, '').replace(',', '.'));
+      if (data.volumesTotal) notaFiscalData.quantidade_volumes = parseInt(data.volumesTotal.toString());
+      if (data.tipoOperacao) notaFiscalData.tipo_operacao = data.tipoOperacao;
+      
+      // Dados do emitente
+      if (data.emitenteCNPJ) notaFiscalData.emitente_cnpj = data.emitenteCNPJ;
+      if (data.emitenteRazaoSocial) notaFiscalData.emitente_razao_social = data.emitenteRazaoSocial;
+      if (data.emitenteTelefone) notaFiscalData.emitente_telefone = data.emitenteTelefone;
+      if (data.emitenteUF) notaFiscalData.emitente_uf = data.emitenteUF;
+      if (data.emitenteCidade) notaFiscalData.emitente_cidade = data.emitenteCidade;
+      if (data.emitenteBairro) notaFiscalData.emitente_bairro = data.emitenteBairro;
+      if (data.emitenteEndereco) notaFiscalData.emitente_endereco = data.emitenteEndereco;
+      if (data.emitenteNumero) notaFiscalData.emitente_numero = data.emitenteNumero;
+      if (data.emitenteCEP) notaFiscalData.emitente_cep = data.emitenteCEP;
+      
+      // Dados do destinatário
+      if (data.destinatarioCNPJ) notaFiscalData.destinatario_cnpj = data.destinatarioCNPJ;
+      if (data.destinatarioRazaoSocial) notaFiscalData.destinatario_razao_social = data.destinatarioRazaoSocial;
+      if (data.destinatarioTelefone) notaFiscalData.destinatario_telefone = data.destinatarioTelefone;
+      if (data.destinatarioUF) notaFiscalData.destinatario_uf = data.destinatarioUF;
+      if (data.destinatarioCidade) notaFiscalData.destinatario_cidade = data.destinatarioCidade;
+      if (data.destinatarioBairro) notaFiscalData.destinatario_bairro = data.destinatarioBairro;
+      if (data.destinatarioEndereco) notaFiscalData.destinatario_endereco = data.destinatarioEndereco;
+      if (data.destinatarioNumero) notaFiscalData.destinatario_numero = data.destinatarioNumero;
+      if (data.destinatarioCEP) notaFiscalData.destinatario_cep = data.destinatarioCEP;
+      
+      // Informações adicionais
+      if (data.informacoesComplementares) notaFiscalData.informacoes_complementares = data.informacoesComplementares;
+      if (data.numeroPedido) notaFiscalData.numero_pedido = data.numeroPedido;
+      if (data.fobCif) notaFiscalData.fob_cif = data.fobCif;
+      
+      // Informações de transporte
+      if (data.numeroColeta) notaFiscalData.numero_coleta = data.numeroColeta;
+      if (data.valorColeta) notaFiscalData.valor_coleta = parseFloat(data.valorColeta.toString().replace(/[^\d.,]/g, '').replace(',', '.'));
+      if (data.numeroCTeColeta) notaFiscalData.numero_cte_coleta = data.numeroCTeColeta;
+      if (data.numeroCTeViagem) notaFiscalData.numero_cte_viagem = data.numeroCTeViagem;
+      if (data.dataEmbarque) notaFiscalData.data_embarque = new Date(data.dataEmbarque).toISOString();
+      
+      // Informações complementares
+      if (data.dataHoraEntrada) notaFiscalData.data_entrada = new Date(data.dataHoraEntrada).toISOString();
+      if (data.statusEmbarque) notaFiscalData.status_embarque = data.statusEmbarque;
+      if (data.responsavelEntrega) notaFiscalData.responsavel_entrega = data.responsavelEntrega;
+      if (data.motorista) notaFiscalData.motorista = data.motorista;
+      if (data.tempoArmazenamento) notaFiscalData.tempo_armazenamento_horas = parseFloat(data.tempoArmazenamento.toString());
+      if (data.entregueAoFornecedor) notaFiscalData.entregue_ao_fornecedor = data.entregueAoFornecedor;
+      
+      // Campos booleanos
+      notaFiscalData.quimico = data.quimico === 'sim';
+      notaFiscalData.fracionado = data.fracionado === 'sim';
       
       console.log('=== DADOS MAPEADOS PARA ENVIO ===');
       console.log('Dados mapeados para Supabase:', JSON.stringify(notaFiscalData, null, 2));

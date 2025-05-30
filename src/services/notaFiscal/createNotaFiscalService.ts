@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase/fiscal.types";
 
@@ -23,74 +22,69 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
     
     console.log('Conexão com Supabase OK');
     
-    // Preparar dados para inserção - garantindo que todos os campos estejam corretos
-    const notaFiscalToInsert = {
+    // Preparar dados básicos obrigatórios primeiro
+    const dadosBasicos = {
       numero: notaFiscal.numero || '',
-      serie: notaFiscal.serie,
-      chave_acesso: notaFiscal.chave_acesso,
-      data_emissao: notaFiscal.data_emissao || new Date().toISOString(),
       valor_total: notaFiscal.valor_total || 0,
-      quantidade_volumes: notaFiscal.quantidade_volumes,
-      peso_bruto: notaFiscal.peso_bruto,
+      data_emissao: notaFiscal.data_emissao || new Date().toISOString(),
       status: notaFiscal.status || 'pendente',
-      tipo_operacao: notaFiscal.tipo_operacao,
-      
-      // Dados do emitente
-      emitente_cnpj: notaFiscal.emitente_cnpj,
-      emitente_razao_social: notaFiscal.emitente_razao_social,
-      emitente_telefone: notaFiscal.emitente_telefone,
-      emitente_uf: notaFiscal.emitente_uf,
-      emitente_cidade: notaFiscal.emitente_cidade,
-      emitente_bairro: notaFiscal.emitente_bairro,
-      emitente_endereco: notaFiscal.emitente_endereco,
-      emitente_numero: notaFiscal.emitente_numero,
-      emitente_cep: notaFiscal.emitente_cep,
-      
-      // Dados do destinatário
-      destinatario_cnpj: notaFiscal.destinatario_cnpj,
-      destinatario_razao_social: notaFiscal.destinatario_razao_social,
-      destinatario_telefone: notaFiscal.destinatario_telefone,
-      destinatario_uf: notaFiscal.destinatario_uf,
-      destinatario_cidade: notaFiscal.destinatario_cidade,
-      destinatario_bairro: notaFiscal.destinatario_bairro,
-      destinatario_endereco: notaFiscal.destinatario_endereco,
-      destinatario_numero: notaFiscal.destinatario_numero,
-      destinatario_cep: notaFiscal.destinatario_cep,
-      
-      // Relacionamentos
-      remetente_id: notaFiscal.remetente_id,
-      destinatario_id: notaFiscal.destinatario_id,
-      transportadora_id: notaFiscal.transportadora_id,
-      ordem_carregamento_id: notaFiscal.ordem_carregamento_id,
-      coleta_id: notaFiscal.coleta_id,
-      
-      // Datas
-      data_entrada: notaFiscal.data_entrada,
-      data_saida: notaFiscal.data_saida,
-      data_embarque: notaFiscal.data_embarque,
-      data_inclusao: notaFiscal.data_inclusao || new Date().toISOString(),
-      
-      // Informações adicionais
-      informacoes_complementares: notaFiscal.informacoes_complementares,
-      numero_pedido: notaFiscal.numero_pedido,
-      fob_cif: notaFiscal.fob_cif,
-      
-      // Informações de transporte
-      numero_coleta: notaFiscal.numero_coleta,
-      valor_coleta: notaFiscal.valor_coleta,
-      numero_cte_coleta: notaFiscal.numero_cte_coleta,
-      numero_cte_viagem: notaFiscal.numero_cte_viagem,
-      
-      // Informações complementares
-      status_embarque: notaFiscal.status_embarque,
-      responsavel_entrega: notaFiscal.responsavel_entrega,
-      quimico: notaFiscal.quimico || false,
-      fracionado: notaFiscal.fracionado || false,
-      motorista: notaFiscal.motorista,
-      tempo_armazenamento_horas: notaFiscal.tempo_armazenamento_horas,
-      entregue_ao_fornecedor: notaFiscal.entregue_ao_fornecedor,
-      observacoes: notaFiscal.observacoes
+      data_inclusao: new Date().toISOString()
     };
+
+    // Adicionar campos opcionais apenas se não forem undefined
+    const camposOpcionais: any = {};
+    
+    if (notaFiscal.serie !== undefined) camposOpcionais.serie = notaFiscal.serie;
+    if (notaFiscal.chave_acesso !== undefined) camposOpcionais.chave_acesso = notaFiscal.chave_acesso;
+    if (notaFiscal.quantidade_volumes !== undefined) camposOpcionais.quantidade_volumes = notaFiscal.quantidade_volumes;
+    if (notaFiscal.peso_bruto !== undefined) camposOpcionais.peso_bruto = notaFiscal.peso_bruto;
+    if (notaFiscal.tipo_operacao !== undefined) camposOpcionais.tipo_operacao = notaFiscal.tipo_operacao;
+    
+    // Dados do emitente
+    if (notaFiscal.emitente_cnpj !== undefined) camposOpcionais.emitente_cnpj = notaFiscal.emitente_cnpj;
+    if (notaFiscal.emitente_razao_social !== undefined) camposOpcionais.emitente_razao_social = notaFiscal.emitente_razao_social;
+    if (notaFiscal.emitente_telefone !== undefined) camposOpcionais.emitente_telefone = notaFiscal.emitente_telefone;
+    if (notaFiscal.emitente_uf !== undefined) camposOpcionais.emitente_uf = notaFiscal.emitente_uf;
+    if (notaFiscal.emitente_cidade !== undefined) camposOpcionais.emitente_cidade = notaFiscal.emitente_cidade;
+    if (notaFiscal.emitente_bairro !== undefined) camposOpcionais.emitente_bairro = notaFiscal.emitente_bairro;
+    if (notaFiscal.emitente_endereco !== undefined) camposOpcionais.emitente_endereco = notaFiscal.emitente_endereco;
+    if (notaFiscal.emitente_numero !== undefined) camposOpcionais.emitente_numero = notaFiscal.emitente_numero;
+    if (notaFiscal.emitente_cep !== undefined) camposOpcionais.emitente_cep = notaFiscal.emitente_cep;
+    
+    // Dados do destinatário
+    if (notaFiscal.destinatario_cnpj !== undefined) camposOpcionais.destinatario_cnpj = notaFiscal.destinatario_cnpj;
+    if (notaFiscal.destinatario_razao_social !== undefined) camposOpcionais.destinatario_razao_social = notaFiscal.destinatario_razao_social;
+    if (notaFiscal.destinatario_telefone !== undefined) camposOpcionais.destinatario_telefone = notaFiscal.destinatario_telefone;
+    if (notaFiscal.destinatario_uf !== undefined) camposOpcionais.destinatario_uf = notaFiscal.destinatario_uf;
+    if (notaFiscal.destinatario_cidade !== undefined) camposOpcionais.destinatario_cidade = notaFiscal.destinatario_cidade;
+    if (notaFiscal.destinatario_bairro !== undefined) camposOpcionais.destinatario_bairro = notaFiscal.destinatario_bairro;
+    if (notaFiscal.destinatario_endereco !== undefined) camposOpcionais.destinatario_endereco = notaFiscal.destinatario_endereco;
+    if (notaFiscal.destinatario_numero !== undefined) camposOpcionais.destinatario_numero = notaFiscal.destinatario_numero;
+    if (notaFiscal.destinatario_cep !== undefined) camposOpcionais.destinatario_cep = notaFiscal.destinatario_cep;
+    
+    // Campos de transporte e outros
+    if (notaFiscal.informacoes_complementares !== undefined) camposOpcionais.informacoes_complementares = notaFiscal.informacoes_complementares;
+    if (notaFiscal.numero_pedido !== undefined) camposOpcionais.numero_pedido = notaFiscal.numero_pedido;
+    if (notaFiscal.fob_cif !== undefined) camposOpcionais.fob_cif = notaFiscal.fob_cif;
+    if (notaFiscal.numero_coleta !== undefined) camposOpcionais.numero_coleta = notaFiscal.numero_coleta;
+    if (notaFiscal.valor_coleta !== undefined) camposOpcionais.valor_coleta = notaFiscal.valor_coleta;
+    if (notaFiscal.numero_cte_coleta !== undefined) camposOpcionais.numero_cte_coleta = notaFiscal.numero_cte_coleta;
+    if (notaFiscal.numero_cte_viagem !== undefined) camposOpcionais.numero_cte_viagem = notaFiscal.numero_cte_viagem;
+    if (notaFiscal.data_embarque !== undefined) camposOpcionais.data_embarque = notaFiscal.data_embarque;
+    if (notaFiscal.data_entrada !== undefined) camposOpcionais.data_entrada = notaFiscal.data_entrada;
+    if (notaFiscal.status_embarque !== undefined) camposOpcionais.status_embarque = notaFiscal.status_embarque;
+    if (notaFiscal.responsavel_entrega !== undefined) camposOpcionais.responsavel_entrega = notaFiscal.responsavel_entrega;
+    if (notaFiscal.motorista !== undefined) camposOpcionais.motorista = notaFiscal.motorista;
+    if (notaFiscal.tempo_armazenamento_horas !== undefined) camposOpcionais.tempo_armazenamento_horas = notaFiscal.tempo_armazenamento_horas;
+    if (notaFiscal.entregue_ao_fornecedor !== undefined) camposOpcionais.entregue_ao_fornecedor = notaFiscal.entregue_ao_fornecedor;
+    if (notaFiscal.observacoes !== undefined) camposOpcionais.observacoes = notaFiscal.observacoes;
+    
+    // Campos booleanos (tratar especialmente)
+    camposOpcionais.quimico = notaFiscal.quimico === true;
+    camposOpcionais.fracionado = notaFiscal.fracionado === true;
+
+    // Combinar dados básicos com opcionais
+    const notaFiscalToInsert = { ...dadosBasicos, ...camposOpcionais };
     
     console.log('=== DADOS PREPARADOS PARA INSERÇÃO ===');
     console.log('Dados finais para inserção:', JSON.stringify(notaFiscalToInsert, null, 2));

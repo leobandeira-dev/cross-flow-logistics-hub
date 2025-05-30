@@ -53,6 +53,13 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
     return missingFields;
   };
 
+  const generateConsistentVolumeId = (notaFiscal: string, volumeNumber: number): string => {
+    // Criar ID consistente baseado na nota fiscal e número do volume
+    // Formato: NF-{numeroNF}-VOL-{numeroVolume}
+    const cleanNotaFiscal = notaFiscal.replace(/[^\w]/g, '').toUpperCase();
+    return `NF-${cleanNotaFiscal}-VOL-${volumeNumber.toString().padStart(3, '0')}`;
+  };
+
   const prepareEtiquetaData = (volume: Volume): CreateEtiquetaData => {
     console.log('📋 Preparando dados da etiqueta para volume:', volume.id);
     console.log('📊 Dados do volume:', {
@@ -62,11 +69,14 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       descricao: volume.descricao
     });
     
+    // Gerar ID consistente baseado na nota fiscal e número do volume
+    const consistentId = generateConsistentVolumeId(volume.notaFiscal, volume.volumeNumber || 1);
+    
     // Garantir que a descrição use o formato correto Volume X/Y
     const descricaoVolume = volume.descricao || `Volume ${volume.volumeNumber || 1}/${volume.totalVolumes || 1}`;
     
     const etiquetaData: CreateEtiquetaData = {
-      codigo: volume.id,
+      codigo: consistentId, // Usar ID consistente
       tipo: 'volume',
       area: volume.area || null,
       remetente: volume.remetente || null,
@@ -75,7 +85,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       cidade: volume.cidade || null,
       uf: volume.uf || null,
       cep: null,
-      descricao: descricaoVolume, // Usar a descrição correta do volume
+      descricao: descricaoVolume,
       transportadora: volume.transportadora || null,
       chave_nf: volume.chaveNF || volume.notaFiscal || null,
       quantidade: volume.quantidade || 1,
@@ -90,7 +100,8 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       status: 'gerada'
     };
     
-    console.log('📤 Dados preparados:', {
+    console.log('📤 Dados preparados com ID consistente:', {
+      codigo: etiquetaData.codigo,
       area: etiquetaData.area,
       volume_numero: etiquetaData.volume_numero,
       total_volumes: etiquetaData.total_volumes,
@@ -138,19 +149,30 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         return;
       }
 
+      // Atualizar os volumes gerados com IDs consistentes
+      const volumesComIdConsistente = generatedVolumes.map(volume => ({
+        ...volume,
+        id: generateConsistentVolumeId(volume.notaFiscal, volume.volumeNumber || 1)
+      }));
+
+      // Atualizar o estado com os novos IDs
+      if (setGeneratedVolumes) {
+        setGeneratedVolumes(volumesComIdConsistente);
+      }
+
       // Contadores de resultados
       let volumesSalvos = 0;
       let contadorErros = 0;
       const erros: string[] = [];
 
-      console.log(`📝 Processando ${generatedVolumes.length} etiquetas...`);
+      console.log(`📝 Processando ${volumesComIdConsistente.length} etiquetas...`);
 
       // Processar cada volume individualmente
-      for (let i = 0; i < generatedVolumes.length; i++) {
-        const volume = generatedVolumes[i];
+      for (let i = 0; i < volumesComIdConsistente.length; i++) {
+        const volume = volumesComIdConsistente[i];
         
         try {
-          console.log(`💾 [${i + 1}/${generatedVolumes.length}] Processando: ${volume.id}`);
+          console.log(`💾 [${i + 1}/${volumesComIdConsistente.length}] Processando: ${volume.id}`);
           console.log(`📍 Volume ${volume.volumeNumber}/${volume.totalVolumes}, Área: ${volume.area}`);
           
           // Preparar dados da etiqueta
@@ -176,7 +198,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       if (volumesSalvos > 0 && contadorErros === 0) {
         toast({
           title: "✅ Etiquetas Gravadas com Sucesso!",
-          description: `${volumesSalvos} etiqueta(s) foram salvas no banco de dados.`,
+          description: `${volumesSalvos} etiqueta(s) foram salvas no banco de dados com IDs consistentes.`,
         });
         
         // Atualizar lista de etiquetas
