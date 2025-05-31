@@ -53,31 +53,14 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
     return missingFields;
   };
 
-  // Função para gerar ID consistente baseado na nota fiscal e número do volume
-  const generateConsistentVolumeId = (notaFiscal: string, volumeNumber: number): string => {
-    // Limpar caracteres especiais do número da nota fiscal
-    const cleanNotaFiscal = notaFiscal.replace(/[^\w]/g, '').toUpperCase();
-    // Formato: NF-{numeroNF}-VOL-{numeroVolume}
-    return `NF-${cleanNotaFiscal}-VOL-${volumeNumber.toString().padStart(3, '0')}`;
-  };
-
   const prepareEtiquetaData = (volume: Volume): CreateEtiquetaData => {
     console.log('📋 Preparando dados da etiqueta para volume:', volume.id);
-    console.log('📊 Dados do volume:', {
-      volumeNumber: volume.volumeNumber,
-      totalVolumes: volume.totalVolumes,
-      area: volume.area,
-      descricao: volume.descricao
-    });
-    
-    // Gerar ID consistente baseado na nota fiscal e número do volume
-    const consistentId = generateConsistentVolumeId(volume.notaFiscal, volume.volumeNumber || 1);
     
     // Garantir que a descrição use o formato correto Volume X/Y
     const descricaoVolume = volume.descricao || `Volume ${volume.volumeNumber || 1}/${volume.totalVolumes || 1}`;
     
     const etiquetaData: CreateEtiquetaData = {
-      codigo: consistentId, // Usar ID consistente
+      codigo: volume.id, // Usar o ID já consistente do volume
       tipo: 'volume',
       area: volume.area || null,
       remetente: volume.remetente || null,
@@ -101,7 +84,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       status: 'gerada'
     };
     
-    console.log('📤 Dados preparados com ID consistente:', {
+    console.log('📤 Dados preparados para etiqueta:', {
       codigo: etiquetaData.codigo,
       area: etiquetaData.area,
       volume_numero: etiquetaData.volume_numero,
@@ -126,16 +109,10 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         return;
       }
 
-      // Primeiro, vamos atualizar os volumes com IDs consistentes ANTES de validar
-      const volumesComIdConsistente = generatedVolumes.map(volume => ({
-        ...volume,
-        id: generateConsistentVolumeId(volume.notaFiscal, volume.volumeNumber || 1)
-      }));
-
-      // Validar campos obrigatórios básicos APÓS gerar IDs consistentes
+      // Validar campos obrigatórios básicos
       const volumesValidacao: { volume: Volume; missingFields: string[] }[] = [];
       
-      volumesComIdConsistente.forEach(volume => {
+      generatedVolumes.forEach(volume => {
         const missingFields = validateBasicFields(volume);
         if (missingFields.length > 0) {
           volumesValidacao.push({ volume, missingFields });
@@ -156,25 +133,19 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         return;
       }
 
-      // Atualizar o estado com os novos IDs
-      if (setGeneratedVolumes) {
-        setGeneratedVolumes(volumesComIdConsistente);
-      }
-
       // Contadores de resultados
       let volumesSalvos = 0;
       let contadorErros = 0;
       const erros: string[] = [];
 
-      console.log(`📝 Processando ${volumesComIdConsistente.length} etiquetas...`);
+      console.log(`📝 Processando ${generatedVolumes.length} etiquetas...`);
 
       // Processar cada volume individualmente
-      for (let i = 0; i < volumesComIdConsistente.length; i++) {
-        const volume = volumesComIdConsistente[i];
+      for (let i = 0; i < generatedVolumes.length; i++) {
+        const volume = generatedVolumes[i];
         
         try {
-          console.log(`💾 [${i + 1}/${volumesComIdConsistente.length}] Processando: ${volume.id}`);
-          console.log(`📍 Volume ${volume.volumeNumber}/${volume.totalVolumes}, Área: ${volume.area}`);
+          console.log(`💾 [${i + 1}/${generatedVolumes.length}] Processando: ${volume.id}`);
           
           // Preparar dados da etiqueta
           const etiquetaData = prepareEtiquetaData(volume);
@@ -199,7 +170,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       if (volumesSalvos > 0 && contadorErros === 0) {
         toast({
           title: "✅ Etiquetas Gravadas com Sucesso!",
-          description: `${volumesSalvos} etiqueta(s) foram salvas no banco de dados com IDs consistentes.`,
+          description: `${volumesSalvos} etiqueta(s) foram salvas no banco de dados.`,
         });
         
         // Atualizar lista de etiquetas

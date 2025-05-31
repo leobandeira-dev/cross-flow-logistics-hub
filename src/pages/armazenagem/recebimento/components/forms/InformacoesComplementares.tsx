@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,18 @@ import { useFormContext } from 'react-hook-form';
 import { NotaFiscalSchemaType } from './notaFiscalSchema';
 
 const InformacoesComplementares: React.FC = () => {
-  const { control } = useFormContext<NotaFiscalSchemaType>();
+  const { control, setValue, watch } = useFormContext<NotaFiscalSchemaType>();
+  
+  // Definir horário atual como padrão para Data e Hora de Entrada
+  useEffect(() => {
+    const currentDateTime = new Date().toISOString().slice(0, 16);
+    const currentValue = watch('dataHoraEntrada');
+    
+    // Só define o valor se não houver um valor já definido
+    if (!currentValue) {
+      setValue('dataHoraEntrada', currentDateTime);
+    }
+  }, [setValue, watch]);
   
   return (
     <Card>
