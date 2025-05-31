@@ -7,6 +7,8 @@ import { NotaFiscal, ItemNotaFiscal } from "@/types/supabase/fiscal.types";
  */
 export const buscarNotaFiscalPorChave = async (chave: string): Promise<NotaFiscal | null> => {
   try {
+    console.log('Buscando nota fiscal por chave:', chave);
+    
     const { data, error } = await supabase
       .from('notas_fiscais')
       .select(`
@@ -14,16 +16,14 @@ export const buscarNotaFiscalPorChave = async (chave: string): Promise<NotaFisca
         itens:itens_nota_fiscal(*)
       `)
       .eq('chave_acesso', chave)
-      .single();
+      .maybeSingle(); // Usar maybeSingle ao invés de single para evitar erro quando não encontrar
     
     if (error) {
-      if (error.code === 'PGRST116') {
-        // Não encontrou nenhuma nota fiscal
-        return null;
-      }
+      console.error('Erro ao buscar nota fiscal por chave:', error);
       throw new Error(`Erro ao buscar nota fiscal: ${error.message}`);
     }
     
+    console.log('Nota fiscal encontrada:', data);
     return data as unknown as NotaFiscal;
   } catch (error: any) {
     console.error('Erro ao buscar nota fiscal:', error);
@@ -42,6 +42,8 @@ export const buscarNotasFiscais = async (filtros?: {
   termo?: string;
 }): Promise<NotaFiscal[]> => {
   try {
+    console.log('Buscando notas fiscais com filtros:', filtros);
+    
     let query = supabase
       .from('notas_fiscais')
       .select(`
@@ -73,10 +75,11 @@ export const buscarNotasFiscais = async (filtros?: {
     const { data, error } = await query;
     
     if (error) {
+      console.error('Erro ao buscar notas fiscais:', error);
       throw new Error(`Erro ao buscar notas fiscais: ${error.message}`);
     }
     
-    console.log('Notas fiscais buscadas da tabela notas_fiscais:', data);
+    console.log(`Notas fiscais encontradas: ${data?.length || 0}`, data);
     
     return data as unknown as NotaFiscal[];
   } catch (error: any) {
@@ -90,6 +93,8 @@ export const buscarNotasFiscais = async (filtros?: {
  */
 export const buscarItensNotaFiscal = async (notaFiscalId: string): Promise<ItemNotaFiscal[]> => {
   try {
+    console.log('Buscando itens da nota fiscal:', notaFiscalId);
+    
     const { data, error } = await supabase
       .from('itens_nota_fiscal')
       .select('*')
@@ -97,12 +102,39 @@ export const buscarItensNotaFiscal = async (notaFiscalId: string): Promise<ItemN
       .order('sequencia', { ascending: true });
     
     if (error) {
+      console.error('Erro ao buscar itens da nota fiscal:', error);
       throw new Error(`Erro ao buscar itens da nota fiscal: ${error.message}`);
     }
     
+    console.log(`Itens encontrados: ${data?.length || 0}`, data);
     return data as ItemNotaFiscal[];
   } catch (error: any) {
     console.error('Erro ao buscar itens da nota fiscal:', error);
     throw error;
+  }
+};
+
+/**
+ * Test connection to Supabase
+ */
+export const testarConexao = async (): Promise<boolean> => {
+  try {
+    console.log('Testando conexão com Supabase...');
+    
+    const { data, error } = await supabase
+      .from('notas_fiscais')
+      .select('count')
+      .limit(1);
+    
+    if (error) {
+      console.error('Erro na conexão:', error);
+      return false;
+    }
+    
+    console.log('Conexão com Supabase OK');
+    return true;
+  } catch (error) {
+    console.error('Erro na conexão:', error);
+    return false;
   }
 };

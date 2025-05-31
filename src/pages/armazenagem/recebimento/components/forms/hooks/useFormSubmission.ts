@@ -20,68 +20,87 @@ export const useFormSubmission = () => {
         throw new Error('Número da nota fiscal é obrigatório');
       }
 
+      // Helper function para converter string para número
+      const parseNumber = (value: any): number => {
+        if (value === null || value === undefined || value === '') return 0;
+        const numValue = typeof value === 'string' ? 
+          parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.')) : 
+          Number(value);
+        return isNaN(numValue) ? 0 : numValue;
+      };
+
+      // Helper function para converter data
+      const parseDate = (value: any): string => {
+        if (!value) return new Date().toISOString();
+        try {
+          return new Date(value).toISOString();
+        } catch {
+          return new Date().toISOString();
+        }
+      };
+
       // Mapear os dados do formulário para o formato da NotaFiscal
       const notaFiscalData: Partial<NotaFiscal> = {
         // Campos obrigatórios
         numero: data.numeroNF,
-        valor_total: data.valorTotal ? parseFloat(data.valorTotal.toString().replace(/[^\d.,]/g, '').replace(',', '.')) : 0,
-        data_emissao: data.dataHoraEmissao ? new Date(data.dataHoraEmissao).toISOString() : new Date().toISOString(),
+        valor_total: parseNumber(data.valorTotal),
+        data_emissao: parseDate(data.dataHoraEmissao),
         status: 'pendente',
-        data_inclusao: new Date().toISOString()
-      };
+        data_inclusao: new Date().toISOString(),
 
-      // Adicionar campos opcionais apenas se tiverem valor
-      if (data.serieNF) notaFiscalData.serie = data.serieNF;
-      if (data.chaveNF) notaFiscalData.chave_acesso = data.chaveNF;
-      if (data.pesoTotalBruto) notaFiscalData.peso_bruto = parseFloat(data.pesoTotalBruto.toString().replace(/[^\d.,]/g, '').replace(',', '.'));
-      if (data.volumesTotal) notaFiscalData.quantidade_volumes = parseInt(data.volumesTotal.toString());
-      if (data.tipoOperacao) notaFiscalData.tipo_operacao = data.tipoOperacao;
-      
-      // Dados do emitente
-      if (data.emitenteCNPJ) notaFiscalData.emitente_cnpj = data.emitenteCNPJ;
-      if (data.emitenteRazaoSocial) notaFiscalData.emitente_razao_social = data.emitenteRazaoSocial;
-      if (data.emitenteTelefone) notaFiscalData.emitente_telefone = data.emitenteTelefone;
-      if (data.emitenteUF) notaFiscalData.emitente_uf = data.emitenteUF;
-      if (data.emitenteCidade) notaFiscalData.emitente_cidade = data.emitenteCidade;
-      if (data.emitenteBairro) notaFiscalData.emitente_bairro = data.emitenteBairro;
-      if (data.emitenteEndereco) notaFiscalData.emitente_endereco = data.emitenteEndereco;
-      if (data.emitenteNumero) notaFiscalData.emitente_numero = data.emitenteNumero;
-      if (data.emitenteCEP) notaFiscalData.emitente_cep = data.emitenteCEP;
-      
-      // Dados do destinatário
-      if (data.destinatarioCNPJ) notaFiscalData.destinatario_cnpj = data.destinatarioCNPJ;
-      if (data.destinatarioRazaoSocial) notaFiscalData.destinatario_razao_social = data.destinatarioRazaoSocial;
-      if (data.destinatarioTelefone) notaFiscalData.destinatario_telefone = data.destinatarioTelefone;
-      if (data.destinatarioUF) notaFiscalData.destinatario_uf = data.destinatarioUF;
-      if (data.destinatarioCidade) notaFiscalData.destinatario_cidade = data.destinatarioCidade;
-      if (data.destinatarioBairro) notaFiscalData.destinatario_bairro = data.destinatarioBairro;
-      if (data.destinatarioEndereco) notaFiscalData.destinatario_endereco = data.destinatarioEndereco;
-      if (data.destinatarioNumero) notaFiscalData.destinatario_numero = data.destinatarioNumero;
-      if (data.destinatarioCEP) notaFiscalData.destinatario_cep = data.destinatarioCEP;
-      
-      // Informações adicionais
-      if (data.informacoesComplementares) notaFiscalData.informacoes_complementares = data.informacoesComplementares;
-      if (data.numeroPedido) notaFiscalData.numero_pedido = data.numeroPedido;
-      if (data.fobCif) notaFiscalData.fob_cif = data.fobCif;
-      
-      // Informações de transporte
-      if (data.numeroColeta) notaFiscalData.numero_coleta = data.numeroColeta;
-      if (data.valorColeta) notaFiscalData.valor_coleta = parseFloat(data.valorColeta.toString().replace(/[^\d.,]/g, '').replace(',', '.'));
-      if (data.numeroCTeColeta) notaFiscalData.numero_cte_coleta = data.numeroCTeColeta;
-      if (data.numeroCTeViagem) notaFiscalData.numero_cte_viagem = data.numeroCTeViagem;
-      if (data.dataEmbarque) notaFiscalData.data_embarque = new Date(data.dataEmbarque).toISOString();
-      
-      // Informações complementares
-      if (data.dataHoraEntrada) notaFiscalData.data_entrada = new Date(data.dataHoraEntrada).toISOString();
-      if (data.statusEmbarque) notaFiscalData.status_embarque = data.statusEmbarque;
-      if (data.responsavelEntrega) notaFiscalData.responsavel_entrega = data.responsavelEntrega;
-      if (data.motorista) notaFiscalData.motorista = data.motorista;
-      if (data.tempoArmazenamento) notaFiscalData.tempo_armazenamento_horas = parseFloat(data.tempoArmazenamento.toString());
-      if (data.entregueAoFornecedor) notaFiscalData.entregue_ao_fornecedor = data.entregueAoFornecedor;
-      
-      // Campos booleanos
-      notaFiscalData.quimico = data.quimico === 'sim';
-      notaFiscalData.fracionado = data.fracionado === 'sim';
+        // Adicionar campos opcionais apenas se tiverem valor válido
+        ...(data.serieNF && { serie: data.serieNF }),
+        ...(data.chaveNF && { chave_acesso: data.chaveNF }),
+        ...(data.pesoTotalBruto && { peso_bruto: parseNumber(data.pesoTotalBruto) }),
+        ...(data.volumesTotal && { quantidade_volumes: parseInt(data.volumesTotal.toString()) || 0 }),
+        ...(data.tipoOperacao && { tipo_operacao: data.tipoOperacao }),
+        
+        // Dados do emitente
+        ...(data.emitenteCNPJ && { emitente_cnpj: data.emitenteCNPJ }),
+        ...(data.emitenteRazaoSocial && { emitente_razao_social: data.emitenteRazaoSocial }),
+        ...(data.emitenteTelefone && { emitente_telefone: data.emitenteTelefone }),
+        ...(data.emitenteUF && { emitente_uf: data.emitenteUF }),
+        ...(data.emitenteCidade && { emitente_cidade: data.emitenteCidade }),
+        ...(data.emitenteBairro && { emitente_bairro: data.emitenteBairro }),
+        ...(data.emitenteEndereco && { emitente_endereco: data.emitenteEndereco }),
+        ...(data.emitenteNumero && { emitente_numero: data.emitenteNumero }),
+        ...(data.emitenteCEP && { emitente_cep: data.emitenteCEP }),
+        
+        // Dados do destinatário
+        ...(data.destinatarioCNPJ && { destinatario_cnpj: data.destinatarioCNPJ }),
+        ...(data.destinatarioRazaoSocial && { destinatario_razao_social: data.destinatarioRazaoSocial }),
+        ...(data.destinatarioTelefone && { destinatario_telefone: data.destinatarioTelefone }),
+        ...(data.destinatarioUF && { destinatario_uf: data.destinatarioUF }),
+        ...(data.destinatarioCidade && { destinatario_cidade: data.destinatarioCidade }),
+        ...(data.destinatarioBairro && { destinatario_bairro: data.destinatarioBairro }),
+        ...(data.destinatarioEndereco && { destinatario_endereco: data.destinatarioEndereco }),
+        ...(data.destinatarioNumero && { destinatario_numero: data.destinatarioNumero }),
+        ...(data.destinatarioCEP && { destinatario_cep: data.destinatarioCEP }),
+        
+        // Informações adicionais
+        ...(data.informacoesComplementares && { informacoes_complementares: data.informacoesComplementares }),
+        ...(data.numeroPedido && { numero_pedido: data.numeroPedido }),
+        ...(data.fobCif && { fob_cif: data.fobCif }),
+        
+        // Informações de transporte
+        ...(data.numeroColeta && { numero_coleta: data.numeroColeta }),
+        ...(data.valorColeta && { valor_coleta: parseNumber(data.valorColeta) }),
+        ...(data.numeroCTeColeta && { numero_cte_coleta: data.numeroCTeColeta }),
+        ...(data.numeroCTeViagem && { numero_cte_viagem: data.numeroCTeViagem }),
+        ...(data.dataEmbarque && { data_embarque: parseDate(data.dataEmbarque) }),
+        
+        // Informações complementares
+        ...(data.dataHoraEntrada && { data_entrada: parseDate(data.dataHoraEntrada) }),
+        ...(data.statusEmbarque && { status_embarque: data.statusEmbarque }),
+        ...(data.responsavelEntrega && { responsavel_entrega: data.responsavelEntrega }),
+        ...(data.motorista && { motorista: data.motorista }),
+        ...(data.tempoArmazenamento && { tempo_armazenamento_horas: parseNumber(data.tempoArmazenamento) }),
+        ...(data.entregueAoFornecedor && { entregue_ao_fornecedor: data.entregueAoFornecedor }),
+        
+        // Campos booleanos
+        quimico: data.quimico === 'sim',
+        fracionado: data.fracionado === 'sim',
+      };
       
       console.log('=== DADOS MAPEADOS PARA ENVIO ===');
       console.log('Dados mapeados para Supabase:', JSON.stringify(notaFiscalData, null, 2));

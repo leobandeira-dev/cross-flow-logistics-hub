@@ -53,10 +53,11 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
     return missingFields;
   };
 
+  // Função para gerar ID consistente baseado na nota fiscal e número do volume
   const generateConsistentVolumeId = (notaFiscal: string, volumeNumber: number): string => {
-    // Criar ID consistente baseado na nota fiscal e número do volume
-    // Formato: NF-{numeroNF}-VOL-{numeroVolume}
+    // Limpar caracteres especiais do número da nota fiscal
     const cleanNotaFiscal = notaFiscal.replace(/[^\w]/g, '').toUpperCase();
+    // Formato: NF-{numeroNF}-VOL-{numeroVolume}
     return `NF-${cleanNotaFiscal}-VOL-${volumeNumber.toString().padStart(3, '0')}`;
   };
 
@@ -125,10 +126,16 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         return;
       }
 
-      // Validar campos obrigatórios básicos
+      // Primeiro, vamos atualizar os volumes com IDs consistentes ANTES de validar
+      const volumesComIdConsistente = generatedVolumes.map(volume => ({
+        ...volume,
+        id: generateConsistentVolumeId(volume.notaFiscal, volume.volumeNumber || 1)
+      }));
+
+      // Validar campos obrigatórios básicos APÓS gerar IDs consistentes
       const volumesValidacao: { volume: Volume; missingFields: string[] }[] = [];
       
-      generatedVolumes.forEach(volume => {
+      volumesComIdConsistente.forEach(volume => {
         const missingFields = validateBasicFields(volume);
         if (missingFields.length > 0) {
           volumesValidacao.push({ volume, missingFields });
@@ -148,12 +155,6 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         });
         return;
       }
-
-      // Atualizar os volumes gerados com IDs consistentes
-      const volumesComIdConsistente = generatedVolumes.map(volume => ({
-        ...volume,
-        id: generateConsistentVolumeId(volume.notaFiscal, volume.volumeNumber || 1)
-      }));
 
       // Atualizar o estado com os novos IDs
       if (setGeneratedVolumes) {
