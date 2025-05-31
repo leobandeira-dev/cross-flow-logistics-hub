@@ -41,65 +41,71 @@ export const useFormSubmission = () => {
 
       // Mapear os dados do formulário para o formato da NotaFiscal
       const notaFiscalData: Partial<NotaFiscal> = {
-        // Campos obrigatórios
+        // Campos obrigatórios - sempre incluir
         numero: data.numeroNF,
         valor_total: parseNumber(data.valorTotal),
         data_emissao: parseDate(data.dataHoraEmissao),
         status: 'pendente',
         data_inclusao: new Date().toISOString(),
 
-        // Adicionar campos opcionais apenas se tiverem valor válido
-        ...(data.serieNF && { serie: data.serieNF }),
-        ...(data.chaveNF && { chave_acesso: data.chaveNF }),
-        ...(data.pesoTotalBruto && { peso_bruto: parseNumber(data.pesoTotalBruto) }),
-        ...(data.volumesTotal && { quantidade_volumes: parseInt(data.volumesTotal.toString()) || 0 }),
-        ...(data.tipoOperacao && { tipo_operacao: data.tipoOperacao }),
+        // Campos obrigatórios com valores padrão
+        serie: data.serieNF || '1',
+        chave_acesso: data.chaveNF || '',
+        peso_bruto: parseNumber(data.pesoTotalBruto),
+        quantidade_volumes: data.volumesTotal ? parseInt(data.volumesTotal.toString()) : 1,
         
-        // Dados do emitente
-        ...(data.emitenteCNPJ && { emitente_cnpj: data.emitenteCNPJ }),
-        ...(data.emitenteRazaoSocial && { emitente_razao_social: data.emitenteRazaoSocial }),
-        ...(data.emitenteTelefone && { emitente_telefone: data.emitenteTelefone }),
-        ...(data.emitenteUF && { emitente_uf: data.emitenteUF }),
-        ...(data.emitenteCidade && { emitente_cidade: data.emitenteCidade }),
-        ...(data.emitenteBairro && { emitente_bairro: data.emitenteBairro }),
-        ...(data.emitenteEndereco && { emitente_endereco: data.emitenteEndereco }),
-        ...(data.emitenteNumero && { emitente_numero: data.emitenteNumero }),
-        ...(data.emitenteCEP && { emitente_cep: data.emitenteCEP }),
+        // Tipo de operação
+        tipo_operacao: data.tipoOperacao || 'entrada',
+        tipo: 'entrada',
         
-        // Dados do destinatário
-        ...(data.destinatarioCNPJ && { destinatario_cnpj: data.destinatarioCNPJ }),
-        ...(data.destinatarioRazaoSocial && { destinatario_razao_social: data.destinatarioRazaoSocial }),
-        ...(data.destinatarioTelefone && { destinatario_telefone: data.destinatarioTelefone }),
-        ...(data.destinatarioUF && { destinatario_uf: data.destinatarioUF }),
-        ...(data.destinatarioCidade && { destinatario_cidade: data.destinatarioCidade }),
-        ...(data.destinatarioBairro && { destinatario_bairro: data.destinatarioBairro }),
-        ...(data.destinatarioEndereco && { destinatario_endereco: data.destinatarioEndereco }),
-        ...(data.destinatarioNumero && { destinatario_numero: data.destinatarioNumero }),
-        ...(data.destinatarioCEP && { destinatario_cep: data.destinatarioCEP }),
+        // Dados do emitente - sempre incluir mesmo que vazios
+        emitente_cnpj: data.emitenteCNPJ || '',
+        emitente_razao_social: data.emitenteRazaoSocial || '',
+        emitente_telefone: data.emitenteTelefone || '',
+        emitente_uf: data.emitenteUF || '',
+        emitente_cidade: data.emitenteCidade || '',
+        emitente_bairro: data.emitenteBairro || '',
+        emitente_endereco: data.emitenteEndereco || '',
+        emitente_numero: data.emitenteNumero || '',
+        emitente_cep: data.emitenteCEP || '',
+        
+        // Dados do destinatário - sempre incluir mesmo que vazios
+        destinatario_cnpj: data.destinatarioCNPJ || '',
+        destinatario_razao_social: data.destinatarioRazaoSocial || '',
+        destinatario_telefone: data.destinatarioTelefone || '',
+        destinatario_uf: data.destinatarioUF || '',
+        destinatario_cidade: data.destinatarioCidade || '',
+        destinatario_bairro: data.destinatarioBairro || '',
+        destinatario_endereco: data.destinatarioEndereco || '',
+        destinatario_numero: data.destinatarioNumero || '',
+        destinatario_cep: data.destinatarioCEP || '',
         
         // Informações adicionais
-        ...(data.informacoesComplementares && { informacoes_complementares: data.informacoesComplementares }),
-        ...(data.numeroPedido && { numero_pedido: data.numeroPedido }),
-        ...(data.fobCif && { fob_cif: data.fobCif }),
+        informacoes_complementares: data.informacoesComplementares || '',
+        numero_pedido: data.numeroPedido || '',
+        fob_cif: data.fobCif || '',
         
         // Informações de transporte
-        ...(data.numeroColeta && { numero_coleta: data.numeroColeta }),
-        ...(data.valorColeta && { valor_coleta: parseNumber(data.valorColeta) }),
-        ...(data.numeroCTeColeta && { numero_cte_coleta: data.numeroCTeColeta }),
-        ...(data.numeroCTeViagem && { numero_cte_viagem: data.numeroCTeViagem }),
-        ...(data.dataEmbarque && { data_embarque: parseDate(data.dataEmbarque) }),
+        numero_coleta: data.numeroColeta || '',
+        valor_coleta: parseNumber(data.valorColeta),
+        numero_cte_coleta: data.numeroCTeColeta || '',
+        numero_cte_viagem: data.numeroCTeViagem || '',
+        data_embarque: data.dataEmbarque ? parseDate(data.dataEmbarque) : null,
         
         // Informações complementares
-        ...(data.dataHoraEntrada && { data_entrada: parseDate(data.dataHoraEntrada) }),
-        ...(data.statusEmbarque && { status_embarque: data.statusEmbarque }),
-        ...(data.responsavelEntrega && { responsavel_entrega: data.responsavelEntrega }),
-        ...(data.motorista && { motorista: data.motorista }),
-        ...(data.tempoArmazenamento && { tempo_armazenamento_horas: parseNumber(data.tempoArmazenamento) }),
-        ...(data.entregueAoFornecedor && { entregue_ao_fornecedor: data.entregueAoFornecedor }),
+        data_entrada: data.dataHoraEntrada ? parseDate(data.dataHoraEntrada) : null,
+        status_embarque: data.statusEmbarque || '',
+        responsavel_entrega: data.responsavelEntrega || '',
+        motorista: data.motorista || '',
+        tempo_armazenamento_horas: parseNumber(data.tempoArmazenamento),
+        entregue_ao_fornecedor: data.entregueAoFornecedor || '',
         
         // Campos booleanos
         quimico: data.quimico === 'sim',
         fracionado: data.fracionado === 'sim',
+        
+        // Observações
+        observacoes: '',
       };
       
       console.log('=== DADOS MAPEADOS PARA ENVIO ===');

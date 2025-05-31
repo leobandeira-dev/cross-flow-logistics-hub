@@ -800,7 +800,7 @@ export type Database = {
           coleta_id?: string | null
           created_at?: string | null
           data_embarque?: string | null
-          data_emissao: string
+          data_emissao?: string
           data_entrada?: string | null
           data_hora_emissao?: string | null
           data_hora_entrada?: string | null
@@ -832,7 +832,7 @@ export type Database = {
           informacoes_complementares?: string | null
           lista_romaneio?: string | null
           motorista?: string | null
-          numero: string
+          numero?: string
           numero_coleta?: string | null
           numero_cte_coleta?: string | null
           numero_cte_viagem?: string | null

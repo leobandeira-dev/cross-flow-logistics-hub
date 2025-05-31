@@ -19,10 +19,24 @@ export const useNotaFiscalForm = () => {
       const result = await submitForm(data);
       console.log('Resultado da submissão:', result);
       
+      // Mostrar sucesso adicional no toast
+      toast({
+        title: "✅ Processamento Concluído",
+        description: `Nota fiscal processada e salva no banco de dados com ID: ${result.id}`,
+      });
+      
       return result;
     } catch (error) {
       console.error("=== ERRO NO HANDLE SUBMIT ===");
       console.error("Erro no formulário:", error);
+      
+      // Toast adicional para debug
+      toast({
+        title: "🔍 Debug - Erro Capturado",
+        description: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive"
+      });
+      
       throw error;
     }
   };
@@ -126,19 +140,58 @@ export const useNotaFiscalForm = () => {
       // Set current tab
       setValue('currentTab', 'lote');
       
-      toast({
-        title: "Importação em lote iniciada",
-        description: `Processando ${files.length} arquivo(s) XML.`,
-      });
+      console.log('=== INICIANDO IMPORTAÇÃO EM LOTE ===');
+      console.log(`Processando ${files.length} arquivo(s) XML...`);
       
-      // In a real application, you would process all files and handle the common fields
-      // For now, we'll just simulate success after a delay
-      setTimeout(() => {
+      let sucessos = 0;
+      let erros = 0;
+      
+      // Processar cada arquivo individualmente
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          console.log(`Processando arquivo ${i + 1}/${files.length}: ${file.name}`);
+          
+          const xmlData = await parseXmlFile(file);
+          if (xmlData) {
+            const extractedData = extractDataFromXml(xmlData);
+            
+            // Validar se tem dados essenciais
+            if (!extractedData.numeroNF) {
+              console.warn(`Arquivo ${file.name} não contém número de NF válido`);
+              erros++;
+              continue;
+            }
+            
+            // Criar nota fiscal diretamente
+            const result = await submitForm(extractedData);
+            console.log(`Nota fiscal ${extractedData.numeroNF} salva com sucesso:`, result.id);
+            sucessos++;
+            
+          } else {
+            console.warn(`Não foi possível processar o arquivo ${file.name}`);
+            erros++;
+          }
+        } catch (error) {
+          console.error(`Erro ao processar arquivo ${file.name}:`, error);
+          erros++;
+        }
+      }
+      
+      console.log(`=== IMPORTAÇÃO CONCLUÍDA - Sucessos: ${sucessos}, Erros: ${erros} ===`);
+      
+      if (sucessos > 0) {
         toast({
           title: "Importação em lote concluída",
-          description: `${files.length} nota(s) fiscal(is) importada(s) com sucesso.`,
+          description: `${sucessos} nota(s) fiscal(is) importada(s) com sucesso. ${erros > 0 ? `${erros} erro(s).` : ''}`,
         });
-      }, 1000);
+      } else {
+        toast({
+          title: "Erro na importação",
+          description: "Nenhuma nota fiscal foi importada com sucesso.",
+          variant: "destructive"
+        });
+      }
       
     } catch (error) {
       console.error("Erro ao importar em lote:", error);

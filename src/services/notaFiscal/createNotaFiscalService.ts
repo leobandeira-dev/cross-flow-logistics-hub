@@ -23,66 +23,67 @@ export const criarNotaFiscal = async (notaFiscal: Partial<NotaFiscal>, itensNota
     
     console.log('Conexão com Supabase OK');
     
-    // Preparar dados para inserção - garantindo que todos os campos obrigatórios estejam presentes
+    // Preparar dados para inserção com todos os campos necessários
     const notaFiscalToInsert = {
-      // Campos obrigatórios
+      // Campos obrigatórios sempre preenchidos
       numero: notaFiscal.numero || '',
       valor_total: Number(notaFiscal.valor_total) || 0,
       data_emissao: notaFiscal.data_emissao || new Date().toISOString(),
       status: notaFiscal.status || 'pendente',
       data_inclusao: new Date().toISOString(),
       
-      // Campos opcionais - incluir apenas se tiverem valor válido
-      ...(notaFiscal.serie && { serie: notaFiscal.serie }),
-      ...(notaFiscal.chave_acesso && { chave_acesso: notaFiscal.chave_acesso }),
-      ...(notaFiscal.quantidade_volumes !== undefined && { quantidade_volumes: Number(notaFiscal.quantidade_volumes) }),
-      ...(notaFiscal.peso_bruto !== undefined && { peso_bruto: Number(notaFiscal.peso_bruto) }),
-      ...(notaFiscal.tipo_operacao && { tipo_operacao: notaFiscal.tipo_operacao }),
+      // Campos com valores padrão para evitar NULL
+      serie: notaFiscal.serie || '1',
+      chave_acesso: notaFiscal.chave_acesso || '',
+      quantidade_volumes: Number(notaFiscal.quantidade_volumes) || 1,
+      peso_bruto: Number(notaFiscal.peso_bruto) || 0,
+      tipo_operacao: notaFiscal.tipo_operacao || 'entrada',
+      tipo: 'entrada',
       
-      // Dados do emitente
-      ...(notaFiscal.emitente_cnpj && { emitente_cnpj: notaFiscal.emitente_cnpj }),
-      ...(notaFiscal.emitente_razao_social && { emitente_razao_social: notaFiscal.emitente_razao_social }),
-      ...(notaFiscal.emitente_telefone && { emitente_telefone: notaFiscal.emitente_telefone }),
-      ...(notaFiscal.emitente_uf && { emitente_uf: notaFiscal.emitente_uf }),
-      ...(notaFiscal.emitente_cidade && { emitente_cidade: notaFiscal.emitente_cidade }),
-      ...(notaFiscal.emitente_bairro && { emitente_bairro: notaFiscal.emitente_bairro }),
-      ...(notaFiscal.emitente_endereco && { emitente_endereco: notaFiscal.emitente_endereco }),
-      ...(notaFiscal.emitente_numero && { emitente_numero: notaFiscal.emitente_numero }),
-      ...(notaFiscal.emitente_cep && { emitente_cep: notaFiscal.emitente_cep }),
+      // Dados do emitente com valores padrão vazios
+      emitente_cnpj: notaFiscal.emitente_cnpj || '',
+      emitente_razao_social: notaFiscal.emitente_razao_social || '',
+      emitente_telefone: notaFiscal.emitente_telefone || '',
+      emitente_uf: notaFiscal.emitente_uf || '',
+      emitente_cidade: notaFiscal.emitente_cidade || '',
+      emitente_bairro: notaFiscal.emitente_bairro || '',
+      emitente_endereco: notaFiscal.emitente_endereco || '',
+      emitente_numero: notaFiscal.emitente_numero || '',
+      emitente_cep: notaFiscal.emitente_cep || '',
       
-      // Dados do destinatário
-      ...(notaFiscal.destinatario_cnpj && { destinatario_cnpj: notaFiscal.destinatario_cnpj }),
-      ...(notaFiscal.destinatario_razao_social && { destinatario_razao_social: notaFiscal.destinatario_razao_social }),
-      ...(notaFiscal.destinatario_telefone && { destinatario_telefone: notaFiscal.destinatario_telefone }),
-      ...(notaFiscal.destinatario_uf && { destinatario_uf: notaFiscal.destinatario_uf }),
-      ...(notaFiscal.destinatario_cidade && { destinatario_cidade: notaFiscal.destinatario_cidade }),
-      ...(notaFiscal.destinatario_bairro && { destinatario_bairro: notaFiscal.destinatario_bairro }),
-      ...(notaFiscal.destinatario_endereco && { destinatario_endereco: notaFiscal.destinatario_endereco }),
-      ...(notaFiscal.destinatario_numero && { destinatario_numero: notaFiscal.destinatario_numero }),
-      ...(notaFiscal.destinatario_cep && { destinatario_cep: notaFiscal.destinatario_cep }),
+      // Dados do destinatário com valores padrão vazios
+      destinatario_cnpj: notaFiscal.destinatario_cnpj || '',
+      destinatario_razao_social: notaFiscal.destinatario_razao_social || '',
+      destinatario_telefone: notaFiscal.destinatario_telefone || '',
+      destinatario_uf: notaFiscal.destinatario_uf || '',
+      destinatario_cidade: notaFiscal.destinatario_cidade || '',
+      destinatario_bairro: notaFiscal.destinatario_bairro || '',
+      destinatario_endereco: notaFiscal.destinatario_endereco || '',
+      destinatario_numero: notaFiscal.destinatario_numero || '',
+      destinatario_cep: notaFiscal.destinatario_cep || '',
       
-      // Informações adicionais
-      ...(notaFiscal.informacoes_complementares && { informacoes_complementares: notaFiscal.informacoes_complementares }),
-      ...(notaFiscal.numero_pedido && { numero_pedido: notaFiscal.numero_pedido }),
-      ...(notaFiscal.fob_cif && { fob_cif: notaFiscal.fob_cif }),
+      // Informações adicionais com valores padrão vazios
+      informacoes_complementares: notaFiscal.informacoes_complementares || '',
+      numero_pedido: notaFiscal.numero_pedido || '',
+      fob_cif: notaFiscal.fob_cif || '',
       
-      // Informações de transporte
-      ...(notaFiscal.numero_coleta && { numero_coleta: notaFiscal.numero_coleta }),
-      ...(notaFiscal.valor_coleta !== undefined && { valor_coleta: Number(notaFiscal.valor_coleta) }),
-      ...(notaFiscal.numero_cte_coleta && { numero_cte_coleta: notaFiscal.numero_cte_coleta }),
-      ...(notaFiscal.numero_cte_viagem && { numero_cte_viagem: notaFiscal.numero_cte_viagem }),
-      ...(notaFiscal.data_embarque && { data_embarque: notaFiscal.data_embarque }),
+      // Informações de transporte com valores padrão
+      numero_coleta: notaFiscal.numero_coleta || '',
+      valor_coleta: Number(notaFiscal.valor_coleta) || 0,
+      numero_cte_coleta: notaFiscal.numero_cte_coleta || '',
+      numero_cte_viagem: notaFiscal.numero_cte_viagem || '',
+      data_embarque: notaFiscal.data_embarque || null,
       
-      // Informações complementares
-      ...(notaFiscal.data_entrada && { data_entrada: notaFiscal.data_entrada }),
-      ...(notaFiscal.status_embarque && { status_embarque: notaFiscal.status_embarque }),
-      ...(notaFiscal.responsavel_entrega && { responsavel_entrega: notaFiscal.responsavel_entrega }),
-      ...(notaFiscal.motorista && { motorista: notaFiscal.motorista }),
-      ...(notaFiscal.tempo_armazenamento_horas !== undefined && { tempo_armazenamento_horas: Number(notaFiscal.tempo_armazenamento_horas) }),
-      ...(notaFiscal.entregue_ao_fornecedor && { entregue_ao_fornecedor: notaFiscal.entregue_ao_fornecedor }),
-      ...(notaFiscal.observacoes && { observacoes: notaFiscal.observacoes }),
+      // Informações complementares com valores padrão
+      data_entrada: notaFiscal.data_entrada || null,
+      status_embarque: notaFiscal.status_embarque || '',
+      responsavel_entrega: notaFiscal.responsavel_entrega || '',
+      motorista: notaFiscal.motorista || '',
+      tempo_armazenamento_horas: Number(notaFiscal.tempo_armazenamento_horas) || 0,
+      entregue_ao_fornecedor: notaFiscal.entregue_ao_fornecedor || '',
+      observacoes: notaFiscal.observacoes || '',
       
-      // Campos booleanos com valor padrão
+      // Campos booleanos com valor padrão false
       quimico: Boolean(notaFiscal.quimico),
       fracionado: Boolean(notaFiscal.fracionado),
     };
