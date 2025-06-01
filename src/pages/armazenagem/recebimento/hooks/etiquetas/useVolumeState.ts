@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 export interface Volume {
   id: string;
   notaFiscal: string;
-  chaveNF?: string;
+  chaveNF: string; // Mudado para obrigatório para compatibilidade
   remetente: string; // Mudado para obrigatório para compatibilidade
   destinatario: string; // Mudado para obrigatório para compatibilidade
   endereco: string; // Mudado para obrigatório para compatibilidade
