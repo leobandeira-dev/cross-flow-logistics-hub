@@ -10,9 +10,10 @@ export const notaFiscalSchema = z.object({
   serieNF: z.string().optional(),
   chaveNF: z.string().optional(),
   dataEmissao: z.string().optional(),
-  valorTotal: z.union([z.string(), z.number()]).optional(),
-  pesoBruto: z.union([z.string(), z.number()]).optional(),
-  quantidadeVolumes: z.union([z.string(), z.number()]).optional(),
+  dataHoraEmissao: z.string().optional(),
+  valorTotal: z.string().optional(),
+  pesoBruto: z.string().optional(),
+  quantidadeVolumes: z.string().optional(),
   tipoOperacao: z.string().optional(),
 
   // Dados do Emitente
@@ -41,20 +42,22 @@ export const notaFiscalSchema = z.object({
   informacoesComplementares: z.string().optional(),
   numeroPedido: z.string().optional(),
   fobCif: z.string().optional(),
+  tipoFrete: z.string().optional(),
 
   // Informações de Transporte
   numeroColeta: z.string().optional(),
-  valorColeta: z.union([z.string(), z.number()]).optional(),
+  valorColeta: z.string().optional(),
   numeroCteColeta: z.string().optional(),
   numeroCteViagem: z.string().optional(),
   statusEmbarque: z.string().optional(),
 
   // Informações Complementares
+  dataHoraEntrada: z.string().optional(),
   responsavelEntrega: z.string().optional(),
-  quimico: z.boolean().optional(),
-  fracionado: z.boolean().optional(),
+  quimico: z.string().optional(),
+  fracionado: z.string().optional(),
   motorista: z.string().optional(),
-  tempoArmazenamento: z.union([z.string(), z.number()]).optional(),
+  tempoArmazenamento: z.string().optional(),
   entregueAoFornecedor: z.string().optional(),
   observacoes: z.string().optional(),
 });
@@ -67,6 +70,7 @@ export const defaultValues: NotaFiscalSchemaType = {
   serieNF: '',
   chaveNF: '',
   dataEmissao: '',
+  dataHoraEmissao: '',
   valorTotal: '',
   pesoBruto: '',
   quantidadeVolumes: '',
@@ -98,6 +102,7 @@ export const defaultValues: NotaFiscalSchemaType = {
   informacoesComplementares: '',
   numeroPedido: '',
   fobCif: '',
+  tipoFrete: '',
   
   // Transporte
   numeroColeta: '',
@@ -107,9 +112,10 @@ export const defaultValues: NotaFiscalSchemaType = {
   statusEmbarque: '',
   
   // Complementares
+  dataHoraEntrada: '',
   responsavelEntrega: '',
-  quimico: false,
-  fracionado: false,
+  quimico: '',
+  fracionado: '',
   motorista: '',
   tempoArmazenamento: '',
   entregueAoFornecedor: '',

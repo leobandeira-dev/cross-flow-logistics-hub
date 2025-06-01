@@ -35,7 +35,7 @@ const InformacoesComplementares: React.FC = () => {
               <FormItem>
                 <FormLabel>Data e Hora de Entrada</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" {...field} />
+                  <Input type="datetime-local" {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -50,7 +50,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Status Embarque</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value}
+                  defaultValue={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -76,7 +76,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Responsável pela Entrega</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value}
+                  defaultValue={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -104,7 +104,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Químico</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value}
+                  defaultValue={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -129,7 +129,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Fracionado</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value}
+                  defaultValue={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -154,7 +154,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Motorista</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value}
+                  defaultValue={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
