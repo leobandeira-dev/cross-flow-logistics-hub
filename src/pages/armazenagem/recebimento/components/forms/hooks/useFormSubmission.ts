@@ -1,150 +1,204 @@
 
-import { useState } from 'react';
-import { NotaFiscalSchemaType } from '../notaFiscalSchema';
 import { useToast } from "@/hooks/use-toast";
-import { criarNotaFiscal } from '@/services/notaFiscal/createNotaFiscalService';
-import { NotaFiscal } from '@/types/supabase/fiscal.types';
+import { NotaFiscalSchemaType } from '../notaFiscalSchema';
+import { supabase } from "@/integrations/supabase/client";
+import { atualizarNotaFiscal } from "@/services/notaFiscal/updateNotaFiscalService";
 
 export const useFormSubmission = () => {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const handleSubmit = async (data: NotaFiscalSchemaType) => {
-    setIsLoading(true);
+
+  const handleSubmit = async (formData: NotaFiscalSchemaType) => {
     try {
-      console.log('=== INÍCIO DA SUBMISSÃO ===');
-      console.log('Dados do formulário recebidos:', data);
-      
-      // Validar dados obrigatórios
-      if (!data.numeroNF || data.numeroNF.trim() === '') {
-        throw new Error('Número da nota fiscal é obrigatório');
-      }
+      console.log('=== INICIANDO SUBMISSÃO DO FORMULÁRIO ===');
+      console.log('Dados do formulário recebidos:', formData);
 
-      // Helper function para converter string para número
-      const parseNumber = (value: any): number => {
-        if (value === null || value === undefined || value === '') return 0;
-        const numValue = typeof value === 'string' ? 
-          parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.')) : 
-          Number(value);
-        return isNaN(numValue) ? 0 : numValue;
-      };
-
-      // Helper function para converter data
-      const parseDate = (value: any): string => {
-        if (!value) return new Date().toISOString();
-        try {
-          return new Date(value).toISOString();
-        } catch {
-          return new Date().toISOString();
-        }
-      };
-
-      // Mapear os dados do formulário para o formato da NotaFiscal
-      const notaFiscalData: Partial<NotaFiscal> = {
-        // Campos obrigatórios - sempre incluir
-        numero: data.numeroNF,
-        valor_total: parseNumber(data.valorTotal),
-        data_emissao: parseDate(data.dataHoraEmissao),
-        status: 'pendente',
-        data_inclusao: new Date().toISOString(),
-
-        // Campos obrigatórios com valores padrão
-        serie: data.serieNF || '1',
-        chave_acesso: data.chaveNF || '',
-        peso_bruto: parseNumber(data.pesoTotalBruto),
-        quantidade_volumes: data.volumesTotal ? parseInt(data.volumesTotal.toString()) : 1,
+      // Prepare the data for insertion
+      const notaFiscalData = {
+        numero: formData.numeroNF || '',
+        serie: formData.serieNF || null,
+        chave_acesso: formData.chaveNF || null,
+        valor_total: formData.valorTotal ? parseFloat(formData.valorTotal.toString()) : 0,
+        peso_bruto: formData.pesoBruto ? parseFloat(formData.pesoBruto.toString()) : null,
+        quantidade_volumes: formData.quantidadeVolumes ? parseInt(formData.quantidadeVolumes.toString()) : null,
+        data_emissao: formData.dataEmissao ? new Date(formData.dataEmissao).toISOString() : new Date().toISOString(),
+        tipo_operacao: formData.tipoOperacao || null,
         
-        // Tipo de operação
-        tipo_operacao: data.tipoOperacao || 'entrada',
-        tipo: 'entrada',
+        // Dados do emitente
+        emitente_cnpj: formData.emitenteCnpj || null,
+        emitente_razao_social: formData.emitenteRazaoSocial || null,
+        emitente_telefone: formData.emitenteTelefone || null,
+        emitente_uf: formData.emitenteUf || null,
+        emitente_cidade: formData.emitenteCidade || null,
+        emitente_bairro: formData.emitenteBairro || null,
+        emitente_endereco: formData.emitenteEndereco || null,
+        emitente_numero: formData.emitenteNumero || null,
+        emitente_cep: formData.emitenteCep || null,
         
-        // Dados do emitente - sempre incluir mesmo que vazios
-        emitente_cnpj: data.emitenteCNPJ || '',
-        emitente_razao_social: data.emitenteRazaoSocial || '',
-        emitente_telefone: data.emitenteTelefone || '',
-        emitente_uf: data.emitenteUF || '',
-        emitente_cidade: data.emitenteCidade || '',
-        emitente_bairro: data.emitenteBairro || '',
-        emitente_endereco: data.emitenteEndereco || '',
-        emitente_numero: data.emitenteNumero || '',
-        emitente_cep: data.emitenteCEP || '',
-        
-        // Dados do destinatário - sempre incluir mesmo que vazios
-        destinatario_cnpj: data.destinatarioCNPJ || '',
-        destinatario_razao_social: data.destinatarioRazaoSocial || '',
-        destinatario_telefone: data.destinatarioTelefone || '',
-        destinatario_uf: data.destinatarioUF || '',
-        destinatario_cidade: data.destinatarioCidade || '',
-        destinatario_bairro: data.destinatarioBairro || '',
-        destinatario_endereco: data.destinatarioEndereco || '',
-        destinatario_numero: data.destinatarioNumero || '',
-        destinatario_cep: data.destinatarioCEP || '',
+        // Dados do destinatário
+        destinatario_cnpj: formData.destinatarioCnpj || null,
+        destinatario_razao_social: formData.destinatarioRazaoSocial || null,
+        destinatario_telefone: formData.destinatarioTelefone || null,
+        destinatario_uf: formData.destinatarioUf || null,
+        destinatario_cidade: formData.destinatarioCidade || null,
+        destinatario_bairro: formData.destinatarioBairro || null,
+        destinatario_endereco: formData.destinatarioEndereco || null,
+        destinatario_numero: formData.destinatarioNumero || null,
+        destinatario_cep: formData.destinatarioCep || null,
         
         // Informações adicionais
-        informacoes_complementares: data.informacoesComplementares || '',
-        numero_pedido: data.numeroPedido || '',
-        fob_cif: data.tipoFrete || '',
+        numero_pedido: formData.numeroPedido || null,
+        informacoes_complementares: formData.informacoesComplementares || null,
+        fob_cif: formData.fobCif || null,
         
         // Informações de transporte
-        numero_coleta: data.numeroColeta || '',
-        valor_coleta: parseNumber(data.valorColeta),
-        numero_cte_coleta: data.numeroCTeColeta || '',
-        numero_cte_viagem: data.numeroCTeViagem || '',
-        data_embarque: data.dataEmbarque ? parseDate(data.dataEmbarque) : null,
+        numero_coleta: formData.numeroColeta || null,
+        valor_coleta: formData.valorColeta ? parseFloat(formData.valorColeta.toString()) : null,
+        numero_cte_coleta: formData.numeroCteColeta || null,
+        numero_cte_viagem: formData.numeroCteViagem || null,
+        status_embarque: formData.statusEmbarque || null,
+        responsavel_entrega: formData.responsavelEntrega || null,
+        motorista: formData.motorista || null,
+        tempo_armazenamento_horas: formData.tempoArmazenamento ? parseFloat(formData.tempoArmazenamento.toString()) : null,
+        entregue_ao_fornecedor: formData.entregueAoFornecedor || null,
         
-        // Informações complementares - CORRIGIDO
-        data_entrada: data.dataHoraEntrada ? parseDate(data.dataHoraEntrada) : null,
-        status_embarque: data.statusEmbarque || '',
-        responsavel_entrega: data.responsavelEntrega || '',
-        motorista: data.motorista || '',
-        tempo_armazenamento_horas: parseNumber(data.tempoArmazenamento),
-        entregue_ao_fornecedor: data.entregueAoFornecedor || '',
+        // Informações complementares - properly convert to boolean
+        quimico: formData.quimico === 'true',
+        fracionado: formData.fracionado === 'true',
+        observacoes: formData.observacoes || null,
         
-        // Campos booleanos
-        quimico: data.quimico === 'sim',
-        fracionado: data.fracionado === 'sim',
-        
-        // Observações - alimentado com informações complementares
-        observacoes: data.informacoesComplementares || '',
+        // Status padrão
+        status: 'pendente',
+        data_inclusao: new Date().toISOString()
       };
-      
-      console.log('=== DADOS MAPEADOS PARA ENVIO ===');
-      console.log('Dados mapeados para Supabase:', JSON.stringify(notaFiscalData, null, 2));
-      
-      // Criar a nota fiscal no banco de dados
-      console.log('=== ENVIANDO PARA SUPABASE ===');
-      const notaCriada = await criarNotaFiscal(notaFiscalData);
-      
-      console.log('=== RESPOSTA DO SUPABASE ===');
-      console.log('Nota fiscal criada com sucesso:', notaCriada);
-      
+
+      console.log('Dados preparados para inserção:', notaFiscalData);
+
+      // Insert into database
+      const { data: insertedData, error } = await supabase
+        .from('notas_fiscais')
+        .insert([notaFiscalData])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erro ao inserir nota fiscal:', error);
+        throw new Error(`Erro ao salvar nota fiscal: ${error.message}`);
+      }
+
+      console.log('✅ Nota fiscal inserida com sucesso:', insertedData);
+
       toast({
-        title: "✅ Nota Fiscal Cadastrada",
-        description: `Nota fiscal ${notaCriada.numero} cadastrada com sucesso no sistema.`
+        title: "✅ Sucesso",
+        description: "Nota fiscal cadastrada com sucesso!",
       });
-      
-      return notaCriada;
+
+      return insertedData;
+
     } catch (error) {
-      console.error("=== ERRO NA SUBMISSÃO ===");
-      console.error("Erro ao cadastrar nota fiscal:", error);
-      console.error("Stack trace:", error instanceof Error ? error.stack : 'N/A');
-      
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      console.error('=== ERRO NA SUBMISSÃO ===');
+      console.error('Erro completo:', error);
       
       toast({
-        title: "❌ Erro ao Cadastrar",
-        description: `Falha ao cadastrar nota fiscal: ${errorMessage}`,
+        title: "❌ Erro",
+        description: `Erro ao processar nota fiscal: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         variant: "destructive"
       });
       
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
-  
+
+  const handleUpdate = async (id: string, formData: NotaFiscalSchemaType) => {
+    try {
+      console.log('=== INICIANDO ATUALIZAÇÃO DO FORMULÁRIO ===');
+      console.log('ID da nota fiscal:', id);
+      console.log('Dados do formulário recebidos:', formData);
+
+      // Prepare the data for update
+      const updateData = {
+        numero: formData.numeroNF || '',
+        serie: formData.serieNF || null,
+        chave_acesso: formData.chaveNF || null,
+        valor_total: formData.valorTotal ? parseFloat(formData.valorTotal.toString()) : 0,
+        peso_bruto: formData.pesoBruto ? parseFloat(formData.pesoBruto.toString()) : null,
+        quantidade_volumes: formData.quantidadeVolumes ? parseInt(formData.quantidadeVolumes.toString()) : null,
+        data_emissao: formData.dataEmissao ? new Date(formData.dataEmissao).toISOString() : new Date().toISOString(),
+        tipo_operacao: formData.tipoOperacao || null,
+        
+        // Dados do emitente
+        emitente_cnpj: formData.emitenteCnpj || null,
+        emitente_razao_social: formData.emitenteRazaoSocial || null,
+        emitente_telefone: formData.emitenteTelefone || null,
+        emitente_uf: formData.emitenteUf || null,
+        emitente_cidade: formData.emitenteCidade || null,
+        emitente_bairro: formData.emitenteBairro || null,
+        emitente_endereco: formData.emitenteEndereco || null,
+        emitente_numero: formData.emitenteNumero || null,
+        emitente_cep: formData.emitenteCep || null,
+        
+        // Dados do destinatário
+        destinatario_cnpj: formData.destinatarioCnpj || null,
+        destinatario_razao_social: formData.destinatarioRazaoSocial || null,
+        destinatario_telefone: formData.destinatarioTelefone || null,
+        destinatario_uf: formData.destinatarioUf || null,
+        destinatario_cidade: formData.destinatarioCidade || null,
+        destinatario_bairro: formData.destinatarioBairro || null,
+        destinatario_endereco: formData.destinatarioEndereco || null,
+        destinatario_numero: formData.destinatarioNumero || null,
+        destinatario_cep: formData.destinatarioCep || null,
+        
+        // Informações adicionais
+        numero_pedido: formData.numeroPedido || null,
+        informacoes_complementares: formData.informacoesComplementares || null,
+        fob_cif: formData.fobCif || null,
+        
+        // Informações de transporte
+        numero_coleta: formData.numeroColeta || null,
+        valor_coleta: formData.valorColeta ? parseFloat(formData.valorColeta.toString()) : null,
+        numero_cte_coleta: formData.numeroCteColeta || null,
+        numero_cte_viagem: formData.numeroCteViagem || null,
+        status_embarque: formData.statusEmbarque || null,
+        responsavel_entrega: formData.responsavelEntrega || null,
+        motorista: formData.motorista || null,
+        tempo_armazenamento_horas: formData.tempoArmazenamento ? parseFloat(formData.tempoArmazenamento.toString()) : null,
+        entregue_ao_fornecedor: formData.entregueAoFornecedor || null,
+        
+        // Informações complementares - properly convert to boolean
+        quimico: formData.quimico === 'true',
+        fracionado: formData.fracionado === 'true',
+        observacoes: formData.observacoes || null,
+      };
+
+      console.log('Dados preparados para atualização:', updateData);
+
+      // Use the existing update service
+      const updatedData = await atualizarNotaFiscal(id, updateData);
+
+      console.log('✅ Nota fiscal atualizada com sucesso:', updatedData);
+
+      toast({
+        title: "✅ Sucesso",
+        description: "Nota fiscal atualizada com sucesso!",
+      });
+
+      return updatedData;
+
+    } catch (error) {
+      console.error('=== ERRO NA ATUALIZAÇÃO ===');
+      console.error('Erro completo:', error);
+      
+      toast({
+        title: "❌ Erro",
+        description: `Erro ao atualizar nota fiscal: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive"
+      });
+      
+      throw error;
+    }
+  };
+
   return {
     handleSubmit,
-    isLoading
+    handleUpdate
   };
 };

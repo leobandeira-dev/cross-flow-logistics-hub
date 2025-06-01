@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,7 +26,17 @@ import InformacoesComplementares from './forms/InformacoesComplementares';
 // Import custom hook for form logic
 import { useNotaFiscalForm } from './forms/useNotaFiscalForm';
 
-const NotaFiscalForm: React.FC = () => {
+interface NotaFiscalFormProps {
+  notaFiscalData?: any;
+  onSuccess?: () => void;
+  isEditMode?: boolean;
+}
+
+const NotaFiscalForm: React.FC<NotaFiscalFormProps> = ({ 
+  notaFiscalData, 
+  onSuccess, 
+  isEditMode = false 
+}) => {
   const form = useForm<NotaFiscalSchemaType>({
     resolver: zodResolver(notaFiscalSchema),
     defaultValues,
@@ -35,23 +45,124 @@ const NotaFiscalForm: React.FC = () => {
   const { handleSubmit, handleFileUpload, handleKeySearch, handleBatchImport, isLoading } = useNotaFiscalForm();
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
+
+  // Populate form with existing data when in edit mode
+  useEffect(() => {
+    if (isEditMode && notaFiscalData) {
+      console.log('Populando formulário com dados da nota fiscal:', notaFiscalData);
+      
+      // Map the nota fiscal data to form fields
+      const formData = {
+        // Dados básicos da nota fiscal
+        numeroNF: notaFiscalData.numero || '',
+        serieNF: notaFiscalData.serie || '',
+        chaveNF: notaFiscalData.chave_acesso || '',
+        valorTotal: notaFiscalData.valor_total?.toString() || '',
+        pesoBruto: notaFiscalData.peso_bruto?.toString() || '',
+        quantidadeVolumes: notaFiscalData.quantidade_volumes?.toString() || '',
+        dataEmissao: notaFiscalData.data_emissao ? new Date(notaFiscalData.data_emissao).toISOString().split('T')[0] : '',
+        tipoOperacao: notaFiscalData.tipo_operacao || '',
+        
+        // Dados do emitente
+        emitenteCnpj: notaFiscalData.emitente_cnpj || '',
+        emitenteRazaoSocial: notaFiscalData.emitente_razao_social || '',
+        emitenteTelefone: notaFiscalData.emitente_telefone || '',
+        emitenteUf: notaFiscalData.emitente_uf || '',
+        emitenteCidade: notaFiscalData.emitente_cidade || '',
+        emitenteBairro: notaFiscalData.emitente_bairro || '',
+        emitenteEndereco: notaFiscalData.emitente_endereco || '',
+        emitenteNumero: notaFiscalData.emitente_numero || '',
+        emitenteCep: notaFiscalData.emitente_cep || '',
+        
+        // Dados do destinatário
+        destinatarioCnpj: notaFiscalData.destinatario_cnpj || '',
+        destinatarioRazaoSocial: notaFiscalData.destinatario_razao_social || '',
+        destinatarioTelefone: notaFiscalData.destinatario_telefone || '',
+        destinatarioUf: notaFiscalData.destinatario_uf || '',
+        destinatarioCidade: notaFiscalData.destinatario_cidade || '',
+        destinatarioBairro: notaFiscalData.destinatario_bairro || '',
+        destinatarioEndereco: notaFiscalData.destinatario_endereco || '',
+        destinatarioNumero: notaFiscalData.destinatario_numero || '',
+        destinatarioCep: notaFiscalData.destinatario_cep || '',
+        
+        // Informações adicionais
+        numeroPedido: notaFiscalData.numero_pedido || '',
+        informacoesComplementares: notaFiscalData.informacoes_complementares || '',
+        fobCif: notaFiscalData.fob_cif || '',
+        
+        // Informações de transporte
+        numeroColeta: notaFiscalData.numero_coleta || '',
+        valorColeta: notaFiscalData.valor_coleta?.toString() || '',
+        numeroCteColeta: notaFiscalData.numero_cte_coleta || '',
+        numeroCteViagem: notaFiscalData.numero_cte_viagem || '',
+        statusEmbarque: notaFiscalData.status_embarque || '',
+        responsavelEntrega: notaFiscalData.responsavel_entrega || '',
+        motorista: notaFiscalData.motorista || '',
+        tempoArmazenamento: notaFiscalData.tempo_armazenamento_horas?.toString() || '',
+        entregueAoFornecedor: notaFiscalData.entregue_ao_fornecedor || '',
+        
+        // Informações complementares
+        quimico: notaFiscalData.quimico || false,
+        fracionado: notaFiscalData.fracionado || false,
+        observacoes: notaFiscalData.observacoes || '',
+        
+        // Set current tab to manual for editing
+        currentTab: 'manual'
+      };
+      
+      // Populate form fields
+      Object.entries(formData).forEach(([field, value]) => {
+        if (value !== undefined && value !== null) {
+          form.setValue(field as any, value);
+        }
+      });
+    }
+  }, [isEditMode, notaFiscalData, form]);
   
   const onSubmit = (data: NotaFiscalSchemaType) => {
     setConfirmSubmitOpen(true);
   };
   
-  const onConfirmSubmit = () => {
+  const onConfirmSubmit = async () => {
     const data = form.getValues();
-    handleSubmit(data);
-    form.reset(defaultValues);
+    
+    try {
+      if (isEditMode && notaFiscalData?.id) {
+        // In edit mode, we need to update the existing record
+        console.log('Atualizando nota fiscal:', { id: notaFiscalData.id, data });
+        await handleSubmit({ ...data, id: notaFiscalData.id, isUpdate: true });
+      } else {
+        // In create mode, create new record
+        await handleSubmit(data);
+      }
+      
+      if (onSuccess) {
+        onSuccess();
+      }
+      
+      if (!isEditMode) {
+        form.reset(defaultValues);
+      }
+    } catch (error) {
+      console.error('Erro ao processar nota fiscal:', error);
+    }
   };
   
   const handleCancel = () => {
-    setConfirmCancelOpen(true);
+    if (isEditMode && onSuccess) {
+      onSuccess();
+    } else {
+      setConfirmCancelOpen(true);
+    }
   };
   
   const onConfirmCancel = () => {
-    form.reset(defaultValues);
+    if (!isEditMode) {
+      form.reset(defaultValues);
+    }
+    if (onSuccess) {
+      onSuccess();
+    }
   };
   
   const handleClear = () => {
@@ -62,42 +173,44 @@ const NotaFiscalForm: React.FC = () => {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Tabs defaultValue="chave" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="chave">Importar por Chave</TabsTrigger>
-              <TabsTrigger value="xml">Importar XML</TabsTrigger>
-              <TabsTrigger value="lote">Importar XML em Lote</TabsTrigger>
-              <TabsTrigger value="manual">Cadastro Manual</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="chave" className="space-y-4 py-4">
-              <ImportarPorChave 
-                onBuscarNota={() => handleKeySearch(form.getValues, form.setValue)} 
-                isLoading={isLoading}
-              />
-            </TabsContent>
-            
-            <TabsContent value="xml" className="space-y-4 py-4">
-              <ImportarViaXML 
-                onFileUpload={(e) => handleFileUpload(e, form.setValue)} 
-                isLoading={isLoading}
-              />
-            </TabsContent>
-            
-            <TabsContent value="lote" className="space-y-4 py-4">
-              <ImportarXMLEmLote 
-                onBatchImport={(files) => handleBatchImport(files, form.setValue)}
-                isLoading={isLoading}
-              />
-            </TabsContent>
-            
-            <TabsContent value="manual" className="py-4">
-              <CadastroManual />
-            </TabsContent>
-          </Tabs>
+          {!isEditMode && (
+            <Tabs defaultValue="chave" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="chave">Importar por Chave</TabsTrigger>
+                <TabsTrigger value="xml">Importar XML</TabsTrigger>
+                <TabsTrigger value="lote">Importar XML em Lote</TabsTrigger>
+                <TabsTrigger value="manual">Cadastro Manual</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="chave" className="space-y-4 py-4">
+                <ImportarPorChave 
+                  onBuscarNota={() => handleKeySearch(form.getValues, form.setValue)} 
+                  isLoading={isLoading}
+                />
+              </TabsContent>
+              
+              <TabsContent value="xml" className="space-y-4 py-4">
+                <ImportarViaXML 
+                  onFileUpload={(e) => handleFileUpload(e, form.setValue)} 
+                  isLoading={isLoading}
+                />
+              </TabsContent>
+              
+              <TabsContent value="lote" className="space-y-4 py-4">
+                <ImportarXMLEmLote 
+                  onBatchImport={(files) => handleBatchImport(files, form.setValue)}
+                  isLoading={isLoading}
+                />
+              </TabsContent>
+              
+              <TabsContent value="manual" className="py-4">
+                <CadastroManual />
+              </TabsContent>
+            </Tabs>
+          )}
 
-          {/* Formulário de dados da nota fiscal - only shown for non-batch tabs */}
-          {form.watch('currentTab') !== 'lote' && (
+          {/* Formulário de dados da nota fiscal - always shown in edit mode or for non-batch tabs */}
+          {(isEditMode || form.watch('currentTab') !== 'lote') && (
             <>
               <DadosNotaFiscal />
               <DadosEmitente />
@@ -109,23 +222,25 @@ const NotaFiscalForm: React.FC = () => {
           )}
 
           <div className="flex justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleClear}
-              disabled={isLoading}
-              className="flex items-center"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Limpar
-            </Button>
+            {!isEditMode && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleClear}
+                disabled={isLoading}
+                className="flex items-center"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Limpar
+              </Button>
+            )}
             <Button 
               type="button" 
               variant="outline" 
               onClick={handleCancel}
               disabled={isLoading}
             >
-              Cancelar
+              {isEditMode ? 'Fechar' : 'Cancelar'}
             </Button>
             <Button 
               type="submit" 
@@ -138,7 +253,7 @@ const NotaFiscalForm: React.FC = () => {
                   Processando...
                 </>
               ) : (
-                'Cadastrar Nota Fiscal'
+                isEditMode ? 'Atualizar Nota Fiscal' : 'Cadastrar Nota Fiscal'
               )}
             </Button>
           </div>
@@ -149,8 +264,8 @@ const NotaFiscalForm: React.FC = () => {
         open={confirmSubmitOpen}
         onOpenChange={setConfirmSubmitOpen}
         onConfirm={onConfirmSubmit}
-        title="Confirmar cadastro"
-        description="Deseja confirmar o cadastro desta nota fiscal?"
+        title={isEditMode ? "Confirmar atualização" : "Confirmar cadastro"}
+        description={isEditMode ? "Deseja confirmar a atualização desta nota fiscal?" : "Deseja confirmar o cadastro desta nota fiscal?"}
       />
 
       <ConfirmationDialog

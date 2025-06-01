@@ -17,12 +17,12 @@ const DadosEmitente: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={control}
-            name="emitenteCNPJ"
+            name="emitenteCnpj"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>CNPJ</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -36,7 +36,7 @@ const DadosEmitente: React.FC = () => {
               <FormItem>
                 <FormLabel>Razão Social</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -50,7 +50,7 @@ const DadosEmitente: React.FC = () => {
               <FormItem>
                 <FormLabel>Telefone</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -61,12 +61,12 @@ const DadosEmitente: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <FormField
             control={control}
-            name="emitenteUF"
+            name="emitenteUf"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>UF</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -80,7 +80,7 @@ const DadosEmitente: React.FC = () => {
               <FormItem>
                 <FormLabel>Cidade</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -94,7 +94,7 @@ const DadosEmitente: React.FC = () => {
               <FormItem>
                 <FormLabel>Bairro</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -110,7 +110,7 @@ const DadosEmitente: React.FC = () => {
               <FormItem>
                 <FormLabel>Endereço</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -124,7 +124,7 @@ const DadosEmitente: React.FC = () => {
               <FormItem>
                 <FormLabel>Número</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -133,12 +133,12 @@ const DadosEmitente: React.FC = () => {
           
           <FormField
             control={control}
-            name="emitenteCEP"
+            name="emitenteCep"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>CEP</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
