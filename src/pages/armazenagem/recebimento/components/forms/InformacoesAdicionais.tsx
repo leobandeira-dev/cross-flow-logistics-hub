@@ -23,7 +23,7 @@ const InformacoesAdicionais: React.FC = () => {
               <FormItem>
                 <FormLabel>Informações Complementares</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Informações adicionais" value={field.value || ''} />
+                  <Input {...field} placeholder="Informações adicionais" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -37,7 +37,7 @@ const InformacoesAdicionais: React.FC = () => {
               <FormItem>
                 <FormLabel>Número do Pedido</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Número do pedido" value={field.value || ''} />
+                  <Input {...field} placeholder="Número do pedido" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -52,7 +52,7 @@ const InformacoesAdicionais: React.FC = () => {
                 <FormLabel>Tipo Frete</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value || ''}
+                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { NotaFiscalSchemaType } from './notaFiscalSchema';
 import { useToast } from "@/hooks/use-toast";
@@ -8,37 +9,21 @@ import { useFormSubmission } from './hooks/useFormSubmission';
 export const useNotaFiscalForm = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const { handleSubmit: submitForm, handleUpdate: updateForm } = useFormSubmission();
+  const { handleSubmit: submitForm } = useFormSubmission();
   
-  const handleSubmit = async (data: NotaFiscalSchemaType & { id?: string; isUpdate?: boolean }) => {
+  const handleSubmit = async (data: NotaFiscalSchemaType) => {
     try {
       console.log('=== HANDLE SUBMIT FORM ===');
       console.log('Dados recebidos do formulário:', data);
       
-      let result;
+      const result = await submitForm(data);
+      console.log('Resultado da submissão:', result);
       
-      if (data.isUpdate && data.id) {
-        // Update existing nota fiscal
-        console.log('Atualizando nota fiscal existente com ID:', data.id);
-        result = await updateForm(data.id, data);
-        console.log('Resultado da atualização:', result);
-        
-        // Mostrar sucesso de atualização no toast
-        toast({
-          title: "✅ Atualização Concluída",
-          description: `Nota fiscal atualizada com sucesso. ID: ${result.id}`,
-        });
-      } else {
-        // Create new nota fiscal
-        result = await submitForm(data);
-        console.log('Resultado da criação:', result);
-        
-        // Mostrar sucesso de criação no toast
-        toast({
-          title: "✅ Processamento Concluído",
-          description: `Nota fiscal processada e salva no banco de dados com ID: ${result.id}`,
-        });
-      }
+      // Mostrar sucesso adicional no toast
+      toast({
+        title: "✅ Processamento Concluído",
+        description: `Nota fiscal processada e salva no banco de dados com ID: ${result.id}`,
+      });
       
       return result;
     } catch (error) {

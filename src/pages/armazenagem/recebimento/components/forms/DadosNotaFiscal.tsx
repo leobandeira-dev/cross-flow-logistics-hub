@@ -27,7 +27,7 @@ const DadosNotaFiscal: React.FC = () => {
               <FormItem>
                 <FormLabel>Número da Nota</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -41,7 +41,7 @@ const DadosNotaFiscal: React.FC = () => {
               <FormItem>
                 <FormLabel>Série da Nota</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -50,12 +50,12 @@ const DadosNotaFiscal: React.FC = () => {
           
           <FormField
             control={control}
-            name="dataEmissao"
+            name="dataHoraEmissao"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Data de Emissão</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" {...field} value={field.value || ''} />
+                  <Input type="datetime-local" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

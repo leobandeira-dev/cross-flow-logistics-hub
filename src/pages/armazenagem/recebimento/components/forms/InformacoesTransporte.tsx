@@ -23,7 +23,7 @@ const InformacoesTransporte: React.FC = () => {
               <FormItem>
                 <FormLabel>Número da Coleta</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -37,7 +37,7 @@ const InformacoesTransporte: React.FC = () => {
               <FormItem>
                 <FormLabel>Valor da Coleta</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -46,12 +46,12 @@ const InformacoesTransporte: React.FC = () => {
           
           <FormField
             control={control}
-            name="numeroCteColeta"
+            name="numeroCTeColeta"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Número do CT-e Coleta</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -77,12 +77,12 @@ const InformacoesTransporte: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <FormField
             control={control}
-            name="numeroCteViagem"
+            name="numeroCTeViagem"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Número do CT-e Viagem</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -96,7 +96,7 @@ const InformacoesTransporte: React.FC = () => {
               <FormItem>
                 <FormLabel>Data de Embarque</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} value={field.value || ''} />
+                  <Input type="date" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
