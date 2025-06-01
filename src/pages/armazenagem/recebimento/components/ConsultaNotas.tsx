@@ -1,14 +1,15 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Printer, Tag, Trash2 } from 'lucide-react';
+import { FileText, Printer, Tag, Trash2, Edit } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import { useNotasFiscaisData } from '../hooks/useNotasFiscaisData';
 import { format } from 'date-fns';
+import NotaFiscalForm from './NotaFiscalForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 // Define filter config
 const notasFilterConfig = [
@@ -39,6 +40,8 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
+  const [editingNota, setEditingNota] = useState<any>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   
   const {
     notasFiscais,
@@ -120,6 +123,17 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
     }
   };
 
+  const handleEditNota = (nota: any) => {
+    console.log("Editando nota fiscal:", nota);
+    setEditingNota(nota);
+    setEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setEditingNota(null);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'finalizada':
@@ -170,110 +184,138 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Consulta de Notas Fiscais</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <SearchFilter 
-          placeholder="Buscar por número, fornecedor ou destinatário..." 
-          filters={notasFilterConfig} 
-          onSearch={handleSearch}
-        />
-        
-        <div className="rounded-md border">
-          <DataTable
-            columns={[
-              { header: 'Número NF', accessor: 'numero' },
-              { 
-                header: 'Emitente', 
-                accessor: 'emitente_razao_social',
-                cell: (row) => row.emitente_razao_social || '-'
-              },
-              { 
-                header: 'Destinatário', 
-                accessor: 'destinatario_razao_social',
-                cell: (row) => row.destinatario_razao_social || '-'
-              },
-              { 
-                header: 'Valor Total', 
-                accessor: 'valor_total',
-                cell: (row) => `R$ ${row.valor_total?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}`
-              },
-              { 
-                header: 'Data Emissão', 
-                accessor: 'data_emissao',
-                cell: (row) => {
-                  try {
-                    return format(new Date(row.data_emissao), 'dd/MM/yyyy');
-                  } catch {
-                    return '-';
-                  }
-                }
-              },
-              { 
-                header: 'Data Inclusão', 
-                accessor: 'data_inclusao',
-                cell: (row) => {
-                  try {
-                    return row.data_inclusao ? format(new Date(row.data_inclusao), 'dd/MM/yyyy HH:mm') : format(new Date(row.created_at), 'dd/MM/yyyy HH:mm');
-                  } catch {
-                    return '-';
-                  }
-                }
-              },
-              { 
-                header: 'Status', 
-                accessor: 'status',
-                cell: (row) => getStatusBadge(row.status)
-              },
-              {
-                header: 'Ações',
-                accessor: 'actions',
-                cell: (row) => (
-                  <div className="flex space-x-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onPrintClick(row.id)}
-                    >
-                      <Printer className="h-4 w-4 mr-1" />
-                      DANFE
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                    >
-                      <FileText className="h-4 w-4 mr-1" />
-                      Detalhes
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleGerarEtiquetasClick(row)}
-                    >
-                      <Tag className="h-4 w-4 mr-1" />
-                      Etiquetas
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDeleteNota(row.id)}
-                      disabled={isDeleting}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Excluir
-                    </Button>
-                  </div>
-                )
-              }
-            ]}
-            data={filteredNotas}
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Consulta de Notas Fiscais</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SearchFilter 
+            placeholder="Buscar por número, fornecedor ou destinatário..." 
+            filters={notasFilterConfig} 
+            onSearch={handleSearch}
           />
-        </div>
-      </CardContent>
-    </Card>
+          
+          <div className="rounded-md border">
+            <DataTable
+              columns={[
+                { header: 'Número NF', accessor: 'numero' },
+                { 
+                  header: 'Emitente', 
+                  accessor: 'emitente_razao_social',
+                  cell: (row) => row.emitente_razao_social || '-'
+                },
+                { 
+                  header: 'Destinatário', 
+                  accessor: 'destinatario_razao_social',
+                  cell: (row) => row.destinatario_razao_social || '-'
+                },
+                { 
+                  header: 'Valor Total', 
+                  accessor: 'valor_total',
+                  cell: (row) => `R$ ${row.valor_total?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}`
+                },
+                { 
+                  header: 'Data Emissão', 
+                  accessor: 'data_emissao',
+                  cell: (row) => {
+                    try {
+                      return format(new Date(row.data_emissao), 'dd/MM/yyyy');
+                    } catch {
+                      return '-';
+                    }
+                  }
+                },
+                { 
+                  header: 'Data Inclusão', 
+                  accessor: 'data_inclusao',
+                  cell: (row) => {
+                    try {
+                      return row.data_inclusao ? format(new Date(row.data_inclusao), 'dd/MM/yyyy HH:mm') : format(new Date(row.created_at), 'dd/MM/yyyy HH:mm');
+                    } catch {
+                      return '-';
+                    }
+                  }
+                },
+                { 
+                  header: 'Status', 
+                  accessor: 'status',
+                  cell: (row) => getStatusBadge(row.status)
+                },
+                {
+                  header: 'Ações',
+                  accessor: 'actions',
+                  cell: (row) => (
+                    <div className="flex space-x-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditNota(row)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Editar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onPrintClick(row.id)}
+                      >
+                        <Printer className="h-4 w-4 mr-1" />
+                        DANFE
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        Detalhes
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleGerarEtiquetasClick(row)}
+                      >
+                        <Tag className="h-4 w-4 mr-1" />
+                        Etiquetas
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteNota(row.id)}
+                        disabled={isDeleting}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Excluir
+                      </Button>
+                    </div>
+                  )
+                }
+              ]}
+              data={filteredNotas}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Dialog para edição de nota fiscal */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Nota Fiscal - {editingNota?.numero}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {editingNota && (
+              <NotaFiscalForm 
+                notaFiscalData={editingNota} 
+                onSuccess={handleCloseEditDialog}
+                isEditMode={true}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
