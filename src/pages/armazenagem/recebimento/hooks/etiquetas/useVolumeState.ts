@@ -20,7 +20,7 @@ export interface Volume {
   totalVolumes?: number;
   codigoONU?: string;
   codigoRisco?: string;
-  classificacaoQuimica?: string;
+  classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   etiquetaMae?: string;
   etiquetado: boolean; // Campo obrigatório
   cidadeCompleta?: string;
