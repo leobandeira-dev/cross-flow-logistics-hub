@@ -1,3 +1,4 @@
+
 import { NotaFiscalSchemaType } from '../components/forms/notaFiscalSchema';
 
 /**
@@ -212,27 +213,27 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
       valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['ICMSTot', 'vNF']),
       numeroPedido: orderNumber, // Updated to use product-based order number
       
-      // Sender data
-      emitenteCNPJ: getValue(emit, ['cnpj']) || getValue(emit, ['CNPJ']),
+      // Sender data - using correct field names
+      emitenteCnpj: getValue(emit, ['cnpj']) || getValue(emit, ['CNPJ']),
       emitenteRazaoSocial: getValue(emit, ['xnome']) || getValue(emit, ['xNome']),
       emitenteTelefone: getValue(emit, ['enderemit', 'fone']) || getValue(emit, ['enderEmit', 'fone']),
-      emitenteUF: getValue(emit, ['enderemit', 'uf']) || getValue(emit, ['enderEmit', 'UF']),
+      emitenteUf: getValue(emit, ['enderemit', 'uf']) || getValue(emit, ['enderEmit', 'UF']),
       emitenteCidade: getValue(emit, ['enderemit', 'xmun']) || getValue(emit, ['enderEmit', 'xMun']),
       emitenteBairro: getValue(emit, ['enderemit', 'xbairro']) || getValue(emit, ['enderEmit', 'xBairro']),
       emitenteEndereco: emitenteEnderecoFinal,
       emitenteNumero: emitenteNumeroFinal,
-      emitenteCEP: getValue(emit, ['enderemit', 'cep']) || getValue(emit, ['enderEmit', 'CEP']),
+      emitenteCep: getValue(emit, ['enderemit', 'cep']) || getValue(emit, ['enderEmit', 'CEP']),
       
-      // Recipient data
-      destinatarioCNPJ: getValue(dest, ['cnpj']) || getValue(dest, ['CNPJ']),
+      // Recipient data - using correct field names
+      destinatarioCnpj: getValue(dest, ['cnpj']) || getValue(dest, ['CNPJ']),
       destinatarioRazaoSocial: getValue(dest, ['xnome']) || getValue(dest, ['xNome']),
       destinatarioTelefone: getValue(dest, ['enderdest', 'fone']) || getValue(dest, ['enderDest', 'fone']),
-      destinatarioUF: getValue(dest, ['enderdest', 'uf']) || getValue(dest, ['enderDest', 'UF']),
+      destinatarioUf: getValue(dest, ['enderdest', 'uf']) || getValue(dest, ['enderDest', 'UF']),
       destinatarioCidade: getValue(dest, ['enderdest', 'xmun']) || getValue(dest, ['enderDest', 'xMun']),
       destinatarioBairro: getValue(dest, ['enderdest', 'xbairro']) || getValue(dest, ['enderDest', 'xBairro']),
       destinatarioEndereco: destinatarioEnderecoFinal,
       destinatarioNumero: destinatarioNumeroFinal,
-      destinatarioCEP: getValue(dest, ['enderdest', 'cep']) || getValue(dest, ['enderDest', 'CEP']),
+      destinatarioCep: getValue(dest, ['enderdest', 'cep']) || getValue(dest, ['enderDest', 'CEP']),
       
       // Transport information
       responsavelEntrega: getValue(transp, ['transporta', 'xnome']) || getValue(transp, ['transporta', 'xNome']),
@@ -267,7 +268,7 @@ export const searchNotaFiscalByChave = async (chaveNF: string): Promise<Partial<
         dataHoraEmissao: '2023-05-10',
         valorTotal: '1850.75',
         emitenteRazaoSocial: 'Fornecedor ABC Ltda',
-        emitenteCNPJ: '12.345.678/0001-90',
+        emitenteCnpj: '12.345.678/0001-90',
       });
     }, 1500);
   });

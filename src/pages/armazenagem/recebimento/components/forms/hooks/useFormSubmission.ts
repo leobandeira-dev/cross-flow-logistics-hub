@@ -17,9 +17,9 @@ export const useFormSubmission = () => {
         numero: formData.numeroNF || '',
         serie: formData.serieNF || null,
         chave_acesso: formData.chaveNF || null,
-        valor_total: formData.valorTotal ? parseFloat(String(formData.valorTotal)) : 0,
-        peso_bruto: formData.pesoBruto ? parseFloat(String(formData.pesoBruto)) : null,
-        quantidade_volumes: formData.quantidadeVolumes ? parseInt(String(formData.quantidadeVolumes)) : null,
+        valor_total: formData.valorTotal ? parseFloat(formData.valorTotal.toString()) : 0,
+        peso_bruto: formData.pesoBruto ? parseFloat(formData.pesoBruto.toString()) : null,
+        quantidade_volumes: formData.quantidadeVolumes ? parseInt(formData.quantidadeVolumes.toString()) : null,
         data_emissao: formData.dataEmissao ? new Date(formData.dataEmissao).toISOString() : new Date().toISOString(),
         tipo_operacao: formData.tipoOperacao || null,
         
@@ -52,18 +52,18 @@ export const useFormSubmission = () => {
         
         // Informações de transporte
         numero_coleta: formData.numeroColeta || null,
-        valor_coleta: formData.valorColeta ? parseFloat(String(formData.valorColeta)) : null,
+        valor_coleta: formData.valorColeta ? parseFloat(formData.valorColeta.toString()) : null,
         numero_cte_coleta: formData.numeroCteColeta || null,
         numero_cte_viagem: formData.numeroCteViagem || null,
         status_embarque: formData.statusEmbarque || null,
         responsavel_entrega: formData.responsavelEntrega || null,
         motorista: formData.motorista || null,
-        tempo_armazenamento_horas: formData.tempoArmazenamento ? parseFloat(String(formData.tempoArmazenamento)) : null,
+        tempo_armazenamento_horas: formData.tempoArmazenamento ? parseFloat(formData.tempoArmazenamento.toString()) : null,
         entregue_ao_fornecedor: formData.entregueAoFornecedor || null,
         
-        // Informações complementares
-        quimico: formData.quimico || false,
-        fracionado: formData.fracionado || false,
+        // Informações complementares - convert string to boolean
+        quimico: formData.quimico === 'true' || formData.quimico === true,
+        fracionado: formData.fracionado === 'true' || formData.fracionado === true,
         observacoes: formData.observacoes || null,
         
         // Status padrão
@@ -119,9 +119,9 @@ export const useFormSubmission = () => {
         numero: formData.numeroNF || '',
         serie: formData.serieNF || null,
         chave_acesso: formData.chaveNF || null,
-        valor_total: formData.valorTotal ? parseFloat(String(formData.valorTotal)) : 0,
-        peso_bruto: formData.pesoBruto ? parseFloat(String(formData.pesoBruto)) : null,
-        quantidade_volumes: formData.quantidadeVolumes ? parseInt(String(formData.quantidadeVolumes)) : null,
+        valor_total: formData.valorTotal ? parseFloat(formData.valorTotal.toString()) : 0,
+        peso_bruto: formData.pesoBruto ? parseFloat(formData.pesoBruto.toString()) : null,
+        quantidade_volumes: formData.quantidadeVolumes ? parseInt(formData.quantidadeVolumes.toString()) : null,
         data_emissao: formData.dataEmissao ? new Date(formData.dataEmissao).toISOString() : new Date().toISOString(),
         tipo_operacao: formData.tipoOperacao || null,
         
@@ -154,18 +154,18 @@ export const useFormSubmission = () => {
         
         // Informações de transporte
         numero_coleta: formData.numeroColeta || null,
-        valor_coleta: formData.valorColeta ? parseFloat(String(formData.valorColeta)) : null,
+        valor_coleta: formData.valorColeta ? parseFloat(formData.valorColeta.toString()) : null,
         numero_cte_coleta: formData.numeroCteColeta || null,
         numero_cte_viagem: formData.numeroCteViagem || null,
         status_embarque: formData.statusEmbarque || null,
         responsavel_entrega: formData.responsavelEntrega || null,
         motorista: formData.motorista || null,
-        tempo_armazenamento_horas: formData.tempoArmazenamento ? parseFloat(String(formData.tempoArmazenamento)) : null,
+        tempo_armazenamento_horas: formData.tempoArmazenamento ? parseFloat(formData.tempoArmazenamento.toString()) : null,
         entregue_ao_fornecedor: formData.entregueAoFornecedor || null,
         
-        // Informações complementares
-        quimico: formData.quimico || false,
-        fracionado: formData.fracionado || false,
+        // Informações complementares - convert string to boolean
+        quimico: formData.quimico === 'true' || formData.quimico === true,
+        fracionado: formData.fracionado === 'true' || formData.fracionado === true,
         observacoes: formData.observacoes || null,
       };
 

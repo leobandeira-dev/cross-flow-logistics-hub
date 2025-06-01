@@ -50,6 +50,7 @@ export const notaFiscalSchema = z.object({
   numeroCteColeta: z.string().optional(),
   numeroCteViagem: z.string().optional(),
   statusEmbarque: z.string().optional(),
+  dataEmbarque: z.string().optional(),
 
   // Informações Complementares
   dataHoraEntrada: z.string().optional(),
@@ -110,6 +111,7 @@ export const defaultValues: NotaFiscalSchemaType = {
   numeroCteColeta: '',
   numeroCteViagem: '',
   statusEmbarque: '',
+  dataEmbarque: '',
   
   // Complementares
   dataHoraEntrada: '',
