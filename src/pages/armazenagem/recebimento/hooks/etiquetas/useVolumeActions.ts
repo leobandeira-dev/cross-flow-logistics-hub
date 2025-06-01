@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Volume } from './useVolumeState'; // Use the correct Volume interface
-import { EtiquetaGenerationResult } from '@/hooks/etiquetas/types';
 
 export const useVolumeActions = () => {
   const [volumes, setVolumes] = useState<Volume[]>([]);
@@ -50,7 +49,7 @@ export const useVolumeActions = () => {
         id,
         notaFiscal,
         quantidade: 1,
-        etiquetado: false,
+        etiquetado: false, // Corrigido - agora presente na interface
         // Corrigir a descrição para mostrar o número correto do volume e total
         descricao: `Volume ${i}/${quantidadeVolumes}`,
         remetente: notaFiscalData?.fornecedor || '',
@@ -59,7 +58,7 @@ export const useVolumeActions = () => {
         cidade: notaFiscalData?.cidade || '',
         cidadeCompleta: `${notaFiscalData?.cidade || ''} - ${notaFiscalData?.uf || ''}`,
         uf: notaFiscalData?.uf || '',
-        pesoTotal: notaFiscalData?.pesoTotal || `${pesoMedio.toFixed(2)} Kg`,
+        pesoTotal: `${pesoMedio.toFixed(2)} Kg`, // String formatada
         chaveNF: notaFiscalData?.chaveNF || '',
         tipoVolume,
         codigoONU,

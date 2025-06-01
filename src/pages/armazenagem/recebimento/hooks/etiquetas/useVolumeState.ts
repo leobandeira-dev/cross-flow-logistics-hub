@@ -14,7 +14,7 @@ export interface Volume {
   descricao?: string;
   area?: string;
   quantidade?: number;
-  pesoTotal?: number;
+  pesoTotal?: string; // Mudado para string para compatibilidade
   numeroPedido?: string;
   volumeNumber?: number;
   totalVolumes?: number;
@@ -22,6 +22,10 @@ export interface Volume {
   codigoRisco?: string;
   classificacaoQuimica?: string;
   etiquetaMae?: string;
+  etiquetado: boolean; // Adicionado campo obrigatório
+  cidadeCompleta?: string;
+  tipoEtiquetaMae?: 'geral' | 'palete';
+  tipoVolume?: 'geral' | 'quimico';
 }
 
 export const useVolumeState = () => {
@@ -39,7 +43,8 @@ export const useVolumeState = () => {
   // Função para gerar volumes com IDs consistentes
   const generateVolumes = useCallback((formData: any) => {
     const totalVolumes = parseInt(formData.quantidadeVolumes) || 1;
-    const pesoTotal = parseFloat(formData.pesoTotalBruto?.toString().replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+    const pesoTotalStr = formData.pesoTotalBruto?.toString() || '0';
+    const pesoTotal = parseFloat(pesoTotalStr.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
     const pesoPorVolume = totalVolumes > 0 ? pesoTotal / totalVolumes : 0;
 
     const newVolumes: Volume[] = [];
@@ -60,7 +65,7 @@ export const useVolumeState = () => {
         descricao: `Volume ${i}/${totalVolumes}`,
         area: formData.area || '',
         quantidade: 1,
-        pesoTotal: pesoPorVolume,
+        pesoTotal: `${pesoPorVolume.toFixed(2)} Kg`, // String formatada
         numeroPedido: formData.numeroPedido || '',
         volumeNumber: i,
         totalVolumes: totalVolumes,
@@ -68,6 +73,9 @@ export const useVolumeState = () => {
         codigoRisco: formData.codigoRisco || '',
         classificacaoQuimica: formData.classificacaoQuimica || '',
         etiquetaMae: formData.etiquetaMae || '',
+        etiquetado: false, // Adicionado campo obrigatório
+        cidadeCompleta: `${formData.cidade || ''} - ${formData.uf || ''}`,
+        tipoVolume: formData.tipoVolume || 'geral'
       };
       
       newVolumes.push(volume);

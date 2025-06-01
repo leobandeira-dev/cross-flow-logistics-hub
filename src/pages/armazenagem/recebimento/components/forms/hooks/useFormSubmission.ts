@@ -83,7 +83,7 @@ export const useFormSubmission = () => {
         // Informações adicionais
         informacoes_complementares: data.informacoesComplementares || '',
         numero_pedido: data.numeroPedido || '',
-        fob_cif: data.tipoFrete || '', // Corrigido: usar tipoFrete do formulário
+        fob_cif: data.tipoFrete || '',
         
         // Informações de transporte
         numero_coleta: data.numeroColeta || '',
@@ -92,10 +92,8 @@ export const useFormSubmission = () => {
         numero_cte_viagem: data.numeroCTeViagem || '',
         data_embarque: data.dataEmbarque ? parseDate(data.dataEmbarque) : null,
         
-        // Informações complementares
+        // Informações complementares - CORRIGIDO
         data_entrada: data.dataHoraEntrada ? parseDate(data.dataHoraEntrada) : null,
-        // Corrigido: usar dataHoraEntrada em vez de data_hora_entrada
-        data_hora_entrada: data.dataHoraEntrada ? parseDate(data.dataHoraEntrada) : new Date().toISOString(),
         status_embarque: data.statusEmbarque || '',
         responsavel_entrega: data.responsavelEntrega || '',
         motorista: data.motorista || '',
@@ -106,7 +104,7 @@ export const useFormSubmission = () => {
         quimico: data.quimico === 'sim',
         fracionado: data.fracionado === 'sim',
         
-        // Observações - CORRIGIDO: usar informacoesComplementares
+        // Observações - alimentado com informações complementares
         observacoes: data.informacoesComplementares || '',
       };
       
