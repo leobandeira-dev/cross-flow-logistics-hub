@@ -62,8 +62,8 @@ export const useFormSubmission = () => {
         entregue_ao_fornecedor: formData.entregueAoFornecedor || null,
         
         // Informações complementares - properly convert to boolean
-        quimico: Boolean(formData.quimico === 'true' || formData.quimico === true),
-        fracionado: Boolean(formData.fracionado === 'true' || formData.fracionado === true),
+        quimico: formData.quimico === 'true',
+        fracionado: formData.fracionado === 'true',
         observacoes: formData.observacoes || null,
         
         // Status padrão
@@ -164,8 +164,8 @@ export const useFormSubmission = () => {
         entregue_ao_fornecedor: formData.entregueAoFornecedor || null,
         
         // Informações complementares - properly convert to boolean
-        quimico: Boolean(formData.quimico === 'true' || formData.quimico === true),
-        fracionado: Boolean(formData.fracionado === 'true' || formData.fracionado === true),
+        quimico: formData.quimico === 'true',
+        fracionado: formData.fracionado === 'true',
         observacoes: formData.observacoes || null,
       };
 
