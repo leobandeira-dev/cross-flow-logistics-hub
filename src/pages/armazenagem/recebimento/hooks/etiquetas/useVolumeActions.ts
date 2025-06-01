@@ -49,8 +49,8 @@ export const useVolumeActions = () => {
         id,
         notaFiscal,
         quantidade: 1,
-        etiquetado: false, // Corrigido - agora presente na interface
-        // Corrigir a descrição para mostrar o número correto do volume e total
+        etiquetado: false, // Campo obrigatório presente na interface
+        // Sempre fornecer descrição obrigatória
         descricao: `Volume ${i}/${quantidadeVolumes}`,
         remetente: notaFiscalData?.fornecedor || '',
         destinatario: notaFiscalData?.destinatario || '',
@@ -66,7 +66,7 @@ export const useVolumeActions = () => {
         classificacaoQuimica: tipoVolume === 'quimico' ? classificacaoQuimica || 'nao_classificada' : undefined,
         etiquetaMae: '',
         area: area || '01',
-        // Corrigir os números de volume para refletir a posição atual e total corretos
+        // Números de volume corretos
         volumeNumber: i,
         totalVolumes: quantidadeVolumes
       });

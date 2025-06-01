@@ -11,10 +11,10 @@ export interface Volume {
   cidade?: string;
   uf?: string;
   transportadora?: string;
-  descricao?: string;
+  descricao: string; // Mudado para obrigatório para compatibilidade
   area?: string;
   quantidade?: number;
-  pesoTotal?: string; // Mudado para string para compatibilidade
+  pesoTotal: string; // String para compatibilidade
   numeroPedido?: string;
   volumeNumber?: number;
   totalVolumes?: number;
@@ -22,7 +22,7 @@ export interface Volume {
   codigoRisco?: string;
   classificacaoQuimica?: string;
   etiquetaMae?: string;
-  etiquetado: boolean; // Adicionado campo obrigatório
+  etiquetado: boolean; // Campo obrigatório
   cidadeCompleta?: string;
   tipoEtiquetaMae?: 'geral' | 'palete';
   tipoVolume?: 'geral' | 'quimico';
@@ -62,7 +62,7 @@ export const useVolumeState = () => {
         cidade: formData.cidade || '',
         uf: formData.uf || '',
         transportadora: formData.transportadora || '',
-        descricao: `Volume ${i}/${totalVolumes}`,
+        descricao: `Volume ${i}/${totalVolumes}`, // Sempre fornecer descrição
         area: formData.area || '',
         quantidade: 1,
         pesoTotal: `${pesoPorVolume.toFixed(2)} Kg`, // String formatada
@@ -73,7 +73,7 @@ export const useVolumeState = () => {
         codigoRisco: formData.codigoRisco || '',
         classificacaoQuimica: formData.classificacaoQuimica || '',
         etiquetaMae: formData.etiquetaMae || '',
-        etiquetado: false, // Adicionado campo obrigatório
+        etiquetado: false, // Campo obrigatório
         cidadeCompleta: `${formData.cidade || ''} - ${formData.uf || ''}`,
         tipoVolume: formData.tipoVolume || 'geral'
       };
