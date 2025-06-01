@@ -63,65 +63,6 @@ const DadosNotaFiscal: React.FC = () => {
           />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <FormField
-            control={control}
-            name="valorTotal"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Valor da Nota Fiscal</FormLabel>
-                <FormControl>
-                  <Input 
-                    {...field} 
-                    value={field.value || ''} 
-                    placeholder="0,00"
-                    type="text"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={control}
-            name="quantidadeVolumes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Quantidade de Volumes</FormLabel>
-                <FormControl>
-                  <Input 
-                    {...field} 
-                    value={field.value || ''} 
-                    placeholder="0"
-                    type="number"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={control}
-            name="pesoBruto"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Peso Bruto</FormLabel>
-                <FormControl>
-                  <Input 
-                    {...field} 
-                    value={field.value || ''} 
-                    placeholder="0,000"
-                    type="text"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <FormField
             control={control}
