@@ -5,11 +5,11 @@ export interface Volume {
   id: string;
   notaFiscal: string;
   chaveNF?: string;
-  remetente?: string;
-  destinatario?: string;
-  endereco?: string;
-  cidade?: string;
-  uf?: string;
+  remetente: string; // Mudado para obrigatório para compatibilidade
+  destinatario: string; // Mudado para obrigatório para compatibilidade
+  endereco: string; // Mudado para obrigatório para compatibilidade
+  cidade: string; // Mudado para obrigatório para compatibilidade
+  uf: string; // Mudado para obrigatório para compatibilidade
   transportadora?: string;
   descricao: string; // Mudado para obrigatório para compatibilidade
   area?: string;
