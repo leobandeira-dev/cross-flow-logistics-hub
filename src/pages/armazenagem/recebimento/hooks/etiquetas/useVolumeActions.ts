@@ -1,4 +1,5 @@
 
+
 import { useState } from 'react';
 import { Volume } from './useVolumeState'; // Use the correct Volume interface
 
@@ -34,18 +35,19 @@ export const useVolumeActions = () => {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
     const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = String(now.getFullYear()).slice(-2); // Últimos 2 dígitos do ano
     const hour = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     
-    // Formato de data/hora: ddmmhhmmss
-    const dateTimeStr = `${day}${month}${hour}${minutes}${seconds}`;
+    // Formato de data/hora: ddmmaahhmmss
+    const dateTimeStr = `${day}${month}${year}${hour}${minutes}${seconds}`;
     
     // Gerar volumes
     const volumes: Volume[] = [];
     
     for (let i = 1; i <= quantidadeVolumes; i++) {
-      // Formato: {numeroNF}-{numeroVolume}-{ddmmhhmmss}
+      // Formato: {numeroNF}-{numeroVolume}-{ddmmaahhmmss}
       const volumeNumberStr = i.toString().padStart(3, '0');
       const id = `${cleanNotaFiscal}-${volumeNumberStr}-${dateTimeStr}`;
       

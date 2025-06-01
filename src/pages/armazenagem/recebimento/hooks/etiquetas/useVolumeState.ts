@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 
 export interface Volume {
@@ -40,12 +41,13 @@ export const useVolumeState = () => {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
     const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = String(now.getFullYear()).slice(-2); // Últimos 2 dígitos do ano
     const hour = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     
-    // Formato: {numeroNF}-{numeroVolume}-{ddmmhhmm}
-    const dateTimeStr = `${day}${month}${hour}${minutes}${seconds}`;
+    // Formato: {numeroNF}-{numeroVolume}-{ddmmaahhmmss}
+    const dateTimeStr = `${day}${month}${year}${hour}${minutes}${seconds}`;
     const volumeNumberStr = volumeNumber.toString().padStart(3, '0');
     
     return `${cleanNotaFiscal}-${volumeNumberStr}-${dateTimeStr}`;
