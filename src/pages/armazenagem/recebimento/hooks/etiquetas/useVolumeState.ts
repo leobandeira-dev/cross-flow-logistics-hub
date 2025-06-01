@@ -13,7 +13,7 @@ export interface Volume {
   transportadora?: string;
   descricao: string; // Mudado para obrigatório para compatibilidade
   area?: string;
-  quantidade?: number;
+  quantidade: number; // Mudado para obrigatório para compatibilidade
   pesoTotal: string; // String para compatibilidade
   numeroPedido?: string;
   volumeNumber?: number;
