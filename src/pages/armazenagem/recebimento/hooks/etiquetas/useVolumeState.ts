@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 
 export interface Volume {
@@ -32,12 +31,24 @@ export const useVolumeState = () => {
   const [volumes, setVolumes] = useState<Volume[]>([]);
   const [generatedVolumes, setGeneratedVolumes] = useState<Volume[]>([]);
 
-  // Função para gerar ID consistente baseado na nota fiscal e número do volume
+  // Função para gerar ID consistente baseado na nota fiscal, número do volume e data/hora
   const generateConsistentVolumeId = useCallback((notaFiscal: string, volumeNumber: number): string => {
     // Limpar caracteres especiais do número da nota fiscal
-    const cleanNotaFiscal = notaFiscal.replace(/[^\w]/g, '').toUpperCase();
-    // Formato: NF-{numeroNF}-VOL-{numeroVolume}
-    return `NF-${cleanNotaFiscal}-VOL-${volumeNumber.toString().padStart(3, '0')}`;
+    const cleanNotaFiscal = notaFiscal.replace(/[^\w]/g, '');
+    
+    // Obter data e hora atual
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    // Formato: {numeroNF}-{numeroVolume}-{ddmmhhmm}
+    const dateTimeStr = `${day}${month}${hour}${minutes}${seconds}`;
+    const volumeNumberStr = volumeNumber.toString().padStart(3, '0');
+    
+    return `${cleanNotaFiscal}-${volumeNumberStr}-${dateTimeStr}`;
   }, []);
 
   // Função para gerar volumes com IDs consistentes

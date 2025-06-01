@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { Volume } from './useVolumeState'; // Use the correct Volume interface
 
 export const useVolumeActions = () => {
@@ -28,22 +27,27 @@ export const useVolumeActions = () => {
     }
     const pesoMedio = pesoNumerico / quantidadeVolumes;
     
-    // Gerar ID único para ser usado em todos os volumes da mesma nota
-    const uniqueId = uuidv4().split('-')[0];
+    // Limpar caracteres especiais do número da nota fiscal
+    const cleanNotaFiscal = notaFiscal.replace(/[^\w]/g, '');
     
-    // Obter data atual no formato ddmmaa
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const year = String(today.getFullYear()).slice(-2);
-    const dateFormat = `${day}${month}${year}`;
+    // Obter data e hora atual
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    // Formato de data/hora: ddmmhhmmss
+    const dateTimeStr = `${day}${month}${hour}${minutes}${seconds}`;
     
     // Gerar volumes
     const volumes: Volume[] = [];
     
     for (let i = 1; i <= quantidadeVolumes; i++) {
-      // Formato: "id unico"-"numero da nota"-"ddmmaa"-"1,2,3 etc"
-      const id = `${uniqueId}-${notaFiscal}-${dateFormat}-${i.toString().padStart(3, '0')}`;
+      // Formato: {numeroNF}-{numeroVolume}-{ddmmhhmmss}
+      const volumeNumberStr = i.toString().padStart(3, '0');
+      const id = `${cleanNotaFiscal}-${volumeNumberStr}-${dateTimeStr}`;
       
       volumes.push({
         id,
