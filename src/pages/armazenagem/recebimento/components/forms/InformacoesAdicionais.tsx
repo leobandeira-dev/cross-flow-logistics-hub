@@ -18,6 +18,67 @@ const InformacoesAdicionais: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={control}
+            name="quantidadeVolumes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Quantidade de Volumes</FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    type="number"
+                    placeholder="Quantidade de volumes" 
+                    value={field.value || ''} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={control}
+            name="valorTotal"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valor da Nota Fiscal</FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    type="number"
+                    step="0.01"
+                    placeholder="Valor total da nota" 
+                    value={field.value || ''} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={control}
+            name="pesoBruto"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Peso Bruto</FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    type="number"
+                    step="0.001"
+                    placeholder="Peso bruto em kg" 
+                    value={field.value || ''} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <FormField
+            control={control}
             name="informacoesComplementares"
             render={({ field }) => (
               <FormItem>
