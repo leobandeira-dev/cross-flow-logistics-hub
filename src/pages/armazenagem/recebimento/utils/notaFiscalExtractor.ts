@@ -138,8 +138,8 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
     const orderNumber = extractOrderNumberFromProducts(infNFe);
     console.log("Número do pedido extraído dos produtos:", orderNumber);
     
-    // Process emission date and time
-    let emissionDate = '';
+    // Process emission date and time - map to dataEmissao field
+    let dataEmissao = '';
     const dhEmi = getValue(ide, ['dhemi']) || getValue(ide, ['dhEmi']);
     const dEmi = getValue(ide, ['demi']) || getValue(ide, ['dEmi']);
     const hEmi = getValue(ide, ['hemi']) || getValue(ide, ['hEmi']);
@@ -147,7 +147,7 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
     if (dhEmi) {
       // If we have a complete date+time string
       try {
-        emissionDate = new Date(dhEmi).toISOString().slice(0, 16);
+        dataEmissao = new Date(dhEmi).toISOString().slice(0, 16);
       } catch (e) {
         console.log("Erro ao converter data/hora de emissão:", e);
       }
@@ -155,13 +155,13 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
       // If date and time are separate fields
       try {
         const dateStr = dEmi + (hEmi ? `T${hEmi}` : 'T00:00');
-        emissionDate = new Date(dateStr).toISOString().slice(0, 16);
+        dataEmissao = new Date(dateStr).toISOString().slice(0, 16);
       } catch (e) {
         console.log("Erro ao converter data/hora de emissão separados:", e);
       }
     }
     
-    console.log("Data de emissão processada:", emissionDate);
+    console.log("Data de emissão processada:", dataEmissao);
     
     // Process sender address
     const emitentEndereco = getValue(emit, ['enderemit', 'xlgr']) || getValue(emit, ['enderEmit', 'xLgr']);
@@ -212,7 +212,7 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
       chaveNF: chaveNF,
       numeroNF: getValue(ide, ['nnf']) || getValue(ide, ['nNF']),
       serieNF: getValue(ide, ['serie']),
-      dataHoraEmissao: emissionDate,
+      dataEmissao: dataEmissao, // Map to the form field name
       valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['ICMSTot', 'vNF']),
       numeroPedido: orderNumber, // Updated to use product-based order number
       
@@ -269,7 +269,7 @@ export const searchNotaFiscalByChave = async (chaveNF: string): Promise<Partial<
       resolve({
         numeroNF: '654321',
         serieNF: '001',
-        dataHoraEmissao: '2023-05-10',
+        dataEmissao: '2023-05-10',
         valorTotal: '1850.75',
         emitenteRazaoSocial: 'Fornecedor ABC Ltda',
         emitenteCnpj: '12.345.678/0001-90',
