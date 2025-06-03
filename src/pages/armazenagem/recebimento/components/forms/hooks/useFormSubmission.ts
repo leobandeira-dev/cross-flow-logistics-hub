@@ -61,9 +61,10 @@ export const useFormSubmission = () => {
         tempo_armazenamento_horas: formData.tempoArmazenamento ? parseFloat(formData.tempoArmazenamento.toString()) : null,
         entregue_ao_fornecedor: formData.entregueAoFornecedor || null,
         
-        // Informações complementares - properly convert to boolean
-        quimico: formData.quimico === 'true',
-        fracionado: formData.fracionado === 'true',
+        // Informações complementares - properly convert to boolean and include data_hora_entrada
+        data_hora_entrada: formData.dataHoraEntrada ? new Date(formData.dataHoraEntrada).toISOString() : null,
+        quimico: formData.quimico === 'sim',
+        fracionado: formData.fracionado === 'sim',
         observacoes: formData.observacoes || null,
         
         // Status padrão
@@ -163,9 +164,10 @@ export const useFormSubmission = () => {
         tempo_armazenamento_horas: formData.tempoArmazenamento ? parseFloat(formData.tempoArmazenamento.toString()) : null,
         entregue_ao_fornecedor: formData.entregueAoFornecedor || null,
         
-        // Informações complementares - properly convert to boolean
-        quimico: formData.quimico === 'true',
-        fracionado: formData.fracionado === 'true',
+        // Informações complementares - properly convert to boolean and include data_hora_entrada
+        data_hora_entrada: formData.dataHoraEntrada ? new Date(formData.dataHoraEntrada).toISOString() : null,
+        quimico: formData.quimico === 'sim',
+        fracionado: formData.fracionado === 'sim',
         observacoes: formData.observacoes || null,
       };
 

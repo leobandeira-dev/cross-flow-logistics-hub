@@ -100,9 +100,10 @@ const NotaFiscalForm: React.FC<NotaFiscalFormProps> = ({
         tempoArmazenamento: notaFiscalData.tempo_armazenamento_horas?.toString() || '',
         entregueAoFornecedor: notaFiscalData.entregue_ao_fornecedor || '',
         
-        // Informações complementares
-        quimico: notaFiscalData.quimico || false,
-        fracionado: notaFiscalData.fracionado || false,
+        // Informações complementares - properly map from database fields
+        dataHoraEntrada: notaFiscalData.data_hora_entrada ? new Date(notaFiscalData.data_hora_entrada).toISOString().slice(0, 16) : '',
+        quimico: notaFiscalData.quimico ? 'sim' : 'nao',
+        fracionado: notaFiscalData.fracionado ? 'sim' : 'nao',
         observacoes: notaFiscalData.observacoes || '',
         
         // Set current tab to manual for editing

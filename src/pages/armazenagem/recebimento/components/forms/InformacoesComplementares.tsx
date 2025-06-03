@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Upload } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 import { NotaFiscalSchemaType } from './notaFiscalSchema';
@@ -50,7 +51,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Status Embarque</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value || ''}
+                  value={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -76,7 +77,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Responsável pela Entrega</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value || ''}
+                  value={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -104,7 +105,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Químico</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value || ''}
+                  value={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -129,7 +130,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Fracionado</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value || ''}
+                  value={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -154,7 +155,7 @@ const InformacoesComplementares: React.FC = () => {
                 <FormLabel>Motorista</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value || ''}
+                  value={field.value || ''}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -167,6 +168,27 @@ const InformacoesComplementares: React.FC = () => {
                     <SelectItem value="motorista3">Pedro Santos</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        <div className="mt-4">
+          <FormField
+            control={control}
+            name="observacoes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Observações</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    {...field} 
+                    placeholder="Digite observações adicionais..."
+                    value={field.value || ''} 
+                    rows={3}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
