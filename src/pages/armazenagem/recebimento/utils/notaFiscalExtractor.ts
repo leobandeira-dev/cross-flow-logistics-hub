@@ -1,4 +1,3 @@
-
 import { NotaFiscalSchemaType } from '../components/forms/notaFiscalSchema';
 
 /**
@@ -195,13 +194,17 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
     const informacoesComplementares = getValue(infAdic, ['infcpl']) || getValue(infAdic, ['infCpl']);
     console.log("Informações complementares extraídas:", informacoesComplementares);
     
-    // Extract volumesTotal field properly
-    const volumesTotal = getValue(transp, ['vol', 'qvol']) || 
-                         getValue(transp, ['vol', 'qVol']) ||
-                         getValue(transp, ['volumes']) ||
-                         '';
-                         
-    console.log("Volumes totais extraídos:", volumesTotal);
+    // Extract peso bruto (pesoB) and quantidade volumes (qVol) from transport section
+    const pesoBruto = getValue(transp, ['vol', 'pesob']) || 
+                      getValue(transp, ['vol', 'pesoB']) ||
+                      '';
+                      
+    const quantidadeVolumes = getValue(transp, ['vol', 'qvol']) || 
+                             getValue(transp, ['vol', 'qVol']) ||
+                             '';
+                             
+    console.log("Peso bruto extraído:", pesoBruto);
+    console.log("Quantidade de volumes extraída:", quantidadeVolumes);
     
     // Extracting data with the helper function
     return {
@@ -212,6 +215,10 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
       dataHoraEmissao: emissionDate,
       valorTotal: getValue(total, ['icmstot', 'vnf']) || getValue(total, ['ICMSTot', 'vNF']),
       numeroPedido: orderNumber, // Updated to use product-based order number
+      
+      // Transport data - updated to use correct field names
+      pesoBruto: pesoBruto,
+      quantidadeVolumes: quantidadeVolumes,
       
       // Sender data - using correct field names
       emitenteCnpj: getValue(emit, ['cnpj']) || getValue(emit, ['CNPJ']),
@@ -239,9 +246,6 @@ export const extractDataFromXml = (xmlData: any): Partial<any> => {
       responsavelEntrega: getValue(transp, ['transporta', 'xnome']) || getValue(transp, ['transporta', 'xNome']),
       motorista: getValue(transp, ['veictransp', 'placa']) ? 
         `Placa: ${getValue(transp, ['veictransp', 'placa'])}` : '',
-      volumesTotal: volumesTotal,
-      volumesTotais: volumesTotal, // Add both formats to ensure compatibility
-      pesoTotalBruto: getValue(transp, ['vol', 'pesob']) || getValue(transp, ['vol', 'pesoB']),
       
       // Additional information
       informacoesComplementares: informacoesComplementares,
