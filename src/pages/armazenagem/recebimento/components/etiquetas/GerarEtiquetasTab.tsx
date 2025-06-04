@@ -7,7 +7,7 @@ import GeneratedVolumesPanel from './GeneratedVolumesPanel';
 import DuplicateConfirmationDialog from './DuplicateConfirmationDialog';
 import { Volume } from '../../hooks/etiquetas/useVolumeState';
 import { useBatchAreaClassification } from '../../hooks/etiquetas/useBatchAreaClassification';
-import { useAtomicEtiquetaGeneration } from '../../hooks/etiquetas/useAtomicEtiquetaGeneration';
+import { useAtomicEtiquetaGeneration } from '@/hooks/etiquetas/useAtomicEtiquetaGeneration';
 import { AtomicEtiquetaData } from '@/services/etiqueta/etiquetaAtomicService';
 import { toast } from '@/hooks/use-toast';
 
@@ -94,6 +94,33 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
     return atomicData;
   };
 
+  const convertEtiquetaToVolume = (etiqueta: any, atomicData: AtomicEtiquetaData): Volume => {
+    return {
+      id: etiqueta.codigo,
+      volumeNumber: etiqueta.volume_numero,
+      totalVolumes: etiqueta.total_volumes,
+      notaFiscal: atomicData.nota_fiscal_id,
+      area: etiqueta.area || '',
+      chaveNF: atomicData.chave_nf || '',
+      remetente: atomicData.remetente || '',
+      destinatario: atomicData.destinatario || '',
+      endereco: atomicData.endereco || '',
+      cidade: atomicData.cidade || '',
+      uf: atomicData.uf || '',
+      pesoTotal: atomicData.peso_total_bruto || '',
+      etiquetaMae: '',
+      descricao: atomicData.informacoes_adicionais || '',
+      quantidade: 1,
+      etiquetado: false,
+      tipoVolume: atomicData.codigo_onu ? 'quimico' : 'geral',
+      codigoONU: atomicData.codigo_onu,
+      codigoRisco: atomicData.codigo_risco,
+      classificacaoQuimica: atomicData.classificacao_quimica as any,
+      transportadora: atomicData.transportadora,
+      cidadeCompleta: `${atomicData.cidade || ''} - ${atomicData.uf || ''}`.trim()
+    };
+  };
+
   const handleGravarEtiquetasAtomicamente = async () => {
     try {
       console.log('🚀 Iniciando geração atômica de etiquetas...');
@@ -105,22 +132,15 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
 
       const etiquetasGeradas = await gerarEtiquetasAtomicamente(atomicData);
       
-      if (etiquetasGeradas) {
+      if (etiquetasGeradas && setGeneratedVolumes) {
         console.log('✅ Etiquetas geradas atomicamente:', etiquetasGeradas.length);
         
-        // Converter para formato Volume se necessário para atualizar a interface
-        if (setGeneratedVolumes) {
-          const volumes: Volume[] = etiquetasGeradas.map((etiqueta, index) => ({
-            id: etiqueta.codigo,
-            volumeNumber: etiqueta.volume_numero,
-            totalVolumes: etiqueta.total_volumes,
-            notaFiscal: atomicData.nota_fiscal_id,
-            area: etiqueta.area || '',
-            // ... outros campos conforme necessário
-          }));
-          
-          setGeneratedVolumes(volumes);
-        }
+        // Converter para formato Volume
+        const volumes: Volume[] = etiquetasGeradas.map((etiqueta) => 
+          convertEtiquetaToVolume(etiqueta, atomicData)
+        );
+        
+        setGeneratedVolumes(volumes);
       }
       
     } catch (error) {
@@ -135,17 +155,15 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
 
   const handleConfirmarGeracao = async () => {
     try {
+      const atomicData = prepareAtomicData();
+      if (!atomicData) return;
+
       const etiquetasGeradas = await confirmarGeracao();
       
       if (etiquetasGeradas && setGeneratedVolumes) {
-        const volumes: Volume[] = etiquetasGeradas.map((etiqueta) => ({
-          id: etiqueta.codigo,
-          volumeNumber: etiqueta.volume_numero,
-          totalVolumes: etiqueta.total_volumes,
-          notaFiscal: etiqueta.nota_fiscal_id,
-          area: etiqueta.area || '',
-          // ... outros campos conforme necessário
-        }));
+        const volumes: Volume[] = etiquetasGeradas.map((etiqueta) => 
+          convertEtiquetaToVolume(etiqueta, atomicData)
+        );
         
         setGeneratedVolumes(volumes);
       }
