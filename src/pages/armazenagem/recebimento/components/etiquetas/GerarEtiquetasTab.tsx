@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Save, RefreshCw } from 'lucide-react';
 import FormLayout from './form/FormLayout';
 import GeneratedVolumesPanel from './GeneratedVolumesPanel';
+import DuplicateConfirmationDialog from './DuplicateConfirmationDialog';
 import { Volume } from '../../hooks/etiquetas/useVolumeState';
 import { useBatchAreaClassification } from '../../hooks/etiquetas/useBatchAreaClassification';
-import { useEtiquetasDatabase } from '@/hooks/useEtiquetasDatabase';
-import { CreateEtiquetaData } from '@/services/etiquetaService';
+import { useAtomicEtiquetaGeneration } from '../../hooks/etiquetas/useAtomicEtiquetaGeneration';
+import { AtomicEtiquetaData } from '@/services/etiqueta/etiquetaAtomicService';
 import { toast } from '@/hooks/use-toast';
 
 interface GerarEtiquetasTabProps {
@@ -30,7 +31,14 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
   setGeneratedVolumes
 }) => {
   const { handleBatchClassifyArea } = useBatchAreaClassification();
-  const { salvarEtiqueta, buscarEtiquetas, isLoading } = useEtiquetasDatabase();
+  const {
+    isGenerating,
+    showDuplicateDialog,
+    duplicateData,
+    gerarEtiquetasAtomicamente,
+    confirmarGeracao,
+    cancelarGeracao
+  } = useAtomicEtiquetaGeneration();
 
   const onBatchClassifyArea = (area: string) => {
     if (setVolumes && setGeneratedVolumes) {
@@ -38,189 +46,111 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
     }
   };
 
-  const validateBasicFields = (volume: Volume): string[] => {
-    const missingFields: string[] = [];
+  const prepareAtomicData = (): AtomicEtiquetaData | null => {
+    const formValues = form.getValues();
     
-    // Verificar apenas campos realmente obrigatórios
-    if (!volume.id || volume.id.trim() === '') {
-      missingFields.push('Código da Etiqueta');
+    // Validar campos obrigatórios
+    if (!formValues.numeroNotaFiscal) {
+      toast({
+        title: "❌ Campo Obrigatório",
+        description: "Número da Nota Fiscal é obrigatório.",
+        variant: "destructive"
+      });
+      return null;
     }
-    
-    if (!volume.notaFiscal || volume.notaFiscal.trim() === '') {
-      missingFields.push('Nota Fiscal');
-    }
-    
-    return missingFields;
-  };
 
-  const prepareEtiquetaData = (volume: Volume): CreateEtiquetaData => {
-    console.log('📋 Preparando dados da etiqueta para volume:', volume.id);
-    
-    // Garantir que a descrição use o formato correto Volume X/Y
-    const descricaoVolume = volume.descricao || `Volume ${volume.volumeNumber || 1}/${volume.totalVolumes || 1}`;
-    
-    const etiquetaData: CreateEtiquetaData = {
-      codigo: volume.id, // Usar o ID já consistente do volume
-      tipo: 'volume',
-      area: volume.area || null,
-      remetente: volume.remetente || null,
-      destinatario: volume.destinatario || null,
-      endereco: volume.endereco || null,
-      cidade: volume.cidade || null,
-      uf: volume.uf || null,
-      cep: null,
-      descricao: descricaoVolume,
-      transportadora: volume.transportadora || null,
-      chave_nf: volume.chaveNF || volume.notaFiscal || null,
-      quantidade: volume.quantidade || 1,
-      peso_total_bruto: volume.pesoTotal ? String(volume.pesoTotal) : null,
-      numero_pedido: volume.numeroPedido || null,
-      volume_numero: volume.volumeNumber || 1,
-      total_volumes: volume.totalVolumes || 1,
-      codigo_onu: volume.codigoONU || null,
-      codigo_risco: volume.codigoRisco || null,
-      classificacao_quimica: volume.classificacaoQuimica === 'nao_classificada' ? null : volume.classificacaoQuimica,
-      etiqueta_mae_id: volume.etiquetaMae || null,
-      status: 'gerada'
+    if (!formValues.quantidadeVolumes || formValues.quantidadeVolumes <= 0) {
+      toast({
+        title: "❌ Campo Obrigatório", 
+        description: "Quantidade de volumes deve ser maior que zero.",
+        variant: "destructive"
+      });
+      return null;
+    }
+
+    // Preparar dados para persistência atômica
+    const atomicData: AtomicEtiquetaData = {
+      nota_fiscal_id: formValues.notaFiscalId || formValues.numeroNotaFiscal, // Assumindo que há um ID da NF
+      numero_volumes: parseInt(formValues.quantidadeVolumes),
+      tipo_etiqueta: formValues.tipoEtiqueta || 'Volume Simples',
+      informacoes_adicionais: formValues.informacoesAdicionais,
+      id_empresa: '', // Será preenchido pelo hook
+      criado_por_usuario_id: '', // Será preenchido pelo hook
+      area: formValues.areaVolumePrefix,
+      remetente: formValues.remetente,
+      destinatario: formValues.destinatario,
+      endereco: formValues.endereco,
+      cidade: formValues.cidade,
+      uf: formValues.uf,
+      transportadora: formValues.transportadora,
+      chave_nf: formValues.chaveNF,
+      peso_total_bruto: formValues.pesoTotal?.toString(),
+      numero_pedido: formValues.numeroPedido,
+      codigo_onu: formValues.codigoONU,
+      codigo_risco: formValues.codigoRisco,
+      classificacao_quimica: formValues.classificacaoQuimica
     };
-    
-    console.log('📤 Dados preparados para etiqueta:', {
-      codigo: etiquetaData.codigo,
-      area: etiquetaData.area,
-      volume_numero: etiquetaData.volume_numero,
-      total_volumes: etiquetaData.total_volumes,
-      descricao: etiquetaData.descricao
-    });
-    return etiquetaData;
+
+    return atomicData;
   };
 
-  const handleGravarEtiquetas = async () => {
+  const handleGravarEtiquetasAtomicamente = async () => {
     try {
-      console.log('🚀 Iniciando processo de gravação de etiquetas...');
-      console.log('📦 Total de volumes para gravar:', generatedVolumes.length);
+      console.log('🚀 Iniciando geração atômica de etiquetas...');
       
-      // Validar se há volumes para gravar
-      if (!generatedVolumes || generatedVolumes.length === 0) {
-        toast({
-          title: "❌ Nenhuma Etiqueta para Gravar",
-          description: "Gere volumes primeiro antes de tentar gravar as etiquetas.",
-          variant: "destructive",
-        });
+      const atomicData = prepareAtomicData();
+      if (!atomicData) {
         return;
       }
 
-      // Validar campos obrigatórios básicos
-      const volumesValidacao: { volume: Volume; missingFields: string[] }[] = [];
+      const etiquetasGeradas = await gerarEtiquetasAtomicamente(atomicData);
       
-      generatedVolumes.forEach(volume => {
-        const missingFields = validateBasicFields(volume);
-        if (missingFields.length > 0) {
-          volumesValidacao.push({ volume, missingFields });
-        }
-      });
-
-      // Se houver erros críticos, mostrar e parar
-      if (volumesValidacao.length > 0) {
-        const errorMessages = volumesValidacao.slice(0, 3).map(({ volume, missingFields }) => 
-          `Volume ${volume.id}: ${missingFields.join(', ')}`
-        ).join('\n');
+      if (etiquetasGeradas) {
+        console.log('✅ Etiquetas geradas atomicamente:', etiquetasGeradas.length);
         
-        toast({
-          title: "⚠️ Campos Obrigatórios Faltando",
-          description: `${errorMessages}${volumesValidacao.length > 3 ? '\n...' : ''}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Contadores de resultados
-      let volumesSalvos = 0;
-      let contadorErros = 0;
-      const erros: string[] = [];
-
-      console.log(`📝 Processando ${generatedVolumes.length} etiquetas...`);
-
-      // Processar cada volume individualmente
-      for (let i = 0; i < generatedVolumes.length; i++) {
-        const volume = generatedVolumes[i];
-        
-        try {
-          console.log(`💾 [${i + 1}/${generatedVolumes.length}] Processando: ${volume.id}`);
+        // Converter para formato Volume se necessário para atualizar a interface
+        if (setGeneratedVolumes) {
+          const volumes: Volume[] = etiquetasGeradas.map((etiqueta, index) => ({
+            id: etiqueta.codigo,
+            volumeNumber: etiqueta.volume_numero,
+            totalVolumes: etiqueta.total_volumes,
+            notaFiscal: atomicData.nota_fiscal_id,
+            area: etiqueta.area || '',
+            // ... outros campos conforme necessário
+          }));
           
-          // Preparar dados da etiqueta
-          const etiquetaData = prepareEtiquetaData(volume);
-          
-          // Salvar no banco de dados
-          const etiquetaSalva = await salvarEtiqueta(etiquetaData);
-          
-          console.log(`✅ Etiqueta ${volume.id} salva com ID: ${etiquetaSalva.id}`);
-          volumesSalvos++;
-          
-        } catch (error) {
-          contadorErros++;
-          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-          erros.push(`${volume.id}: ${errorMessage}`);
-          console.error(`❌ Erro ao gravar ${volume.id}:`, error);
+          setGeneratedVolumes(volumes);
         }
       }
-
-      console.log(`🏁 Processo concluído - Salvos: ${volumesSalvos}, Erros: ${contadorErros}`);
-
-      // Mostrar resultado ao usuário
-      if (volumesSalvos > 0 && contadorErros === 0) {
-        toast({
-          title: "✅ Etiquetas Gravadas com Sucesso!",
-          description: `${volumesSalvos} etiqueta(s) foram salvas no banco de dados.`,
-        });
-        
-        // Atualizar lista de etiquetas
-        await buscarEtiquetas();
-        
-      } else if (volumesSalvos > 0 && contadorErros > 0) {
-        toast({
-          title: "⚠️ Gravação Parcialmente Concluída",
-          description: `${volumesSalvos} salvas com sucesso, ${contadorErros} com erro.`,
-          variant: "destructive",
-        });
-        
-      } else {
-        toast({
-          title: "❌ Falha na Gravação",
-          description: `Nenhuma etiqueta foi gravada. ${erros.slice(0, 2).join(', ')}`,
-          variant: "destructive",
-        });
-      }
-
-      // Log dos erros para debug
-      if (erros.length > 0) {
-        console.error('📝 Lista de erros:', erros);
-      }
-
+      
     } catch (error) {
-      console.error('💥 Erro crítico no processo:', error);
+      console.error('💥 Erro na geração atômica:', error);
       toast({
-        title: "❌ Erro Crítico",
-        description: error instanceof Error ? error.message : "Erro inesperado na gravação",
-        variant: "destructive",
+        title: "❌ Erro na Geração",
+        description: error instanceof Error ? error.message : "Erro inesperado na geração de etiquetas",
+        variant: "destructive"
       });
     }
   };
 
-  const handleAtualizarEtiquetas = async () => {
+  const handleConfirmarGeracao = async () => {
     try {
-      console.log('🔄 Atualizando lista de etiquetas...');
-      await buscarEtiquetas();
-      toast({
-        title: "✅ Lista Atualizada",
-        description: "A lista de etiquetas foi atualizada com sucesso.",
-      });
+      const etiquetasGeradas = await confirmarGeracao();
+      
+      if (etiquetasGeradas && setGeneratedVolumes) {
+        const volumes: Volume[] = etiquetasGeradas.map((etiqueta) => ({
+          id: etiqueta.codigo,
+          volumeNumber: etiqueta.volume_numero,
+          totalVolumes: etiqueta.total_volumes,
+          notaFiscal: etiqueta.nota_fiscal_id,
+          area: etiqueta.area || '',
+          // ... outros campos conforme necessário
+        }));
+        
+        setGeneratedVolumes(volumes);
+      }
     } catch (error) {
-      console.error('❌ Erro ao atualizar:', error);
-      toast({
-        title: "❌ Erro ao Atualizar",
-        description: "Não foi possível atualizar a lista de etiquetas.",
-        variant: "destructive",
-      });
+      console.error('Erro na confirmação:', error);
     }
   };
 
@@ -230,28 +160,19 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         form={form}
         onGenerateVolumes={handleGenerateVolumes}
         onBatchClassifyArea={setVolumes && setGeneratedVolumes ? onBatchClassifyArea : undefined}
-        isGenerating={false}
+        isGenerating={isGenerating}
       />
       
       {generatedVolumes.length > 0 && (
         <div className="space-y-4">
           <div className="flex gap-2 justify-end">
             <Button
-              onClick={handleAtualizarEtiquetas}
-              variant="outline"
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Atualizar Lista
-            </Button>
-            <Button
-              onClick={handleGravarEtiquetas}
-              disabled={isLoading || generatedVolumes.length === 0}
+              onClick={handleGravarEtiquetasAtomicamente}
+              disabled={isGenerating || generatedVolumes.length === 0}
               className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
             >
               <Save className="h-4 w-4" />
-              {isLoading ? 'Gravando...' : 'Gravar Etiquetas'}
+              {isGenerating ? 'Gravando...' : 'Gravar Etiquetas (Atômico)'}
             </Button>
           </div>
           
@@ -263,6 +184,16 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
           />
         </div>
       )}
+
+      {/* Diálogo de Confirmação de Duplicidade */}
+      <DuplicateConfirmationDialog
+        open={showDuplicateDialog}
+        onOpenChange={() => {}}
+        onConfirm={handleConfirmarGeracao}
+        onCancel={cancelarGeracao}
+        duplicateData={duplicateData || { hasDuplicates: false, existingVolumes: 0, volumes: [] }}
+        numeroNotaFiscal={form.getValues('numeroNotaFiscal')}
+      />
     </div>
   );
 };
