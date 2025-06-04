@@ -1,3 +1,4 @@
+
 export * from './useEtiquetasGenerator';
 export * from './types';
 export * from './useVolumeGeneration';
@@ -8,4 +9,3 @@ export * from './useEtiquetaHTML';
 export * from './usePDFGenerator';
 export * from './useQRCodeGenerator';
 export * from './useEtiquetaPreview';
-export * from './useAtomicEtiquetaGeneration';
