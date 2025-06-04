@@ -70,7 +70,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
 
     // Preparar dados para persistência atômica
     const atomicData: AtomicEtiquetaData = {
-      nota_fiscal_id: formValues.notaFiscalId || formValues.numeroNotaFiscal, // Assumindo que há um ID da NF
+      nota_fiscal_id: formValues.numeroNotaFiscal,
       numero_volumes: parseInt(formValues.quantidadeVolumes),
       tipo_etiqueta: formValues.tipoEtiqueta || 'Volume Simples',
       informacoes_adicionais: formValues.informacoesAdicionais,
@@ -84,7 +84,7 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       uf: formValues.uf,
       transportadora: formValues.transportadora,
       chave_nf: formValues.chaveNF,
-      peso_total_bruto: formValues.pesoTotal?.toString(),
+      peso_total_bruto: formValues.pesoTotalBruto?.toString(),
       numero_pedido: formValues.numeroPedido,
       codigo_onu: formValues.codigoONU,
       codigo_risco: formValues.codigoRisco,
@@ -130,6 +130,12 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         return;
       }
 
+      // Mostrar loading
+      toast({
+        title: "🔄 Verificando Duplicidade",
+        description: "Verificando se já existem volumes para esta Nota Fiscal...",
+      });
+
       const etiquetasGeradas = await gerarEtiquetasAtomicamente(atomicData);
       
       if (etiquetasGeradas && setGeneratedVolumes) {
@@ -141,13 +147,19 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         );
         
         setGeneratedVolumes(volumes);
+
+        // Toast de sucesso
+        toast({
+          title: "✅ Etiquetas Gravadas com Sucesso",
+          description: `${etiquetasGeradas.length} etiqueta(s) foram persistidas no banco de dados para a NF ${atomicData.nota_fiscal_id}.`,
+        });
       }
       
     } catch (error) {
       console.error('💥 Erro na geração atômica:', error);
       toast({
-        title: "❌ Erro na Geração",
-        description: error instanceof Error ? error.message : "Erro inesperado na geração de etiquetas",
+        title: "❌ Erro na Gravação",
+        description: error instanceof Error ? error.message : "Erro inesperado na gravação de etiquetas",
         variant: "destructive"
       });
     }
@@ -158,6 +170,12 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
       const atomicData = prepareAtomicData();
       if (!atomicData) return;
 
+      // Mostrar loading
+      toast({
+        title: "🔄 Gravando Etiquetas",
+        description: "Confirmando gravação de novos volumes...",
+      });
+
       const etiquetasGeradas = await confirmarGeracao();
       
       if (etiquetasGeradas && setGeneratedVolumes) {
@@ -166,9 +184,20 @@ const GerarEtiquetasTab: React.FC<GerarEtiquetasTabProps> = ({
         );
         
         setGeneratedVolumes(volumes);
+
+        // Toast de sucesso
+        toast({
+          title: "✅ Novos Volumes Gravados",
+          description: `${etiquetasGeradas.length} nova(s) etiqueta(s) foram adicionadas para a NF ${atomicData.nota_fiscal_id}.`,
+        });
       }
     } catch (error) {
-      console.error('Erro na confirmação:', error);
+      console.error('❌ Erro na confirmação:', error);
+      toast({
+        title: "❌ Erro na Confirmação",
+        description: error instanceof Error ? error.message : "Erro ao confirmar gravação",
+        variant: "destructive"
+      });
     }
   };
 
