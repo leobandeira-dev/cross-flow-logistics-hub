@@ -1,4 +1,5 @@
 
+
 import { useState, useCallback } from 'react';
 
 export interface Volume {
@@ -11,7 +12,7 @@ export interface Volume {
   cidade: string;
   cidadeCompleta?: string;
   uf: string;
-  transportadora?: string;
+  transportadora: string;
   descricao: string;
   area?: string;
   quantidade: number;
@@ -124,3 +125,4 @@ export const useVolumeState = () => {
     generateConsistentVolumeId
   };
 };
+

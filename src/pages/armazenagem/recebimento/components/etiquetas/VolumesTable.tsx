@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ export interface Volume {
   destinatario: string;
   endereco: string;
   cidade: string;
+  cidadeCompleta?: string;
   uf: string;
   transportadora: string;
   chaveNF: string;
@@ -29,6 +31,8 @@ export interface Volume {
   impresso: boolean;
   dataGeracao: string;
   etiquetaMae?: string;
+  tipoEtiquetaMae?: 'geral' | 'palete';
+  tipoVolume?: 'geral' | 'quimico';
 }
 
 interface VolumesTableProps {
@@ -155,3 +159,4 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
 };
 
 export default VolumesTable;
+

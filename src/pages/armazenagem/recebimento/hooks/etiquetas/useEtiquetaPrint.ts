@@ -1,4 +1,5 @@
 
+
 import { toast } from '@/hooks/use-toast';
 import { Volume } from '../../components/etiquetas/VolumesTable';
 import { useEtiquetasGenerator } from '@/hooks/etiquetas';
@@ -82,7 +83,6 @@ export const useEtiquetaPrint = () => {
       pesoTotal: '0 Kg',
       chaveNF: '',
       etiquetaMae: etiquetaMaeId,
-      tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
       classificacaoQuimica: 'nao_classificada',
@@ -91,7 +91,8 @@ export const useEtiquetaPrint = () => {
       dataGeracao: new Date().toISOString(),
       volumeNumber: 1,
       totalVolumes: 1,
-      numeroPedido: ''
+      numeroPedido: '',
+      area: ''
     }];
     
     // Empty nota data since this is a standalone master etiqueta
@@ -173,7 +174,6 @@ export const useEtiquetaPrint = () => {
       pesoTotal: notaData.pesoTotal,
       chaveNF: notaData.chaveNF,
       etiquetaMae: etiquetaMae.id,
-      tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
       classificacaoQuimica: 'nao_classificada',
@@ -182,7 +182,8 @@ export const useEtiquetaPrint = () => {
       dataGeracao: new Date().toISOString(),
       volumeNumber: 1,
       totalVolumes: 1,
-      numeroPedido: ''
+      numeroPedido: '',
+      area: ''
     }];
     
     // Generate master etiqueta
@@ -204,3 +205,4 @@ export const useEtiquetaPrint = () => {
     createAndPrintEtiquetaMae
   };
 };
+
