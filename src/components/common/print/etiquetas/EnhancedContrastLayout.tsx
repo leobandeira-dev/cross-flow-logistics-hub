@@ -1,10 +1,15 @@
 
 import React from 'react';
-import { TestTube, Biohazard } from 'lucide-react';
-import QRCodeGenerator from '../QRCodeGenerator';
-import { EtiquetaLayoutProps } from './types';
+import EmpresaLogo from './EmpresaLogo';
 
-interface EnhancedContrastLayoutProps extends EtiquetaLayoutProps {
+interface EnhancedContrastLayoutProps {
+  volumeData: any;
+  volumeNumber?: number;
+  totalVolumes?: number;
+  isMae: boolean;
+  isQuimico: boolean;
+  displayCidade: string;
+  getClassificacaoText: () => string;
   transportadoraLogo?: string;
 }
 
@@ -19,121 +24,88 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
   transportadoraLogo
 }) => {
   return (
-    <div className="h-full flex flex-col p-4">
-      {/* Ícone químico se aplicável */}
-      {isQuimico && (
-        <div className="absolute top-3 right-3 bg-red-100 border-2 border-red-500 rounded-full p-2">
-          <Biohazard size={32} className="text-red-600" />
-        </div>
-      )}
-      
+    <div className="w-full h-full bg-black text-white p-2 relative">
       {/* Header */}
-      <div className="text-center text-lg font-bold border-b-2 border-gray-300 pb-2 mb-4">
-        {transportadoraLogo ? (
-          <div className="flex justify-center">
-            <img 
-              src={transportadoraLogo} 
-              alt="Logo Transportadora" 
-              className="max-h-12 object-contain"
-              style={{ width: 'auto', height: '48px', maxWidth: '200px' }}
-            />
+      <div className="flex justify-between items-center mb-2 pb-2 border-b border-white">
+        <div className="flex-1">
+          <EmpresaLogo 
+            className="max-h-6 object-contain filter invert"
+            fallbackText="CROSSWMS"
+            showWatermark={false}
+          />
+        </div>
+        {transportadoraLogo && (
+          <div className="flex-1 text-right">
+            <img src={transportadoraLogo} alt="Transportadora" className="max-h-4 object-contain ml-auto filter invert" />
           </div>
-        ) : (
-          isMae ? 'ETIQUETA MÃE' : (volumeData.transportadora || 'TRANSPORTADORA')
         )}
       </div>
-      
-      {/* Volume - DESTAQUE COM ALTO CONTRASTE EXTREMAMENTE MAIOR E MAIS VISÍVEL NO TOPO */}
-      {!isMae && volumeNumber && totalVolumes && (
-        <div className="text-xl mb-6 bg-black text-white p-10 rounded-lg border-4 border-gray-900 text-center shadow-xl">
-          <div className="text-2xl font-bold mb-4">VOLUME</div>
-          <div className="text-9xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
-        </div>
-      )}
 
-      <div className="flex flex-1">
-        {/* Coluna principal com informações */}
-        <div className="flex-[2] pr-4">
-          <div className="text-sm mb-2">
-            <span className="font-bold">ID:</span> {volumeData.id}
-          </div>
-          
-          {/* Nota Fiscal - DESTAQUE COM ALTO CONTRASTE */}
-          <div className="text-sm mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
-            <span className="font-bold">NF:</span> <span className="text-xl font-bold">{volumeData.notaFiscal || 'N/A'}</span>
-          </div>
-          
-          {/* Remetente - DESTAQUE COM ALTO CONTRASTE */}
-          <div className="text-sm mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
-            <span className="font-bold">Remetente:</span> <span className="text-base font-bold">{volumeData.remetente || 'N/A'}</span>
-          </div>
-          
-          <div className="text-sm mb-2">
-            <span className="font-bold">Destinatário:</span> {volumeData.destinatario || 'N/A'}
-          </div>
-          
-          <div className="text-sm mb-2">
-            <span className="font-bold">Endereço:</span> {volumeData.endereco || 'N/A'}
-          </div>
-          
-          {/* Cidade Destino - DESTAQUE COM ALTO CONTRASTE */}
-          <div className="text-lg mb-2 bg-black text-white p-2 rounded border-2 border-gray-800">
-            <span className="font-bold">Cidade/UF:</span> <span className="text-xl font-bold">{displayCidade}</span>/<span className="text-xl font-bold">{volumeData.uf || 'N/A'}</span>
-          </div>
-          
-          <div className="text-sm mb-2">
-            <span className="font-bold">Peso:</span> {volumeData.pesoTotal || '0 Kg'}
-          </div>
-          
-          <div className="text-sm mb-2">
-            <span className="font-bold">Transportadora:</span> {volumeData.transportadora || 'N/D'}
-          </div>
-          
-          {/* Quantidade - DESTAQUE COM ALTO CONTRASTE MUITO MAIOR com fonte aumentada em 100% */}
-          {volumeData.quantidade && (
-            <div className="text-xl mb-2 bg-black text-white p-4 rounded border-4 border-gray-800">
-              <span className="font-bold text-2xl">Quantidade:</span> 
-              <span className="text-8xl font-black ml-2">{volumeData.quantidade}</span>
-            </div>
-          )}
-          
-          {isQuimico && (
-            <>
-              <div className="text-sm mb-2 bg-red-100 p-2 rounded border-2 border-red-300">
-                <span className="font-bold">Código ONU:</span> {volumeData.codigoONU || 'N/A'}
-              </div>
-              <div className="text-sm mb-2 bg-red-100 p-2 rounded border-2 border-red-300">
-                <span className="font-bold">Código de Risco:</span> {volumeData.codigoRisco || 'N/A'}
-              </div>
-              <div className="text-sm mb-2 bg-red-100 p-2 rounded border-2 border-red-300">
-                <span className="font-bold">Classificação:</span> {getClassificacaoText()}
-              </div>
-            </>
-          )}
+      {/* Volume info */}
+      <div className="text-center mb-2">
+        <div className="text-xl font-bold">
+          {isMae ? 'ETIQUETA MÃE' : `VOL ${volumeNumber}/${totalVolumes}`}
         </div>
-        
-        {/* Coluna do QR Code */}
-        <div className="flex-1 flex flex-col justify-center items-center">
-          <QRCodeGenerator text={volumeData.id} size={100} />
-          <div className="text-center text-xs mt-2 font-bold">{volumeData.id}</div>
-          
-          {/* Área - APENAS O NÚMERO, DESTAQUE COM ALTO CONTRASTE MUITO MAIOR */}
-          {volumeData.area && (
-            <div className="mt-4 bg-black text-white p-8 rounded-lg border-4 border-gray-900 text-center shadow-lg">
-              <div className="text-xl font-bold mb-3">ÁREA</div>
-              <div className="text-9xl font-black leading-none">{volumeData.area}</div>
-            </div>
-          )}
+        <div className="text-sm font-bold bg-white text-black px-2 py-1 rounded">
+          {volumeData.id}
         </div>
       </div>
-      
-      {/* Quantidade de Volumes - DESTAQUE COM ALTO CONTRASTE MAIOR (para etiqueta mãe) com fonte aumentada em 100% */}
-      {isMae && (
-        <div className="text-xl mt-2 pt-2 border-t-2 border-gray-300 bg-black text-white p-4 rounded border-4 border-gray-800">
-          <span className="font-bold text-2xl">Total de volumes:</span> 
-          <span className="text-8xl font-black ml-2">{volumeData.quantidade || '0'}</span>
+
+      {/* Main content */}
+      <div className="space-y-2">
+        {/* Origin and destination */}
+        <div className="bg-white text-black p-2 rounded">
+          <div className="text-sm font-bold">DE: {volumeData.remetente}</div>
+          <div className="text-sm font-bold">PARA: {volumeData.destinatario}</div>
         </div>
-      )}
+
+        {/* Address */}
+        <div className="bg-gray-800 p-2 rounded">
+          <div className="text-sm font-bold">{volumeData.endereco}</div>
+          <div className="text-lg font-bold">{displayCidade}</div>
+        </div>
+
+        {/* Details */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-white text-black p-1 rounded text-center">
+            <div className="text-xs font-bold">PESO</div>
+            <div className="text-sm">{volumeData.pesoTotal}</div>
+          </div>
+          <div className="bg-white text-black p-1 rounded text-center">
+            <div className="text-xs font-bold">TIPO</div>
+            <div className="text-sm">{getClassificacaoText()}</div>
+          </div>
+        </div>
+
+        {/* Transport info */}
+        {volumeData.transportadora && (
+          <div className="text-center text-sm">
+            <span className="font-bold">TRANSP:</span> {volumeData.transportadora}
+          </div>
+        )}
+
+        {/* Chemical info */}
+        {isQuimico && (
+          <div className="bg-red-600 p-2 rounded">
+            <div className="text-center text-sm font-bold mb-1">⚠️ PRODUTO QUÍMICO</div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-center">
+                <div className="font-bold">ONU</div>
+                <div>{volumeData.codigoONU}</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold">RISCO</div>
+                <div>{volumeData.codigoRisco}</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Watermark */}
+      <div className="absolute bottom-1 right-1 text-xs text-gray-400 opacity-50 font-light">
+        crosswms.com.br
+      </div>
     </div>
   );
 };
