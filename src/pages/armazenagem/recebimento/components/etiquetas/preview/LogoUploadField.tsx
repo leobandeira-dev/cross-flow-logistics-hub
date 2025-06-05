@@ -14,7 +14,7 @@ interface LogoUploadFieldProps {
 
 const LogoUploadField: React.FC<LogoUploadFieldProps> = ({ transportadoraLogo, onLogoChange }) => {
   const { user } = useAuth();
-  const { logoUrl: empresaLogo } = useEmpresaLogo(user?.user_metadata?.empresa_id);
+  const { logoUrl: empresaLogo } = useEmpresaLogo(user?.empresa_id);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

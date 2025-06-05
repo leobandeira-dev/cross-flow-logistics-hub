@@ -13,7 +13,7 @@ const EmpresaLogo: React.FC<EmpresaLogoProps> = ({
   fallbackText = "EMPRESA" 
 }) => {
   const { user } = useAuth();
-  const { logoUrl, isLoading } = useEmpresaLogo(user?.user_metadata?.empresa_id);
+  const { logoUrl, isLoading } = useEmpresaLogo(user?.empresa_id);
 
   if (isLoading) {
     return (

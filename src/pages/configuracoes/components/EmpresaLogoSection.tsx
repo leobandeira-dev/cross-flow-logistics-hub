@@ -7,13 +7,13 @@ import { useAuth } from '@/hooks/useAuth';
 
 const EmpresaLogoSection: React.FC = () => {
   const { user } = useAuth();
-  const { logoUrl, setLogoUrl } = useEmpresaLogo(user?.user_metadata?.empresa_id);
+  const { logoUrl, setLogoUrl } = useEmpresaLogo(user?.empresa_id);
 
   const handleLogoChange = (newLogoUrl: string | null) => {
     setLogoUrl(newLogoUrl);
   };
 
-  if (!user?.user_metadata?.empresa_id) {
+  if (!user?.empresa_id) {
     return (
       <Card>
         <CardHeader>
@@ -30,7 +30,7 @@ const EmpresaLogoSection: React.FC = () => {
 
   return (
     <LogoUpload
-      empresaId={user.user_metadata.empresa_id}
+      empresaId={user.empresa_id}
       currentLogoUrl={logoUrl}
       onLogoChange={handleLogoChange}
     />
