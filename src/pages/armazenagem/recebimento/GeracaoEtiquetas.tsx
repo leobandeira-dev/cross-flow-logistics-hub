@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -9,6 +10,7 @@ import FormInitializer from './components/etiquetas/FormInitializer';
 import ConsultaEtiquetasTab from './components/etiquetas/ConsultaEtiquetasTab';
 import EtiquetasMaeTab from './components/etiquetas/EtiquetasMaeTab';
 import ClassifyVolumeDialog from './components/etiquetas/ClassifyVolumeDialog';
+import VolumeExistsConfirmDialog from './components/etiquetas/VolumeExistsConfirmDialog';
 import { useGeracaoEtiquetas } from './hooks/useGeracaoEtiquetas';
 
 const GeracaoEtiquetas: React.FC = () => {
@@ -25,7 +27,11 @@ const GeracaoEtiquetas: React.FC = () => {
     etiquetasMae,
     classifyDialogOpen,
     selectedVolume,
+    volumeExistsDialogOpen,
+    pendingPrintVolume,
+    existingVolumesCount,
     setClassifyDialogOpen,
+    setVolumeExistsDialogOpen,
     handleGenerateVolumes,
     handlePrintEtiquetas,
     handleReimprimirEtiquetas,
@@ -34,6 +40,7 @@ const GeracaoEtiquetas: React.FC = () => {
     handleClassifyVolume,
     handleSaveVolumeClassification,
     handleVincularVolumes,
+    handleConfirmPrintWithExistingVolumes,
     setVolumes,
     setGeneratedVolumes
   } = useGeracaoEtiquetas();
@@ -105,6 +112,15 @@ const GeracaoEtiquetas: React.FC = () => {
         open={classifyDialogOpen}
         onClose={() => setClassifyDialogOpen(false)}
         onSave={handleSaveVolumeClassification}
+      />
+
+      {/* Volume Exists Confirmation Dialog */}
+      <VolumeExistsConfirmDialog
+        open={volumeExistsDialogOpen}
+        onOpenChange={setVolumeExistsDialogOpen}
+        onConfirm={handleConfirmPrintWithExistingVolumes}
+        notaFiscal={pendingPrintVolume?.notaFiscal || ''}
+        existingVolumesCount={existingVolumesCount}
       />
     </MainLayout>
   );

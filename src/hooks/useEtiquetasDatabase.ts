@@ -1,233 +1,172 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import etiquetaService, { CreateEtiquetaData, InutilizarEtiquetaData } from '@/services/etiquetaService';
-import { Etiqueta } from '@/types/supabase/armazem.types';
+
+export interface CreateEtiquetaData {
+  codigo: string;
+  tipo: string;
+  area?: string | null;
+  remetente?: string | null;
+  destinatario?: string | null;
+  endereco?: string | null;
+  cidade?: string | null;
+  uf?: string | null;
+  cep?: string | null;
+  descricao?: string | null;
+  transportadora?: string | null;
+  chave_nf?: string | null;
+  quantidade?: number;
+  peso_total_bruto?: string | null;
+  numero_pedido?: string | null;
+  volume_numero?: number;
+  total_volumes?: number;
+  codigo_onu?: string | null;
+  codigo_risco?: string | null;
+  classificacao_quimica?: string | null;
+  etiqueta_mae_id?: string | null;
+  status?: string;
+}
 
 export const useEtiquetasDatabase = () => {
+  const [etiquetas, setEtiquetas] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([]);
 
-  // READ - Buscar todas as etiquetas
-  const buscarEtiquetas = useCallback(async () => {
+  const buscarEtiquetas = async () => {
     setIsLoading(true);
     try {
-      console.log('🔄 Hook: Iniciando busca de etiquetas...');
-      const data = await etiquetaService.buscarEtiquetas();
-      setEtiquetas(data);
-      console.log(`📊 Hook: ${data.length} etiquetas carregadas no estado`);
+      console.log('🔍 Buscando etiquetas no banco de dados...');
+
+      const { data, error } = await supabase
+        .from('etiquetas')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('❌ Erro ao buscar etiquetas:', error);
+        throw error;
+      }
+
+      console.log(`✅ ${data?.length || 0} etiquetas encontradas`);
+      setEtiquetas(data || []);
+      return data || [];
+    } catch (error) {
+      console.error('💥 Erro inesperado ao buscar etiquetas:', error);
+      toast({
+        title: "❌ Erro ao Buscar Etiquetas",
+        description: error instanceof Error ? error.message : "Erro inesperado",
+        variant: "destructive",
+      });
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const salvarEtiqueta = async (etiquetaData: CreateEtiquetaData) => {
+    try {
+      console.log('💾 Salvando etiqueta:', etiquetaData.codigo);
+
+      const { data, error } = await supabase
+        .from('etiquetas')
+        .insert([etiquetaData])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao salvar etiqueta:', error);
+        throw error;
+      }
+
+      console.log('✅ Etiqueta salva com sucesso:', data.id);
       return data;
     } catch (error) {
-      console.error('❌ Hook: Erro ao buscar etiquetas:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao buscar etiquetas do banco de dados.",
-        variant: "destructive"
-      });
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // READ - Buscar etiqueta por ID
-  const buscarEtiquetaPorId = useCallback(async (id: string) => {
-    setIsLoading(true);
-    try {
-      console.log(`Buscando etiqueta por ID: ${id}`);
-      const etiqueta = await etiquetaService.buscarEtiquetaPorId(id);
-      return etiqueta;
-    } catch (error) {
-      console.error('Erro ao buscar etiqueta por ID:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao buscar etiqueta.",
-        variant: "destructive"
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // READ - Buscar etiquetas por código
-  const buscarEtiquetasPorCodigo = useCallback(async (codigo: string) => {
-    setIsLoading(true);
-    try {
-      const etiquetas = await etiquetaService.buscarEtiquetasPorCodigo(codigo);
-      return etiquetas;
-    } catch (error) {
-      console.error('Erro ao buscar etiquetas por código:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao buscar etiquetas por código.",
-        variant: "destructive"
-      });
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // CREATE - Salvar nova etiqueta
-  const salvarEtiqueta = useCallback(async (etiquetaData: CreateEtiquetaData) => {
-    setIsLoading(true);
-    try {
-      console.log('🔄 Hook: Salvando etiqueta:', etiquetaData.codigo);
-      
-      const novaEtiqueta = await etiquetaService.criarEtiqueta(etiquetaData);
-      
-      // Atualizar lista automaticamente
-      setEtiquetas(prev => {
-        console.log('📝 Hook: Adicionando etiqueta ao estado');
-        return [novaEtiqueta, ...prev];
-      });
-      
-      console.log('✅ Hook: Etiqueta salva e adicionada ao estado');
-      return novaEtiqueta;
-    } catch (error) {
-      console.error('❌ Hook: Erro ao salvar etiqueta:', error);
-      
-      // Re-lançar o erro para que seja tratado no componente
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // UPDATE - Atualizar etiqueta existente usando ID como chave primária
-  const atualizarEtiqueta = useCallback(async (id: string, etiquetaData: Partial<CreateEtiquetaData>) => {
-    setIsLoading(true);
-    try {
-      console.log(`Atualizando etiqueta com ID: ${id}`, etiquetaData);
-      const etiquetaAtualizada = await etiquetaService.atualizarEtiqueta(id, etiquetaData);
-      
-      // Atualizar lista automaticamente usando ID como chave
-      setEtiquetas(prev => prev.map(etq => etq.id === id ? etiquetaAtualizada : etq));
-      
-      toast({
-        title: "Sucesso",
-        description: "Etiqueta atualizada no Supabase com sucesso!",
-      });
-      return etiquetaAtualizada;
-    } catch (error) {
-      console.error('Erro ao atualizar etiqueta:', error);
-      toast({
-        title: "Erro na Atualização",
-        description: error instanceof Error ? error.message : "Erro ao atualizar etiqueta no banco de dados Supabase.",
-        variant: "destructive"
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // DELETE - Excluir etiqueta usando ID como chave primária
-  const excluirEtiqueta = useCallback(async (id: string) => {
-    setIsLoading(true);
-    try {
-      console.log(`Excluindo etiqueta com ID: ${id}`);
-      await etiquetaService.excluirEtiqueta(id);
-      
-      // Remover da lista automaticamente usando ID como chave
-      setEtiquetas(prev => prev.filter(etq => etq.id !== id));
-      
-      toast({
-        title: "Sucesso",
-        description: "Etiqueta excluída do Supabase com sucesso!",
-      });
-    } catch (error) {
-      console.error('Erro ao excluir etiqueta:', error);
-      toast({
-        title: "Erro na Exclusão",
-        description: error instanceof Error ? error.message : "Erro ao excluir etiqueta do banco de dados Supabase.",
-        variant: "destructive"
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // UPDATE - Marcar como etiquetada usando ID como chave primária
-  const marcarComoEtiquetada = useCallback(async (id: string) => {
-    try {
-      console.log(`Marcando como etiquetada - ID: ${id}`);
-      await etiquetaService.marcarComoEtiquetada(id);
-      
-      // Atualizar lista automaticamente usando ID como chave
-      setEtiquetas(prev => prev.map(etq => 
-        etq.id === id 
-          ? { ...etq, status: 'etiquetada', etiquetado: true, data_impressao: new Date().toISOString() }
-          : etq
-      ));
-    } catch (error) {
-      console.error('Erro ao marcar etiqueta como etiquetada:', error);
-      toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao atualizar status da etiqueta no Supabase.",
-        variant: "destructive"
-      });
+      console.error('💥 Erro inesperado ao salvar etiqueta:', error);
       throw error;
     }
-  }, []);
+  };
 
-  // UPDATE - Inutilizar etiqueta usando ID como chave primária
-  const inutilizarEtiqueta = useCallback(async (id: string, dados: InutilizarEtiquetaData) => {
-    setIsLoading(true);
+  const buscarEtiquetasPorCodigo = async (codigo: string) => {
     try {
-      console.log(`Inutilizando etiqueta com ID: ${id}`, dados);
-      await etiquetaService.inutilizarEtiqueta(id, dados);
-      
-      // Atualizar lista automaticamente usando ID como chave
-      setEtiquetas(prev => prev.map(etq => 
-        etq.id === id 
-          ? { 
-              ...etq, 
-              status: 'inutilizada', 
-              motivo_inutilizacao: dados.motivo_inutilizacao,
-              data_inutilizacao: new Date().toISOString() 
-            }
-          : etq
-      ));
-      
-      toast({
-        title: "Sucesso",
-        description: "Etiqueta inutilizada no Supabase com sucesso!",
-      });
+      console.log('🔍 Buscando etiqueta por código:', codigo);
+
+      const { data, error } = await supabase
+        .from('etiquetas')
+        .select('*')
+        .eq('codigo', codigo);
+
+      if (error) {
+        console.error('❌ Erro ao buscar por código:', error);
+        throw error;
+      }
+
+      console.log(`✅ ${data?.length || 0} etiquetas encontradas para código ${codigo}`);
+      return data || [];
     } catch (error) {
-      console.error('Erro ao inutilizar etiqueta:', error);
-      toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao inutilizar etiqueta no Supabase.",
-        variant: "destructive"
-      });
+      console.error('💥 Erro inesperado ao buscar por código:', error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  const buscarEtiquetasPorNotaFiscal = async (notaFiscal: string) => {
+    try {
+      console.log('🔍 Buscando etiquetas por nota fiscal:', notaFiscal);
+
+      const { data, error } = await supabase
+        .from('etiquetas')
+        .select('*')
+        .eq('chave_nf', notaFiscal);
+
+      if (error) {
+        console.error('❌ Erro ao buscar por nota fiscal:', error);
+        throw error;
+      }
+
+      console.log(`✅ ${data?.length || 0} etiquetas encontradas para NF ${notaFiscal}`);
+      return data || [];
+    } catch (error) {
+      console.error('💥 Erro inesperado ao buscar por nota fiscal:', error);
+      throw error;
+    }
+  };
+
+  const marcarComoEtiquetada = async (etiquetaId: string) => {
+    try {
+      console.log('🏷️ Marcando etiqueta como etiquetada:', etiquetaId);
+
+      const { data, error } = await supabase
+        .from('etiquetas')
+        .update({ 
+          etiquetado: true,
+          data_impressao: new Date().toISOString()
+        })
+        .eq('id', etiquetaId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao marcar como etiquetada:', error);
+        throw error;
+      }
+
+      console.log('✅ Etiqueta marcada como etiquetada:', data.id);
+      return data;
+    } catch (error) {
+      console.error('💥 Erro inesperado ao marcar como etiquetada:', error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    buscarEtiquetas();
   }, []);
 
   return {
-    // Estado
     etiquetas,
     isLoading,
-    
-    // Operações CRUD
-    // READ
     buscarEtiquetas,
-    buscarEtiquetaPorId,
-    buscarEtiquetasPorCodigo,
-    
-    // CREATE
     salvarEtiqueta,
-    
-    // UPDATE
-    atualizarEtiqueta,
-    marcarComoEtiquetada,
-    inutilizarEtiqueta,
-    
-    // DELETE
-    excluirEtiqueta
+    buscarEtiquetasPorCodigo,
+    buscarEtiquetasPorNotaFiscal,
+    marcarComoEtiquetada
   };
 };
