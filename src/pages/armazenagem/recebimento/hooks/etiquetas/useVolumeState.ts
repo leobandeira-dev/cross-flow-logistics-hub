@@ -19,8 +19,8 @@ export interface Volume {
   numeroPedido: string;
   volumeNumber: number;
   totalVolumes: number;
-  codigoONU?: string;
-  codigoRisco?: string;
+  codigoONU: string;
+  codigoRisco: string;
   classificacaoQuimica: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   etiquetaMae?: string;
   etiquetado: boolean;
