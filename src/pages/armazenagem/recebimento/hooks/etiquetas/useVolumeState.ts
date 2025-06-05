@@ -16,9 +16,9 @@ export interface Volume {
   area?: string;
   quantidade: number;
   pesoTotal: string;
-  numeroPedido?: string;
-  volumeNumber?: number;
-  totalVolumes?: number;
+  numeroPedido: string;
+  volumeNumber: number;
+  totalVolumes: number;
   codigoONU?: string;
   codigoRisco?: string;
   classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';

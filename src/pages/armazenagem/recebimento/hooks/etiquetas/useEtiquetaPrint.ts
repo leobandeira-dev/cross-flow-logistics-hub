@@ -82,14 +82,16 @@ export const useEtiquetaPrint = () => {
       pesoTotal: '0 Kg',
       chaveNF: '',
       etiquetaMae: etiquetaMaeId,
-      tipoEtiquetaMae: tipoEtiquetaMae,
       tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
       classificacaoQuimica: 'nao_classificada',
       transportadora: 'Transportadora não especificada',
       impresso: false,
-      dataGeracao: new Date().toISOString()
+      dataGeracao: new Date().toISOString(),
+      volumeNumber: 1,
+      totalVolumes: 1,
+      numeroPedido: ''
     }];
     
     // Empty nota data since this is a standalone master etiqueta
@@ -171,14 +173,16 @@ export const useEtiquetaPrint = () => {
       pesoTotal: notaData.pesoTotal,
       chaveNF: notaData.chaveNF,
       etiquetaMae: etiquetaMae.id,
-      tipoEtiquetaMae: etiquetaMae.tipo || 'geral',
       tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
       classificacaoQuimica: 'nao_classificada',
       transportadora: notaData.transportadora,
       impresso: false,
-      dataGeracao: new Date().toISOString()
+      dataGeracao: new Date().toISOString(),
+      volumeNumber: 1,
+      totalVolumes: 1,
+      numeroPedido: ''
     }];
     
     // Generate master etiqueta
