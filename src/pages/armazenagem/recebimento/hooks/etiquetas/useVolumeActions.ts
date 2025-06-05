@@ -57,7 +57,7 @@ export const useVolumeActions = () => {
         numeroPedido: notaFiscalData?.numero_pedido || '',
         quantidade: 1,
         area: '',
-        classificacaoQuimica: tipoVolume === 'quimico' ? 'classificada' : 'nao_classificada',
+        classificacaoQuimica: tipoVolume === 'quimico' ? 'perigosa' : 'nao_perigosa',
         codigoONU: tipoVolume === 'quimico' ? codigoONU : '',
         codigoRisco: tipoVolume === 'quimico' ? codigoRisco : '',
         etiquetado: false,

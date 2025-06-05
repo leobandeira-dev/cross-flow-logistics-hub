@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -156,6 +157,87 @@ export const useEtiquetasDatabase = () => {
     }
   };
 
+  const inutilizarEtiqueta = async (etiquetaId: string, dados: { motivo_inutilizacao: string }) => {
+    try {
+      console.log('🗑️ Inutilizando etiqueta:', etiquetaId);
+
+      const { data, error } = await supabase
+        .from('etiquetas')
+        .update({ 
+          status: 'inutilizada',
+          motivo_inutilizacao: dados.motivo_inutilizacao,
+          data_inutilizacao: new Date().toISOString()
+        })
+        .eq('id', etiquetaId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao inutilizar etiqueta:', error);
+        throw error;
+      }
+
+      console.log('✅ Etiqueta inutilizada com sucesso:', data.id);
+      
+      // Atualizar lista local
+      setEtiquetas(prev => prev.map(etq => 
+        etq.id === etiquetaId 
+          ? { ...etq, status: 'inutilizada', motivo_inutilizacao: dados.motivo_inutilizacao }
+          : etq
+      ));
+
+      toast({
+        title: "✅ Etiqueta Inutilizada",
+        description: "A etiqueta foi inutilizada com sucesso.",
+      });
+
+      return data;
+    } catch (error) {
+      console.error('💥 Erro inesperado ao inutilizar etiqueta:', error);
+      toast({
+        title: "❌ Erro ao Inutilizar",
+        description: error instanceof Error ? error.message : "Erro inesperado",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const excluirEtiqueta = async (etiquetaId: string) => {
+    try {
+      console.log('🗑️ Excluindo etiqueta:', etiquetaId);
+
+      const { error } = await supabase
+        .from('etiquetas')
+        .delete()
+        .eq('id', etiquetaId);
+
+      if (error) {
+        console.error('❌ Erro ao excluir etiqueta:', error);
+        throw error;
+      }
+
+      console.log('✅ Etiqueta excluída com sucesso:', etiquetaId);
+      
+      // Atualizar lista local
+      setEtiquetas(prev => prev.filter(etq => etq.id !== etiquetaId));
+
+      toast({
+        title: "✅ Etiqueta Excluída",
+        description: "A etiqueta foi excluída com sucesso.",
+      });
+
+    } catch (error) {
+      console.error('💥 Erro inesperado ao excluir etiqueta:', error);
+      toast({
+        title: "❌ Erro ao Excluir",
+        description: error instanceof Error ? error.message : "Erro inesperado",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   useEffect(() => {
     buscarEtiquetas();
   }, []);
@@ -167,6 +249,8 @@ export const useEtiquetasDatabase = () => {
     salvarEtiqueta,
     buscarEtiquetasPorCodigo,
     buscarEtiquetasPorNotaFiscal,
-    marcarComoEtiquetada
+    marcarComoEtiquetada,
+    inutilizarEtiqueta,
+    excluirEtiqueta
   };
 };
