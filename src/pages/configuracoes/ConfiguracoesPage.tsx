@@ -1,8 +1,10 @@
+
 import React from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Settings, Building, User, Shield } from 'lucide-react';
+import { Settings, Building, User, Shield, CreditCard } from 'lucide-react';
 import EmpresaLogoSection from './components/EmpresaLogoSection';
+import StripeIntegrationSection from './components/StripeIntegrationSection';
 
 const ConfiguracoesPage: React.FC = () => {
   return (
@@ -13,7 +15,7 @@ const ConfiguracoesPage: React.FC = () => {
       </div>
 
       <Tabs defaultValue="empresa" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="empresa" className="flex items-center gap-2">
             <Building className="h-4 w-4" />
             Empresa
@@ -25,6 +27,10 @@ const ConfiguracoesPage: React.FC = () => {
           <TabsTrigger value="permissoes" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Permissões
+          </TabsTrigger>
+          <TabsTrigger value="pagamentos" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Pagamentos
           </TabsTrigger>
           <TabsTrigger value="sistema" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
@@ -60,6 +66,10 @@ const ConfiguracoesPage: React.FC = () => {
             <h3 className="text-lg font-semibold mb-2">Controle de Permissões</h3>
             <p className="text-gray-600">Configure permissões e níveis de acesso</p>
           </div>
+        </TabsContent>
+
+        <TabsContent value="pagamentos">
+          <StripeIntegrationSection />
         </TabsContent>
 
         <TabsContent value="sistema">
