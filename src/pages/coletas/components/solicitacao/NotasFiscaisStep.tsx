@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { SolicitacaoFormData } from './SolicitacaoTypes';
 import { Card, CardContent } from '@/components/ui/card';
@@ -110,4 +111,4 @@ const NotasFiscaisStep: React.FC<NotasFiscaisStepProps> = ({
   );
 };
 
-export default NotasFiscaisStep; 
+export default NotasFiscaisStep;

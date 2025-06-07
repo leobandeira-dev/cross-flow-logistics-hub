@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import MainLayout from '@/components/layout/MainLayout';
 import {
   Card,
   CardContent,
@@ -15,7 +16,8 @@ const Remessas: React.FC = () => {
   const [activeTab, setActiveTab] = useState('documentos');
 
   return (
-    <div className="space-y-6">
+    <MainLayout title="Gestão de Documentos">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -57,6 +59,7 @@ const Remessas: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+    </MainLayout>
   );
 };
 

@@ -69,6 +69,7 @@ const InutilizarEtiquetaDialog: React.FC<InutilizarEtiquetaDialogProps> = ({
               required
             />
           </div>
+        </div>
         
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel} disabled={isLoading}>

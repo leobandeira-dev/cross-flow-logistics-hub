@@ -94,6 +94,7 @@ const XmlViewer: React.FC<XmlViewerProps> = ({ xmlContent, title = 'Visualizador
               {copied ? 'Copiado!' : 'Copiar'}
             </Button>
           </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="relative border rounded-md overflow-auto p-4 bg-muted/50 max-h-[500px]">

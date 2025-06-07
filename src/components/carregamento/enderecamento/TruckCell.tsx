@@ -77,6 +77,7 @@ const TruckCell: React.FC<TruckCellProps> = ({
                   ×
                 </Button>
               </div>
+            </div>
           ))}
         </div>
       ) : (

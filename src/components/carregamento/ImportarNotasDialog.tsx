@@ -87,6 +87,7 @@ const ImportarNotasDialog: React.FC<ImportarNotasDialogProps> = ({
                       <div className="text-sm text-gray-500">
                         Cliente: {nota.cliente} • Valor: R$ {nota.valor.toFixed(2)} • Data: {nota.dataEmissao}
                       </div>
+                    </div>
                   </div>
                 ))}
               </div>

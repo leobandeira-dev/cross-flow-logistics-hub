@@ -29,8 +29,8 @@ const GeneratedVolumesPanel: React.FC<GeneratedVolumesPanelProps> = ({
   return (
     <VolumesTable 
       volumes={volumes}
-      onPrintEtiquetas={handlePrintEtiquetas}
-      onClassifyVolume={handleClassifyVolume}
+      handlePrintEtiquetas={handlePrintEtiquetas}
+      handleClassifyVolume={handleClassifyVolume}
       showEtiquetaMaeColumn={showEtiquetaMaeColumn}
     />
   );

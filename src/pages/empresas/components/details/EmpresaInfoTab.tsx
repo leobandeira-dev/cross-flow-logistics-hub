@@ -28,6 +28,7 @@ const EmpresaInfoTab: React.FC<EmpresaInfoProps> = ({ empresa }) => {
             <h4 className="text-sm font-medium text-gray-500">Inscrição Estadual</h4>
             <p>{empresa.inscricaoEstadual || empresa.inscricao_estadual || 'Não informado'}</p>
           </div>
+        </div>
       </div>
 
       <div>
@@ -43,6 +44,7 @@ const EmpresaInfoTab: React.FC<EmpresaInfoProps> = ({ empresa }) => {
             <Badge className="bg-cross-blue">Transportadora Principal</Badge>
           )}
         </div>
+      </div>
     </div>
   );
 };

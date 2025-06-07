@@ -50,6 +50,7 @@ const SolicitacaoFooter: React.FC<SolicitacaoFooterProps> = ({
           </Button>
         )}
       </div>
+    </div>
   );
 };
 

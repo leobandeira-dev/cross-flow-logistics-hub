@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CargasPendentes from './components/CargasPendentes';
 import CargasEmRota from './components/CargasEmRota';
@@ -334,7 +335,8 @@ const CargasAlocacao: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <MainLayout title="Alocação de Cargas">
+      <div className="space-y-6">
         <Tabs defaultValue="pendentes" className="w-full">
           <TabsList className="grid grid-cols-4 w-full md:w-[550px]">
             <TabsTrigger value="pendentes">Não Alocadas</TabsTrigger>
@@ -384,6 +386,7 @@ const CargasAlocacao: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+    </MainLayout>
   );
 };
 

@@ -57,6 +57,7 @@ const PaleteDetailsDialog: React.FC<PaleteDetailsDialogProps> = ({
               <p className="text-sm font-medium text-gray-500">Responsável</p>
               <p>{palete.responsavel}</p>
             </div>
+          </div>
           
           <div>
             <h3 className="font-medium mb-2">Volumes no Palete</h3>
@@ -87,6 +88,7 @@ const PaleteDetailsDialog: React.FC<PaleteDetailsDialogProps> = ({
               </TableBody>
             </Table>
           </div>
+        </div>
 
         <DialogFooter>
           <Button onClick={() => onOpenChange(false)}>

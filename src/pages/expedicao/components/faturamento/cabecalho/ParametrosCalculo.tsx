@@ -118,6 +118,7 @@ const ParametrosCalculo: React.FC<ParametrosCalculoProps> = ({ valores, onChange
             onChange={(e) => onChange('valorColeta', parseFloat(e.target.value) || 0)}
           />
         </div>
+      </div>
     </div>
   );
 };

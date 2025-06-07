@@ -106,6 +106,7 @@ const DateTimePickerField: React.FC<DateTimePickerFieldProps> = ({
               />
               <Clock className="absolute right-2 top-2.5 h-4 w-4 opacity-50" />
             </div>
+          </div>
           <FormMessage />
         </FormItem>
       )}

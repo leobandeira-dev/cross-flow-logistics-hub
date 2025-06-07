@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useLocation } from 'react-router-dom';
 
@@ -9,7 +9,6 @@ import FormInitializer from './components/etiquetas/FormInitializer';
 import ConsultaEtiquetasTab from './components/etiquetas/ConsultaEtiquetasTab';
 import EtiquetasMaeTab from './components/etiquetas/EtiquetasMaeTab';
 import ClassifyVolumeDialog from './components/etiquetas/ClassifyVolumeDialog';
-import VolumeExistsConfirmDialog from './components/etiquetas/VolumeExistsConfirmDialog';
 import { useGeracaoEtiquetas } from './hooks/useGeracaoEtiquetas';
 
 const GeracaoEtiquetas: React.FC = () => {
@@ -26,11 +25,7 @@ const GeracaoEtiquetas: React.FC = () => {
     etiquetasMae,
     classifyDialogOpen,
     selectedVolume,
-    volumeExistsDialogOpen,
-    pendingPrintVolume,
-    existingVolumesCount,
     setClassifyDialogOpen,
-    setVolumeExistsDialogOpen,
     handleGenerateVolumes,
     handlePrintEtiquetas,
     handleReimprimirEtiquetas,
@@ -39,7 +34,6 @@ const GeracaoEtiquetas: React.FC = () => {
     handleClassifyVolume,
     handleSaveVolumeClassification,
     handleVincularVolumes,
-    handleConfirmPrintWithExistingVolumes,
     setVolumes,
     setGeneratedVolumes
   } = useGeracaoEtiquetas();
@@ -53,12 +47,8 @@ const GeracaoEtiquetas: React.FC = () => {
   }, [initialTab, form]);
 
   return (
-<<<<<<< HEAD
-    <div className="mb-6">
-=======
     <MainLayout title="Geração de Etiquetas">
       <div className="mb-6">
->>>>>>> ecbf7f2e49a421bf18c5afebc4874f471aaf80c6
         <h2 className="text-2xl font-heading mb-2">Geração de Etiquetas por Volume</h2>
         <p className="text-gray-600">Gere etiquetas de identificação única para cada volume ou etiquetas mãe para agrupamento</p>
       </div>
@@ -116,20 +106,7 @@ const GeracaoEtiquetas: React.FC = () => {
         onClose={() => setClassifyDialogOpen(false)}
         onSave={handleSaveVolumeClassification}
       />
-
-      {/* Volume Exists Confirmation Dialog */}
-      <VolumeExistsConfirmDialog
-        open={volumeExistsDialogOpen}
-        onOpenChange={setVolumeExistsDialogOpen}
-        onConfirm={handleConfirmPrintWithExistingVolumes}
-        notaFiscal={pendingPrintVolume?.notaFiscal || ''}
-        existingVolumesCount={existingVolumesCount}
-      />
-<<<<<<< HEAD
-    </div>
-=======
     </MainLayout>
->>>>>>> ecbf7f2e49a421bf18c5afebc4874f471aaf80c6
   );
 };
 

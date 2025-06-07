@@ -56,6 +56,7 @@ const DocumentPDFGenerator: React.FC<DocumentPDFGeneratorProps> = ({
           <div className="border p-4">
             {renderDocument(documentId)}
           </div>
+        </div>
       </div>
       
       <DocumentPrintModal

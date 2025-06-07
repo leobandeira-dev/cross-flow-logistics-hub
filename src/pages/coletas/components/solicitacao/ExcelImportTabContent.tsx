@@ -62,6 +62,7 @@ const ExcelImportTabContent: React.FC<ExcelImportTabContentProps> = ({
           <li>Salve o arquivo como Excel (.xlsx) ou CSV (.csv) antes de fazer o upload</li>
         </ul>
       </div>
+    </div>
   );
 };
 

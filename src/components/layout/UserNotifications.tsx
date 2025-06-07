@@ -107,6 +107,7 @@ export const UserNotifications: React.FC = () => {
                   <div className="text-xs text-gray-500">
                     {format(new Date(notification.date), 'HH:mm')}
                   </div>
+                </div>
                 <div className="text-sm text-muted-foreground pl-7">
                   {notification.message}
                 </div>

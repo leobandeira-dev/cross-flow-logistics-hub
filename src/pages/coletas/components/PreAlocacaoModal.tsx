@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -228,4 +229,4 @@ const PreAlocacaoModal: React.FC<PreAlocacaoModalProps> = ({
   );
 };
 
-export default PreAlocacaoModal; 
+export default PreAlocacaoModal;

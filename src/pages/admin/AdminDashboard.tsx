@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Receipt, Package, Key, Headphones, Kanban, Lock } from 'lucide-react';
 
@@ -57,7 +58,8 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="p-6">
+    <MainLayout>
+      <div className="p-6">
         <h1 className="text-3xl font-bold mb-6">Painel Administrativo</h1>
         <p className="text-muted-foreground mb-8">
           Bem-vindo ao painel administrativo da plataforma. Aqui você pode gerenciar todos os aspectos do sistema.
@@ -78,7 +80,8 @@ const AdminDashboard = () => {
             </Link>
           ))}
         </div>
-    </div>
+      </div>
+    </MainLayout>
   );
 };
 

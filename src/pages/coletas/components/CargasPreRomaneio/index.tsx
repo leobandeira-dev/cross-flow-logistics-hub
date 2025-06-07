@@ -175,6 +175,7 @@ const CargasPreRomaneio: React.FC<CargasPreRomaneioProps> = ({
               </>
             )}
           </div>
+        </div>
       
         {Object.keys(groupedCargas).length === 0 && (
           <Card>
@@ -216,6 +217,7 @@ const CargasPreRomaneio: React.FC<CargasPreRomaneioProps> = ({
                 <div>
                   {groupTotals[groupName].totalPeso.toFixed(2)} kg
                 </div>
+              </div>
             </CardHeader>
             
             <CardContent>
@@ -306,6 +308,7 @@ const CargasPreRomaneio: React.FC<CargasPreRomaneioProps> = ({
                     Imprimir Pré-Romaneio
                   </Button>
                 </div>
+              </div>
             </CardContent>
           </Card>
         ))}

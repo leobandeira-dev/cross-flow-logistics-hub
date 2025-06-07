@@ -298,6 +298,7 @@ export const ClienteDocumentosDialog = ({ open, onOpenChange, cliente }: Cliente
                       <Label htmlFor="doc-number">Número do Documento</Label>
                       <Input id="doc-number" placeholder="Ex: NF-12345" />
                     </div>
+                  </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="doc-file">Arquivo</Label>
@@ -318,6 +319,7 @@ export const ClienteDocumentosDialog = ({ open, onOpenChange, cliente }: Cliente
                       </p>
                     )}
                   </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

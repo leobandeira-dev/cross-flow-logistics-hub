@@ -112,6 +112,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
             disabled={readOnly}
           />
         </div>
+      </div>
 
       <div>
         <Label htmlFor={`${tipo}-logradouro`} className="text-xs text-gray-600">Endereço</Label>
@@ -163,6 +164,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
             disabled={readOnly}
           />
         </div>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div>
@@ -202,6 +204,7 @@ const EmpresaInfoForm: React.FC<EmpresaInfoFormProps> = ({
             disabled={readOnly}
           />
         </div>
+      </div>
     </div>
   );
 };

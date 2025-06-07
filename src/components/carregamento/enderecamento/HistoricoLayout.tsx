@@ -61,6 +61,7 @@ const HistoricoLayout: React.FC = () => {
           <div className="border p-4">
             <p>Layout do carregamento para a ordem {selectedOrder}</p>
           </div>
+        </div>
       </div>
       
       <PrintLayoutModal

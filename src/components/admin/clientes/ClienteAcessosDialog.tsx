@@ -147,6 +147,7 @@ export const ClienteAcessosDialog = ({ open, onOpenChange, cliente }: ClienteAce
                         </div>
                       ))}
                     </div>
+                  </div>
                 ))}
 
                 <div className="flex justify-end gap-2 mt-6">
@@ -155,6 +156,7 @@ export const ClienteAcessosDialog = ({ open, onOpenChange, cliente }: ClienteAce
                   </Button>
                   <Button onClick={handleSavePermissions}>Salvar Permissões</Button>
                 </div>
+              </div>
             </CardContent>
           </Card>
         ) : (

@@ -20,6 +20,7 @@ const CadastroManual: React.FC = () => {
               <p>• Informações de transporte são opcionais para documentos não fiscais</p>
               <p>• É recomendável anexar arquivos de suporte quando disponíveis</p>
             </div>
+          </div>
         </div>
       </CardContent>
     </Card>

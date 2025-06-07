@@ -33,7 +33,8 @@ const FoundVolumesCard: React.FC<FoundVolumesCardProps> = ({
                 onClick={() => handleVolumeSelect(volume)}
               >
                 <div className="flex justify-between items-start">
-                  <div className="flex items-center">
+                  <div>
+                    <div className="flex items-center">
                       <input 
                         type="checkbox" 
                         checked={selectedVolumes.some(v => v.id === volume.id)} 
@@ -48,6 +49,7 @@ const FoundVolumesCard: React.FC<FoundVolumesCardProps> = ({
                       <p className="text-xs text-gray-500">Etiqueta Mãe: {volume.etiquetaMae}</p>
                     )}
                   </div>
+                </div>
               </div>
             ))
           )}

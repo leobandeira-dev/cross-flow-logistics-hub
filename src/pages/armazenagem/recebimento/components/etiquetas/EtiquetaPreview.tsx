@@ -100,6 +100,7 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
           <div className="text-center">
             {renderLayoutPreview()}
           </div>
+        </div>
         
         <EtiquetaInfoList tipoEtiqueta={tipoEtiqueta} isQuimico={isQuimico} />
         <PrinterSelector />

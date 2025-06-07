@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -51,7 +52,7 @@ const fetchEmpresaByCNPJ = async (cnpj: string): Promise<any> => {
   };
 };
 
-export const CadastroForm: React.FC<CadastroFormProps> = ({ onSubmit }) => {
+const CadastroForm: React.FC<CadastroFormProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [cadastroMethod, setCadastroMethod] = useState<'email' | 'google'>('email');
   
@@ -197,9 +198,10 @@ export const CadastroForm: React.FC<CadastroFormProps> = ({ onSubmit }) => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="Cliente">Cliente</SelectItem>
+                          <SelectItem value="Fornecedor externo">Fornecedor externo</SelectItem>
+                          <SelectItem value="Funcionário Operacional">Funcionário Operacional</SelectItem>
+                          <SelectItem value="Funcionário Supervisor">Funcionário Supervisor</SelectItem>
                           <SelectItem value="Administrador">Administrador</SelectItem>
-                          <SelectItem value="Operador">Operador</SelectItem>
-                          <SelectItem value="Financeiro">Financeiro</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -207,13 +209,10 @@ export const CadastroForm: React.FC<CadastroFormProps> = ({ onSubmit }) => {
                   )}
                 />
               </div>
-
-              <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => form.reset()}>
-                  Limpar
-                </Button>
-                <Button type="submit">
-                  Cadastrar
+              
+              <div className="flex justify-end">
+                <Button type="submit" className="bg-cross-blue hover:bg-cross-blue/90">
+                  Realizar Cadastro
                 </Button>
               </div>
             </form>
@@ -223,36 +222,41 @@ export const CadastroForm: React.FC<CadastroFormProps> = ({ onSubmit }) => {
         <TabsContent value="google">
           <Card>
             <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-gray-600 mb-4">
-                  Faça login com sua conta Google para um cadastro mais rápido
-                </p>
-                <Button variant="outline" className="w-full max-w-sm">
-                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                    <path
-                      fill="currentColor"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    />
+              <div className="flex flex-col items-center justify-center p-6">
+                <div className="mb-4 text-center">
+                  <h3 className="text-lg font-medium">Entre com sua conta Google</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Após autenticação, você precisará completar algumas informações adicionais.
+                  </p>
+                </div>
+                
+                <Button 
+                  className="flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 w-full max-w-sm"
+                  onClick={() => alert('Integração com Google em desenvolvimento.')}
+                >
+                  <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="matrix(1, 0, 0, 1, 0, 0)">
+                      <path d="M21.35,11.1H12v3.2h5.59c-0.24,1.37-0.97,2.52-2.07,3.29v2.73h3.35c1.96-1.81,3.09-4.47,3.09-7.62C21.96,11.97,21.75,11.51,21.35,11.1z" fill="#4285F4"></path>
+                      <path d="M12,21.96c2.8,0,5.15-0.93,6.87-2.5l-3.35-2.6c-0.93,0.62-2.12,0.99-3.52,0.99c-2.71,0-5-1.83-5.82-4.3H2.67v2.69C4.37,19.65,7.93,21.96,12,21.96z" fill="#34A853"></path>
+                      <path d="M6.17,13.55c-0.21-0.63-0.33-1.3-0.33-1.99c0-0.69,0.12-1.36,0.33-1.99V6.88H2.67C2.04,8.17,1.69,9.63,1.69,11.17c0,1.54,0.35,3,0.98,4.29L6.17,13.55z" fill="#FBBC05"></path>
+                      <path d="M12,5.57c1.53,0,2.9,0.53,3.98,1.55l2.97-2.97C17.12,2.47,14.77,1.54,12,1.54c-4.07,0-7.63,2.3-9.33,5.66l3.5,2.71C6.99,7.4,9.28,5.57,12,5.57z" fill="#EA4335"></path>
+                    </g>
                   </svg>
-                  Continuar com Google
+                  <span>Continuar com Google</span>
                 </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      <div className="mt-8 bg-blue-50 p-4 rounded-md border border-blue-200">
+        <h4 className="text-sm font-medium text-blue-800 mb-2">Importante:</h4>
+        <p className="text-sm text-blue-700">
+          Após o cadastro, você receberá um email de confirmação com um código de verificação.
+          Seu acesso ao sistema estará pendente até a aprovação do administrador.
+        </p>
+      </div>
     </div>
   );
 };

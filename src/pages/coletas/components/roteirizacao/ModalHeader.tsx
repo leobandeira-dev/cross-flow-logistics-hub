@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -43,4 +44,4 @@ const ModalHeader: React.FC<ModalHeaderProps> = ({ cargas, isLoading, calcularRo
   );
 };
 
-export default ModalHeader; 
+export default ModalHeader;

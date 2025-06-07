@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import MainLayout from '../../../components/layout/MainLayout';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import OrderDetailsForm from '@/components/carregamento/OrderDetailsForm';
 import BarcodeScannerSection from '@/components/carregamento/BarcodeScannerSection';
@@ -235,7 +236,8 @@ const ConferenciaCarga: React.FC = () => {
   };
 
   return (
-    <div className="mb-6">
+    <MainLayout title="Conferência de Carga">
+      <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Conferência de Carga</h2>
         <p className="text-gray-600">Realize a conferência de itens para carregamento por volume, nota fiscal ou etiqueta mãe</p>
       </div>
@@ -283,6 +285,7 @@ const ConferenciaCarga: React.FC = () => {
             tipoVisualizacao={tabAtiva as 'conferir' | 'emConferencia' | 'conferidas'}
           />
         </div>
+      </div>
 
       <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
         <AlertDialogContent>
@@ -306,7 +309,7 @@ const ConferenciaCarga: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </MainLayout>
   );
 };
 

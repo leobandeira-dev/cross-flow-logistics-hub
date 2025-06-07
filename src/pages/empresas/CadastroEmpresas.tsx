@@ -1,4 +1,6 @@
+
 import React from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import EmpresaDetailsDialog from './components/EmpresaDetailsDialog';
 import { useEmpresasList } from './hooks/useEmpresasList';
@@ -24,7 +26,7 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
   } = useEmpresasList();
   
   return (
-    <div>
+    <MainLayout title="Cadastro de Empresas">
       <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Gerenciamento de Empresas</h2>
         <p className="text-gray-600">Cadastro, permissões e listagem de empresas no sistema</p>
@@ -60,7 +62,7 @@ const CadastroEmpresas: React.FC<CadastroEmpresasProps> = ({ initialTab = 'cadas
         empresa={selectedEmpresa}
         onSubmit={handleEmpresaSubmit}
       />
-    </div>
+    </MainLayout>
   );
 };
 

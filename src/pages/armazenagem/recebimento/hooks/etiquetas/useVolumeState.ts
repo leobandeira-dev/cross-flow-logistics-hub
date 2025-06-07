@@ -4,28 +4,26 @@ import { useState, useCallback } from 'react';
 export interface Volume {
   id: string;
   notaFiscal: string;
-  chaveNF: string;
-  remetente: string;
-  destinatario: string;
-  endereco: string;
-  cidade: string;
-  cidadeCompleta?: string;
-  uf: string;
-  transportadora: string;
-  descricao: string;
-  area: string;
-  quantidade: number;
-  pesoTotal: string;
-  numeroPedido: string;
-  volumeNumber: number;
-  totalVolumes: number;
-  codigoONU: string;
-  codigoRisco: string;
-  classificacaoQuimica: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
+  chaveNF: string; // Mudado para obrigatório para compatibilidade
+  remetente: string; // Mudado para obrigatório para compatibilidade
+  destinatario: string; // Mudado para obrigatório para compatibilidade
+  endereco: string; // Mudado para obrigatório para compatibilidade
+  cidade: string; // Mudado para obrigatório para compatibilidade
+  uf: string; // Mudado para obrigatório para compatibilidade
+  transportadora?: string;
+  descricao: string; // Mudado para obrigatório para compatibilidade
+  area?: string;
+  quantidade: number; // Mudado para obrigatório para compatibilidade
+  pesoTotal: string; // String para compatibilidade
+  numeroPedido?: string;
+  volumeNumber?: number;
+  totalVolumes?: number;
+  codigoONU?: string;
+  codigoRisco?: string;
+  classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
   etiquetaMae?: string;
-  etiquetado: boolean;
-  impresso: boolean;
-  dataGeracao: string;
+  etiquetado: boolean; // Campo obrigatório
+  cidadeCompleta?: string;
   tipoEtiquetaMae?: 'geral' | 'palete';
   tipoVolume?: 'geral' | 'quimico';
 }
@@ -45,9 +43,11 @@ export const useVolumeState = () => {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = String(now.getFullYear()).slice(-2); // Últimos 2 dígitos do ano
     const hour = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
     
-    // Formato: {numeroNF}-{numeroVolume}-{ddmmaahhmmss} - removendo minutos e segundos
-    const dateTimeStr = `${day}${month}${year}${hour}`;
+    // Formato: {numeroNF}-{numeroVolume}-{ddmmaahhmmss}
+    const dateTimeStr = `${day}${month}${year}${hour}${minutes}${seconds}`;
     const volumeNumberStr = volumeNumber.toString().padStart(3, '0');
     
     return `${cleanNotaFiscal}-${volumeNumberStr}-${dateTimeStr}`;
@@ -73,23 +73,21 @@ export const useVolumeState = () => {
         destinatario: formData.destinatario || '',
         endereco: formData.endereco || '',
         cidade: formData.cidade || '',
-        cidadeCompleta: `${formData.cidade || ''} - ${formData.uf || ''}`,
         uf: formData.uf || '',
         transportadora: formData.transportadora || '',
-        descricao: `Volume ${i}/${totalVolumes}`,
+        descricao: `Volume ${i}/${totalVolumes}`, // Sempre fornecer descrição
         area: formData.area || '',
         quantidade: 1,
-        pesoTotal: `${pesoPorVolume.toFixed(2)} Kg`,
+        pesoTotal: `${pesoPorVolume.toFixed(2)} Kg`, // String formatada
         numeroPedido: formData.numeroPedido || '',
         volumeNumber: i,
         totalVolumes: totalVolumes,
         codigoONU: formData.codigoONU || '',
         codigoRisco: formData.codigoRisco || '',
-        classificacaoQuimica: formData.classificacaoQuimica || 'nao_classificada',
+        classificacaoQuimica: formData.classificacaoQuimica || '',
         etiquetaMae: formData.etiquetaMae || '',
-        etiquetado: false,
-        impresso: false,
-        dataGeracao: new Date().toISOString(),
+        etiquetado: false, // Campo obrigatório
+        cidadeCompleta: `${formData.cidade || ''} - ${formData.uf || ''}`,
         tipoVolume: formData.tipoVolume || 'geral'
       };
       

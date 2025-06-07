@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../components/common/DataTable';
@@ -127,15 +129,15 @@ const EmissaoDocumentos = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <MainLayout title="Expedição e Documentos">
+      <div className="mb-6 flex justify-between items-center">
         <div>
           <h2 className="text-xl font-heading">Gestão de Expedição</h2>
           <p className="text-gray-500">Emissão e controle de documentos para cargas</p>
         </div>
       </div>
       
-      <Tabs defaultValue="cargas" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="cargas" value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="cargas">Cargas para Expedição</TabsTrigger>
           <TabsTrigger value="documentos">Documentos Emitidos</TabsTrigger>
@@ -247,121 +249,213 @@ const EmissaoDocumentos = () => {
               <DataTable
                 columns={[
                   { header: 'ID Documento', accessor: 'id' },
-                  { header: 'Tipo', accessor: 'tipo' },
-                  { header: 'OC Relacionada', accessor: 'oc' },
-                  { header: 'Data Emissão', accessor: 'dataEmissao' },
-                  { header: 'Emitido por', accessor: 'emissor' },
+                  { header: 'Tipo', accessor: 'motorista' },
+                  { header: 'OC Relacionada', accessor: 'placa' },
+                  { header: 'Emitido em', accessor: 'origem' },
+                  { header: 'Emitido por', accessor: 'destino' },
                   { 
                     header: 'Ações', 
                     accessor: '',
                     cell: (row) => (
                       <div className="flex space-x-2 justify-end">
-                        <Button size="sm" variant="outline">
-                          <Printer className="h-4 w-4" />
+                        <Button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log('Visualizar documento');
+                          }}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <FileText className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log('Download documento');
+                          }}
+                          size="sm"
+                          variant="outline"
+                        >
                           <Download className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log('Enviar documento');
+                          }}
+                          size="sm"
+                          variant="outline"
+                        >
                           <Send className="h-4 w-4" />
                         </Button>
                       </div>
                     )
                   }
                 ]}
-                data={[]}
+                data={[]} // Esta tabela estaria vazia inicialmente ou com dados reais
                 pagination={{
                   totalPages: 1,
                   currentPage: 1,
-                  onPageChange: () => {}
+                  onPageChange: setCurrentPage
                 }}
               />
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Dialog para emissão de documentos */}
-      <Dialog open={isDocDialogOpen} onOpenChange={setIsDocDialogOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Emissão de Documentos</DialogTitle>
-            <DialogDescription>
-              Selecione os documentos que deseja emitir para a carga {selectedCarga?.id}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Informações da Carga</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {selectedCarga && (
-                  <dl className="space-y-2">
-                    <div>
-                      <dt className="text-sm text-gray-500">OC</dt>
-                      <dd className="font-medium">{selectedCarga.id}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-gray-500">Motorista</dt>
-                      <dd className="font-medium">{selectedCarga.motorista}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-gray-500">Placa</dt>
-                      <dd className="font-medium">{selectedCarga.placa}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-gray-500">Origem</dt>
-                      <dd className="font-medium">{selectedCarga.origem}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-gray-500">Destino</dt>
-                      <dd className="font-medium">{selectedCarga.destino}</dd>
-                    </div>
-                  </dl>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Documentos Disponíveis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Button className="w-full justify-start" variant="outline">
-                    <FileCheck className="mr-2 h-4 w-4" />
-                    Ordem de Carregamento
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <FileCheck className="mr-2 h-4 w-4" />
-                    Manifesto de Carga
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <FileCheck className="mr-2 h-4 w-4" />
-                    CT-e
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <FileCheck className="mr-2 h-4 w-4" />
-                    Romaneio
-                  </Button>
+      
+      {selectedCarga && (
+        <Dialog open={isDocDialogOpen} onOpenChange={setIsDocDialogOpen}>
+          <DialogContent className="sm:max-w-[700px]">
+            <DialogHeader>
+              <DialogTitle>Documentos para Carga {selectedCarga.id}</DialogTitle>
+              <DialogDescription>
+                Gere e gerencie os documentos necessários para esta carga.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Motorista</p>
+                  <p className="font-medium">{selectedCarga.motorista}</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDocDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button className="bg-cross-blue hover:bg-cross-blueDark">
-              Emitir Selecionados
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+                <div>
+                  <p className="text-sm text-gray-500">Placa</p>
+                  <p className="font-medium">{selectedCarga.placa}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Origem</p>
+                  <p className="font-medium">{selectedCarga.origem}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Destino</p>
+                  <p className="font-medium">{selectedCarga.destino}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Data de Carregamento</p>
+                  <p className="font-medium">{selectedCarga.dataCarregamento}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <div className="mt-1">{getStatusBadge(selectedCarga.status)}</div>
+                </div>
+              </div>
+              
+              <div className="border-t pt-4">
+                <h3 className="text-lg font-heading mb-4">Documentos da Carga</h3>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FileCheck className={`mr-3 ${selectedCarga.documentos.oc ? 'text-green-500' : 'text-gray-400'}`} size={24} />
+                      <div>
+                        <p className="font-medium">Ordem de Carregamento</p>
+                        <p className="text-sm text-gray-500">OC #{selectedCarga.id}</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline">
+                        <Printer className="mr-2 h-4 w-4" /> Imprimir
+                      </Button>
+                      <Button size="sm" disabled={!selectedCarga.documentos.oc}>
+                        <Download className="mr-2 h-4 w-4" /> Download
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FileCheck className={`mr-3 ${selectedCarga.documentos.manifesto ? 'text-green-500' : 'text-gray-400'}`} size={24} />
+                      <div>
+                        <p className="font-medium">Manifesto</p>
+                        <p className="text-sm text-gray-500">Manifesto de carga #{selectedCarga.id.replace('OC', 'MF')}</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline">
+                        <Printer className="mr-2 h-4 w-4" /> Imprimir
+                      </Button>
+                      <Button size="sm" disabled={!selectedCarga.documentos.manifesto}>
+                        <Download className="mr-2 h-4 w-4" /> Download
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FileCheck className={`mr-3 ${selectedCarga.documentos.cte ? 'text-green-500' : 'text-gray-400'}`} size={24} />
+                      <div>
+                        <p className="font-medium">CT-e</p>
+                        <p className="text-sm text-gray-500">Conhecimento de Transporte Eletrônico</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      {!selectedCarga.documentos.cte ? (
+                        <Button size="sm" className="bg-cross-blue hover:bg-cross-blueDark">
+                          Gerar CT-e
+                        </Button>
+                      ) : (
+                        <>
+                          <Button size="sm" variant="outline">
+                            <Printer className="mr-2 h-4 w-4" /> Imprimir
+                          </Button>
+                          <Button size="sm">
+                            <Download className="mr-2 h-4 w-4" /> Download
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FileCheck className={`mr-3 ${selectedCarga.documentos.romaneio ? 'text-green-500' : 'text-gray-400'}`} size={24} />
+                      <div>
+                        <p className="font-medium">Romaneio</p>
+                        <p className="text-sm text-gray-500">Romaneio de carga #{selectedCarga.id.replace('OC', 'ROM')}</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline">
+                        <Printer className="mr-2 h-4 w-4" /> Imprimir
+                      </Button>
+                      <Button size="sm" disabled={!selectedCarga.documentos.romaneio}>
+                        <Download className="mr-2 h-4 w-4" /> Download
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsDocDialogOpen(false)}
+                className="mr-auto"
+              >
+                Fechar
+              </Button>
+              
+              <Button variant="outline">
+                <Send className="mr-2 h-4 w-4" /> Enviar por E-mail
+              </Button>
+              
+              <Button className="bg-cross-blue hover:bg-cross-blueDark">
+                <Printer className="mr-2 h-4 w-4" /> Imprimir Todos
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </MainLayout>
   );
 };
 

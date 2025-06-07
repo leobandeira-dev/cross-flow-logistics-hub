@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +21,7 @@ interface ProfileDialogProps {
   setIsOpen: (open: boolean) => void;
 }
 
-export const ProfileDialog: React.FC<ProfileDialogProps> = ({ 
+const ProfileDialog: React.FC<ProfileDialogProps> = ({ 
   onSavePerfil, 
   editingProfile = null, 
   isOpen,

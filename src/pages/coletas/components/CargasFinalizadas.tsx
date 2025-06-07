@@ -166,6 +166,7 @@ const CargasFinalizadas: React.FC<CargasFinalizadasProps> = ({
                     {selectedCarga.status === 'delivered' ? 'Entregue' : 'Problema na entrega'}
                   </p>
                 </div>
+              </div>
               
               {selectedCarga.observacoes && (
                 <div>

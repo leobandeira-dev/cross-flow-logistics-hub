@@ -54,6 +54,7 @@ const ProfileSelector: React.FC<ProfileSelectorProps> = ({
           onDeleteProfile={onDeleteProfile}
         />
       </div>
+    </div>
   );
 };
 

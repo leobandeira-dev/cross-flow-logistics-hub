@@ -30,6 +30,7 @@ const DocumentoAprovacaoRenderer: React.FC<DocumentoAprovacaoRendererProps> = ({
       <div className="mt-8 border-t pt-4 text-center text-sm text-gray-500">
         <p>Documento gerado em {new Date().toLocaleString()}</p>
       </div>
+    </div>
   );
 };
 

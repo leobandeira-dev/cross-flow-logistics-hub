@@ -90,6 +90,7 @@ const OrderSelectionForm: React.FC<OrderSelectionFormProps> = ({ onSubmit }) => 
                   Carregar Informações
                 </Button>
               </div>
+            </div>
           </form>
         </Form>
       </CardContent>

@@ -177,6 +177,7 @@ const ConsultaNotas: React.FC<ConsultaNotasProps> = ({ onPrintClick }) => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
               <p>Carregando notas fiscais...</p>
             </div>
+          </div>
         </CardContent>
       </Card>
     );

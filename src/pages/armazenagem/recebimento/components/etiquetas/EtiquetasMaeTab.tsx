@@ -9,7 +9,6 @@ import VinculoEtiquetaMaeDialog from './VinculoEtiquetaMaeDialog';
 import EtiquetaMaeFormPanel from './EtiquetaMaeFormPanel';
 import EtiquetaPreview from './EtiquetaPreview';
 import { UseFormReturn } from 'react-hook-form';
-import { Volume } from './VolumesTable';
 
 interface EtiquetaMae {
   id: string;
@@ -23,6 +22,30 @@ interface EtiquetaMae {
   status: string;
   tipo?: 'geral' | 'palete';
   descricao?: string;
+}
+
+interface Volume {
+  id: string;
+  notaFiscal: string;
+  descricao: string;
+  quantidade: number;
+  etiquetado: boolean;
+  remetente: string;
+  destinatario: string;
+  endereco: string;
+  cidade: string;
+  cidadeCompleta?: string;
+  uf: string;
+  pesoTotal: string;
+  chaveNF: string;
+  etiquetaMae?: string;
+  tipoEtiquetaMae?: 'geral' | 'palete';
+  tipoVolume?: 'geral' | 'quimico';
+  codigoONU?: string;
+  codigoRisco?: string;
+  classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada';
+  transportadora?: string;
+  area?: string;
 }
 
 interface EtiquetasMaeTabProps {
@@ -107,6 +130,7 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
               isQuimico={false}
             />
           </div>
+        </div>
       )}
 
       <Card>

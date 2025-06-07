@@ -1,4 +1,6 @@
+
 import React from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PieChart, BarChart, Users, FileText } from 'lucide-react';
@@ -6,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 const SACDashboard: React.FC = () => {
   return (
-    <div className="space-y-6">
+    <MainLayout title="Painel de SAC">
       <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Dashboard SAC</h2>
         <p className="text-gray-600">Visão geral do atendimento ao cliente e ocorrências</p>
@@ -117,7 +119,7 @@ const SACDashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </MainLayout>
   );
 };
 

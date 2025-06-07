@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,7 +13,7 @@ interface NovaOcorrenciaDialogProps {
   onLinkDocument: () => void;
 }
 
-export const NovaOcorrenciaDialog: React.FC<NovaOcorrenciaDialogProps> = ({ onClose, onLinkDocument }) => {
+const NovaOcorrenciaDialog: React.FC<NovaOcorrenciaDialogProps> = ({ onClose, onLinkDocument }) => {
   return (
     <DialogContent className="sm:max-w-[600px]">
       <DialogHeader>
@@ -126,3 +127,5 @@ export const NovaOcorrenciaDialog: React.FC<NovaOcorrenciaDialogProps> = ({ onCl
     </DialogContent>
   );
 };
+
+export default NovaOcorrenciaDialog;

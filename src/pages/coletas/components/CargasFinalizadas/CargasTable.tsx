@@ -120,8 +120,10 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
                   className="justify-start text-left px-4 py-3 h-auto"
                   onClick={() => handleSupportRequest(problema.title, problema.description)}
                 >
-                  <div className="font-bold">{problema.title}</div>
+                  <div>
+                    <div className="font-bold">{problema.title}</div>
                     <div className="text-sm text-gray-500">{problema.description}</div>
+                  </div>
                 </Button>
               ))}
               <Button 
@@ -140,8 +142,10 @@ const CargasTable: React.FC<CargasTableProps> = ({ cargas, pagination }) => {
                   });
                 }}
               >
-                <div className="font-bold">Outro Problema</div>
+                <div>
+                  <div className="font-bold">Outro Problema</div>
                   <div className="text-sm text-gray-500">Problemas não listados acima</div>
+                </div>
               </Button>
             </div>
           </DialogContent>

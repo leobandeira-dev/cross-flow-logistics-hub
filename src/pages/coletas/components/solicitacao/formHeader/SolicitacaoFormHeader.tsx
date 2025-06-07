@@ -72,6 +72,7 @@ const SolicitacaoFormHeader: React.FC<SolicitacaoFormHeaderProps> = ({
             disabled={isLoading || readOnly}
           />
         </div>
+      </div>
 
       {/* Display Approval and Inclusion dates if available */}
       {(dataAprovacao || dataInclusao) && (

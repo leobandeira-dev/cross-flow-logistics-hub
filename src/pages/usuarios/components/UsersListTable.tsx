@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { getUserStatusBadge } from "@/utils/userUtils";
+import StatusBadge from "@/components/common/StatusBadge";
 
 interface User {
   id: string | number;
@@ -50,7 +51,16 @@ const UsersListTable: React.FC<UsersListTableProps> = ({ users, onViewDetails })
               <td className="py-3 px-4">{user.cnpj}</td>
               <td className="py-3 px-4">{user.perfil}</td>
               <td className="py-3 px-4">
-                {getUserStatusBadge(user.status)}
+                <StatusBadge 
+                  status={
+                    user.status === 'ativo' ? 'success' : 
+                    user.status === 'pendente' ? 'warning' : 'error'
+                  } 
+                  text={
+                    user.status === 'ativo' ? 'Ativo' :
+                    user.status === 'pendente' ? 'Pendente' : 'Inativo'
+                  } 
+                />
               </td>
               <td className="py-3 px-4">
                 <Button 

@@ -1,12 +1,14 @@
 
 import React from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Truck, FileText, Box, Package } from 'lucide-react';
 
 const Carregamento: React.FC = () => {
   return (
-    <div className="mb-6">
+    <MainLayout title="Carregamento">
+      <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Carregamento</h2>
         <p className="text-gray-600">Gerencie operações de carregamento de mercadorias</p>
       </div>
@@ -87,7 +89,7 @@ const Carregamento: React.FC = () => {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </MainLayout>
   );
 };
 

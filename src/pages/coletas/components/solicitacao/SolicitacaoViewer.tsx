@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { SolicitacaoFormHeader } from './formHeader';
@@ -167,4 +168,4 @@ const SolicitacaoViewer: React.FC<SolicitacaoViewerProps> = ({
   );
 };
 
-export default SolicitacaoViewer; 
+export default SolicitacaoViewer;

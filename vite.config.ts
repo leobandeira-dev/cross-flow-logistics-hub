@@ -6,29 +6,8 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "localhost",
-    port: 8164,
-    hmr: {
-      overlay: false // Desabilitar overlay de erro do Vite
-    }
-  },
-  build: {
-    sourcemap: mode === 'development',
-    chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui': [
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-select',
-            '@radix-ui/react-popover'
-          ]
-        }
-      }
-    }
+    host: "::",
+    port: 8080,
   },
   plugins: [
     react(),
@@ -40,8 +19,4 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
-    exclude: ['@supabase/supabase-js']
-  }
 }));

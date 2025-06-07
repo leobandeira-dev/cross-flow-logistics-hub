@@ -84,6 +84,7 @@ const DriverInfoSection: React.FC<DriverInfoSectionProps> = ({ form }) => {
           )}
         />
       </div>
+    </div>
   );
 };
 

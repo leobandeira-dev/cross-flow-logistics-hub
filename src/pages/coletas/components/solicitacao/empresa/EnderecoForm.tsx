@@ -52,6 +52,7 @@ const EnderecoForm: React.FC<EnderecoFormProps> = ({
               className={readOnly ? "bg-gray-100" : ""}
             />
           </div>
+        </div>
         
         <div className="space-y-2">
           <Label htmlFor={`${tipo}-bairro`}>Bairro</Label>
@@ -90,6 +91,7 @@ const EnderecoForm: React.FC<EnderecoFormProps> = ({
               className={readOnly ? "bg-gray-100 uppercase" : "uppercase"}
             />
           </div>
+        </div>
         
         <div className="space-y-2">
           <Label htmlFor={`${tipo}-cep`}>CEP</Label>
@@ -102,6 +104,7 @@ const EnderecoForm: React.FC<EnderecoFormProps> = ({
             className={readOnly ? "bg-gray-100" : ""}
           />
         </div>
+      </div>
     </div>
   );
 };

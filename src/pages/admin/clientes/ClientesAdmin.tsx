@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import MainLayout from '@/components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ClientesList } from '@/components/admin/clientes/ClientesList';
 import { ClienteForm } from '@/components/admin/clientes/ClienteForm';
@@ -28,7 +29,8 @@ const ClientesAdmin = () => {
   };
 
   return (
-    <div className="p-6">
+    <MainLayout>
+      <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Gestão de Clientes</h1>
           {activeTab === 'lista' && (
@@ -59,6 +61,7 @@ const ClientesAdmin = () => {
           </TabsContent>
         </Tabs>
       </div>
+    </MainLayout>
   );
 };
 

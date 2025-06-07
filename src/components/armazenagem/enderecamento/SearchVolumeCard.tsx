@@ -48,7 +48,8 @@ const SearchVolumeCard: React.FC<SearchVolumeCardProps> = ({
       <CardContent>
         <Form {...form}>
           <form className="space-y-4">
-            <div className="mb-4">
+            <div>
+              <div className="mb-4">
                 <FormLabel>Critério de busca</FormLabel>
                 <div className="flex gap-2 mb-4">
                   <Button 
@@ -79,6 +80,7 @@ const SearchVolumeCard: React.FC<SearchVolumeCardProps> = ({
                     Etiqueta Mãe
                   </Button>
                 </div>
+              </div>
               <FormField
                 control={form.control}
                 name="idVolume"
@@ -134,6 +136,7 @@ const SearchVolumeCard: React.FC<SearchVolumeCardProps> = ({
                 </div>
               ))}
             </div>
+          </div>
         )}
         
         <div className="mt-4">

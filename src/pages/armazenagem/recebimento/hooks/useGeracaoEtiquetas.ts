@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { Volume } from '../components/etiquetas/VolumesTable';
 import { useVolumeActions } from './etiquetas/useVolumeActions';
@@ -19,12 +18,7 @@ import { useVolumeGeneration } from './etiquetas/useVolumeGeneration';
 export const useGeracaoEtiquetas = () => {
   const location = useLocation();
   const notaFiscalData = location.state || {};
-  const { marcarComoEtiquetada, buscarEtiquetasPorCodigo, salvarEtiqueta, buscarEtiquetasPorNotaFiscal } = useEtiquetasDatabase();
-  
-  // Estado para controle do dialog de confirmação
-  const [volumeExistsDialogOpen, setVolumeExistsDialogOpen] = useState(false);
-  const [pendingPrintVolume, setPendingPrintVolume] = useState<Volume | null>(null);
-  const [existingVolumesCount, setExistingVolumesCount] = useState(0);
+  const { marcarComoEtiquetada, buscarEtiquetasPorCodigo } = useEtiquetasDatabase();
   
   // Use refactored hooks
   const { volumes, generatedVolumes, setVolumes, setGeneratedVolumes } = useVolumeState();
@@ -77,59 +71,6 @@ export const useGeracaoEtiquetas = () => {
     return generateVolumesHandler(generateVolumes, setVolumes, setGeneratedVolumes)(form.getValues(), notaFiscalData);
   };
 
-  // Função para preparar dados da etiqueta
-  const prepareEtiquetaData = (volume: Volume) => {
-    console.log('📋 Preparando dados da etiqueta para volume:', volume.id);
-    
-    const descricaoVolume = volume.descricao || `Volume ${volume.volumeNumber || 1}/${volume.totalVolumes || 1}`;
-    
-    return {
-      codigo: volume.id,
-      tipo: 'volume',
-      area: volume.area || null,
-      remetente: volume.remetente || null,
-      destinatario: volume.destinatario || null,
-      endereco: volume.endereco || null,
-      cidade: volume.cidade || null,
-      uf: volume.uf || null,
-      cep: null,
-      descricao: descricaoVolume,
-      transportadora: volume.transportadora || null,
-      chave_nf: volume.chaveNF || volume.notaFiscal || null,
-      quantidade: volume.quantidade || 1,
-      peso_total_bruto: volume.pesoTotal ? String(volume.pesoTotal) : null,
-      numero_pedido: volume.numeroPedido || null,
-      volume_numero: volume.volumeNumber || 1,
-      total_volumes: volume.totalVolumes || 1,
-      codigo_onu: volume.codigoONU || null,
-      codigo_risco: volume.codigoRisco || null,
-      classificacao_quimica: volume.classificacaoQuimica === 'nao_classificada' ? null : volume.classificacaoQuimica,
-      etiqueta_mae_id: volume.etiquetaMae || null,
-      status: 'gerada'
-    };
-  };
-
-  // Função para gravar volumes na base
-  const saveVolumesToDatabase = async (volumesToSave: Volume[]) => {
-    let volumesSalvos = 0;
-    const erros: string[] = [];
-
-    for (const volume of volumesToSave) {
-      try {
-        const etiquetaData = prepareEtiquetaData(volume);
-        await salvarEtiqueta(etiquetaData);
-        volumesSalvos++;
-        console.log(`✅ Etiqueta ${volume.id} salva com sucesso`);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-        erros.push(`${volume.id}: ${errorMessage}`);
-        console.error(`❌ Erro ao gravar ${volume.id}:`, error);
-      }
-    }
-
-    return { volumesSalvos, erros };
-  };
-
   // Function to mark volumes as labeled in the database
   const markVolumesAsLabeled = async (volumes: Volume[]) => {
     const successfullyMarked: string[] = [];
@@ -139,6 +80,7 @@ export const useGeracaoEtiquetas = () => {
       try {
         console.log(`🏷️ Marcando volume ${volume.id} como etiquetado...`);
         
+        // Buscar etiqueta no banco pelo código
         const etiquetasEncontradas = await buscarEtiquetasPorCodigo(volume.id);
         
         if (etiquetasEncontradas && etiquetasEncontradas.length > 0) {
@@ -156,121 +98,83 @@ export const useGeracaoEtiquetas = () => {
       }
     }
 
+    // Log results
+    if (successfullyMarked.length > 0) {
+      console.log(`✅ ${successfullyMarked.length} volume(s) marcado(s) como etiquetado(s)`);
+    }
+    
+    if (failedToMark.length > 0) {
+      console.warn(`⚠️ ${failedToMark.length} volume(s) não puderam ser marcados:`, failedToMark);
+    }
+
     return { successfullyMarked, failedToMark };
   };
 
-  // Função principal para impressão com todas as validações
   const handlePrintEtiquetasImpl = async (volume: Volume) => {
-    try {
-      console.log('🖨️ Iniciando processo de impressão para volume:', volume.id);
-      
-      // 1. Verificar se já existem volumes para esta nota fiscal
-      const existingVolumes = await buscarEtiquetasPorNotaFiscal(volume.notaFiscal);
-      
-      if (existingVolumes && existingVolumes.length > 0) {
-        console.log(`⚠️ Encontrados ${existingVolumes.length} volumes existentes para NF ${volume.notaFiscal}`);
-        
-        // Armazenar dados para confirmação
-        setPendingPrintVolume(volume);
-        setExistingVolumesCount(existingVolumes.length);
-        setVolumeExistsDialogOpen(true);
-        return;
-      }
-
-      // 2. Prosseguir com impressão normal
-      await processPrintVolumes(volume);
-      
-    } catch (error) {
-      console.error('💥 Erro no processo de impressão:', error);
-      toast({
-        title: "❌ Erro na Impressão",
-        description: error instanceof Error ? error.message : "Erro inesperado durante a impressão",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Função para processar a impressão após confirmação
-  const processPrintVolumes = async (volume: Volume) => {
-    try {
-      // 1. Buscar todos os volumes da mesma nota fiscal
-      const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
-      console.log(`📦 Processando ${volumesNota.length} volumes para NF ${volume.notaFiscal}`);
-
-      // 2. Gravar volumes na base se ainda não estão gravados
-      const { volumesSalvos, erros } = await saveVolumesToDatabase(volumesNota);
-      
-      if (erros.length > 0) {
-        console.warn('⚠️ Alguns volumes tiveram erro ao gravar:', erros);
-      }
-
-      if (volumesSalvos > 0) {
-        console.log(`✅ ${volumesSalvos} volumes gravados na base`);
-      }
-
-      // 3. Prosseguir com impressão
-      const currentFormValues = form.getValues();
-      const formatoImpressao = currentFormValues.formatoImpressao;
-      const layoutStyle = currentFormValues.layoutStyle as LayoutStyle;
-      
-      console.log('🖨️ Imprimindo com layout:', layoutStyle);
-      
-      const result = handlePrintEtiquetas(printEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
-      
-      if (result && typeof result.then === 'function') {
-        result.then(async (res) => {
-          if (res && res.status === 'success' && res.volumes) {
-            // Atualizar estado local
-            setVolumes(prevVolumes => 
-              prevVolumes.map(vol => {
-                const updatedVol = res.volumes!.find(v => v.id === vol.id);
-                return updatedVol || vol;
-              })
-            );
-            
-            // Marcar volumes como etiquetados no banco de dados
-            const { successfullyMarked, failedToMark } = await markVolumesAsLabeled(volumesNota);
-            
-            // Mostrar toast de sucesso
+    // Garantir que pegamos o valor atual do formulário
+    const currentFormValues = form.getValues();
+    const formatoImpressao = currentFormValues.formatoImpressao;
+    const layoutStyle = currentFormValues.layoutStyle as LayoutStyle;
+    
+    console.log('Printing with layout style:', layoutStyle);
+    
+    const result = handlePrintEtiquetas(printEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
+    
+    if (result && typeof result.then === 'function') {
+      result.then(async (res) => {
+        if (res && res.status === 'success' && res.volumes) {
+          // Atualizar estado local
+          setVolumes(prevVolumes => 
+            prevVolumes.map(vol => {
+              const updatedVol = res.volumes!.find(v => v.id === vol.id);
+              return updatedVol || vol;
+            })
+          );
+          
+          // Marcar volumes como etiquetados no banco de dados
+          const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
+          const { successfullyMarked, failedToMark } = await markVolumesAsLabeled(volumesNota);
+          
+          // Mostrar toast apropriado
+          if (successfullyMarked.length > 0 && failedToMark.length === 0) {
             toast({
-              title: "✅ Etiquetas Impressas com Sucesso",
-              description: `${volumesNota.length} etiqueta(s) para NF ${volume.notaFiscal} foram impressas e gravadas.`,
+              title: "✅ Etiquetas Impressas e Marcadas",
+              description: `${successfullyMarked.length} etiqueta(s) para NF ${volume.notaFiscal} foram impressas e marcadas como etiquetadas.`,
+            });
+          } else if (successfullyMarked.length > 0 && failedToMark.length > 0) {
+            toast({
+              title: "⚠️ Etiquetas Impressas com Problemas",
+              description: `${successfullyMarked.length} etiquetas impressas com sucesso, ${failedToMark.length} não puderam ser marcadas no banco.`,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "⚠️ Etiquetas Impressas",
+              description: `Etiquetas para NF ${volume.notaFiscal} foram impressas, mas houve problemas ao marcar no banco de dados.`,
+              variant: "destructive",
             });
           }
-        });
-      }
-      
-    } catch (error) {
-      console.error('💥 Erro no processo de impressão:', error);
-      toast({
-        title: "❌ Erro na Impressão",
-        description: error instanceof Error ? error.message : "Erro inesperado durante a impressão",
-        variant: "destructive",
+        }
       });
     }
   };
 
-  // Função para confirmar impressão mesmo com volumes existentes
-  const handleConfirmPrintWithExistingVolumes = async () => {
-    if (pendingPrintVolume) {
-      await processPrintVolumes(pendingPrintVolume);
-      setPendingPrintVolume(null);
-    }
-  };
-
-  // Function to handle reimprinting
   const handleReimprimirEtiquetasImpl = async (volume: Volume) => {
+    // Garantir que pegamos o valor atual do formulário
     const currentFormValues = form.getValues();
     const formatoImpressao = currentFormValues.formatoImpressao;
     const layoutStyle = currentFormValues.layoutStyle as LayoutStyle;
     
     console.log('Reprinting with layout style:', layoutStyle);
     
+    // Para reimpressão, também marcar como etiquetado
     const volumesNota = volumes.filter(vol => vol.notaFiscal === volume.notaFiscal);
     const { successfullyMarked, failedToMark } = await markVolumesAsLabeled(volumesNota);
     
+    // Executar impressão
     handleReimprimirEtiquetas(reimprimirEtiquetas)(volume, volumes, notaFiscalData, formatoImpressao, layoutStyle);
     
+    // Toast para reimpressão
     if (successfullyMarked.length > 0 && failedToMark.length === 0) {
       toast({
         title: "✅ Etiquetas Reimpressas e Marcadas",
@@ -298,12 +202,14 @@ export const useGeracaoEtiquetas = () => {
   };
 
   const handlePrintEtiquetaMaeImpl = async (etiquetaMae: any) => {
+    // Garantir que pegamos o valor atual do formulário
     const currentFormValues = form.getValues();
     const formatoImpressao = currentFormValues.formatoImpressao;
     const layoutStyle = currentFormValues.layoutStyle as LayoutStyle;
     
     console.log('Printing master label with layout style:', layoutStyle);
     
+    // Para etiqueta mãe, tentar marcar como etiquetada também
     try {
       const etiquetasEncontradas = await buscarEtiquetasPorCodigo(etiquetaMae.id);
       
@@ -341,15 +247,11 @@ export const useGeracaoEtiquetas = () => {
     classifyDialogOpen,
     selectedVolume,
     isGenerating,
-    volumeExistsDialogOpen,
-    pendingPrintVolume,
-    existingVolumesCount,
     setTipoEtiqueta,
     setVolumes,
     setGeneratedVolumes,
     setEtiquetasMae,
     setClassifyDialogOpen,
-    setVolumeExistsDialogOpen,
     handleGenerateVolumes,
     handlePrintEtiquetas: handlePrintEtiquetasImpl,
     handleReimprimirEtiquetas: handleReimprimirEtiquetasImpl,
@@ -357,7 +259,6 @@ export const useGeracaoEtiquetas = () => {
     handleCreateEtiquetaMae: handleCreateEtiquetaMaeImpl,
     handleClassifyVolume,
     handleSaveVolumeClassification: handleSaveVolumeClassificationImpl,
-    handleVincularVolumes: handleVincularVolumesImpl,
-    handleConfirmPrintWithExistingVolumes
+    handleVincularVolumes: handleVincularVolumesImpl
   };
 };

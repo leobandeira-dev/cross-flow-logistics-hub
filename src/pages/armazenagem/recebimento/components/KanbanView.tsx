@@ -41,6 +41,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, status, notas }) => 
           </div>
         )}
       </div>
+    </div>
   );
 };
 

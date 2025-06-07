@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -15,7 +16,7 @@ interface ProfileSelectorProps {
   onDeleteProfile: (id: string) => void;
 }
 
-export const ProfileSelector: React.FC<ProfileSelectorProps> = ({
+const ProfileSelector: React.FC<ProfileSelectorProps> = ({
   selectedPerfil,
   handlePerfilChange,
   allProfiles,

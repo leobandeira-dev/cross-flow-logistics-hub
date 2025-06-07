@@ -40,6 +40,7 @@ const NotaPrintTemplate: React.FC<NotaPrintTemplateProps> = ({ notaId }) => {
               </div>
             )}
           </div>
+        </div>
         
         {/* Nota Fiscal Details */}
         <div className="mt-4 border border-gray-300 p-3 rounded">
@@ -62,6 +63,7 @@ const NotaPrintTemplate: React.FC<NotaPrintTemplateProps> = ({ notaId }) => {
                 <p className="font-semibold">Valor Total:</p>
                 <p>{formatCurrency(nota.valor)}</p>
               </div>
+            </div>
           )}
         </div>
         
@@ -107,6 +109,7 @@ const NotaPrintTemplate: React.FC<NotaPrintTemplateProps> = ({ notaId }) => {
             <p className="text-gray-500 italic">Nenhum produto disponível</p>
           )}
         </div>
+      </div>
     </div>
   );
 };

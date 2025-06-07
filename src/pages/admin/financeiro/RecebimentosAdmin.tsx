@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import MainLayout from '@/components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,63 +33,68 @@ const RecebimentosAdmin = () => {
 
   if (showForm) {
     return (
-      <div className="p-6">
-        <div className="mb-6">
-          <Button variant="outline" onClick={handleBackToList} className="mb-4">
-            ← Voltar para a lista
-          </Button>
-          <h1 className="text-3xl font-bold">
-            {editId ? 'Editar Recebimento' : 'Novo Recebimento'}
-          </h1>
+      <MainLayout>
+        <div className="p-6">
+          <div className="mb-6">
+            <Button variant="outline" onClick={handleBackToList} className="mb-4">
+              ← Voltar para a lista
+            </Button>
+            <h1 className="text-3xl font-bold">
+              {editId ? 'Editar Recebimento' : 'Novo Recebimento'}
+            </h1>
+          </div>
+          
+          <RecebimentoForm 
+            recebimentoId={editId} 
+            onSave={handleBackToList}
+            onCancel={handleBackToList}
+          />
         </div>
-        <RecebimentoForm 
-          recebimentoId={editId} 
-          onSave={handleBackToList}
-          onCancel={handleBackToList}
-        />
-      </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Gestão de Recebimentos</h1>
-        <Button onClick={handleCreate}>
-          Novo Recebimento
-        </Button>
-      </div>
-
-      <div className="flex items-center justify-between mb-6">
-        <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="pendentes">Pendentes</TabsTrigger>
-            <TabsTrigger value="pagos">Pagos</TabsTrigger>
-            <TabsTrigger value="atrasados">Atrasados</TabsTrigger>
-            <TabsTrigger value="todos">Todos</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        
-        <div className="flex gap-4">
-          <Input
-            placeholder="Buscar por cliente, recibo..."
-            className="max-w-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+    <MainLayout>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Gestão de Recebimentos</h1>
+          <Button onClick={handleCreate}>
+            Novo Recebimento
+          </Button>
         </div>
-      </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <RecebimentosTable 
-            status={activeTab} 
-            searchTerm={searchTerm}
-            onEdit={handleEdit} 
-          />
-        </CardContent>
-      </Card>
-    </div>
+        <div className="flex items-center justify-between mb-6">
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+            <TabsList>
+              <TabsTrigger value="pendentes">Pendentes</TabsTrigger>
+              <TabsTrigger value="pagos">Pagos</TabsTrigger>
+              <TabsTrigger value="atrasados">Atrasados</TabsTrigger>
+              <TabsTrigger value="todos">Todos</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          <div className="flex gap-4">
+            <Input
+              placeholder="Buscar por cliente, recibo..."
+              className="max-w-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            <RecebimentosTable 
+              status={activeTab} 
+              searchTerm={searchTerm}
+              onEdit={handleEdit} 
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </MainLayout>
   );
 };
 

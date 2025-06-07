@@ -1,5 +1,6 @@
 
 import React from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import RecebimentoTabContent from './recebimento/components/RecebimentoTabContent';
 import MovimentacoesTabContent from './recebimento/components/MovimentacoesTabContent';
@@ -7,7 +8,8 @@ import CarregamentoTabContent from './recebimento/components/CarregamentoTabCont
 
 const RecebimentoOverview: React.FC = () => {
   return (
-    <div className="mb-6">
+    <MainLayout title="Armazenagem - Recebimento">
+      <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Módulo de Armazenagem</h2>
         <p className="text-gray-600">Gerencie recebimentos, movimentações internas e carregamentos</p>
       </div>
@@ -31,7 +33,7 @@ const RecebimentoOverview: React.FC = () => {
           <CarregamentoTabContent />
         </TabsContent>
       </Tabs>
-    </div>
+    </MainLayout>
   );
 };
 

@@ -82,6 +82,7 @@ const DocumentoColetaViewer: React.FC<DocumentoColetaViewerProps> = ({
         <div className="flex space-x-2 items-center">
           {getStatusBadge(solicitacao.status)}
         </div>
+      </div>
       
       {/* Main Document Viewer */}
       <SolicitacaoViewer 

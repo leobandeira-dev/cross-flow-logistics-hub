@@ -1,148 +1,40 @@
-import React, { Suspense } from 'react';
+
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { Spinner } from '@/components/ui/spinner';
-import { ProtectedRoute } from './ProtectedRoute';
-import MainLayout from '@/components/layout/MainLayout';
-import LandingPage from '@/pages/LandingPage';
+import { useAuth } from '../hooks/useAuth';
+import NotFound from '../pages/NotFound';
 
-// Lazy loaded components
-const LoginPage = React.lazy(() => import('@/pages/auth/LoginPage'));
-const NotFound = React.lazy(() => import('@/pages/NotFound'));
-
-// Lazy loaded feature routes
-const CoreRoutes = React.lazy(() => import('./features/CoreRoutes'));
-const ArmazenagemRoutes = React.lazy(() => import('./features/ArmazenagemRoutes'));
-const ExpedicaoRoutes = React.lazy(() => import('./features/ExpedicaoRoutes'));
-const SACRoutes = React.lazy(() => import('./features/SACRoutes'));
-const ColetasRoutes = React.lazy(() => import('./features/ColetasRoutes'));
-const RelatoriosRoutes = React.lazy(() => import('./features/RelatoriosRoutes'));
-const CadastrosRoutes = React.lazy(() => import('./features/CadastrosRoutes'));
-const ConfiguracoesRoutes = React.lazy(() => import('./features/ConfiguracoesRoutes'));
-const AdminRoutes = React.lazy(() => import('./features/AdminRoutes'));
-
-const LoadingFallback = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner size="lg" />
-  </div>
-);
+// Feature Routes
+import CoreRoutes from './features/CoreRoutes';
+import AuthRoutes from './features/AuthRoutes';
+import ArmazenagemRoutes from './features/ArmazenagemRoutes';
+import ExpedicaoRoutes from './features/ExpedicaoRoutes';
+import SACRoutes from './features/SACRoutes';
+import ColetasRoutes from './features/ColetasRoutes';
+import RelatoriosRoutes from './features/RelatoriosRoutes';
+import CadastrosRoutes from './features/CadastrosRoutes';
+import ConfiguracoesRoutes from './features/ConfiguracoesRoutes';
+import AdminRoutes from './features/AdminRoutes';
 
 const AppRoutes = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   
-  if (loading) {
-    return <LoadingFallback />;
-  }
+  console.log('AppRoutes rendering, user authenticated:', !!user);
   
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<LandingPage />} />
-      <Route 
-        path="/auth/login" 
-        element={
-          <Suspense fallback={<LoadingFallback />}>
-            {user ? <Navigate to="/dashboard" replace /> : <LoginPage />}
-          </Suspense>
-        } 
-      />
-
-      {/* Protected routes wrapped in MainLayout */}
-      <Route
-        path="/*"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  {/* Feature routes */}
-                  <Route
-                    path="dashboard/*"
-                    element={<CoreRoutes />}
-                  />
-                  
-                  <Route
-                    path="armazenagem/*"
-                    element={
-                      <ProtectedRoute requiredPermission="armazenagem.access">
-                        <ArmazenagemRoutes />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="expedicao/*"
-                    element={
-                      <ProtectedRoute requiredPermission="expedicao.access">
-                        <ExpedicaoRoutes />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="sac/*"
-                    element={
-                      <ProtectedRoute requiredPermission="sac.access">
-                        <SACRoutes />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="coletas/*"
-                    element={
-                      <ProtectedRoute requiredPermission="coletas.access">
-                        <ColetasRoutes />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="relatorios/*"
-                    element={
-                      <ProtectedRoute requiredPermission="relatorios.access">
-                        <RelatoriosRoutes />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="cadastros/*"
-                    element={
-                      <ProtectedRoute requiredRole="SUPERVISOR">
-                        <CadastrosRoutes />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="configuracoes/*"
-                    element={
-                      <ProtectedRoute requiredRole="GERENTE">
-                        <ConfiguracoesRoutes />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="admin/*"
-                    element={
-                      <ProtectedRoute requiredRole="ADMIN">
-                        <AdminRoutes />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Default route for protected area */}
-                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                </Routes>
-              </Suspense>
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* NotFound for public routes */}
+      {/* Feature routes - spreading the array of routes returned by each feature */}
+      {CoreRoutes()}
+      {AuthRoutes()}
+      {ArmazenagemRoutes()}
+      {ExpedicaoRoutes()}
+      {SACRoutes()}
+      {ColetasRoutes()}
+      {RelatoriosRoutes()}
+      {CadastrosRoutes()}
+      {ConfiguracoesRoutes()}
+      {AdminRoutes()} {/* Add the Admin routes here */}
+      
+      {/* NotFound */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

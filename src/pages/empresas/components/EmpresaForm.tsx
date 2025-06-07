@@ -125,6 +125,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit, onCancel }
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <BasicInfoFields form={form} />
           </div>
+        </div>
         
         {/* Address Section */}
         <div className="mb-4">
@@ -132,6 +133,7 @@ const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit, onCancel }
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <AddressFields form={form} />
           </div>
+        </div>
         
         {/* Profile Section */}
         <div className="mb-4">

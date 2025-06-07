@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { User, UserPlus, Users, Settings } from 'lucide-react';
@@ -63,13 +65,13 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
   };
 
   return (
-    <div>
+    <MainLayout title="Cadastro de Usuários">
       <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Gerenciamento de Usuários</h2>
         <p className="text-gray-600">Cadastro, aprovações, permissões e listagem de usuários do sistema</p>
       </div>
       
-      <Tabs value={currentTab} onValueChange={setCurrentTab} className="mb-6">
+      <Tabs defaultValue="cadastro" className="mb-6" value={currentTab} onValueChange={setCurrentTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="cadastro">Novo Cadastro</TabsTrigger>
           <TabsTrigger value="aprovacoes">Aprovações Pendentes</TabsTrigger>
@@ -151,7 +153,7 @@ const CadastroUsuarios: React.FC<CadastroUsuariosProps> = ({ initialTab = 'cadas
         onOpenChange={setDetailsDialogOpen} 
         user={selectedUser} 
       />
-    </div>
+    </MainLayout>
   );
 };
 

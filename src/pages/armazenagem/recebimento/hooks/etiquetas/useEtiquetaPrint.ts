@@ -1,5 +1,4 @@
 
-
 import { toast } from '@/hooks/use-toast';
 import { Volume } from '../../components/etiquetas/VolumesTable';
 import { useEtiquetasGenerator } from '@/hooks/etiquetas';
@@ -79,20 +78,17 @@ export const useEtiquetaPrint = () => {
       destinatario: '',
       endereco: '',
       cidade: '',
+      cidadeCompleta: '',
       uf: '',
       pesoTotal: '0 Kg',
       chaveNF: '',
       etiquetaMae: etiquetaMaeId,
+      tipoEtiquetaMae: tipoEtiquetaMae, // Add the type to the volume data
+      tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
       classificacaoQuimica: 'nao_classificada',
-      transportadora: 'Transportadora não especificada',
-      impresso: false,
-      dataGeracao: new Date().toISOString(),
-      volumeNumber: 1,
-      totalVolumes: 1,
-      numeroPedido: '',
-      area: ''
+      transportadora: 'Transportadora não especificada'
     }];
     
     // Empty nota data since this is a standalone master etiqueta
@@ -135,14 +131,12 @@ export const useEtiquetaPrint = () => {
     const linkedVolumes = volumes.filter(vol => vol.etiquetaMae === etiquetaMae.id);
     
     // Prepare nota data based on the first linked volume or use generic info
-    const cidadeCompleta = linkedVolumes.length > 0 ? `${linkedVolumes[0].cidade} - ${linkedVolumes[0].uf}` : '';
-    
     const notaData = linkedVolumes.length > 0 ? {
       fornecedor: linkedVolumes[0].remetente || '',
       destinatario: linkedVolumes[0].destinatario || '',
       endereco: linkedVolumes[0].endereco || '',
       cidade: linkedVolumes[0].cidade || '',
-      cidadeCompleta: cidadeCompleta,
+      cidadeCompleta: linkedVolumes[0].cidadeCompleta || '',
       uf: linkedVolumes[0].uf || '',
       pesoTotal: calculateTotalPeso(linkedVolumes),
       chaveNF: linkedVolumes[0].chaveNF || '',
@@ -170,20 +164,17 @@ export const useEtiquetaPrint = () => {
       destinatario: notaData.destinatario,
       endereco: notaData.endereco,
       cidade: notaData.cidade,
+      cidadeCompleta: notaData.cidadeCompleta,
       uf: notaData.uf,
       pesoTotal: notaData.pesoTotal,
       chaveNF: notaData.chaveNF,
       etiquetaMae: etiquetaMae.id,
+      tipoEtiquetaMae: etiquetaMae.tipo || 'geral',
+      tipoVolume: 'geral',
       codigoONU: '',
       codigoRisco: '',
       classificacaoQuimica: 'nao_classificada',
-      transportadora: notaData.transportadora,
-      impresso: false,
-      dataGeracao: new Date().toISOString(),
-      volumeNumber: 1,
-      totalVolumes: 1,
-      numeroPedido: '',
-      area: ''
+      transportadora: notaData.transportadora
     }];
     
     // Generate master etiqueta
@@ -205,4 +196,3 @@ export const useEtiquetaPrint = () => {
     createAndPrintEtiquetaMae
   };
 };
-

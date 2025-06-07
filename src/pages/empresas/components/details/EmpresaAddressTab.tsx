@@ -21,6 +21,7 @@ const EmpresaAddressTab: React.FC<EmpresaAddressProps> = ({ empresa }) => {
           {empresa.cep && ` - CEP: ${empresa.cep}`}
         </p>
       </div>
+    </div>
   );
 };
 

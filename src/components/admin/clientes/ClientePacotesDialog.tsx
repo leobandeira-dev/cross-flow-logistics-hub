@@ -151,6 +151,7 @@ export const ClientePacotesDialog = ({ open, onOpenChange, cliente }: ClientePac
                               <h4 className="text-sm font-semibold">Valor Mensal</h4>
                               <p>R$ {pacote.preco.toFixed(2)}</p>
                             </div>
+                          </div>
                         </div>
                       </CardContent>
                       <CardFooter className="flex justify-end gap-2">

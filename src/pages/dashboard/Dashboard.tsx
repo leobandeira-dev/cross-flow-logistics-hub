@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { subDays } from 'date-fns';
+import MainLayout from '../../components/layout/MainLayout';
 import DateRangeSelector from '../../components/dashboard/DateRangeSelector';
 import StatCardsSection from './components/StatCardsSection';
 import KPICardsSection from './components/KPICardsSection';
@@ -17,7 +19,7 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <MainLayout title="Dashboard">
       {/* Date Range Selector */}
       <DateRangeSelector dateRange={dateRange} onDateRangeChange={setDateRange} />
       
@@ -38,7 +40,7 @@ const Dashboard = () => {
       
       {/* Recent Collect Requests Section */}
       <RecentCollectRequestsSection />
-    </div>
+    </MainLayout>
   );
 };
 

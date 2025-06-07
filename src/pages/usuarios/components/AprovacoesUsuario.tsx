@@ -129,6 +129,7 @@ const AprovacoesUsuario: React.FC<AprovacoesUsuarioProps> = ({
               <div className="mt-4 text-sm text-gray-500">
                 Total: {usuarios.length} usuário(s) pendente(s)
               </div>
+            </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
               Não há aprovações pendentes no momento.
@@ -168,6 +169,7 @@ const AprovacoesUsuario: React.FC<AprovacoesUsuarioProps> = ({
                 <p className="text-sm font-medium mb-1">Perfil:</p>
                 <p className="text-sm">{selectedUser?.perfil}</p>
               </div>
+            </div>
           </div>
 
           <DialogFooter>

@@ -68,8 +68,10 @@ const CargasSupportDialog: React.FC<CargasSupportDialogProps> = ({
               className="justify-start text-left px-4 py-3 h-auto"
               onClick={() => handleWhatsAppSupport(`${problema.title} - ${problema.description}`)}
             >
-              <div className="font-bold">{problema.title}</div>
+              <div>
+                <div className="font-bold">{problema.title}</div>
                 <div className="text-sm text-gray-500">{problema.description}</div>
+              </div>
             </Button>
           ))}
           <Button 
@@ -77,8 +79,10 @@ const CargasSupportDialog: React.FC<CargasSupportDialogProps> = ({
             className="justify-start text-left px-4 py-3 h-auto"
             onClick={() => handleWhatsAppSupport()}
           >
-            <div className="font-bold">Outro Problema</div>
+            <div>
+              <div className="font-bold">Outro Problema</div>
               <div className="text-sm text-gray-500">Problemas não listados acima</div>
+            </div>
           </Button>
         </div>
       </DialogContent>

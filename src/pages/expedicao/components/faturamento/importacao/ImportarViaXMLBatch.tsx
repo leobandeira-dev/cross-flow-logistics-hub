@@ -218,6 +218,7 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
                   </div>
                 ))}
               </div>
+            </div>
           )}
           
           {/* Botão para importar */}
@@ -239,6 +240,7 @@ const ImportarViaXMLBatch: React.FC<ImportarViaXMLProps> = ({ onImportarNotas })
               )}
             </Button>
           </div>
+        </div>
       </CardContent>
     </Card>
   );

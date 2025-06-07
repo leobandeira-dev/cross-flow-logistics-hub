@@ -28,6 +28,7 @@ const MapaEnderecamentoCard: React.FC<MapaEnderecamentoCardProps> = ({
             <p className="text-gray-600">Visualização do mapa de endereçamento do armazém</p>
             <p className="text-sm text-gray-500">(Funcionalidade em desenvolvimento)</p>
           </div>
+        </div>
         
         <div className="mt-6">
           <h3 className="text-lg font-medium mb-4">Volumes Endereçados</h3>

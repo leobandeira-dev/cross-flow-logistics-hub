@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
@@ -97,4 +98,4 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ formData, handleInp
   );
 };
 
-export default ConfirmationStep; 
+export default ConfirmationStep;

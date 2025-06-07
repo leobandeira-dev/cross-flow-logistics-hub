@@ -63,6 +63,7 @@ const OcorrenciaComments: React.FC<OcorrenciaCommentsProps> = ({ ocorrenciaId })
                   </div>
                   <p className="text-sm mt-1">{comment.content}</p>
                 </div>
+              </div>
             ))}
           </div>
           

@@ -38,6 +38,7 @@ const DateTimeSection: React.FC<DateSectionProps> = ({
           className={readonly ? "bg-gray-50" : ""}
         />
       </div>
+    </div>
   );
 };
 

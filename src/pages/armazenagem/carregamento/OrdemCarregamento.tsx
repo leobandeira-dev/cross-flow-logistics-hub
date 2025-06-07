@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import CriarOCTab from '@/components/carregamento/tabs/CriarOCTab';
 import ConsultarOCTab from '@/components/carregamento/tabs/ConsultarOCTab';
@@ -37,7 +38,8 @@ const OrdemCarregamento: React.FC = () => {
   };
 
   return (
-    <div className="mb-6">
+    <MainLayout title="Ordem de Carregamento">
+      <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Ordem de Carregamento (OC)</h2>
         <p className="text-gray-600">Crie e gerencie ordens de carregamento para expedição</p>
       </div>
@@ -65,7 +67,7 @@ const OrdemCarregamento: React.FC = () => {
           <CarregamentoIntegradoTab />
         </TabsContent>
       </Tabs>
-    </div>
+    </MainLayout>
   );
 };
 

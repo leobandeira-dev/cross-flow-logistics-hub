@@ -10,7 +10,6 @@ import EtiquetaDetalhesDialog from '@/components/etiquetas/EtiquetaDetalhesDialo
 import { toast } from '@/hooks/use-toast';
 import { useEtiquetasDatabase } from '@/hooks/useEtiquetasDatabase';
 import { Etiqueta } from '@/types/supabase/armazem.types';
-import { getLabelStatusBadge } from '@/utils/labelUtils';
 
 interface ConsultaEtiquetasTabProps {
   volumes: any[];
@@ -236,8 +235,8 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               { 
                 header: 'Tipo', 
                 accessor: 'codigo_onu',
-                cell: ({ row }) => {
-                  return row.original.codigo_onu ? 
+                cell: (row) => {
+                  return row.codigo_onu ? 
                     <div className="flex items-center">
                       <Biohazard size={16} className="text-red-500 mr-1" />
                       <span>Químico</span>
@@ -245,54 +244,95 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
                     <span>Carga Geral</span>;
                 }
               },
-              { header: 'Área', accessor: 'area' },
-              { header: 'Chave NF', accessor: 'chave_nf' },
-              { header: 'Remetente', accessor: 'remetente' },
-              { header: 'Destinatário', accessor: 'destinatario' },
+              { 
+                header: 'Área', 
+                accessor: 'area',
+                cell: (row) => {
+                  return row.area ? 
+                    <div className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded font-bold text-center">
+                      {row.area}
+                    </div> : 
+                    <span>-</span>;
+                }
+              },
+              { 
+                header: 'Quantidade', 
+                accessor: 'quantidade',
+                cell: (row) => {
+                  return (
+                    <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold text-center">
+                      {row.quantidade || 1}
+                    </div>
+                  );
+                }
+              },
+              { 
+                header: 'Volume', 
+                accessor: 'volume_numero',
+                cell: (row) => {
+                  // Aplicar a mesma lógica da descrição para mostrar Volume X/Y
+                  const volumeNumber = row.volume_numero || 1;
+                  const totalVolumes = row.total_volumes || 1;
+                  return (
+                    <div className="bg-green-100 text-green-800 px-2 py-1 rounded font-bold text-center">
+                      {volumeNumber}/{totalVolumes}
+                    </div>
+                  );
+                }
+              },
               { 
                 header: 'Status', 
                 accessor: 'status',
-                cell: ({ row }) => getLabelStatusBadge(row.original.status)
+                cell: (row) => getStatusBadge(row.status)
               },
               { 
-                header: 'Ações', 
+                header: 'Data Geração', 
+                accessor: 'data_geracao',
+                cell: (row) => {
+                  return row.data_geracao ? 
+                    new Date(row.data_geracao).toLocaleDateString('pt-BR') : 
+                    '-';
+                }
+              },
+              {
+                header: 'Ações',
                 accessor: 'actions',
-                cell: ({ row }) => (
-                  <div className="flex space-x-2 justify-end">
+                cell: (row) => (
+                  <div className="flex gap-2">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => handleDetalhesClick(row.original)}
+                      onClick={() => handleDetalhesClick(row)}
                     >
                       <FileText size={16} className="mr-1" />
                       Detalhes
                     </Button>
-                    {row.original.status !== 'inutilizada' && (
+                    {row.status !== 'inutilizada' && (
                       <>
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => handleReimprimirClick(row.original)}
-                          className={row.original.etiquetado ? "border-yellow-500 text-yellow-600 hover:bg-yellow-50" : ""}
+                          onClick={() => handleReimprimirClick(row)}
+                          className={row.etiquetado ? "border-yellow-500 text-yellow-600 hover:bg-yellow-50" : ""}
                         >
-                          {row.original.etiquetado && <AlertTriangle size={16} className="mr-1 text-yellow-600" />}
-                          {!row.original.etiquetado && <Printer size={16} className="mr-1" />}
-                          {row.original.etiquetado ? "Reimprimir" : "Imprimir"}
+                          {row.etiquetado && <AlertTriangle size={16} className="mr-1 text-yellow-600" />}
+                          {!row.etiquetado && <Printer size={16} className="mr-1" />}
+                          {row.etiquetado ? "Reimprimir" : "Imprimir"}
                         </Button>
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => handleInutilizarClick(row.original)}
+                          onClick={() => handleInutilizarClick(row)}
                           className="border-orange-500 text-orange-600 hover:bg-orange-50"
                         >
                           <Edit size={16} className="mr-1" />
                           Inutilizar
                         </Button>
-                        {!row.original.etiquetado && (
+                        {!row.etiquetado && (
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => handleExcluirEtiqueta(row.original)}
+                            onClick={() => handleExcluirEtiqueta(row)}
                             className="border-red-500 text-red-600 hover:bg-red-50"
                           >
                             <Trash2 size={16} className="mr-1" />
@@ -306,16 +346,12 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
               }
             ]}
             data={filteredEtiquetas}
-            pagination={{
-              totalPages: Math.ceil(filteredEtiquetas.length / 10),
-              currentPage: 1,
-              onPageChange: () => {}
-            }}
           />
           
           {isLoading && (
             <div className="flex justify-center items-center py-8">
               <div className="text-gray-500">Carregando etiquetas...</div>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -323,7 +359,9 @@ const ConsultaEtiquetasTab: React.FC<ConsultaEtiquetasTabProps> = ({
       <InutilizarEtiquetaDialog
         open={inutilizarDialogOpen}
         onOpenChange={setInutilizarDialogOpen}
+        etiqueta={etiquetaSelecionada}
         onConfirm={handleConfirmInutilizar}
+        isLoading={isLoading}
       />
 
       <EtiquetaDetalhesDialog

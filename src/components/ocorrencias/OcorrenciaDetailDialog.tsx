@@ -290,6 +290,7 @@ const OcorrenciaDetailDialog: React.FC<OcorrenciaDetailDialogProps> = ({
                         </div>
                       ))}
                     </div>
+                  </div>
                 )}
               </div>
 

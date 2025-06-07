@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TestTube, Biohazard } from 'lucide-react';
 import QRCodeGenerator from '../QRCodeGenerator';

@@ -1,5 +1,6 @@
 
 import React, { useRef, useState } from 'react';
+import MainLayout from '@/components/layout/MainLayout';
 import {
   Card,
   CardContent,
@@ -65,7 +66,8 @@ const AprovacoesReport = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <MainLayout title="Relatório de Aprovações de Coleta">
+      <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center relative w-full sm:w-auto">
             <Search className="h-4 w-4 absolute left-3 text-muted-foreground" />
@@ -95,6 +97,7 @@ const AprovacoesReport = () => {
               data={[...monthlyData, ...statusData]}
             />
           </div>
+        </div>
 
         <div ref={reportRef}>
           <Tabs defaultValue="resumo">
@@ -188,6 +191,7 @@ const AprovacoesReport = () => {
                             {stat.change}
                           </span>
                         </div>
+                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -233,6 +237,7 @@ const AprovacoesReport = () => {
                       <div>Data</div>
                       <div>Status</div>
                       <div>Aprovador</div>
+                    </div>
                     {[
                       { id: 'SOL-2345', solicitante: 'Empresa A', data: '15/05/2025', status: 'Aprovado', aprovador: 'João Silva' },
                       { id: 'SOL-2344', solicitante: 'Empresa B', data: '14/05/2025', status: 'Rejeitado', aprovador: 'Maria Santos' },
@@ -255,6 +260,7 @@ const AprovacoesReport = () => {
                           </span>
                         </div>
                         <div>{item.aprovador}</div>
+                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -262,7 +268,8 @@ const AprovacoesReport = () => {
             </TabsContent>
           </Tabs>
         </div>
-    </div>
+      </div>
+    </MainLayout>
   );
 };
 

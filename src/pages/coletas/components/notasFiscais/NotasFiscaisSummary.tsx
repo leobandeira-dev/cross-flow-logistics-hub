@@ -107,6 +107,7 @@ const NotasFiscaisSummary: React.FC<NotasFiscaisSummaryProps> = ({ notasFiscais 
             <div className="pt-1 text-sm text-gray-500 italic">
               <p>O peso considerado é o maior entre o peso real e o peso cubado</p>
             </div>
+          </div>
         </div>
       </CardContent>
     </Card>

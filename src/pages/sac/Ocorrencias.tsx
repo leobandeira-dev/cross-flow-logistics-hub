@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import MainLayout from '../../components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
@@ -6,9 +7,9 @@ import { Ocorrencia } from '@/types/ocorrencias.types';
 import { ocorrencias, documentosMock } from '@/data/ocorrenciasMock';
 import OcorrenciasTable from '@/components/ocorrencias/OcorrenciasTable';
 import OcorrenciasTabs from '@/components/ocorrencias/OcorrenciasTabs';
-import { NovaOcorrenciaDialog } from '@/components/ocorrencias/NovaOcorrenciaDialog';
+import NovaOcorrenciaDialog from '@/components/ocorrencias/NovaOcorrenciaDialog';
 import OcorrenciaDetailDialog from '@/components/ocorrencias/OcorrenciaDetailDialog';
-import { LinkDocumentDialog } from '@/components/ocorrencias/LinkDocumentDialog';
+import LinkDocumentDialog from '@/components/ocorrencias/LinkDocumentDialog';
 
 const Ocorrencias = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -82,8 +83,8 @@ const Ocorrencias = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <MainLayout title="Gestão de Ocorrências">
+      <div className="mb-6 flex justify-between items-center">
         <div>
           <h2 className="text-xl font-heading">SAC - Gestão de Ocorrências</h2>
           <p className="text-gray-500">Acompanhe e gerencie ocorrências logísticas</p>
@@ -138,7 +139,7 @@ const Ocorrencias = () => {
           onClose={() => setIsLinkDocumentDialogOpen(false)}
         />
       </Dialog>
-    </div>
+    </MainLayout>
   );
 };
 

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
@@ -24,7 +25,7 @@ interface ReportSettingsProps {
   defaultSettings?: any;
 }
 
-export const ReportSettings: React.FC<ReportSettingsProps> = ({ updateSettings, defaultSettings = {} }) => {
+const ReportSettings: React.FC<ReportSettingsProps> = ({ updateSettings, defaultSettings = {} }) => {
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState({
     chartType: defaultSettings.chartType || 'bar',

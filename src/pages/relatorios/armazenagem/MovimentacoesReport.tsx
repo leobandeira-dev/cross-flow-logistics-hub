@@ -1,5 +1,6 @@
 
 import React, { useRef, useState } from 'react';
+import MainLayout from '@/components/layout/MainLayout';
 import {
   Card,
   CardContent,
@@ -80,7 +81,8 @@ const MovimentacoesReport = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <MainLayout title="Relatório de Movimentações Internas">
+      <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center relative w-full sm:w-auto">
             <Search className="h-4 w-4 absolute left-3 text-muted-foreground" />
@@ -110,6 +112,7 @@ const MovimentacoesReport = () => {
               data={[...movimentacoesDiarias, ...operadoresData]}
             />
           </div>
+        </div>
 
         <div ref={reportRef}>
           <Tabs defaultValue="resumo">
@@ -206,6 +209,7 @@ const MovimentacoesReport = () => {
                             {stat.change}
                           </span>
                         </div>
+                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -294,6 +298,7 @@ const MovimentacoesReport = () => {
                       <div>De/Para</div>
                       <div>Operador</div>
                       <div>Data/Hora</div>
+                    </div>
                     {[
                       { id: 'MOV-9456', tipo: 'Transferência', volume: 'VOL-8745', endereco: 'A-02-C → B-05-D', operador: 'João Silva', data: '18/05/2025 14:32' },
                       { id: 'MOV-9455', tipo: 'Unitização', volume: 'PL-1234', endereco: 'Área de separação → D-01-A', operador: 'Maria Santos', data: '18/05/2025 13:45' },
@@ -319,6 +324,7 @@ const MovimentacoesReport = () => {
                         <div>{item.endereco}</div>
                         <div>{item.operador}</div>
                         <div>{item.data}</div>
+                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -326,7 +332,8 @@ const MovimentacoesReport = () => {
             </TabsContent>
           </Tabs>
         </div>
-    </div>
+      </div>
+    </MainLayout>
   );
 };
 

@@ -139,6 +139,7 @@ const VinculoEtiquetaMaeDialog: React.FC<VinculoEtiquetaMaeDialogProps> = ({
             <p><strong>Destinatário:</strong> {etiquetaMae.destinatario}</p>
             <p><strong>Cidade/UF:</strong> {etiquetaMae.cidade} - {etiquetaMae.uf}</p>
           </div>
+        </div>
         
         <div className="my-4">
           <div className="flex flex-col space-y-4">
@@ -179,6 +180,7 @@ const VinculoEtiquetaMaeDialog: React.FC<VinculoEtiquetaMaeDialogProps> = ({
                   />
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 </div>
+              </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="selectAll"
@@ -189,6 +191,7 @@ const VinculoEtiquetaMaeDialog: React.FC<VinculoEtiquetaMaeDialogProps> = ({
                   Selecionar todos
                 </label>
               </div>
+            </div>
           </div>
           
           <div className="mt-4">
@@ -239,6 +242,7 @@ const VinculoEtiquetaMaeDialog: React.FC<VinculoEtiquetaMaeDialogProps> = ({
               </span>
             )}
           </div>
+        </div>
         
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>

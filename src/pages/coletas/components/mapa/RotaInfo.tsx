@@ -21,6 +21,7 @@ const RotaInfo: React.FC<RotaInfoProps> = ({ showInfo, cargasCount }) => {
         <div>
           <span className="text-muted-foreground">Tipo:</span> Rota otimizada
         </div>
+      </div>
     </div>
   );
 };

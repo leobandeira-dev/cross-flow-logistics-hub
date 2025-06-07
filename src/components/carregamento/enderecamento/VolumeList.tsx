@@ -54,7 +54,8 @@ const VolumeList: React.FC<VolumeListProps> = ({
               onClick={() => onSelectionToggle(volume.id)}
             >
               <div className="flex justify-between items-start">
-                <div className="flex items-center">
+                <div>
+                  <div className="flex items-center">
                     <input 
                       type="checkbox" 
                       checked={selecionados.includes(volume.id)} 
@@ -72,7 +73,9 @@ const VolumeList: React.FC<VolumeListProps> = ({
                     <span className="text-gray-600">Etiqueta: {volume.etiquetaMae}</span>
                     <span className="text-gray-600">NF: {volume.notaFiscal}</span>
                   </div>
+                </div>
               </div>
+            </div>
           ))}
 
           {filteredVolumes.length === 0 && (

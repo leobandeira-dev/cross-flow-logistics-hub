@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 import { useAuthState } from '@/hooks/useAuthState';
@@ -14,7 +15,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         session,
         loading,
         connectionError,
-        isAuthenticated: !!session && !!user,
         signIn,
         signUp,
         signOut,

@@ -39,6 +39,7 @@ const VolumePrintTemplate: React.FC<VolumePrintTemplateProps> = ({
                   <p className="text-sm font-medium text-gray-500">Nota Fiscal:</p>
                   <p>{selectedVolume.notaFiscal}</p>
                 </div>
+              </div>
               
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between items-center mb-2">
@@ -50,9 +51,11 @@ const VolumePrintTemplate: React.FC<VolumePrintTemplateProps> = ({
                   <p className="text-xs text-gray-500">Data de impressão: {new Date().toLocaleDateString()}</p>
                   <p className="text-xs text-gray-500">Hora: {new Date().toLocaleTimeString()}</p>
                 </div>
+              </div>
             </>
           )}
         </div>
+      </div>
     </div>
   );
 };

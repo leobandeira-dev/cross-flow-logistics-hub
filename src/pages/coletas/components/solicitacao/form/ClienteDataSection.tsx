@@ -46,6 +46,7 @@ const ClienteDataSection: React.FC<ClienteDataSectionProps> = ({ formData, handl
             onChange={(e) => handleInputChange('dataColeta', e.target.value)}
           />
         </div>
+      </div>
       
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -66,6 +67,7 @@ const ClienteDataSection: React.FC<ClienteDataSectionProps> = ({ formData, handl
             onChange={(e) => handleInputChange('destino', e.target.value)}
           />
         </div>
+      </div>
     </>
   );
 };
