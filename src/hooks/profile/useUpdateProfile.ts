@@ -26,7 +26,6 @@ export const useUpdateProfile = () => {
         .from('perfis')
         .update({
           nome: data.nome,
-          telefone: data.telefone,
           avatar_url: data.avatar_url,
           updated_at: new Date().toISOString()
         })
@@ -41,7 +40,6 @@ export const useUpdateProfile = () => {
       const updatedUser = {
         ...user,
         nome: data.nome || user.nome,
-        telefone: data.telefone || user.telefone || '',
         avatar_url: data.avatar_url || user.avatar_url || '',
         updated_at: new Date().toISOString()
       };

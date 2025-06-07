@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -90,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('🔍 Buscando perfil do usuário:', authUser.email);
 
       // Buscar dados do perfil do usuário
-      const { data: profileData, error: profileError } = await supabase
+      let { data: profileData, error: profileError } = await supabase
         .from('perfis')
         .select(`
           id,
@@ -124,7 +123,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email: authUser.email || '',
             funcao: 'operador'
           })
-          .select()
+          .select(`
+            id,
+            nome,
+            email,
+            funcao,
+            empresa_id,
+            created_at,
+            updated_at,
+            avatar_url,
+            ultimo_login
+          `)
           .single();
 
         if (createError) {
@@ -138,13 +147,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('✅ Perfil encontrado:', profileData);
 
+      // Extrair dados da empresa (pode vir como array)
+      const empresaData = Array.isArray(profileData.empresa) 
+        ? profileData.empresa[0] 
+        : profileData.empresa;
+
       setUser({
         id: profileData.id,
         email: profileData.email,
         nome: profileData.nome,
         empresa_id: profileData.empresa_id,
         funcao: profileData.funcao,
-        telefone: profileData.telefone || '',
+        telefone: '', // Campo não existe na tabela perfis atual
         avatar_url: profileData.avatar_url,
         created_at: profileData.created_at,
         updated_at: profileData.updated_at,
@@ -152,7 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           nome: profileData.funcao === 'admin' ? 'admin' : 'operador',
           permissoes: profileData.funcao === 'admin' ? { 'audit:view': true } : {}
         },
-        empresa: profileData.empresa
+        empresa: empresaData
       });
 
       setConnectionError(null);

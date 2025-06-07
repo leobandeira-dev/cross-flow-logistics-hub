@@ -9,6 +9,29 @@ import ProfileTabs from '@/components/profile/ProfileTabs';
 import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
 import { Card, CardContent } from '@/components/ui/card';
 
+// Interface temporária para compatibilidade
+interface Usuario {
+  id: string;
+  email: string;
+  nome: string;
+  empresa_id?: string;
+  funcao?: string;
+  telefone?: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+  perfil?: {
+    nome: string;
+    permissoes?: Record<string, boolean>;
+  };
+  empresa?: {
+    id: string;
+    razao_social: string;
+    nome_fantasia: string;
+    cnpj: string;
+  };
+}
+
 const UserProfilePage = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -39,17 +62,25 @@ const UserProfilePage = () => {
     setActiveTab(tab);
   };
 
+  // Converter AuthUser para Usuario para compatibilidade
+  const usuarioCompativel: Usuario = {
+    ...user,
+    created_at: user.created_at || new Date().toISOString(),
+    updated_at: user.updated_at || new Date().toISOString(),
+    telefone: user.telefone || ''
+  };
+
   return (
     <MainLayout title="Perfil do Usuário">
       <div className="space-y-6">
-        <ProfileHeader user={user} />
+        <ProfileHeader user={usuarioCompativel} />
         
         <Card>
           <ProfileTabs activeTab={activeTab} onTabChange={handleTabChange} />
           
           <CardContent className="pt-6">
             {activeTab === 'profile' && (
-              <ProfileForm user={user} />
+              <ProfileForm user={usuarioCompativel} />
             )}
             {activeTab === 'security' && (
               <PasswordChangeForm />
