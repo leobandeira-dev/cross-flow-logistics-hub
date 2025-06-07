@@ -142,15 +142,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
-        profileData = newProfile;
+        // Para perfil novo sem empresa, definir profileData sem empresa
+        profileData = {
+          ...newProfile,
+          empresa: null
+        };
       }
 
       console.log('✅ Perfil encontrado:', profileData);
 
       // Extrair dados da empresa (pode vir como array)
-      const empresaData = Array.isArray(profileData.empresa) 
-        ? profileData.empresa[0] 
-        : profileData.empresa;
+      const empresaData = profileData.empresa ? (
+        Array.isArray(profileData.empresa) 
+          ? profileData.empresa[0] 
+          : profileData.empresa
+      ) : null;
 
       setUser({
         id: profileData.id,

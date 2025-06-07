@@ -8,29 +8,7 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileTabs from '@/components/profile/ProfileTabs';
 import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
 import { Card, CardContent } from '@/components/ui/card';
-
-// Interface temporária para compatibilidade
-interface Usuario {
-  id: string;
-  email: string;
-  nome: string;
-  empresa_id?: string;
-  funcao?: string;
-  telefone?: string;
-  avatar_url?: string;
-  created_at: string;
-  updated_at: string;
-  perfil?: {
-    nome: string;
-    permissoes?: Record<string, boolean>;
-  };
-  empresa?: {
-    id: string;
-    razao_social: string;
-    nome_fantasia: string;
-    cnpj: string;
-  };
-}
+import { Usuario } from '@/types/supabase/usuario.types';
 
 const UserProfilePage = () => {
   const { user, loading } = useAuth();
@@ -64,10 +42,38 @@ const UserProfilePage = () => {
 
   // Converter AuthUser para Usuario para compatibilidade
   const usuarioCompativel: Usuario = {
-    ...user,
+    id: user.id,
+    nome: user.nome,
+    email: user.email,
+    telefone: user.telefone || '',
+    avatar_url: user.avatar_url || '',
+    empresa_id: user.empresa_id,
+    perfil_id: '',
+    status: 'ativo',
     created_at: user.created_at || new Date().toISOString(),
     updated_at: user.updated_at || new Date().toISOString(),
-    telefone: user.telefone || ''
+    funcao: user.funcao,
+    empresa: user.empresa ? {
+      id: user.empresa.id,
+      razao_social: user.empresa.razao_social,
+      nome_fantasia: user.empresa.nome_fantasia,
+      cnpj: user.empresa.cnpj,
+      tipo: 'cliente',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    } : undefined,
+    perfil: user.perfil ? {
+      id: user.id,
+      nome: user.nome,
+      email: user.email,
+      empresa_id: user.empresa_id,
+      funcao: user.funcao || 'operador',
+      avatar_url: user.avatar_url,
+      ultimo_login: '',
+      created_at: user.created_at || new Date().toISOString(),
+      updated_at: user.updated_at || new Date().toISOString(),
+      permissoes: user.perfil.permissoes
+    } : undefined
   };
 
   return (
