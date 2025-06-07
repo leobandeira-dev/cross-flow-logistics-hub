@@ -257,7 +257,6 @@ const CadastroForm: React.FC<CadastroFormProps> = ({ onSubmit }) => {
           Seu acesso ao sistema estará pendente até a aprovação do administrador.
         </p>
       </div>
-    </div>
   );
 };
 

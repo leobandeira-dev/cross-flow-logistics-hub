@@ -117,7 +117,6 @@ const ReportSettings: React.FC<ReportSettingsProps> = ({ updateSettings, default
                   onCheckedChange={(checked) => handleChange("showLegend", checked)}
                 />
               </div>
-            </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="showGrid" className="text-right">
@@ -130,7 +129,6 @@ const ReportSettings: React.FC<ReportSettingsProps> = ({ updateSettings, default
                   onCheckedChange={(checked) => handleChange("showGrid", checked)}
                 />
               </div>
-            </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="autoRefresh" className="text-right">
@@ -143,7 +141,6 @@ const ReportSettings: React.FC<ReportSettingsProps> = ({ updateSettings, default
                   onCheckedChange={(checked) => handleChange("autoRefresh", checked)}
                 />
               </div>
-            </div>
           </div>
 
           <DialogFooter>

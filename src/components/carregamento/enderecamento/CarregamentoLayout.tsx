@@ -79,7 +79,6 @@ const CarregamentoLayout: React.FC<CarregamentoLayoutProps> = ({
               />
               <InstructionsCard />
             </div>
-          </div>
         </>
       )}
       

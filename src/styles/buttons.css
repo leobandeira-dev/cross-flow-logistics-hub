@@ -1,0 +1,163 @@
+/* Button Base */
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Button Sizes */
+.btn-sm {
+  @apply px-3 py-1.5 text-xs;
+}
+
+.btn-lg {
+  @apply px-5 py-2.5 text-base;
+}
+
+/* Button Variants */
+.btn-primary {
+  @apply bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+}
+
+.btn-secondary {
+  @apply bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-500;
+}
+
+.btn-outline {
+  @apply border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-primary-500;
+}
+
+.btn-ghost {
+  @apply text-gray-700 hover:bg-gray-100 focus:ring-gray-500;
+}
+
+.btn-success {
+  @apply bg-success text-white hover:bg-green-600 focus:ring-green-500;
+}
+
+.btn-warning {
+  @apply bg-warning text-white hover:bg-yellow-600 focus:ring-yellow-500;
+}
+
+.btn-error {
+  @apply bg-error text-white hover:bg-red-600 focus:ring-red-500;
+}
+
+.btn-info {
+  @apply bg-info text-white hover:bg-blue-600 focus:ring-blue-500;
+}
+
+/* Button with Icon */
+.btn-icon {
+  @apply p-2 rounded-full;
+}
+
+.btn-icon-sm {
+  @apply p-1.5;
+}
+
+.btn-icon-lg {
+  @apply p-2.5;
+}
+
+/* Button with Icon and Text */
+.btn-with-icon {
+  @apply inline-flex items-center gap-2;
+}
+
+.btn-with-icon svg {
+  @apply w-4 h-4;
+}
+
+.btn-with-icon.btn-sm svg {
+  @apply w-3.5 h-3.5;
+}
+
+.btn-with-icon.btn-lg svg {
+  @apply w-5 h-5;
+}
+
+/* Button Group */
+.btn-group {
+  @apply inline-flex rounded-md shadow-sm;
+}
+
+.btn-group .btn {
+  @apply rounded-none focus:z-10;
+}
+
+.btn-group .btn:first-child {
+  @apply rounded-l-md;
+}
+
+.btn-group .btn:last-child {
+  @apply rounded-r-md;
+}
+
+.btn-group .btn + .btn {
+  @apply -ml-px;
+}
+
+/* Loading State */
+.btn-loading {
+  @apply relative text-transparent transition-none hover:text-transparent;
+}
+
+.btn-loading::after {
+  @apply absolute block h-4 w-4 rounded-full border-2 border-white border-r-transparent animate-spin;
+  content: "";
+}
+
+/* Block Button */
+.btn-block {
+  @apply w-full;
+}
+
+/* Link Button */
+.btn-link {
+  @apply p-0 text-primary-500 hover:text-primary-600 underline focus:ring-0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .btn-responsive {
+    @apply w-full justify-center;
+  }
+}
+
+/* Special Buttons */
+.btn-new {
+  @apply btn btn-primary btn-with-icon;
+}
+
+.btn-filter {
+  @apply btn btn-outline btn-with-icon;
+}
+
+.btn-export {
+  @apply btn btn-outline btn-with-icon;
+}
+
+.btn-help {
+  @apply btn btn-ghost btn-icon text-gray-500 hover:text-gray-700;
+}
+
+/* Action Buttons */
+.btn-save {
+  @apply btn btn-success btn-with-icon;
+}
+
+.btn-cancel {
+  @apply btn btn-outline btn-with-icon;
+}
+
+.btn-delete {
+  @apply btn btn-error btn-with-icon;
+}
+
+/* Menu Buttons */
+.btn-menu {
+  @apply btn btn-ghost btn-icon;
+}
+
+.btn-menu-active {
+  @apply bg-gray-100;
+} 

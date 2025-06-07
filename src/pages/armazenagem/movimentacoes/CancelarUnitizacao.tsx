@@ -12,7 +12,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import MainLayout from '@/components/layout/MainLayout';
 import ConfirmationDialog from '@/components/carregamento/enderecamento/ConfirmationDialog';
 import AuditTrail from '@/components/common/AuditTrail';
 
@@ -131,8 +130,7 @@ const CancelarUnitizacao: React.FC = () => {
   };
   
   return (
-    <MainLayout title="Cancelar Unitização">
-      <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10">
         <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -178,7 +176,6 @@ const CancelarUnitizacao: React.FC = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
                   <div>
                     <Label htmlFor="observacoes">Observações</Label>
                     <Textarea id="observacoes" placeholder="Observações" {...form.register('observacoes')} />
@@ -230,7 +227,7 @@ const CancelarUnitizacao: React.FC = () => {
         description="Tem certeza de que deseja cancelar esta unitização? Essa ação não pode ser desfeita."
         onConfirm={form.handleSubmit(handleCancelUnitizacao)}
       />
-    </MainLayout>
+    </div>
   );
 };
 

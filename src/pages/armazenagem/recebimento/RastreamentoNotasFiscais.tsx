@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
@@ -42,8 +41,7 @@ const RastreamentoNotasFiscais: React.FC = () => {
   };
 
   return (
-    <MainLayout title="Rastreamento de Notas Fiscais">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold">Rastreamento de Notas Fiscais</h1>
@@ -88,7 +86,6 @@ const RastreamentoNotasFiscais: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
   );
 };
 

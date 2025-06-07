@@ -1,6 +1,5 @@
 
 import React, { useState, useRef } from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,8 +56,7 @@ const RecebimentoFornecedor: React.FC = () => {
   };
 
   return (
-    <MainLayout title="Recebimento de Fornecedor">
-      <div className="mb-6">
+    <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Recebimento de Fornecedor</h2>
         <p className="text-gray-600">Gerencie recebimentos de mercadorias vindas diretamente de fornecedores</p>
       </div>
@@ -115,7 +113,6 @@ const RecebimentoFornecedor: React.FC = () => {
                         )}
                       />
                     </div>
-                  </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -152,7 +149,6 @@ const RecebimentoFornecedor: React.FC = () => {
                         )}
                       />
                     </div>
-                  </div>
                   
                   <div>
                     <FormField
@@ -301,7 +297,6 @@ const RecebimentoFornecedor: React.FC = () => {
                       <p className="text-sm text-gray-500">Total de Itens:</p>
                       <p>{recebimentosFornecedores.find(rec => rec.id === selectedRecebimento)?.itens}</p>
                     </div>
-                  </div>
                   <div className="mt-4">
                     <p className="text-sm text-gray-500">Status:</p>
                     <p>{recebimentosFornecedores.find(rec => rec.id === selectedRecebimento)?.status === 'pending' ? 'Pendente' : 
@@ -310,9 +305,7 @@ const RecebimentoFornecedor: React.FC = () => {
                 </>
               )}
             </div>
-          </div>
         </div>
-      </div>
       
       <PrintLayoutModal
         open={printModalOpen}
@@ -320,7 +313,7 @@ const RecebimentoFornecedor: React.FC = () => {
         orderNumber={selectedRecebimento}
         layoutRef={recebimentoRef}
       />
-    </MainLayout>
+    </div>
   );
 };
 

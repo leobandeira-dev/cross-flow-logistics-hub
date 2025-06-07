@@ -1,14 +1,11 @@
-
 import React from 'react';
-import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Box, Archive, Truck } from 'lucide-react';
 
 const Armazenagem: React.FC = () => {
   return (
-    <MainLayout title="Armazenagem">
-      <div className="mb-6">
+    <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Módulo de Armazenagem</h2>
         <p className="text-gray-600">Gerencie recebimentos, movimentações internas e carregamentos</p>
       </div>
@@ -62,7 +59,6 @@ const Armazenagem: React.FC = () => {
           </Link>
         </Card>
       </div>
-    </MainLayout>
   );
 };
 

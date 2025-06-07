@@ -1,25 +1,19 @@
-
 import React from 'react';
-import Sidebar from './Sidebar';
 import Header from './Header';
 
 interface MainLayoutProps {
   children: React.ReactNode;
-  title?: string;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Dashboard" }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar />
-      
-      <div className="flex-1 ml-64 flex flex-col">
-        <Header title={title} />
-        
-        <main className="flex-1 p-6 overflow-y-auto">
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main className="flex-1 py-6">
+        <div className="container mx-auto px-4">
           {children}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };

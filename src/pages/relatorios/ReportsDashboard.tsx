@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, BarChart, PieChart, Table, Download, Printer, Search, Filter, Star, Clock, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -50,7 +49,6 @@ const ReportCard = ({
             </button>
             <Icon className="h-5 w-5 text-muted-foreground" />
           </div>
-        </div>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -214,8 +212,7 @@ const ReportsDashboard = () => {
   };
 
   return (
-    <MainLayout title="Relatórios">
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex items-center relative w-full sm:w-auto">
             <Input
@@ -245,7 +242,6 @@ const ReportsDashboard = () => {
               <Settings className="h-4 w-4" />
             </Button>
           </div>
-        </div>
 
         <Tabs defaultValue="todos" className="w-full">
           <TabsList className="mb-4">
@@ -337,7 +333,6 @@ const ReportsDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </MainLayout>
   );
 };
 

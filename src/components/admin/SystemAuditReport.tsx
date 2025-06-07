@@ -234,7 +234,6 @@ const SystemAuditReport: React.FC = () => {
                 {dbTables.length}
               </p>
             </div>
-          </div>
 
           <Tabs defaultValue="database" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
@@ -282,7 +281,6 @@ const SystemAuditReport: React.FC = () => {
                               💡 {issue.recommendation}
                             </p>
                           </div>
-                        </div>
                       </CardContent>
                     </Card>
                   ))

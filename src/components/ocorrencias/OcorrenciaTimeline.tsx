@@ -61,10 +61,8 @@ const OcorrenciaTimeline: React.FC<OcorrenciaTimelineProps> = ({ ocorrencia }) =
                   </div>
                   <p className="text-xs text-gray-500">Por: {event.user}</p>
                 </div>
-              </div>
             ))}
           </div>
-        </div>
       </CardContent>
     </Card>
   );

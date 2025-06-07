@@ -21,29 +21,19 @@ export const useUpdateProfile = () => {
 
     setIsLoading(true);
     try {
-      // Atualizar o perfil no Supabase
-      const { error } = await supabase
-        .from('perfis')
-        .update({
-          nome: data.nome,
-          avatar_url: data.avatar_url,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Erro ao atualizar perfil:', error);
-        throw error;
-      }
-
-      // Atualizar o usuário no contexto de autenticação
+      // In frontend-only mode, just update the local user object
       const updatedUser = {
         ...user,
         nome: data.nome || user.nome,
-        avatar_url: data.avatar_url || user.avatar_url || '',
+        telefone: data.telefone || user.telefone,
+        avatar_url: data.avatar_url || user.avatar_url,
         updated_at: new Date().toISOString()
       };
       
+      // Update localStorage to persist the changes
+      localStorage.setItem('mockUser', JSON.stringify(updatedUser));
+      
+      // Update the user in the auth context
       setUser(updatedUser);
       
       toast({

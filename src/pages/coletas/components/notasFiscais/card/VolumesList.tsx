@@ -48,8 +48,7 @@ const VolumesList: React.FC<VolumesListProps> = ({
   }
 
   return (
-    <div>
-      <div className="overflow-x-auto">
+    <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-100">
             <tr>
@@ -170,7 +169,6 @@ const VolumesList: React.FC<VolumesListProps> = ({
           </tfoot>
         </table>
       </div>
-    </div>
   );
 };
 

@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import StatusBadge from "@/components/common/StatusBadge";
+import { getUserStatusBadge } from "@/utils/userUtils";
 
 interface UserDetailsDialogProps {
   open: boolean;
@@ -47,16 +46,7 @@ const UserDetailsDialog: React.FC<UserDetailsDialogProps> = ({ open, onOpenChang
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Status</p>
-              <StatusBadge 
-                status={
-                  user.status === 'ativo' ? 'success' : 
-                  user.status === 'pendente' ? 'warning' : 'error'
-                } 
-                text={
-                  user.status === 'ativo' ? 'Ativo' :
-                  user.status === 'pendente' ? 'Pendente' : 'Inativo'
-                } 
-              />
+              {getUserStatusBadge(user.status)}
             </div>
           </div>
           

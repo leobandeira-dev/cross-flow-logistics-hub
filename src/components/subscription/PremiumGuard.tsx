@@ -31,7 +31,6 @@ export const PremiumGuard: React.FC<PremiumGuardProps> = ({
           <div className="p-3 bg-amber-100 rounded-full">
             <Crown className="h-8 w-8 text-amber-600" />
           </div>
-        </div>
         <CardTitle className="flex items-center gap-2 justify-center">
           <Lock className="h-5 w-5" />
           Recurso Premium

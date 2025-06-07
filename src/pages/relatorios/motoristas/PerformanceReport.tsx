@@ -1,6 +1,5 @@
 
 import React, { useRef, useState } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import {
   Card,
   CardContent,
@@ -91,8 +90,7 @@ const PerformanceReport = () => {
   };
 
   return (
-    <MainLayout title="Relatório de Performance de Motoristas">
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center relative w-full sm:w-auto">
             <Search className="h-4 w-4 absolute left-3 text-muted-foreground" />
@@ -122,7 +120,6 @@ const PerformanceReport = () => {
               data={[...entregasData, ...desempenhoMensal]}
             />
           </div>
-        </div>
 
         <div ref={reportRef}>
           <Tabs defaultValue="resumo">
@@ -266,7 +263,6 @@ const PerformanceReport = () => {
                         <div>Pontualidade</div>
                         <div>Avaliação</div>
                         <div>Ocorrências</div>
-                      </div>
                       {entregasData.map((item) => (
                         <div key={item.motorista} className="grid grid-cols-5 p-3 border-b text-sm">
                           <div className="font-medium">{item.motorista}</div>
@@ -288,7 +284,6 @@ const PerformanceReport = () => {
                                 </svg>
                               ))}
                             </div>
-                          </div>
                           <div>
                             <span 
                               className={`px-2 py-1 rounded-full text-xs font-medium
@@ -299,7 +294,6 @@ const PerformanceReport = () => {
                               {item.ocorrencias}
                             </span>
                           </div>
-                        </div>
                       ))}
                     </div>
                   </CardContent>
@@ -352,7 +346,6 @@ const PerformanceReport = () => {
                         <div>Tipo</div>
                         <div>Quantidade</div>
                         <div>Impacto</div>
-                      </div>
                       {ocorrenciasData.map((item) => (
                         <div key={item.tipo} className="grid grid-cols-3 p-3 border-b text-sm">
                           <div className="font-medium">{item.tipo}</div>
@@ -368,7 +361,6 @@ const PerformanceReport = () => {
                                item.tipo === 'Atraso' ? 'Médio' : 'Baixo'}
                             </span>
                           </div>
-                        </div>
                       ))}
                     </div>
                     
@@ -395,7 +387,6 @@ const PerformanceReport = () => {
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
-                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -409,8 +400,7 @@ const PerformanceReport = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="h-[300px]">
+                    <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart
                             data={rankingMotoristas}
@@ -435,7 +425,6 @@ const PerformanceReport = () => {
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
-                    </div>
                     <div>
                       <h3 className="font-medium text-lg mb-4">Critérios de Pontuação</h3>
                       <div className="space-y-4">
@@ -467,12 +456,10 @@ const PerformanceReport = () => {
                           </div>
                           <span className="font-medium">15%</span>
                         </div>
-                      </div>
                       <div className="mt-6 pt-4 border-t">
                         <h4 className="font-medium mb-2">Premiação Mensal</h4>
                         <p className="text-sm text-muted-foreground">Os 3 motoristas com melhor desempenho recebem bonificação e são elegíveis para premiações trimestrais adicionais com base no desempenho consistente.</p>
                       </div>
-                    </div>
                   </div>
                   
                   <div className="mt-6 pt-6 border-t">
@@ -499,14 +486,12 @@ const PerformanceReport = () => {
                         </div>
                       ))}
                     </div>
-                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </MainLayout>
+    </div>
   );
 };
 

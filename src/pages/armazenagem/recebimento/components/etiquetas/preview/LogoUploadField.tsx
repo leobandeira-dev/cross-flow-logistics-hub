@@ -51,7 +51,6 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({ transportadoraLogo, o
             <div className="text-xs text-blue-600 mt-1 text-center">
               Este logo será usado automaticamente nas etiquetas
             </div>
-          </div>
         </div>
       )}
 
@@ -92,12 +91,10 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({ transportadoraLogo, o
                 className="max-h-16 object-contain border rounded"
               />
             </div>
-          </div>
         )}
         <div className="text-xs text-gray-500">
           Dimensões recomendadas: 90mm x 25mm. Formatos suportados: JPG, PNG, GIF
         </div>
-      </div>
     </div>
   );
 };

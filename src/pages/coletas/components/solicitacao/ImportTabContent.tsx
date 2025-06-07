@@ -35,7 +35,6 @@ const ImportTabContent: React.FC<ImportTabContentProps> = ({ isLoading, handleUp
           />
         </label>
       </div>
-    </div>
   );
 };
 

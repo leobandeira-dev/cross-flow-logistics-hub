@@ -39,7 +39,6 @@ const SolicitacaoProgress: React.FC<SolicitacaoProgressProps> = ({
                   step.id
                 )}
               </div>
-            </div>
             
             {/* Connector line */}
             {i < steps.length - 1 && (
@@ -73,7 +72,6 @@ const SolicitacaoProgress: React.FC<SolicitacaoProgressProps> = ({
           </div>
         ))}
       </div>
-    </div>
   );
 };
 

@@ -35,7 +35,6 @@ const OrderHeaderInfo: React.FC<OrderHeaderInfoProps> = ({ ordem }) => {
             <span>Conferência não iniciada</span>
           )}
         </div>
-      </div>
     </div>
   );
 };

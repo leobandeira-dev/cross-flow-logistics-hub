@@ -115,7 +115,6 @@ const AddVolumeForm: React.FC<AddVolumeFormProps> = ({ onAddVolume }) => {
           <Plus className="h-4 w-4 mr-1" /> Adicionar
         </Button>
       </div>
-    </div>
   );
 };
 

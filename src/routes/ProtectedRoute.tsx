@@ -1,24 +1,45 @@
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { UserRole } from '@/types/auth.types';
+import { Spinner } from '@/components/ui/spinner';
 
-import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRole?: UserRole;
+  requiredPermission?: string;
+}
 
-export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { loading } = useAuth();
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredRole,
+  requiredPermission
+}) => {
+  const { user, loading, hasRole, hasPermission } = useAuth();
   const location = useLocation();
-  
-  useEffect(() => {
-    console.log('ProtectedRoute bypassing authentication - path:', location.pathname);
-  }, [location]);
-  
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <Spinner size="lg" />
       </div>
     );
   }
-  
-  // Always render the children without checking for user authentication
+
+  if (!user) {
+    // Redirecionar para login mantendo a URL original como state
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  }
+
+  // Verificar role se especificado
+  if (requiredRole && !hasRole(requiredRole)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  // Verificar permissão se especificada
+  if (requiredPermission && !hasPermission(requiredPermission)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return <>{children}</>;
 };

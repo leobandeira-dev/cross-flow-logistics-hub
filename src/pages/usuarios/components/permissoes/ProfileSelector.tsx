@@ -48,7 +48,6 @@ const ProfileSelector: React.FC<ProfileSelectorProps> = ({
           Novo Perfil
         </Button>
       </div>
-    </div>
   );
 };
 

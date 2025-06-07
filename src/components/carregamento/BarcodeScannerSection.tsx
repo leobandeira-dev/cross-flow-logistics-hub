@@ -108,7 +108,6 @@ const BarcodeScannerSection: React.FC<BarcodeScannerSectionProps> = ({
               Ler
             </Button>
           </div>
-        </div>
       </div>
       
       <div className="mt-4 pt-4 border-t">
@@ -123,7 +122,6 @@ const BarcodeScannerSection: React.FC<BarcodeScannerSectionProps> = ({
             className="bg-cross-blue h-2.5 rounded-full" 
             style={{ width: `${(verificadosCount / totalCount) * 100}%` }}
           ></div>
-        </div>
       </div>
     </>
   );

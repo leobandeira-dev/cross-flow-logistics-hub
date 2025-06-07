@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../../components/common/DataTable';
 import { Button } from '@/components/ui/button';
 import { FileText, CheckCircle, AlertCircle, Check, MessageSquare } from 'lucide-react';
-import StatusBadge from '../../../components/common/StatusBadge';
+import { getLoadStatusBadge } from '@/utils/loadUtils';
 import { toast } from '@/hooks/use-toast';
 import SearchFilter from '../../../components/common/SearchFilter';
 import { handleWhatsAppSupport, problemosComuns } from '../utils/supportHelpers';
@@ -119,18 +118,7 @@ const ActiveLoads: React.FC<ActiveLoadsProps> = ({ cargas, currentPage, setCurre
               { 
                 header: 'Status', 
                 accessor: 'status',
-                cell: (row) => {
-                  const statusMap: any = {
-                    'pending': { type: 'default', text: 'Pendente Aceite' },
-                    'transit': { type: 'info', text: 'Em Trânsito' },
-                    'loading': { type: 'warning', text: 'Em Carregamento' },
-                    'scheduled': { type: 'default', text: 'Agendada' },
-                    'delivered': { type: 'success', text: 'Entregue' },
-                    'problem': { type: 'error', text: 'Problema' }
-                  };
-                  const status = statusMap[row.status];
-                  return <StatusBadge status={status.type} text={status.text} />;
-                }
+                cell: ({ row }) => getLoadStatusBadge(row.original.status)
               },
               { 
                 header: 'Ações', 
@@ -169,10 +157,8 @@ const ActiveLoads: React.FC<ActiveLoadsProps> = ({ cargas, currentPage, setCurre
                               className="justify-start text-left px-4 py-3 h-auto"
                               onClick={() => handleSupportRequest(problema.title, problema.description)}
                             >
-                              <div>
-                                <div className="font-bold">{problema.title}</div>
+                              <div className="font-bold">{problema.title}</div>
                                 <div className="text-sm text-gray-500">{problema.description}</div>
-                              </div>
                             </Button>
                           ))}
                           <Button 
@@ -186,10 +172,8 @@ const ActiveLoads: React.FC<ActiveLoadsProps> = ({ cargas, currentPage, setCurre
                               cpf: row.cpf || 'Não informado'
                             })}
                           >
-                            <div>
-                              <div className="font-bold">Outro Problema</div>
+                            <div className="font-bold">Outro Problema</div>
                               <div className="text-sm text-gray-500">Problemas não listados acima</div>
-                            </div>
                           </Button>
                         </div>
                       </DialogContent>

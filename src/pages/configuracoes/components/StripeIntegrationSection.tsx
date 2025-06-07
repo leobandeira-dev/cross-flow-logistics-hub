@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { CreditCard, Info, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-const StripeIntegrationSection: React.FC = () => {
+export const StripeIntegrationSection: React.FC = () => {
   const { toast } = useToast();
   const [stripeApiKey, setStripeApiKey] = useState('');
   const [testMode, setTestMode] = useState(true);

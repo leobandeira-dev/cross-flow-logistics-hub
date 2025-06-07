@@ -1,7 +1,6 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import MainLayout from '@/components/layout/MainLayout';
 import { SubscriptionCard } from '@/components/subscription/SubscriptionCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -41,10 +40,8 @@ const SubscriptionPage: React.FC = () => {
 
   if (authLoading) {
     return (
-      <MainLayout title="Carregando...">
-        <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
       </MainLayout>
     );
   }
@@ -86,8 +83,7 @@ const SubscriptionPage: React.FC = () => {
             Você pode cancelar a qualquer momento através do portal de gerenciamento.
           </p>
         </div>
-      </div>
-    </MainLayout>
+    </div>
   );
 };
 

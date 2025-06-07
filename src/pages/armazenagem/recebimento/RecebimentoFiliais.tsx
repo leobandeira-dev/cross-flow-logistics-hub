@@ -1,6 +1,4 @@
-
 import React, { useState } from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -115,7 +113,6 @@ const RecebimentoFiliais: React.FC = () => {
   };
 
   const confirmReceberTransferencia = () => {
-    // Atualiza o status da transferência para "completed" (concluído)
     setTransferencias(prev => 
       prev.map(t => 
         t.id === selectedTransferencia.id 
@@ -124,7 +121,6 @@ const RecebimentoFiliais: React.FC = () => {
       )
     );
 
-    // Notifica o usuário
     toast({
       title: "Transferência recebida",
       description: `A transferência ${selectedTransferencia.id} foi recebida com sucesso. Status atualizado para "Na filial de destino".`,
@@ -132,7 +128,7 @@ const RecebimentoFiliais: React.FC = () => {
   };
 
   return (
-    <MainLayout title="Recebimento Entre Filiais">
+    <div>
       <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Recebimento Entre Filiais</h2>
         <p className="text-gray-600">Gerencie transferências e recebimentos entre filiais da empresa</p>
@@ -259,32 +255,22 @@ const RecebimentoFiliais: React.FC = () => {
                       const status = statusMap[row.status];
                       return <StatusBadge status={status.type} text={status.text} />;
                     }
-                  },
-                  {
-                    header: 'Ações',
-                    accessor: 'actions',
-                    cell: () => (
-                      <Button variant="outline" size="sm">
-                        Ver Detalhes
-                      </Button>
-                    )
                   }
                 ]}
-                data={transferencias}
+                data={transferencias.filter(t => t.status === 'completed')}
               />
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Modal para receber transferência */}
-      <ReceberTransferenciaModal 
+      <ReceberTransferenciaModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         transferencia={selectedTransferencia}
         onReceber={confirmReceberTransferencia}
       />
-    </MainLayout>
+    </div>
   );
 };
 

@@ -9,7 +9,6 @@ const MapLoading: React.FC = () => {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="mt-2 text-sm text-muted-foreground">Carregando mapa...</span>
       </div>
-    </div>
   );
 };
 

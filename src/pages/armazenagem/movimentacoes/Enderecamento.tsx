@@ -1,6 +1,5 @@
 
 import React from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useEnderecamentoVolumes } from '@/hooks/useEnderecamentoVolumes';
 import PrintLayoutModal from '@/components/carregamento/enderecamento/PrintLayoutModal';
@@ -41,8 +40,7 @@ const Enderecamento: React.FC = () => {
   } = useEnderecamentoVolumes();
 
   return (
-    <MainLayout title="Endereçamento de Volumes">
-      <div className="mb-6">
+    <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Endereçamento de Volumes</h2>
         <p className="text-gray-600">Defina a localização dos volumes no armazém</p>
       </div>
@@ -93,7 +91,6 @@ const Enderecamento: React.FC = () => {
                 handlePrintClick={handlePrintClick}
               />
             </div>
-          </div>
         </TabsContent>
         
         <TabsContent value="consultar">
@@ -128,7 +125,7 @@ const Enderecamento: React.FC = () => {
         title="Confirmar endereçamento"
         description={`Deseja endereçar ${selectedVolumes.length} volume(s) para o endereço ${selectedEndereco}?`}
       />
-    </MainLayout>
+    </div>
   );
 };
 

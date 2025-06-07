@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NotaFiscalVolume } from '../utils/volumes/types';
 import { formatarNumero } from '../utils/volumes/formatters';
@@ -153,4 +152,4 @@ const NotasFiscaisManager: React.FC<NotasFiscaisManagerProps> = ({
   );
 };
 
-export default NotasFiscaisManager;
+export default NotasFiscaisManager; 

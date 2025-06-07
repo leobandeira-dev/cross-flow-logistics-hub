@@ -69,7 +69,6 @@ const CabecalhoTotais: React.FC<CabecalhoTotaisProps> = ({
             
             <HelpInfoBox />
           </div>
-        </div>
       </CardContent>
     </Card>
   );

@@ -169,20 +169,17 @@ export const ChamadoDetalhes = ({ chamadoId, onEdit, onBack }: ChamadoDetalhesPr
                       <p className="text-sm text-muted-foreground">Cliente</p>
                       <p>{chamado.cliente}</p>
                     </div>
-                  </div>
                   <div className="flex items-center gap-2">
                     <Tag className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm text-muted-foreground">Categoria</p>
                       <div>{getCategoriaBadge(chamado.categoria)}</div>
-                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm text-muted-foreground">Prioridade</p>
                       <div>{getPrioridadeBadge(chamado.prioridade)}</div>
-                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
@@ -190,28 +187,24 @@ export const ChamadoDetalhes = ({ chamadoId, onEdit, onBack }: ChamadoDetalhesPr
                       <p className="text-sm text-muted-foreground">Responsável</p>
                       <p>{chamado.responsavel || 'Não atribuído'}</p>
                     </div>
-                  </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm text-muted-foreground">Aberto em</p>
                       <p>{chamado.dataAbertura}</p>
                     </div>
-                  </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm text-muted-foreground">Atualizado em</p>
                       <p>{chamado.ultimaAtualizacao}</p>
                     </div>
-                  </div>
                 </div>
                 <div className="flex justify-end">
                   <Button variant="outline" onClick={() => onEdit(chamadoId)}>
                     Editar Chamado
                   </Button>
                 </div>
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -254,7 +247,6 @@ export const ChamadoDetalhes = ({ chamadoId, onEdit, onBack }: ChamadoDetalhesPr
                     Transferir Chamado
                   </Button>
                 </div>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -285,7 +277,6 @@ export const ChamadoDetalhes = ({ chamadoId, onEdit, onBack }: ChamadoDetalhesPr
                       <p className="font-medium">{mensagem.usuario}</p>
                       <p className="text-xs opacity-70">{mensagem.usuarioEmail}</p>
                     </div>
-                  </div>
                   <p className="text-xs">{mensagem.data}</p>
                 </div>
                 <div className="ml-10">
@@ -299,10 +290,8 @@ export const ChamadoDetalhes = ({ chamadoId, onEdit, onBack }: ChamadoDetalhesPr
                           Visualizar
                         </Button>
                       </div>
-                    </div>
                   )}
                 </div>
-              </div>
             ))}
             
             <div className="mt-6 space-y-4">
@@ -321,7 +310,6 @@ export const ChamadoDetalhes = ({ chamadoId, onEdit, onBack }: ChamadoDetalhesPr
                   <Send className="h-4 w-4 mr-2" /> Enviar Resposta
                 </Button>
               </div>
-            </div>
           </div>
         </CardContent>
       </Card>

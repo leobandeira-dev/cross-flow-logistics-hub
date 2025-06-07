@@ -128,7 +128,6 @@ const PrintLayoutModal: React.FC<PrintLayoutModalProps> = ({
                 Enviar
               </Button>
             </div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>

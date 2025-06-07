@@ -169,7 +169,6 @@ const ImportarXMLEmLote: React.FC<ImportarXMLEmLoteProps> = ({ onBatchImport, is
                   </div>
                 ))}
               </div>
-            </div>
           )}
 
           {/* Common fields section */}
@@ -197,7 +196,6 @@ const ImportarXMLEmLote: React.FC<ImportarXMLEmLoteProps> = ({ onBatchImport, is
                 <Input type="datetime-local" />
               </FormItem>
             </div>
-          </div>
 
           {/* Action buttons */}
           <div className="flex justify-end mt-4">
@@ -217,7 +215,6 @@ const ImportarXMLEmLote: React.FC<ImportarXMLEmLoteProps> = ({ onBatchImport, is
               )}
             </Button>
           </div>
-        </div>
       </CardContent>
     </Card>
   );

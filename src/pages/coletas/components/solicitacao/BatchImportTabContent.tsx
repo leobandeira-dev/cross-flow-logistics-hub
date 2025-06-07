@@ -44,7 +44,6 @@ const BatchImportTabContent: React.FC<BatchImportTabContentProps> = ({ isLoading
           <li>O sistema extrairá automaticamente dados do remetente e destinatário</li>
         </ul>
       </div>
-    </div>
   );
 };
 

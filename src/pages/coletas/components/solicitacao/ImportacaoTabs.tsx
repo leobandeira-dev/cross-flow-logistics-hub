@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import XmlImportForm from '../importacao/XmlImportForm';
@@ -97,4 +96,4 @@ const ImportacaoTabs: React.FC<ImportacaoTabsProps> = ({
   );
 };
 
-export default ImportacaoTabs;
+export default ImportacaoTabs; 

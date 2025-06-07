@@ -1,6 +1,5 @@
 
 import React, { useRef, useState } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import {
   Card,
   CardContent,
@@ -84,8 +83,7 @@ const OcorrenciasReport = () => {
   };
 
   return (
-    <MainLayout title="Relatório de Ocorrências por Tipo">
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center relative w-full sm:w-auto">
             <Search className="h-4 w-4 absolute left-3 text-muted-foreground" />
@@ -115,7 +113,6 @@ const OcorrenciasReport = () => {
               data={[...tiposOcorrencia, ...statusOcorrencia, ...ocorrenciasMensais]}
             />
           </div>
-        </div>
 
         <div ref={reportRef}>
           <Tabs defaultValue="resumo">
@@ -306,7 +303,6 @@ const OcorrenciasReport = () => {
                       <div>Tipo de Ocorrência</div>
                       <div>Principais Causas</div>
                       <div>Ações Corretivas</div>
-                    </div>
                     {[
                       { 
                         tipo: 'Atraso na entrega', 
@@ -333,7 +329,6 @@ const OcorrenciasReport = () => {
                         <div className="font-medium">{item.tipo}</div>
                         <div>{item.causas}</div>
                         <div>{item.acoes}</div>
-                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -390,7 +385,6 @@ const OcorrenciasReport = () => {
                           <li>Redução de ocorrências reincidentes após implementação de ações corretivas</li>
                         </ul>
                       </div>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -411,7 +405,6 @@ const OcorrenciasReport = () => {
                       <div>Tipo</div>
                       <div>Status</div>
                       <div>Responsável</div>
-                    </div>
                     {[
                       { id: 'OC-2345', data: '18/05/2025', cliente: 'Empresa A', tipo: 'Atraso na entrega', status: 'Resolvido', responsavel: 'João Silva' },
                       { id: 'OC-2344', data: '17/05/2025', cliente: 'Empresa B', tipo: 'Produto danificado', status: 'Em análise', responsavel: 'Maria Santos' },
@@ -435,7 +428,6 @@ const OcorrenciasReport = () => {
                           </span>
                         </div>
                         <div>{item.responsavel}</div>
-                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -466,7 +458,6 @@ const OcorrenciasReport = () => {
                               'bg-red-500'
                             }`}></span>
                           </div>
-                        </div>
                       </div>
                     ))}
                   </div>
@@ -475,8 +466,7 @@ const OcorrenciasReport = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </MainLayout>
+    </div>
   );
 };
 

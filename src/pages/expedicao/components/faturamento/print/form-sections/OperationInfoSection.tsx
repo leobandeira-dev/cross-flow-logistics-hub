@@ -70,7 +70,6 @@ const OperationInfoSection: React.FC<OperationInfoSectionProps> = ({ form }) => 
           )}
         />
       </div>
-    </div>
   );
 };
 

@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { recebimentoColetaFilterConfig } from './filterConfig';
@@ -31,7 +30,7 @@ const RecebimentoColeta: React.FC = () => {
   };
 
   return (
-    <MainLayout title="Recebimento de Coleta">
+    <div>
       <ColetaHeader onWhatsAppSupport={handleWhatsAppSupport} />
       
       <div className="mb-4">
@@ -66,7 +65,7 @@ const RecebimentoColeta: React.FC = () => {
           />
         </TabsContent>
       </Tabs>
-    </MainLayout>
+    </div>
   );
 };
 

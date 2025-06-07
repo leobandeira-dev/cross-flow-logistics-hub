@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useHistoricoFaturas } from '../../hooks/useHistoricoFaturas';
 import { 
@@ -19,7 +18,7 @@ const HistoricoFaturasTab: React.FC = () => {
   const { faturas, loading, handleViewFatura, handlePrintFatura } = useHistoricoFaturas();
 
   return (
-    <div>
+    <>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Histórico de faturas</h2>
       </div>
@@ -101,7 +100,7 @@ const HistoricoFaturasTab: React.FC = () => {
           </TableBody>
         </Table>
       </div>
-    </div>
+    </>
   );
 };
 

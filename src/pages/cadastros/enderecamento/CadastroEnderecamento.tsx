@@ -1,6 +1,4 @@
-
 import React from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building, Map, MapPin } from 'lucide-react';
@@ -12,7 +10,7 @@ const CadastroEnderecamento: React.FC = () => {
   const enderecamento = useEnderecamentoCadastro();
   
   return (
-    <MainLayout title="Cadastro de Endereçamento">
+    <div>
       <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Cadastro de Endereçamento</h2>
         <p className="text-gray-600">Gerencie a hierarquia de endereçamento do armazém</p>
@@ -98,7 +96,7 @@ const CadastroEnderecamento: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </MainLayout>
+    </div>
   );
 };
 

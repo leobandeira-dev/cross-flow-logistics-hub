@@ -1,14 +1,12 @@
 
 import React from 'react';
-import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Package, Archive, Box } from 'lucide-react';
 
 const MovimentacoesInternas: React.FC = () => {
   return (
-    <MainLayout title="Movimentações Internas">
-      <div className="mb-6">
+    <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Movimentações Internas</h2>
         <p className="text-gray-600">Gerencie a movimentação interna de mercadorias no armazém</p>
       </div>
@@ -73,7 +71,7 @@ const MovimentacoesInternas: React.FC = () => {
           </p>
         </CardContent>
       </Card>
-    </MainLayout>
+    </div>
   );
 };
 

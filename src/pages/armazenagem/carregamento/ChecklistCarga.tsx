@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,8 +77,7 @@ const ChecklistCarga: React.FC = () => {
   const isReadyToComplete = allItemsChecked && allPhotosUploaded;
 
   return (
-    <MainLayout title="Checklist de Carregamento">
-      <div className="mb-6">
+    <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Checklist com Registro Fotográfico</h2>
         <p className="text-gray-600">Realize a inspeção final e documentação fotográfica da carga</p>
       </div>
@@ -142,7 +140,6 @@ const ChecklistCarga: React.FC = () => {
                     <p className="text-sm text-gray-500">Total de Volumes</p>
                     <p className="font-medium">{orderDetails.volumes}</p>
                   </div>
-                </div>
                 
                 <div className="mt-4">
                   <p className="text-sm text-gray-500">Status</p>
@@ -219,7 +216,6 @@ const ChecklistCarga: React.FC = () => {
                               <FileText size={30} className="mx-auto text-green-600" />
                               <p className="text-sm text-green-600 mt-1">Foto carregada</p>
                             </div>
-                          </div>
                         ) : (
                           <Button 
                             variant="outline" 
@@ -258,7 +254,6 @@ const ChecklistCarga: React.FC = () => {
           </>
         )}
       </div>
-    </MainLayout>
   );
 };
 

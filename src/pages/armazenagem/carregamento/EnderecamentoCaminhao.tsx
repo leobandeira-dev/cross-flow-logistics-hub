@@ -1,5 +1,4 @@
 import React from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 // Hooks
@@ -30,8 +29,7 @@ const EnderecamentoCaminhao: React.FC = () => {
   } = useEnderecamento();
   
   return (
-    <MainLayout title="Endereçamento no Caminhão">
-      <div className="mb-6">
+    <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Endereçamento no Caminhão</h2>
         <p className="text-gray-600">Organize o layout e posicionamento da carga no veículo</p>
       </div>
@@ -74,7 +72,7 @@ const EnderecamentoCaminhao: React.FC = () => {
           console.log('Confirmação realizada');
         }}
       />
-    </MainLayout>
+    </div>
   );
 };
 

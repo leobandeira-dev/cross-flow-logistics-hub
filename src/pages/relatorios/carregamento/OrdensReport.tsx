@@ -1,6 +1,5 @@
 
 import React, { useRef, useState } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import {
   Card,
   CardContent,
@@ -75,8 +74,7 @@ const OrdensReport = () => {
   };
 
   return (
-    <MainLayout title="Relatório de Ordens de Carregamento">
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center relative w-full sm:w-auto">
             <Search className="h-4 w-4 absolute left-3 text-muted-foreground" />
@@ -106,7 +104,6 @@ const OrdensReport = () => {
               data={[...weeklyData, ...statusData]}
             />
           </div>
-        </div>
 
         <div ref={reportRef}>
           <Tabs defaultValue="resumo">
@@ -203,7 +200,6 @@ const OrdensReport = () => {
                             {stat.change}
                           </span>
                         </div>
-                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -290,7 +286,6 @@ const OrdensReport = () => {
                       <div>Veículo</div>
                       <div>Status</div>
                       <div>Volumes</div>
-                    </div>
                     {[
                       { ordem: 'OC-7823', data: '18/05/2025', cliente: 'Empresa A', veiculo: 'Carreta', status: 'Finalizada', volumes: 32 },
                       { ordem: 'OC-7822', data: '18/05/2025', cliente: 'Empresa B', veiculo: 'VUC', status: 'Finalizada', volumes: 18 },
@@ -315,7 +310,6 @@ const OrdensReport = () => {
                           </span>
                         </div>
                         <div>{item.volumes}</div>
-                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -323,8 +317,7 @@ const OrdensReport = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </MainLayout>
+    </div>
   );
 };
 

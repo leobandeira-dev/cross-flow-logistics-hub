@@ -85,7 +85,6 @@ export const LoginForm = ({ onForgotPassword, setError, setSuccess }: LoginFormP
             Esqueceu a senha?
           </Button>
         </div>
-      </div>
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? 'Entrando...' : 'Entrar'}
       </Button>

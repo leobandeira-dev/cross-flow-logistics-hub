@@ -238,7 +238,6 @@ const ImportarOrdemCarregamento: React.FC<ImportarOrdemCarregamentoProps> = ({
               </div>
             )}
           </div>
-        </div>
       </CardContent>
     </Card>
   );

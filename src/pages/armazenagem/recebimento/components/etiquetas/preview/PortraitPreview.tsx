@@ -24,34 +24,29 @@ const PortraitPreview: React.FC<PortraitPreviewProps> = ({ tipoEtiqueta, isQuimi
       <div className="bg-yellow-100 border-2 border-yellow-500 rounded p-2 text-center">
         <div className="text-xs text-gray-600">NOTA FISCAL</div>
         <div className="text-lg font-black">123456</div>
-      </div>
       
       {/* Cidade - Destaque AUMENTADO */}
       <div className="bg-green-100 border-2 border-green-500 rounded p-2 text-center">
         <div className="text-xs text-gray-600">CIDADE DESTINO</div>
         <div className="text-base font-black">SÃO PAULO</div>
         <div className="text-sm font-bold">SP</div>
-      </div>
       
       {/* Remetente - Destaque AUMENTADO */}
       <div className="bg-blue-100 border-2 border-blue-500 rounded p-2">
         <div className="text-xs text-gray-600">REMETENTE</div>
         <div className="text-sm font-black leading-tight">EMPRESA XYZ</div>
-      </div>
       
       {/* Quantidade de Volumes - DESTAQUE AUMENTADO (para etiqueta mãe) */}
       {tipoEtiqueta === 'mae' && (
         <div className="bg-purple-100 border-2 border-purple-500 rounded p-2 text-center">
           <div className="text-xs text-gray-600">QTD VOLUMES</div>
           <div className="text-lg font-black">25</div>
-        </div>
       )}
       
       {/* Destinatário - Compactado */}
       <div className="bg-purple-100 border border-purple-400 rounded p-1">
         <div className="text-xs text-gray-600">DESTINATÁRIO</div>
         <div className="text-xs font-bold leading-tight">CLIENTE ABC</div>
-      </div>
 
       {isQuimico && (
         <div className="absolute top-2 right-2">
@@ -66,10 +61,8 @@ const PortraitPreview: React.FC<PortraitPreviewProps> = ({ tipoEtiqueta, isQuimi
             <span className="text-xs font-bold text-red-600">QUÍMICO</span>
           </div>
           <div className="text-xs text-center">ONU:1090</div>
-        </div>
       )}
     </div>
-  </div>
 );
 
 export default PortraitPreview;

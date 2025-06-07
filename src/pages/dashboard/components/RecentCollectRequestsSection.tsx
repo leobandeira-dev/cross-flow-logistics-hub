@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import DataTable from '../../../components/common/DataTable';

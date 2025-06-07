@@ -90,7 +90,6 @@ const LogoUpload: React.FC<LogoUploadProps> = ({
                 className="max-h-24 max-w-48 object-contain"
               />
             </div>
-          </div>
         )}
 
         {/* Controles de upload */}

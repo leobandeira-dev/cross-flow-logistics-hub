@@ -15,8 +15,7 @@ const EnhancedPreview: React.FC<EnhancedPreviewProps> = ({ tipoEtiqueta, isQuimi
         {tipoEtiqueta === 'mae' ? (
           <p className="font-bold text-xl text-red-600">ETIQUETA MÃE</p>
         ) : isQuimico ? (
-          <div>
-            <div className="absolute top-2 right-2">
+          <div className="absolute top-2 right-2">
               <TestTube size={28} className="text-red-500" />
             </div>
             <div className="flex items-center justify-center">
@@ -27,13 +26,11 @@ const EnhancedPreview: React.FC<EnhancedPreviewProps> = ({ tipoEtiqueta, isQuimi
               <span className="font-bold">ONU:</span> 1090 <br />
               <span className="font-bold">RISCO:</span> 33
             </div>
-          </div>
         ) : (
           <p className="font-bold text-xl text-blue-600">ETIQUETA DE VOLUME</p>
         )}
       </div>
-      <div>
-        <div className="font-bold text-lg">Alta Legibilidade</div>
+      <div className="font-bold text-lg">Alta Legibilidade</div>
         <div className="text-sm mt-1">Texto Maior</div>
         <div className="mt-3 bg-yellow-200 p-2 border-2 border-yellow-400 rounded text-sm">
           <span className="font-bold">NF:</span> <span className="text-lg font-bold">123456</span>
@@ -41,9 +38,7 @@ const EnhancedPreview: React.FC<EnhancedPreviewProps> = ({ tipoEtiqueta, isQuimi
         <div className="mt-2 bg-green-200 p-2 border-2 border-green-400 rounded text-sm">
           <span className="font-bold">Destino:</span> <span className="text-lg font-bold">SÃO PAULO</span>
         </div>
-      </div>
     </div>
-  </div>
 );
 
 export default EnhancedPreview;

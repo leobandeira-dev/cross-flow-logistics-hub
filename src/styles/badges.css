@@ -1,0 +1,217 @@
+/* Badge Base */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+/* Badge Sizes */
+.badge-sm {
+  @apply px-2 py-0.5 text-xs;
+}
+
+.badge-md {
+  @apply px-2.5 py-0.5 text-sm;
+}
+
+.badge-lg {
+  @apply px-3 py-1 text-base;
+}
+
+/* Badge Variants */
+.badge-primary {
+  @apply bg-primary-100 text-primary-800;
+}
+
+.badge-secondary {
+  @apply bg-secondary-100 text-secondary-800;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.badge-error {
+  @apply bg-red-100 text-red-800;
+}
+
+.badge-info {
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* Badge with Icon */
+.badge-with-icon {
+  @apply inline-flex items-center gap-1;
+}
+
+.badge-with-icon svg {
+  @apply w-3 h-3;
+}
+
+/* Badge with Dot */
+.badge-with-dot {
+  @apply inline-flex items-center;
+}
+
+.badge-with-dot::before {
+  content: "";
+  @apply w-1.5 h-1.5 rounded-full mr-1.5;
+}
+
+.badge-with-dot-primary::before {
+  @apply bg-primary-500;
+}
+
+.badge-with-dot-secondary::before {
+  @apply bg-secondary-500;
+}
+
+.badge-with-dot-success::before {
+  @apply bg-green-500;
+}
+
+.badge-with-dot-warning::before {
+  @apply bg-yellow-500;
+}
+
+.badge-with-dot-error::before {
+  @apply bg-red-500;
+}
+
+.badge-with-dot-info::before {
+  @apply bg-blue-500;
+}
+
+/* Badge with Border */
+.badge-outlined {
+  @apply bg-transparent border;
+}
+
+.badge-outlined-primary {
+  @apply border-primary-500 text-primary-700;
+}
+
+.badge-outlined-secondary {
+  @apply border-secondary-500 text-secondary-700;
+}
+
+.badge-outlined-success {
+  @apply border-green-500 text-green-700;
+}
+
+.badge-outlined-warning {
+  @apply border-yellow-500 text-yellow-700;
+}
+
+.badge-outlined-error {
+  @apply border-red-500 text-red-700;
+}
+
+.badge-outlined-info {
+  @apply border-blue-500 text-blue-700;
+}
+
+/* Badge with Remove Button */
+.badge-removable {
+  @apply pr-1.5;
+}
+
+.badge-remove-button {
+  @apply ml-1 -mr-1 h-4 w-4 rounded-full inline-flex items-center justify-center hover:bg-black/10 focus:outline-none;
+}
+
+.badge-remove-button svg {
+  @apply w-3 h-3;
+}
+
+/* Badge Status */
+.badge-status {
+  @apply inline-flex items-center;
+}
+
+.badge-status-active {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-status-inactive {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.badge-status-pending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.badge-status-blocked {
+  @apply bg-red-100 text-red-800;
+}
+
+/* Badge Counter */
+.badge-counter {
+  @apply absolute -top-1 -right-1 h-4 min-w-[1rem] flex items-center justify-center rounded-full text-xs font-medium text-white;
+}
+
+.badge-counter-primary {
+  @apply bg-primary-500;
+}
+
+.badge-counter-secondary {
+  @apply bg-secondary-500;
+}
+
+.badge-counter-success {
+  @apply bg-green-500;
+}
+
+.badge-counter-warning {
+  @apply bg-yellow-500;
+}
+
+.badge-counter-error {
+  @apply bg-red-500;
+}
+
+.badge-counter-info {
+  @apply bg-blue-500;
+}
+
+/* Badge Group */
+.badge-group {
+  @apply inline-flex flex-wrap gap-1;
+}
+
+/* Badge Placement */
+.badge-top-right {
+  @apply absolute top-0 right-0 -mt-1 -mr-1;
+}
+
+.badge-top-left {
+  @apply absolute top-0 left-0 -mt-1 -ml-1;
+}
+
+.badge-bottom-right {
+  @apply absolute bottom-0 right-0 -mb-1 -mr-1;
+}
+
+.badge-bottom-left {
+  @apply absolute bottom-0 left-0 -mb-1 -ml-1;
+}
+
+/* Badge Animation */
+.badge-pulse {
+  @apply animate-pulse;
+}
+
+.badge-bounce {
+  @apply animate-bounce;
+}
+
+/* Badge Custom Colors */
+.badge-custom {
+  @apply bg-opacity-20;
+}
+
+.badge-custom-text {
+  @apply font-medium;
+} 

@@ -79,7 +79,6 @@ const TruckLayoutGrid: React.FC<TruckLayoutGridProps> = ({
                 {positionedVolumes} / {totalVolumes} volumes posicionados
               </span>
             </div>
-          </div>
           
           <div className="mb-2 overflow-x-auto">
             {/* Cabeçalho */}
@@ -88,7 +87,6 @@ const TruckLayoutGrid: React.FC<TruckLayoutGridProps> = ({
               <div className="flex-1">Esquerda</div>
               <div className="flex-1">Centro</div>
               <div className="flex-1">Direita</div>
-            </div>
 
             {/* Layout */}
             <div className="max-h-[500px] overflow-y-auto">
@@ -111,7 +109,6 @@ const TruckLayoutGrid: React.FC<TruckLayoutGridProps> = ({
                 </div>
               ))}
             </div>
-          </div>
         </div>
         
         <div className="mt-4 flex justify-end gap-2">

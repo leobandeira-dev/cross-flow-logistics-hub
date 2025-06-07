@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Ocorrencia } from "../types/ocorrencias.types";
 import StatusBadge from "../components/common/StatusBadge";
@@ -13,25 +12,34 @@ export const getTipoOcorrenciaText = (tipo: string): string => {
   return tipoMap[tipo] || tipo;
 };
 
-export const getStatusBadge = (status: string) => {
+export const getStatusBadge = (status?: string) => {
+  if (!status) {
+    return <StatusBadge status="pending" text="Não definido" />;
+  }
+
   const statusMap: Record<string, { type: 'success' | 'warning' | 'error' | 'info' | 'pending'; text: string }> = {
     'open': { type: 'error', text: 'Aberto' },
     'in_progress': { type: 'warning', text: 'Em Andamento' },
     'resolved': { type: 'info', text: 'Resolvido' },
     'closed': { type: 'success', text: 'Fechado' },
   };
-  const statusData = statusMap[status] || { type: 'pending', text: status };
+
+  const statusData = statusMap[status.toLowerCase()] || { type: 'pending', text: status };
   return <StatusBadge status={statusData.type} text={statusData.text} />;
 };
 
-export const getPrioridadeBadge = (prioridade: string) => {
+export const getPrioridadeBadge = (prioridade?: string) => {
+  if (!prioridade) {
+    return <StatusBadge status="pending" text="Não definida" />;
+  }
+
   const prioridadeMap: Record<string, { type: 'success' | 'warning' | 'error' | 'info' | 'pending'; text: string }> = {
     'high': { type: 'error', text: 'Alta' },
     'medium': { type: 'warning', text: 'Média' },
     'low': { type: 'info', text: 'Baixa' },
   };
-  // Add a fallback in case prioridade is not one of the keys in prioridadeMap
-  const prioridadeData = prioridadeMap[prioridade] || { type: 'pending', text: prioridade };
+
+  const prioridadeData = prioridadeMap[prioridade.toLowerCase()] || { type: 'pending', text: prioridade };
   return <StatusBadge status={prioridadeData.type} text={prioridadeData.text} />;
 };
 

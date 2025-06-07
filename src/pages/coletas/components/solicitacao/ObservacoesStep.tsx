@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
@@ -92,12 +91,10 @@ const ObservacoesStep: React.FC<ObservacoesStepProps> = ({ formData, handleInput
               </table>
             </div>
           </div>
-          
-          {/* Removed redundant remetente/destinatario section from here */}
         </CardContent>
       </Card>
     </div>
   );
 };
 
-export default ObservacoesStep;
+export default ObservacoesStep; 

@@ -55,7 +55,6 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             maxLength={2}
           />
         </div>
-      </div>
       
       <div className="space-y-2">
         <Label htmlFor={`${id}-endereco`}>Endereço {label}</Label>

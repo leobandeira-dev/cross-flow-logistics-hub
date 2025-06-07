@@ -17,7 +17,6 @@ const EmpresaContactTab: React.FC<EmpresaContactProps> = ({ empresa }) => {
           <h4 className="text-sm font-medium text-gray-500">Telefone</h4>
           <p>{empresa.telefone || 'Não informado'}</p>
         </div>
-      </div>
     </div>
   );
 };

@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import MainLayout from '../../components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Map, FileText } from 'lucide-react';
 import ActiveLoads from './components/ActiveLoads';
@@ -12,13 +11,11 @@ const CargasMotoristas = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   return (
-    <MainLayout title="Cargas dos Motoristas">
-      <div className="mb-6">
+    <div className="mb-6">
         <div>
           <h2 className="text-xl font-heading">Gestão de Cargas</h2>
           <p className="text-gray-500">Acompanhe as cargas atribuídas aos motoristas</p>
         </div>
-      </div>
       
       <Tabs defaultValue="ativas" className="w-full mb-6" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -46,7 +43,7 @@ const CargasMotoristas = () => {
           />
         </TabsContent>
       </Tabs>
-    </MainLayout>
+    </div>
   );
 };
 

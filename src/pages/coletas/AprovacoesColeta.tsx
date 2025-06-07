@@ -1,6 +1,5 @@
 
 import React from 'react';
-import MainLayout from '../../components/layout/MainLayout';
 import DetalhesAprovacaoDialog from './components/DetalhesAprovacaoDialog';
 import AprovacoesHeader from './components/aprovacao/AprovacoesHeader';
 import AprovacoesContent from './components/aprovacao/AprovacoesContent';
@@ -29,7 +28,7 @@ const AprovacoesColeta = () => {
   } = useAprovacoes();
 
   return (
-    <MainLayout title="Aprovações de Coleta">
+    <div>
       <AprovacoesHeader pendingCount={solicitacoesPendentes.length} />
       
       <AprovacoesContent 
@@ -54,7 +53,7 @@ const AprovacoesColeta = () => {
       />
       
       <Toaster />
-    </MainLayout>
+    </div>
   );
 };
 

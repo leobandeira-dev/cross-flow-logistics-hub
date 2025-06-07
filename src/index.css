@@ -1,125 +1,180 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'Uni Sans Heavy CAPS';
-  src: url('/fonts/uni-sans-heavy-caps.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
+@import './styles/forms.css';
+@import './styles/tables.css';
+@import './styles/buttons.css';
+@import './styles/cards.css';
+@import './styles/badges.css';
 
-@font-face {
-  font-family: 'Uni Sans Regular';
-  src: url('/fonts/uni-sans-regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 199 100% 43%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 215 23% 21%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 199 100% 43%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 215 23% 21%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 199 100% 43%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 23% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 215 23% 25%;
-    --sidebar-ring: 199 100% 43%;
-  }
-
-  * {
-    @apply border-border;
-  }
-
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading;
+    @apply font-heading font-semibold text-gray-900;
   }
 }
 
 @layer components {
-  .card-dashboard {
-    @apply rounded-lg border bg-card p-5 shadow hover:shadow-md transition-all;
+  /* Layout utilities */
+  .main-content {
+    @apply flex-1 p-6 overflow-y-auto bg-gray-50;
   }
 
-  .btn-primary {
-    @apply bg-cross-blue text-white hover:bg-cross-blueDark px-4 py-2 rounded-md font-medium transition-colors;
+  .main-content-with-sidebar {
+    @apply ml-64 transition-all duration-300;
   }
 
-  .btn-secondary {
-    @apply bg-cross-gray text-white hover:bg-cross-grayDark px-4 py-2 rounded-md font-medium transition-colors;
+  .main-content-with-sidebar-collapsed {
+    @apply ml-20 transition-all duration-300;
   }
 
-  .status-badge {
-    @apply px-2 py-1 rounded-full text-xs font-medium;
+  /* Typography utilities */
+  .heading-1 {
+    @apply text-3xl font-semibold text-gray-900;
   }
 
-  .status-badge-success {
-    @apply status-badge bg-green-100 text-green-800;
+  .heading-2 {
+    @apply text-2xl font-semibold text-gray-900;
   }
 
-  .status-badge-warning {
-    @apply status-badge bg-amber-100 text-amber-800;
+  .heading-3 {
+    @apply text-xl font-semibold text-gray-900;
   }
 
-  .status-badge-error {
-    @apply status-badge bg-red-100 text-red-800;
+  .heading-4 {
+    @apply text-lg font-semibold text-gray-900;
   }
 
-  .status-badge-info {
-    @apply status-badge bg-blue-100 text-blue-800;
+  .text-body {
+    @apply text-base text-gray-600;
   }
 
-  .data-table {
-    @apply w-full border-collapse;
+  .text-small {
+    @apply text-sm text-gray-500;
   }
 
-  .data-table th {
-    @apply bg-gray-50 text-left px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider;
+  /* Page Header */
+  .page-header {
+    @apply flex items-center justify-between mb-6;
   }
 
-  .data-table td {
-    @apply border-t px-4 py-2;
+  .page-title {
+    @apply text-2xl font-semibold text-gray-900;
   }
 
-  .data-table tr:hover {
-    @apply bg-gray-50;
+  .page-subtitle {
+    @apply mt-1 text-sm text-gray-500;
+  }
+
+  /* Section Header */
+  .section-header {
+    @apply flex items-center justify-between mb-4;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-gray-900;
+  }
+
+  .section-subtitle {
+    @apply mt-1 text-sm text-gray-500;
+  }
+
+  /* Grid Layout */
+  .grid-cols-auto-fit {
+    @apply grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  /* Dividers */
+  .divider {
+    @apply h-px w-full bg-gray-200 my-6;
+  }
+
+  .divider-vertical {
+    @apply w-px h-full bg-gray-200 mx-6;
+  }
+
+  /* Animation utilities */
+  .fade-in {
+    @apply animate-fade-in;
+  }
+
+  .fade-out {
+    @apply animate-fade-out;
+  }
+
+  .slide-in {
+    @apply animate-slide-in;
+  }
+
+  .slide-out {
+    @apply animate-slide-out;
+  }
+
+  /* Form Layout */
+  .form-section {
+    @apply space-y-6;
+  }
+
+  .form-row {
+    @apply grid gap-4 sm:grid-cols-2;
+  }
+
+  .form-col {
+    @apply space-y-4;
+  }
+
+  /* Data Display */
+  .stat-card {
+    @apply bg-white rounded-lg border border-gray-200 p-6;
+  }
+
+  .stat-value {
+    @apply text-3xl font-semibold text-gray-900;
+  }
+
+  .stat-label {
+    @apply text-sm font-medium text-gray-500;
+  }
+
+  .stat-description {
+    @apply mt-2 text-sm text-gray-600;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors;
+  }
+
+  .nav-link-active {
+    @apply bg-primary-50 text-primary-600;
+  }
+
+  .nav-link-hover {
+    @apply hover:bg-gray-50;
+  }
+
+  /* Breadcrumbs */
+  .breadcrumbs {
+    @apply flex items-center space-x-2 text-sm text-gray-500;
+  }
+
+  .breadcrumb-item {
+    @apply hover:text-gray-900;
+  }
+
+  .breadcrumb-separator {
+    @apply text-gray-300;
+  }
+
+  /* Tooltips */
+  .tooltip {
+    @apply absolute z-10 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded shadow-sm;
   }
 }

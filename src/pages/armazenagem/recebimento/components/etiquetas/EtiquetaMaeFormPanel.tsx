@@ -101,7 +101,6 @@ const EtiquetaMaeFormPanel: React.FC<EtiquetaMaeFormPanelProps> = ({
               </SelectContent>
             </Select>
           </div>
-        </div>
         
         <Button
           type="button"

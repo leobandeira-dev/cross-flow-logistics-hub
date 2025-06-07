@@ -40,7 +40,6 @@ const EmailSendForm: React.FC<EmailSendFormProps> = ({
           Enviar
         </Button>
       </div>
-    </div>
   );
 };
 

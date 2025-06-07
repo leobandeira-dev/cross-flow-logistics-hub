@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -16,7 +15,7 @@ interface LinkDocumentDialogProps {
   onClose: () => void;
 }
 
-const LinkDocumentDialog: React.FC<LinkDocumentDialogProps> = ({ ocorrencia, documentosMock, onClose }) => {
+export const LinkDocumentDialog: React.FC<LinkDocumentDialogProps> = ({ ocorrencia, documentosMock, onClose }) => {
   const [selectedDocumentType, setSelectedDocumentType] = useState('nota');
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [selectedNfs, setSelectedNfs] = useState<string[]>([]);
@@ -191,7 +190,7 @@ const LinkDocumentDialog: React.FC<LinkDocumentDialogProps> = ({ ocorrencia, doc
                       <div className="text-xs text-gray-500">R$ {nf?.valor}</div>
                     </label>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -223,5 +222,3 @@ const LinkDocumentDialog: React.FC<LinkDocumentDialogProps> = ({ ocorrencia, doc
     </DialogContent>
   );
 };
-
-export default LinkDocumentDialog;

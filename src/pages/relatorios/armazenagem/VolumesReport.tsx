@@ -1,6 +1,5 @@
 
 import React, { useRef, useState } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import {
   Card,
   CardContent,
@@ -77,8 +76,7 @@ const VolumesReport = () => {
   };
 
   return (
-    <MainLayout title="Relatório de Volumes por Endereçamento">
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center relative w-full sm:w-auto">
             <Search className="h-4 w-4 absolute left-3 text-muted-foreground" />
@@ -108,7 +106,6 @@ const VolumesReport = () => {
               data={[...ocupacaoData, ...tipoVolumeData]}
             />
           </div>
-        </div>
 
         <div ref={reportRef}>
           <Tabs defaultValue="ocupacao">
@@ -253,7 +250,6 @@ const VolumesReport = () => {
                       <div>Data Entrada</div>
                       <div>Status</div>
                       <div>Nota Fiscal</div>
-                    </div>
                     {[
                       { id: 'VOL-8745', tipo: 'Caixa', endereco: 'A-02-C', data: '18/05/2025', status: 'Armazenado', nf: 'NF-45621' },
                       { id: 'VOL-8744', tipo: 'Palete', endereco: 'B-05-A', data: '18/05/2025', status: 'Armazenado', nf: 'NF-45620' },
@@ -277,7 +273,6 @@ const VolumesReport = () => {
                           </span>
                         </div>
                         <div>{item.nf}</div>
-                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -285,8 +280,7 @@ const VolumesReport = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </MainLayout>
+    </div>
   );
 };
 

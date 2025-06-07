@@ -52,8 +52,7 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
   }
 
   return (
-    <div>
-      <div className="flex justify-between mb-4">
+    <div className="flex justify-between mb-4">
         <h3 className="text-lg font-medium">Permissões</h3>
         <Button 
           onClick={onSave} 

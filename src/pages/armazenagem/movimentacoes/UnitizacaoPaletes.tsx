@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MainLayout from '../../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -113,8 +112,7 @@ const UnitizacaoPaletes: React.FC = () => {
   };
 
   return (
-    <MainLayout title="Unitização de Paletes">
-      <div className="mb-6">
+    <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Unitização de Paletes</h2>
         <p className="text-gray-600">Organize e agrupe volumes em paletes para facilitar o armazenamento e movimentação</p>
       </div>
@@ -178,7 +176,6 @@ const UnitizacaoPaletes: React.FC = () => {
                             )}
                           />
                         </div>
-                      </div>
                       
                       <div className="flex justify-between items-center">
                         <FormLabel>Etiquetas Mãe Disponíveis:</FormLabel>
@@ -286,7 +283,6 @@ const UnitizacaoPaletes: React.FC = () => {
                             </table>
                           )}
                         </div>
-                      </div>
                       
                       <div className="flex justify-between">
                         <Button 
@@ -309,7 +305,6 @@ const UnitizacaoPaletes: React.FC = () => {
                             Salvar Unitização
                           </Button>
                         </div>
-                      </div>
                     </form>
                   </Form>
                 </CardContent>
@@ -352,7 +347,6 @@ const UnitizacaoPaletes: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-          </div>
         </TabsContent>
         
         <TabsContent value="consultar">
@@ -385,7 +379,7 @@ const UnitizacaoPaletes: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </MainLayout>
+    </div>
   );
 };
 

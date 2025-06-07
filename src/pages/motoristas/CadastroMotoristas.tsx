@@ -1,6 +1,4 @@
-
 import React, { useState } from 'react';
-import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../components/common/DataTable';
@@ -11,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Pencil, User, Truck, FileText } from 'lucide-react';
-import StatusBadge from '../../components/common/StatusBadge';
+import { getUserStatusBadge } from '@/utils/userUtils';
+import { getVehicleStatusBadge } from '@/utils/vehicleUtils';
 
 // Mock data
 const motoristas = [
@@ -125,16 +124,24 @@ const CadastroMotoristas = () => {
     // Implementar lógica de filtro
   };
 
+  const getStatusBadge = (status: string) => {
+    return getUserStatusBadge(status);
+  };
+
+  const getVeiculoStatusBadge = (status: string) => {
+    return getVehicleStatusBadge(status);
+  };
+
   return (
-    <MainLayout title="Cadastro de Motoristas e Veículos">
-      <div className="mb-6 flex justify-between items-center">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-heading">Gestão de Cadastros</h2>
           <p className="text-gray-500">Gerencie motoristas e veículos no sistema</p>
         </div>
       </div>
       
-      <Tabs defaultValue="motoristas" className="w-full mb-6" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="motoristas" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="motoristas" className="flex items-center">
             <User className="mr-2 h-4 w-4" /> Motoristas
@@ -265,15 +272,19 @@ const CadastroMotoristas = () => {
                 </div>
                 
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsMotoristaDialogOpen(false)}>Cancelar</Button>
-                  <Button className="bg-cross-blue hover:bg-cross-blueDark">Salvar Motorista</Button>
+                  <Button variant="outline" onClick={() => setIsMotoristaDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button className="bg-cross-blue hover:bg-cross-blueDark">
+                    Cadastrar Motorista
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </div>
           
           <SearchFilter 
-            placeholder="Buscar por nome, CPF ou telefone..."
+            placeholder="Buscar por nome, CPF ou CNH..."
             filters={filters}
             onSearch={handleSearch}
             onFilterChange={handleFilterChange}
@@ -286,41 +297,36 @@ const CadastroMotoristas = () => {
             <CardContent>
               <DataTable
                 columns={[
-                  { header: 'ID', accessor: 'id' },
                   { header: 'Nome', accessor: 'nome' },
                   { header: 'CPF', accessor: 'cpf' },
                   { header: 'Telefone', accessor: 'telefone' },
-                  { header: 'Categoria CNH', accessor: 'cnhCategoria' },
+                  { header: 'CNH', accessor: 'cnhCategoria' },
                   { header: 'Validade CNH', accessor: 'cnhValidade' },
                   { 
                     header: 'Status', 
                     accessor: 'status',
-                    cell: (row) => {
-                      const statusMap: any = {
-                        'active': { type: 'success', text: 'Ativo' },
-                        'inactive': { type: 'error', text: 'Inativo' },
-                      };
-                      const status = statusMap[row.status];
-                      return <StatusBadge status={status.type} text={status.text} />;
-                    }
+                    cell: ({ row }) => getStatusBadge(row.original.status)
                   },
                   { 
                     header: 'Ações', 
                     accessor: '',
                     cell: (row) => (
                       <div className="flex space-x-2 justify-end">
-                        <Button variant="outline" size="sm">
-                          <FileText className="h-4 w-4 mr-1" /> Documentos
+                        <Button 
+                          onClick={() => console.log('Edit:', row.id)}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar
                         </Button>
                         <Button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            console.log('Editar:', row);
-                          }}
-                          variant="outline"
+                          onClick={() => console.log('Documents:', row.id)}
                           size="sm"
+                          variant="outline"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <FileText className="mr-2 h-4 w-4" />
+                          Documentos
                         </Button>
                       </div>
                     )
@@ -332,7 +338,6 @@ const CadastroMotoristas = () => {
                   currentPage: currentPage,
                   onPageChange: setCurrentPage
                 }}
-                onRowClick={(row) => console.log('Row clicked:', row)}
               />
             </CardContent>
           </Card>
@@ -441,8 +446,12 @@ const CadastroMotoristas = () => {
                 </div>
                 
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsVeiculoDialogOpen(false)}>Cancelar</Button>
-                  <Button className="bg-cross-blue hover:bg-cross-blueDark">Salvar Veículo</Button>
+                  <Button variant="outline" onClick={() => setIsVeiculoDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button className="bg-cross-blue hover:bg-cross-blueDark">
+                    Cadastrar Veículo
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -471,15 +480,7 @@ const CadastroMotoristas = () => {
                   { 
                     header: 'Status', 
                     accessor: 'status',
-                    cell: (row) => {
-                      const statusMap: any = {
-                        'active': { type: 'success', text: 'Ativo' },
-                        'maintenance': { type: 'warning', text: 'Em Manutenção' },
-                        'inactive': { type: 'error', text: 'Inativo' },
-                      };
-                      const status = statusMap[row.status];
-                      return <StatusBadge status={status.type} text={status.text} />;
-                    }
+                    cell: ({ row }) => getVeiculoStatusBadge(row.original.status)
                   },
                   { 
                     header: 'Ações', 
@@ -515,7 +516,7 @@ const CadastroMotoristas = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </MainLayout>
+    </div>
   );
 };
 

@@ -64,7 +64,6 @@ const NotaFiscalHeader: React.FC<NotaFiscalHeaderProps> = ({
               disabled={isReadOnly}
             />
           </div>
-        </div>
         <div className="mt-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
@@ -112,7 +111,6 @@ const NotaFiscalHeader: React.FC<NotaFiscalHeaderProps> = ({
             </div>
           )}
         </div>
-      </div>
       <Button variant="destructive" size="sm" onClick={onRemove} disabled={isReadOnly}>
         <Trash className="h-4 w-4" />
       </Button>

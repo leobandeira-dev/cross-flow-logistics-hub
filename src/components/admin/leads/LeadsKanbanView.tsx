@@ -156,7 +156,6 @@ export const LeadsKanbanView = ({ searchTerm, onEdit }: LeadsKanbanViewProps) =>
                             <Building className="h-3 w-3 mr-1" />
                             {lead.empresa}
                           </div>
-                        </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -197,7 +196,6 @@ export const LeadsKanbanView = ({ searchTerm, onEdit }: LeadsKanbanViewProps) =>
                             <Calendar className="h-3 w-3 mr-1" />
                             {lead.dataContato}
                           </div>
-                        </div>
                         {lead.observacoes && (
                           <div className="mt-2 p-2 bg-muted rounded text-xs">
                             {lead.observacoes}
@@ -208,7 +206,6 @@ export const LeadsKanbanView = ({ searchTerm, onEdit }: LeadsKanbanViewProps) =>
                   ))
                 )}
               </div>
-            </div>
           </div>
         );
       })}

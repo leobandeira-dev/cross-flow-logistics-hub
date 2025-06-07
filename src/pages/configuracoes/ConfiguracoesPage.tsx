@@ -1,14 +1,12 @@
-
 import React from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Settings, Building, User, Shield, CreditCard } from 'lucide-react';
 import EmpresaLogoSection from './components/EmpresaLogoSection';
-import StripeIntegrationSection from './components/StripeIntegrationSection';
+import { StripeIntegrationSection } from './components/StripeIntegrationSection';
 
 const ConfiguracoesPage: React.FC = () => {
   return (
-    <MainLayout title="Configurações">
+    <div>
       <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Configurações do Sistema</h2>
         <p className="text-gray-600">Gerencie as configurações da sua empresa e preferências do sistema</p>
@@ -79,7 +77,7 @@ const ConfiguracoesPage: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </MainLayout>
+    </div>
   );
 };
 

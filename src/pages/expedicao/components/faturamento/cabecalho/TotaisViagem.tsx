@@ -67,7 +67,6 @@ const TotaisViagem: React.FC<TotaisViagemProps> = ({
           <span className="font-semibold">Total da Viagem:</span>
           <span className="font-bold text-lg">{formatCurrency(totaisCalculados.totalViagem)}</span>
         </div>
-      </div>
     </div>
   );
 };

@@ -56,7 +56,6 @@ const CargaCards: React.FC<CargaCardsProps> = ({ cargas, selectedCardId, onCardS
           <div className="truncate">
             <div className="truncate">{formatDestino(carga.destino)}</div>
             <div className="text-xs text-muted-foreground truncate">{carga.id} • {carga.cep}</div>
-          </div>
         </Button>
       ))}
     </div>

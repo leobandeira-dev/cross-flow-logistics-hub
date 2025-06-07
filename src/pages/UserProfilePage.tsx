@@ -1,14 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import MainLayout from '@/components/layout/MainLayout';
 import ProfileForm from '@/components/profile/ProfileForm';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileTabs from '@/components/profile/ProfileTabs';
 import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { Usuario } from '@/types/supabase/usuario.types';
 
 const UserProfilePage = () => {
   const { user, loading } = useAuth();
@@ -24,11 +21,9 @@ const UserProfilePage = () => {
 
   if (loading) {
     return (
-      <MainLayout title="Perfil do Usuário">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </MainLayout>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
@@ -40,67 +35,29 @@ const UserProfilePage = () => {
     setActiveTab(tab);
   };
 
-  // Converter AuthUser para Usuario para compatibilidade
-  const usuarioCompativel: Usuario = {
-    id: user.id,
-    nome: user.nome,
-    email: user.email,
-    telefone: user.telefone || '',
-    avatar_url: user.avatar_url || '',
-    empresa_id: user.empresa_id,
-    perfil_id: '',
-    status: 'ativo',
-    created_at: user.created_at || new Date().toISOString(),
-    updated_at: user.updated_at || new Date().toISOString(),
-    funcao: user.funcao,
-    empresa: user.empresa ? {
-      id: user.empresa.id,
-      razao_social: user.empresa.razao_social,
-      nome_fantasia: user.empresa.nome_fantasia,
-      cnpj: user.empresa.cnpj,
-      tipo: 'cliente',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    } : undefined,
-    perfil: user.perfil ? {
-      id: user.id,
-      nome: user.nome,
-      email: user.email,
-      empresa_id: user.empresa_id,
-      funcao: user.funcao || 'operador',
-      avatar_url: user.avatar_url,
-      ultimo_login: '',
-      created_at: user.created_at || new Date().toISOString(),
-      updated_at: user.updated_at || new Date().toISOString(),
-      permissoes: user.perfil.permissoes
-    } : undefined
-  };
-
   return (
-    <MainLayout title="Perfil do Usuário">
-      <div className="space-y-6">
-        <ProfileHeader user={usuarioCompativel} />
+    <div className="space-y-6">
+      <ProfileHeader user={user} />
+      
+      <Card>
+        <ProfileTabs activeTab={activeTab} onTabChange={handleTabChange} />
         
-        <Card>
-          <ProfileTabs activeTab={activeTab} onTabChange={handleTabChange} />
-          
-          <CardContent className="pt-6">
-            {activeTab === 'profile' && (
-              <ProfileForm user={usuarioCompativel} />
-            )}
-            {activeTab === 'security' && (
-              <PasswordChangeForm />
-            )}
-            {activeTab === 'notifications' && (
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium">Notificações</h3>
-                <p>Configure quais notificações você deseja receber do sistema.</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </MainLayout>
+        <CardContent className="pt-6">
+          {activeTab === 'profile' && (
+            <ProfileForm user={user} />
+          )}
+          {activeTab === 'security' && (
+            <PasswordChangeForm />
+          )}
+          {activeTab === 'notifications' && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-medium">Notificações</h3>
+              <p>Configure quais notificações você deseja receber do sistema.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

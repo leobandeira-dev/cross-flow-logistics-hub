@@ -108,7 +108,6 @@ const ImportarNotasExistentes: React.FC<ImportarNotasExistentesProps> = ({ onImp
             Encontradas {filteredNotas.length} notas fiscais
           </p>
         </div>
-      </div>
       
       {filteredNotas.length > 0 ? (
         <>

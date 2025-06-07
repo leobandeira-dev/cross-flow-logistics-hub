@@ -59,7 +59,6 @@ const VolumeFilterSection: React.FC<VolumeFilterSectionProps> = ({ onFilter }) =
                 Nota Fiscal
               </Button>
             </div>
-          </div>
 
           <div className="flex gap-2">
             <Input
@@ -75,7 +74,6 @@ const VolumeFilterSection: React.FC<VolumeFilterSectionProps> = ({ onFilter }) =
               <Search size={18} />
             </Button>
           </div>
-        </div>
       </CardContent>
     </Card>
   );

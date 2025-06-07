@@ -107,7 +107,6 @@ const EtiquetasMaeTab: React.FC<EtiquetasMaeTabProps> = ({
               isQuimico={false}
             />
           </div>
-        </div>
       )}
 
       <Card>

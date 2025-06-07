@@ -8,7 +8,6 @@ export const useEmpresaLogo = (empresaId?: string) => {
 
   useEffect(() => {
     if (!empresaId) {
-      console.log('🔍 Nenhum ID de empresa fornecido');
       setLogoUrl(null);
       return;
     }
@@ -44,14 +43,9 @@ export const useEmpresaLogo = (empresaId?: string) => {
     fetchLogo();
   }, [empresaId]);
 
-  // Função para atualizar a URL do logo no estado
-  const updateLogoUrl = (newUrl: string | null) => {
-    setLogoUrl(newUrl);
-  };
-
   return {
     logoUrl,
-    setLogoUrl: updateLogoUrl,
+    setLogoUrl,
     isLoading
   };
 };

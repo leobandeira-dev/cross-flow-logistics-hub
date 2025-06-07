@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '../../../components/common/DataTable';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
-import StatusBadge from '../../../components/common/StatusBadge';
+import { getLoadStatusBadge } from '@/utils/loadUtils';
 import SearchFilter from '../../../components/common/SearchFilter';
 
 interface HistoricalLoadsProps {
@@ -76,14 +75,7 @@ const HistoricalLoads: React.FC<HistoricalLoadsProps> = ({
               { 
                 header: 'Status', 
                 accessor: 'status',
-                cell: (row) => {
-                  const statusMap: any = {
-                    'delivered': { type: 'success', text: 'Entregue' },
-                    'problem': { type: 'error', text: 'Problema' }
-                  };
-                  const status = statusMap[row.status];
-                  return <StatusBadge status={status.type} text={status.text} />;
-                }
+                cell: ({ row }) => getLoadStatusBadge(row.original.status)
               },
               { 
                 header: 'Ações', 

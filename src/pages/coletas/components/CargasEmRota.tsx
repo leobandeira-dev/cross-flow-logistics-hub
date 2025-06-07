@@ -258,7 +258,6 @@ const CargasEmRota: React.FC<CargasEmRotaProps> = ({
                 </Button>
               ))}
             </div>
-          </div>
         )}
       </div>
 

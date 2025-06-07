@@ -1,6 +1,5 @@
 
 import React, { useRef, useState } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import {
   Card,
   CardContent,
@@ -93,8 +92,7 @@ const FaturamentoReport = () => {
   };
 
   return (
-    <MainLayout title="Relatório de Faturamento">
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center relative w-full sm:w-auto">
             <Search className="h-4 w-4 absolute left-3 text-muted-foreground" />
@@ -124,7 +122,6 @@ const FaturamentoReport = () => {
               data={[...receitaMensal, ...clientesData.map(c => ({ name: c.name, faturamento: c.value }))]}
             />
           </div>
-        </div>
 
         <div ref={reportRef}>
           <Tabs defaultValue="mensal">
@@ -152,7 +149,6 @@ const FaturamentoReport = () => {
                             {stat.change}
                           </span>
                         </div>
-                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -221,7 +217,6 @@ const FaturamentoReport = () => {
                       <div>Custo</div>
                       <div>Lucro</div>
                       <div>Margem</div>
-                    </div>
                     {receitaMensal.map((item) => (
                       <div key={item.mes} className="grid grid-cols-5 p-3 border-b text-sm">
                         <div className="font-medium">{item.mes}</div>
@@ -229,7 +224,6 @@ const FaturamentoReport = () => {
                         <div>{formatCurrency(item.custo)}</div>
                         <div>{formatCurrency(calcularLucro(item.faturamento, item.custo))}</div>
                         <div>{calcularMargem(item.faturamento, item.custo)}%</div>
-                      </div>
                     ))}
                     <div className="grid grid-cols-5 p-3 bg-gray-50 font-medium">
                       <div>Total</div>
@@ -240,7 +234,6 @@ const FaturamentoReport = () => {
                         receitaMensal.reduce((sum, item) => sum + item.faturamento, 0),
                         receitaMensal.reduce((sum, item) => sum + item.custo, 0)
                       )}%</div>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -303,7 +296,6 @@ const FaturamentoReport = () => {
                                 backgroundColor: cliente.fill
                               }}
                             ></div>
-                          </div>
                           <p className="text-right mt-1 font-medium">{formatCurrency(cliente.value)}</p>
                         </div>
                       ))}
@@ -355,7 +347,6 @@ const FaturamentoReport = () => {
                         </div>
                       ))}
                     </div>
-                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -375,7 +366,6 @@ const FaturamentoReport = () => {
                       <div>Serviço</div>
                       <div>Status</div>
                       <div>Valor</div>
-                    </div>
                     {[
                       { id: 'FAT-5624', data: '18/05/2025', cliente: 'Cliente A', servico: 'Frete', status: 'Paga', valor: 12500 },
                       { id: 'FAT-5623', data: '17/05/2025', cliente: 'Cliente B', servico: 'Armazenagem', status: 'Pendente', valor: 8700 },
@@ -399,7 +389,6 @@ const FaturamentoReport = () => {
                           </span>
                         </div>
                         <div>{formatCurrency(item.valor)}</div>
-                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -407,8 +396,7 @@ const FaturamentoReport = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </MainLayout>
+    </div>
   );
 };
 

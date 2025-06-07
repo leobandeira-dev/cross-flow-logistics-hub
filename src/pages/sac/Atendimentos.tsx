@@ -1,6 +1,4 @@
-
 import React from 'react';
-import MainLayout from '../../components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +16,7 @@ const Atendimentos: React.FC = () => {
   }));
 
   return (
-    <MainLayout title="Atendimentos">
+    <div className="space-y-6">
       <div className="mb-6">
         <h2 className="text-2xl font-heading mb-2">Gestão de Atendimentos</h2>
         <p className="text-gray-600">Monitore e gerencie todos os atendimentos ao cliente</p>
@@ -108,7 +106,7 @@ const Atendimentos: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
-    </MainLayout>
+    </div>
   );
 };
 

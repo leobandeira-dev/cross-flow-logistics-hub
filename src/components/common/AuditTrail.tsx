@@ -32,7 +32,6 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ moduleId, entityId, maxItems = 
         {loading ? (
           <div className="flex justify-center py-4">
             <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4"></div>
-          </div>
         ) : auditEntries.length > 0 ? (
           <div className="space-y-4">
             {auditEntries.slice(0, maxItems).map((log, index) => (

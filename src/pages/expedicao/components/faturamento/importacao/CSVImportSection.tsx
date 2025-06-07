@@ -43,7 +43,6 @@ const CSVImportSection: React.FC<CSVImportSectionProps> = ({ onImportCSV, onAddL
           Adicionar Linha Manualmente
         </Button>
       </div>
-    </div>
   );
 };
 

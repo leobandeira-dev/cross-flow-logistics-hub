@@ -96,7 +96,6 @@ const TableHeader: React.FC<TableHeaderProps> = ({
             </Button>
           )}
         </div>
-      </div>
 
       {/* Map Links Dialog */}
       <Dialog open={isMapLinksDialogOpen} onOpenChange={setIsMapLinksDialogOpen}>

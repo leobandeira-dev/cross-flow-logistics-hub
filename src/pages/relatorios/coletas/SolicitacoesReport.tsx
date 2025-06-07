@@ -1,6 +1,5 @@
 
 import React, { useState, useRef } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -65,8 +64,7 @@ const SolicitacoesReport = () => {
   };
 
   return (
-    <MainLayout title="Relatório - Solicitações por Período">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle>Parâmetros do Relatório</CardTitle>
@@ -101,7 +99,6 @@ const SolicitacoesReport = () => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
             
             <div className="flex justify-end mt-4 gap-2">
               <Button variant="outline" onClick={handleClearFilters}>Limpar</Button>
@@ -142,7 +139,6 @@ const SolicitacoesReport = () => {
                   data={mockData}
                 />
               </div>
-            </div>
           </CardHeader>
           
           <CardContent>
@@ -198,7 +194,6 @@ const SolicitacoesReport = () => {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
   );
 };
 

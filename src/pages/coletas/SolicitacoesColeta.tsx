@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect } from 'react';
-import MainLayout from '../../components/layout/MainLayout';
 import SearchFilter from '../../components/common/SearchFilter';
 import { useToast } from '@/hooks/use-toast';
 import { SolicitacaoColeta } from './types/coleta.types';
@@ -97,8 +95,8 @@ const SolicitacoesColeta = () => {
   };
 
   return (
-    <MainLayout title="Solicitações de Coleta">
-      <div className="mb-6 flex justify-between items-center">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-heading">Gestão de Solicitações</h2>
           <p className="text-gray-500">Visualize e gerencie todas as solicitações de coleta</p>
@@ -140,7 +138,7 @@ const SolicitacoesColeta = () => {
         onOpenChange={setIsEditDialogOpen}
         onSave={handleSaveSolicitacao}
       />
-    </MainLayout>
+    </div>
   );
 };
 
