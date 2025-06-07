@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -6,7 +7,6 @@ import CadastroNota from './components/CadastroNota';
 import ConsultaNotas from './components/ConsultaNotas';
 import NotaPrintTemplate from './components/NotaPrintTemplate';
 import DANFELayout from './components/print/DANFELayout';
-import { PremiumGuard } from '@/components/subscription/PremiumGuard';
 import { notasFiscais } from './data/mockData';
 
 const EntradaNotas: React.FC = () => {
@@ -86,58 +86,53 @@ const EntradaNotas: React.FC = () => {
 
   return (
     <MainLayout title="Entrada de Notas Fiscais">
-      <PremiumGuard 
-        feature="Entrada de Notas Fiscais"
-        description="O módulo de entrada de notas fiscais está disponível apenas para assinantes Premium. Registre e processe notas fiscais com recursos avançados."
-      >
-        <div className="mb-6">
-          <h2 className="text-2xl font-heading mb-2">Entrada de Notas Fiscais</h2>
-          <p className="text-gray-600">Registre e processe notas fiscais de entrada de mercadorias</p>
+      <div className="mb-6">
+        <h2 className="text-2xl font-heading mb-2">Entrada de Notas Fiscais</h2>
+        <p className="text-gray-600">Registre e processe notas fiscais de entrada de mercadorias</p>
+      </div>
+      
+      <Tabs defaultValue="cadastrar" className="mb-6">
+        <TabsList className="mb-4">
+          <TabsTrigger value="cadastrar">Cadastrar Nota</TabsTrigger>
+          <TabsTrigger value="consultar">Consultar Notas</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="cadastrar">
+          <CadastroNota />
+        </TabsContent>
+        
+        <TabsContent value="consultar">
+          <ConsultaNotas onPrintClick={handlePrintClick} />
+        </TabsContent>
+      </Tabs>
+      
+      {/* Hidden divs that serve as print templates */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <div ref={notaFiscalRef} style={{ width: '800px', backgroundColor: '#fff' }}>
+          <NotaPrintTemplate notaId={selectedNota} />
         </div>
         
-        <Tabs defaultValue="cadastrar" className="mb-6">
-          <TabsList className="mb-4">
-            <TabsTrigger value="cadastrar">Cadastrar Nota</TabsTrigger>
-            <TabsTrigger value="consultar">Consultar Notas</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="cadastrar">
-            <CadastroNota />
-          </TabsContent>
-          
-          <TabsContent value="consultar">
-            <ConsultaNotas onPrintClick={handlePrintClick} />
-          </TabsContent>
-        </Tabs>
-        
-        {/* Hidden divs that serve as print templates */}
-        <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-          <div ref={notaFiscalRef} style={{ width: '800px', backgroundColor: '#fff' }}>
-            <NotaPrintTemplate notaId={selectedNota} />
-          </div>
-          
-          <div ref={danfeRef} style={{ width: '800px', backgroundColor: '#fff' }}>
-            <DANFELayout notaFiscalData={notaData} />
-          </div>
-          
-          <div ref={simplifiedDanfeRef} style={{ width: '800px', backgroundColor: '#fff' }}>
-            <DANFELayout notaFiscalData={notaData} simplified />
-          </div>
+        <div ref={danfeRef} style={{ width: '800px', backgroundColor: '#fff' }}>
+          <DANFELayout notaFiscalData={notaData} />
         </div>
         
-        <DocumentPrintModal
-          open={printModalOpen}
-          onOpenChange={setPrintModalOpen}
-          documentId={selectedNota}
-          documentType="Nota Fiscal"
-          layoutRef={notaFiscalRef}
-          danfeRef={danfeRef}
-          simplifiedDanfeRef={simplifiedDanfeRef}
-          xmlData={{
-            xmlContent: selectedNota ? getNotaXml(selectedNota) : null
-          }}
-        />
-      </PremiumGuard>
+        <div ref={simplifiedDanfeRef} style={{ width: '800px', backgroundColor: '#fff' }}>
+          <DANFELayout notaFiscalData={notaData} simplified />
+        </div>
+      </div>
+      
+      <DocumentPrintModal
+        open={printModalOpen}
+        onOpenChange={setPrintModalOpen}
+        documentId={selectedNota}
+        documentType="Nota Fiscal"
+        layoutRef={notaFiscalRef}
+        danfeRef={danfeRef}
+        simplifiedDanfeRef={simplifiedDanfeRef}
+        xmlData={{
+          xmlContent: selectedNota ? getNotaXml(selectedNota) : null
+        }}
+      />
     </MainLayout>
   );
 };

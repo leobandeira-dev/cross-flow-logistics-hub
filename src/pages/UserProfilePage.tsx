@@ -8,7 +8,6 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileTabs from '@/components/profile/ProfileTabs';
 import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { Usuario } from '@/types/supabase/usuario.types';
 
 const UserProfilePage = () => {
   const { user, loading } = useAuth();
@@ -40,53 +39,17 @@ const UserProfilePage = () => {
     setActiveTab(tab);
   };
 
-  // Converter AuthUser para Usuario para compatibilidade
-  const usuarioCompativel: Usuario = {
-    id: user.id,
-    nome: user.nome,
-    email: user.email,
-    telefone: user.telefone || '',
-    avatar_url: user.avatar_url || '',
-    empresa_id: user.empresa_id,
-    perfil_id: '',
-    status: 'ativo',
-    created_at: user.created_at || new Date().toISOString(),
-    updated_at: user.updated_at || new Date().toISOString(),
-    funcao: user.funcao,
-    empresa: user.empresa ? {
-      id: user.empresa.id,
-      razao_social: user.empresa.razao_social,
-      nome_fantasia: user.empresa.nome_fantasia,
-      cnpj: user.empresa.cnpj,
-      tipo: 'cliente',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    } : undefined,
-    perfil: user.perfil ? {
-      id: user.id,
-      nome: user.nome,
-      email: user.email,
-      empresa_id: user.empresa_id,
-      funcao: user.funcao || 'operador',
-      avatar_url: user.avatar_url,
-      ultimo_login: '',
-      created_at: user.created_at || new Date().toISOString(),
-      updated_at: user.updated_at || new Date().toISOString(),
-      permissoes: user.perfil.permissoes
-    } : undefined
-  };
-
   return (
     <MainLayout title="Perfil do Usuário">
       <div className="space-y-6">
-        <ProfileHeader user={usuarioCompativel} />
+        <ProfileHeader user={user} />
         
         <Card>
           <ProfileTabs activeTab={activeTab} onTabChange={handleTabChange} />
           
           <CardContent className="pt-6">
             {activeTab === 'profile' && (
-              <ProfileForm user={usuarioCompativel} />
+              <ProfileForm user={user} />
             )}
             {activeTab === 'security' && (
               <PasswordChangeForm />

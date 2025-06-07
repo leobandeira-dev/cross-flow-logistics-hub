@@ -1,22 +1,13 @@
+
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useSubscription } from '@/hooks/useSubscription';
-import {
-  LayoutDashboard,
-  Package,
-  Truck,
-  FileText,
-  Users,
-  Settings,
-  Building2,
-  BarChart3,
-  HeadphonesIcon,
-  CreditCard,
-  ChevronDown,
-  ChevronRight,
+import { 
+  Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
+  Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
+  Calculator, BarChart, PieChart, Table, Download, Printer, Search, Filter, List, Kanban,
+  // Novos ícones para o módulo administrativo
+  ClipboardList, CreditCard, FileSpreadsheet, Briefcase, BookUser, HelpCircle, Target
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -79,7 +70,6 @@ const SubMenu: React.FC<SubMenuProps> = ({ label, icon: Icon, children, defaultO
 
 const Sidebar: React.FC = () => {
   const { signOut } = useAuth();
-  const { pathname } = useLocation();
   
   const handleLogout = async () => {
     try {
@@ -105,7 +95,7 @@ const Sidebar: React.FC = () => {
         <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/dashboard" active />
         
         {/* Módulo de Administração - Novo */}
-        <SubMenu icon={Building2} label="Administração" defaultOpen={false}>
+        <SubMenu icon={Briefcase} label="Administração" defaultOpen={false}>
           <SidebarItem icon={LayoutDashboard} label="Dashboard Admin" href="/admin" />
           <SidebarItem icon={Users} label="Clientes" href="/admin/clientes" />
           <SubMenu icon={FileSpreadsheet} label="Financeiro" defaultOpen={false}>
@@ -192,15 +182,15 @@ const Sidebar: React.FC = () => {
         </SubMenu>
         
         {/* Novo menu de Relatórios */}
-        <SubMenu icon={BarChart3} label="Relatórios" defaultOpen={false}>
-          <SidebarItem icon={BarChart3} label="Visão Geral" href="/relatorios" />
+        <SubMenu icon={BarChart} label="Relatórios" defaultOpen={false}>
+          <SidebarItem icon={BarChart} label="Visão Geral" href="/relatorios" />
           <SubMenu icon={Truck} label="Coletas" defaultOpen={false}>
-            <SidebarItem icon={BarChart3} label="Solicitações" href="/relatorios/coletas/solicitacoes" />
+            <SidebarItem icon={BarChart} label="Solicitações" href="/relatorios/coletas/solicitacoes" />
             <SidebarItem icon={PieChart} label="Aprovações" href="/relatorios/coletas/aprovacoes" />
           </SubMenu>
           <SubMenu icon={Archive} label="Armazenagem" defaultOpen={false}>
             <SidebarItem icon={Table} label="Volumes" href="/relatorios/armazenagem/volumes" />
-            <SidebarItem icon={BarChart3} label="Movimentações" href="/relatorios/armazenagem/movimentacoes" />
+            <SidebarItem icon={BarChart} label="Movimentações" href="/relatorios/armazenagem/movimentacoes" />
           </SubMenu>
           <SidebarItem icon={Truck} label="Carregamento" href="/relatorios/carregamento/ordens" />
           <SidebarItem icon={Calculator} label="Faturamento" href="/relatorios/expedicao/faturamento" />

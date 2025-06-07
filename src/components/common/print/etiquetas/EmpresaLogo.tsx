@@ -6,15 +6,11 @@ import { useAuth } from '@/hooks/useAuth';
 interface EmpresaLogoProps {
   className?: string;
   fallbackText?: string;
-  showWatermark?: boolean;
-  watermarkClassName?: string;
 }
 
 const EmpresaLogo: React.FC<EmpresaLogoProps> = ({ 
   className = "max-h-8 object-contain", 
-  fallbackText = "EMPRESA",
-  showWatermark = false,
-  watermarkClassName = "text-xs text-gray-300 opacity-30"
+  fallbackText = "EMPRESA" 
 }) => {
   const { user } = useAuth();
   const { logoUrl, isLoading } = useEmpresaLogo(user?.empresa_id);
@@ -27,29 +23,24 @@ const EmpresaLogo: React.FC<EmpresaLogoProps> = ({
     );
   }
 
+  if (logoUrl) {
+    return (
+      <img 
+        src={logoUrl} 
+        alt="Logo da Empresa" 
+        className={className}
+        onError={(e) => {
+          console.warn('Erro ao carregar logo da empresa:', logoUrl);
+          e.currentTarget.style.display = 'none';
+        }}
+      />
+    );
+  }
+
+  // Fallback quando não há logo
   return (
-    <div className="relative">
-      {logoUrl ? (
-        <img 
-          src={logoUrl} 
-          alt="Logo da Empresa" 
-          className={className}
-          onError={(e) => {
-            console.warn('Erro ao carregar logo da empresa:', logoUrl);
-            e.currentTarget.style.display = 'none';
-          }}
-        />
-      ) : (
-        <div className={`${className} flex items-center justify-center bg-gray-100 border rounded px-2`}>
-          <span className="text-xs font-bold text-gray-600">{fallbackText}</span>
-        </div>
-      )}
-      
-      {showWatermark && (
-        <div className={`absolute bottom-0 right-0 ${watermarkClassName}`}>
-          crosswms.com.br
-        </div>
-      )}
+    <div className={`${className} flex items-center justify-center bg-gray-100 border rounded px-2`}>
+      <span className="text-xs font-bold text-gray-600">{fallbackText}</span>
     </div>
   );
 };
