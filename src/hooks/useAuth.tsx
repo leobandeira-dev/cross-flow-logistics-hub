@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -89,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('🔍 Buscando perfil do usuário:', authUser.email);
 
       // Buscar dados do perfil do usuário
-      let { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('perfis')
         .select(`
           id,
@@ -109,9 +110,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           )
         `)
         .eq('id', authUser.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError) {
+      let finalProfileData = profileData;
+
+      if (profileError || !profileData) {
         console.error('❌ Erro ao buscar perfil:', profileError);
         
         // Se não encontrar o perfil, criar um básico
@@ -142,35 +145,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
-        // Para perfil novo sem empresa, definir profileData sem empresa
-        profileData = {
+        // Para perfil novo sem empresa, definir finalProfileData sem empresa
+        finalProfileData = {
           ...newProfile,
           empresa: null
         };
       }
 
-      console.log('✅ Perfil encontrado:', profileData);
+      console.log('✅ Perfil encontrado:', finalProfileData);
 
       // Extrair dados da empresa (pode vir como array)
-      const empresaData = profileData.empresa ? (
-        Array.isArray(profileData.empresa) 
-          ? profileData.empresa[0] 
-          : profileData.empresa
+      const empresaData = finalProfileData?.empresa ? (
+        Array.isArray(finalProfileData.empresa) 
+          ? finalProfileData.empresa[0] 
+          : finalProfileData.empresa
       ) : null;
 
       setUser({
-        id: profileData.id,
-        email: profileData.email,
-        nome: profileData.nome,
-        empresa_id: profileData.empresa_id,
-        funcao: profileData.funcao,
+        id: finalProfileData.id,
+        email: finalProfileData.email,
+        nome: finalProfileData.nome,
+        empresa_id: finalProfileData.empresa_id,
+        funcao: finalProfileData.funcao,
         telefone: '', // Campo não existe na tabela perfis atual
-        avatar_url: profileData.avatar_url,
-        created_at: profileData.created_at,
-        updated_at: profileData.updated_at,
+        avatar_url: finalProfileData.avatar_url,
+        created_at: finalProfileData.created_at,
+        updated_at: finalProfileData.updated_at,
         perfil: {
-          nome: profileData.funcao === 'admin' ? 'admin' : 'operador',
-          permissoes: profileData.funcao === 'admin' ? { 'audit:view': true } : {}
+          nome: finalProfileData.funcao === 'admin' ? 'admin' : 'operador',
+          permissoes: finalProfileData.funcao === 'admin' ? { 'audit:view': true } : {}
         },
         empresa: empresaData
       });
