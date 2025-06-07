@@ -36,6 +36,7 @@ const UserProfilePage = () => {
   };
 
   return (
+<<<<<<< HEAD
     <div className="space-y-6">
       <ProfileHeader user={user} />
       
@@ -58,6 +59,32 @@ const UserProfilePage = () => {
         </CardContent>
       </Card>
     </div>
+=======
+    <MainLayout title="Perfil do Usuário">
+      <div className="space-y-6">
+        <ProfileHeader user={user} />
+        
+        <Card>
+          <ProfileTabs activeTab={activeTab} onTabChange={handleTabChange} />
+          
+          <CardContent className="pt-6">
+            {activeTab === 'profile' && (
+              <ProfileForm user={user} />
+            )}
+            {activeTab === 'security' && (
+              <PasswordChangeForm />
+            )}
+            {activeTab === 'notifications' && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium">Notificações</h3>
+                <p>Configure quais notificações você deseja receber do sistema.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </MainLayout>
+>>>>>>> ecbf7f2e49a421bf18c5afebc4874f471aaf80c6
   );
 };
 
