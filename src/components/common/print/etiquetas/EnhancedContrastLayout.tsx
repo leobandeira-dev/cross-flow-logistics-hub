@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TestTube, Biohazard } from 'lucide-react';
 import QRCodeGenerator from '../QRCodeGenerator';
@@ -48,6 +47,7 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
         <div className="text-xl mb-6 bg-black text-white p-10 rounded-lg border-4 border-gray-900 text-center shadow-xl">
           <div className="text-2xl font-bold mb-4">VOLUME</div>
           <div className="text-9xl font-black leading-none">{volumeNumber}/{totalVolumes}</div>
+        </div>
       )}
 
       <div className="flex flex-1">
@@ -121,8 +121,10 @@ const EnhancedContrastLayout: React.FC<EnhancedContrastLayoutProps> = ({
             <div className="mt-4 bg-black text-white p-8 rounded-lg border-4 border-gray-900 text-center shadow-lg">
               <div className="text-xl font-bold mb-3">ÁREA</div>
               <div className="text-9xl font-black leading-none">{volumeData.area}</div>
+            </div>
           )}
         </div>
+      </div>
       
       {/* Quantidade de Volumes - DESTAQUE COM ALTO CONTRASTE MAIOR (para etiqueta mãe) com fonte aumentada em 100% */}
       {isMae && (

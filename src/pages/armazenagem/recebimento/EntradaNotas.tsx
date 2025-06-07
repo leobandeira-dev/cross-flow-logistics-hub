@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import DocumentPrintModal from '@/components/common/DocumentPrintModal';
@@ -83,7 +84,12 @@ const EntradaNotas: React.FC = () => {
   };
 
   return (
+<<<<<<< HEAD
     <div className="mb-6">
+=======
+    <MainLayout title="Entrada de Notas Fiscais">
+      <div className="mb-6">
+>>>>>>> ecbf7f2e49a421bf18c5afebc4874f471aaf80c6
         <h2 className="text-2xl font-heading mb-2">Entrada de Notas Fiscais</h2>
         <p className="text-gray-600">Registre e processe notas fiscais de entrada de mercadorias</p>
       </div>
@@ -116,6 +122,10 @@ const EntradaNotas: React.FC = () => {
         <div ref={simplifiedDanfeRef} style={{ width: '800px', backgroundColor: '#fff' }}>
           <DANFELayout notaFiscalData={notaData} simplified />
         </div>
+<<<<<<< HEAD
+=======
+      </div>
+>>>>>>> ecbf7f2e49a421bf18c5afebc4874f471aaf80c6
       
       <DocumentPrintModal
         open={printModalOpen}
@@ -129,7 +139,11 @@ const EntradaNotas: React.FC = () => {
           xmlContent: selectedNota ? getNotaXml(selectedNota) : null
         }}
       />
+<<<<<<< HEAD
     </div>
+=======
+    </MainLayout>
+>>>>>>> ecbf7f2e49a421bf18c5afebc4874f471aaf80c6
   );
 };
 
