@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -76,6 +75,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (session?.user) {
         await fetchUserProfile(session.user);
+        // Verificar assinatura após login
+        if (event === 'SIGNED_IN') {
+          setTimeout(() => {
+            checkUserSubscription(session);
+          }, 1000);
+        }
       } else {
         setUser(null);
       }
@@ -84,6 +89,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const checkUserSubscription = async (userSession: Session) => {
+    try {
+      await supabase.functions.invoke('check-subscription', {
+        headers: {
+          Authorization: `Bearer ${userSession.access_token}`,
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao verificar assinatura após login:', error);
+    }
+  };
 
   const fetchUserProfile = async (authUser: User) => {
     try {

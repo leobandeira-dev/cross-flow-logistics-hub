@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useLocation } from 'react-router-dom';
+import { PremiumGuard } from '@/components/subscription/PremiumGuard';
 
 // Import refactored components
 import GerarEtiquetasTab from './components/etiquetas/GerarEtiquetasTab';
@@ -55,73 +55,78 @@ const GeracaoEtiquetas: React.FC = () => {
 
   return (
     <MainLayout title="Geração de Etiquetas">
-      <div className="mb-6">
-        <h2 className="text-2xl font-heading mb-2">Geração de Etiquetas por Volume</h2>
-        <p className="text-gray-600">Gere etiquetas de identificação única para cada volume ou etiquetas mãe para agrupamento</p>
-      </div>
-      
-      {/* Use the FormInitializer to handle form data initialization */}
-      <FormInitializer 
-        form={form} 
-        notaFiscalData={notaFiscalData}
-        onInitialized={handleGenerateVolumes}
-      />
-      
-      <Tabs value={activeTab} className="mb-6" onValueChange={(value) => setActiveTab(value)}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="gerar">Etiquetas Volumes</TabsTrigger>
-          <TabsTrigger value="consultar">Consultar Etiquetas</TabsTrigger>
-          <TabsTrigger value="etiquetasMae">Etiquetas Mãe</TabsTrigger>
-        </TabsList>
+      <PremiumGuard 
+        feature="Geração de Etiquetas"
+        description="O módulo de geração de etiquetas está disponível apenas para assinantes Premium. Gere etiquetas de identificação única com recursos avançados."
+      >
+        <div className="mb-6">
+          <h2 className="text-2xl font-heading mb-2">Geração de Etiquetas por Volume</h2>
+          <p className="text-gray-600">Gere etiquetas de identificação única para cada volume ou etiquetas mãe para agrupamento</p>
+        </div>
         
-        <TabsContent value="gerar">
-          <GerarEtiquetasTab 
-            form={form}
-            generatedVolumes={generatedVolumes}
-            handleGenerateVolumes={handleGenerateVolumes}
-            handlePrintEtiquetas={handlePrintEtiquetas}
-            handleClassifyVolume={handleClassifyVolume}
-            setVolumes={setVolumes}
-            setGeneratedVolumes={setGeneratedVolumes}
-          />
-        </TabsContent>
+        {/* Use the FormInitializer to handle form data initialization */}
+        <FormInitializer 
+          form={form} 
+          notaFiscalData={notaFiscalData}
+          onInitialized={handleGenerateVolumes}
+        />
         
-        <TabsContent value="consultar">
-          <ConsultaEtiquetasTab 
-            volumes={volumes}
-            handleReimprimirEtiquetas={handleReimprimirEtiquetas}
-          />
-        </TabsContent>
-        
-        <TabsContent value="etiquetasMae">
-          <EtiquetasMaeTab 
-            etiquetasMae={etiquetasMae}
-            volumes={volumes}
-            handlePrintEtiquetaMae={handlePrintEtiquetaMae}
-            handleVincularVolumes={handleVincularVolumes}
-            handleCreateEtiquetaMae={handleCreateEtiquetaMae}
-            form={form}
-            returnUrl={location.state?.returnUrl}
-          />
-        </TabsContent>
-      </Tabs>
+        <Tabs value={activeTab} className="mb-6" onValueChange={(value) => setActiveTab(value)}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="gerar">Etiquetas Volumes</TabsTrigger>
+            <TabsTrigger value="consultar">Consultar Etiquetas</TabsTrigger>
+            <TabsTrigger value="etiquetasMae">Etiquetas Mãe</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="gerar">
+            <GerarEtiquetasTab 
+              form={form}
+              generatedVolumes={generatedVolumes}
+              handleGenerateVolumes={handleGenerateVolumes}
+              handlePrintEtiquetas={handlePrintEtiquetas}
+              handleClassifyVolume={handleClassifyVolume}
+              setVolumes={setVolumes}
+              setGeneratedVolumes={setGeneratedVolumes}
+            />
+          </TabsContent>
+          
+          <TabsContent value="consultar">
+            <ConsultaEtiquetasTab 
+              volumes={volumes}
+              handleReimprimirEtiquetas={handleReimprimirEtiquetas}
+            />
+          </TabsContent>
+          
+          <TabsContent value="etiquetasMae">
+            <EtiquetasMaeTab 
+              etiquetasMae={etiquetasMae}
+              volumes={volumes}
+              handlePrintEtiquetaMae={handlePrintEtiquetaMae}
+              handleVincularVolumes={handleVincularVolumes}
+              handleCreateEtiquetaMae={handleCreateEtiquetaMae}
+              form={form}
+              returnUrl={location.state?.returnUrl}
+            />
+          </TabsContent>
+        </Tabs>
 
-      {/* Classification Dialog */}
-      <ClassifyVolumeDialog 
-        volume={selectedVolume}
-        open={classifyDialogOpen}
-        onClose={() => setClassifyDialogOpen(false)}
-        onSave={handleSaveVolumeClassification}
-      />
+        {/* Classification Dialog */}
+        <ClassifyVolumeDialog 
+          volume={selectedVolume}
+          open={classifyDialogOpen}
+          onClose={() => setClassifyDialogOpen(false)}
+          onSave={handleSaveVolumeClassification}
+        />
 
-      {/* Volume Exists Confirmation Dialog */}
-      <VolumeExistsConfirmDialog
-        open={volumeExistsDialogOpen}
-        onOpenChange={setVolumeExistsDialogOpen}
-        onConfirm={handleConfirmPrintWithExistingVolumes}
-        notaFiscal={pendingPrintVolume?.notaFiscal || ''}
-        existingVolumesCount={existingVolumesCount}
-      />
+        {/* Volume Exists Confirmation Dialog */}
+        <VolumeExistsConfirmDialog
+          open={volumeExistsDialogOpen}
+          onOpenChange={setVolumeExistsDialogOpen}
+          onConfirm={handleConfirmPrintWithExistingVolumes}
+          notaFiscal={pendingPrintVolume?.notaFiscal || ''}
+          existingVolumesCount={existingVolumesCount}
+        />
+      </PremiumGuard>
     </MainLayout>
   );
 };
