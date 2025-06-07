@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -31,15 +30,26 @@ export const RegisterForm = ({ setError, setSuccess, setActiveTab }: RegisterFor
     setSuccess(null);
     
     try {
-      await signUp(data.email, data.password, data.nome, data.telefone, data.cnpj);
-      setActiveTab('login');
-      setSuccess('Cadastro realizado com sucesso! Enviamos um email para confirmação. Por favor, verifique sua caixa de entrada (e a pasta de spam) para ativar sua conta.');
-    } catch (error: any) {
-      if (error.message.includes('already registered')) {
-        setError('Este email já está cadastrado. Por favor, faça login ou utilize outro email.');
+      const userData = {
+        nome: data.nome,
+        telefone: data.telefone,
+        cnpj: data.cnpj
+      };
+      
+      const { error } = await signUp(data.email, data.password, userData);
+      
+      if (error) {
+        if (error.message.includes('already registered')) {
+          setError('Este email já está cadastrado. Por favor, faça login ou utilize outro email.');
+        } else {
+          setError(error?.message || 'Ocorreu um erro ao fazer cadastro.');
+        }
       } else {
-        setError(error?.message || 'Ocorreu um erro ao fazer cadastro.');
+        setActiveTab('login');
+        setSuccess('Cadastro realizado com sucesso! Enviamos um email para confirmação. Por favor, verifique sua caixa de entrada (e a pasta de spam) para ativar sua conta.');
       }
+    } catch (error: any) {
+      setError(error?.message || 'Ocorreu um erro ao fazer cadastro.');
     } finally {
       setIsLoading(false);
     }
