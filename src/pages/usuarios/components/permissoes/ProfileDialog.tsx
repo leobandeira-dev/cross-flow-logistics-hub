@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +20,7 @@ interface ProfileDialogProps {
   setIsOpen: (open: boolean) => void;
 }
 
-const ProfileDialog: React.FC<ProfileDialogProps> = ({ 
+export const ProfileDialog: React.FC<ProfileDialogProps> = ({ 
   onSavePerfil, 
   editingProfile = null, 
   isOpen,
@@ -73,6 +72,7 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({
             <Label htmlFor="descricao">Descrição (opcional)</Label>
             <Input id="descricao" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Descrição do perfil" />
           </div>
+        </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
           <Button onClick={handleSubmit} className="bg-cross-blue hover:bg-cross-blue/90">

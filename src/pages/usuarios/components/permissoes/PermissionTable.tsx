@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -17,7 +16,7 @@ interface PermissionTableProps {
   disabled: boolean;
 }
 
-const PermissionTable: React.FC<PermissionTableProps> = ({
+export const PermissionTable: React.FC<PermissionTableProps> = ({
   permissions,
   isLoading,
   onPermissionChange,
@@ -52,61 +51,64 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
   }
 
   return (
-    <div className="flex justify-between mb-4">
-        <h3 className="text-lg font-medium">Permissões</h3>
-        <Button 
-          onClick={onSave} 
-          disabled={disabled || isSaving}
-          className="gap-2"
-        >
-          <Save size={16} />
-          {isSaving ? 'Salvando...' : 'Salvar Alterações'}
-        </Button>
-      </div>
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex justify-between mb-4">
+          <h3 className="text-lg font-medium">Permissões</h3>
+          <Button 
+            onClick={onSave} 
+            disabled={disabled || isSaving}
+            className="gap-2"
+          >
+            <Save size={16} />
+            {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+          </Button>
+        </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Módulo</TableHead>
-            <TableHead>Tabela/Recurso</TableHead>
-            <TableHead>Visualizar</TableHead>
-            <TableHead>Editar</TableHead>
-            <TableHead>Remover</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Object.entries(permissions).map(([moduleId, tables]) => (
-            Object.entries(tables).map(([tableId, routines]) => (
-              <TableRow key={`${moduleId}-${tableId}`}>
-                <TableCell className="font-medium">{moduleId}</TableCell>
-                <TableCell>{tableId}</TableCell>
-                <TableCell>
-                  <Checkbox 
-                    checked={routines.view === true} 
-                    onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'view', checked === true)}
-                    disabled={disabled}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox 
-                    checked={routines.edit === true} 
-                    onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'edit', checked === true)}
-                    disabled={disabled}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox 
-                    checked={routines.delete === true} 
-                    onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'delete', checked === true)}
-                    disabled={disabled}
-                  />
-                </TableCell>
-              </TableRow>
-            ))
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Módulo</TableHead>
+              <TableHead>Tabela/Recurso</TableHead>
+              <TableHead>Visualizar</TableHead>
+              <TableHead>Editar</TableHead>
+              <TableHead>Remover</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Object.entries(permissions).map(([moduleId, tables]) => (
+              Object.entries(tables).map(([tableId, routines]) => (
+                <TableRow key={`${moduleId}-${tableId}`}>
+                  <TableCell className="font-medium">{moduleId}</TableCell>
+                  <TableCell>{tableId}</TableCell>
+                  <TableCell>
+                    <Checkbox 
+                      checked={routines.view === true} 
+                      onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'view', checked === true)}
+                      disabled={disabled}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Checkbox 
+                      checked={routines.edit === true} 
+                      onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'edit', checked === true)}
+                      disabled={disabled}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Checkbox 
+                      checked={routines.delete === true} 
+                      onCheckedChange={(checked) => onPermissionChange(moduleId, tableId, 'delete', checked === true)}
+                      disabled={disabled}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 };
 
