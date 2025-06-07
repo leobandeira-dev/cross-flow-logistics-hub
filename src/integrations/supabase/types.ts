@@ -223,6 +223,7 @@ export type Database = {
           estado: string | null
           id: string
           inscricao_estadual: string | null
+          logo_url: string | null
           logradouro: string | null
           nome_fantasia: string | null
           numero: string | null
@@ -247,6 +248,7 @@ export type Database = {
           estado?: string | null
           id?: string
           inscricao_estadual?: string | null
+          logo_url?: string | null
           logradouro?: string | null
           nome_fantasia?: string | null
           numero?: string | null
@@ -271,6 +273,7 @@ export type Database = {
           estado?: string | null
           id?: string
           inscricao_estadual?: string | null
+          logo_url?: string | null
           logradouro?: string | null
           nome_fantasia?: string | null
           numero?: string | null
@@ -336,6 +339,7 @@ export type Database = {
           codigo_risco: string | null
           comprimento: number | null
           created_at: string
+          criado_por_usuario_id: string | null
           data_geracao: string
           data_impressao: string | null
           data_inutilizacao: string | null
@@ -346,6 +350,8 @@ export type Database = {
           etiquetado: boolean | null
           fragil: boolean | null
           id: string
+          id_empresa: string | null
+          informacoes_adicionais: string | null
           largura: number | null
           motivo_inutilizacao: string | null
           nota_fiscal_id: string | null
@@ -356,6 +362,7 @@ export type Database = {
           remetente: string | null
           status: string
           tipo: string
+          tipo_etiqueta: string | null
           total_volumes: number | null
           transportadora: string | null
           uf: string | null
@@ -375,6 +382,7 @@ export type Database = {
           codigo_risco?: string | null
           comprimento?: number | null
           created_at?: string
+          criado_por_usuario_id?: string | null
           data_geracao?: string
           data_impressao?: string | null
           data_inutilizacao?: string | null
@@ -385,6 +393,8 @@ export type Database = {
           etiquetado?: boolean | null
           fragil?: boolean | null
           id?: string
+          id_empresa?: string | null
+          informacoes_adicionais?: string | null
           largura?: number | null
           motivo_inutilizacao?: string | null
           nota_fiscal_id?: string | null
@@ -395,6 +405,7 @@ export type Database = {
           remetente?: string | null
           status?: string
           tipo?: string
+          tipo_etiqueta?: string | null
           total_volumes?: number | null
           transportadora?: string | null
           uf?: string | null
@@ -414,6 +425,7 @@ export type Database = {
           codigo_risco?: string | null
           comprimento?: number | null
           created_at?: string
+          criado_por_usuario_id?: string | null
           data_geracao?: string
           data_impressao?: string | null
           data_inutilizacao?: string | null
@@ -424,6 +436,8 @@ export type Database = {
           etiquetado?: boolean | null
           fragil?: boolean | null
           id?: string
+          id_empresa?: string | null
+          informacoes_adicionais?: string | null
           largura?: number | null
           motivo_inutilizacao?: string | null
           nota_fiscal_id?: string | null
@@ -434,6 +448,7 @@ export type Database = {
           remetente?: string | null
           status?: string
           tipo?: string
+          tipo_etiqueta?: string | null
           total_volumes?: number | null
           transportadora?: string | null
           uf?: string | null
@@ -441,7 +456,22 @@ export type Database = {
           usuario_inutilizacao_id?: string | null
           volume_numero?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "etiquetas_criado_por_usuario_id_fkey"
+            columns: ["criado_por_usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "etiquetas_id_empresa_fkey"
+            columns: ["id_empresa"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       etiquetas_unitizacao: {
         Row: {

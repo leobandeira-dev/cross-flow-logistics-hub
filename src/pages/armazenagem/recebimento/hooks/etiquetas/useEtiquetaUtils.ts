@@ -26,13 +26,14 @@ export const useEtiquetaUtils = () => {
   const prepareNotaData = (volume: Volume, notaFiscalData: any) => {
     // Priorizar o uso do peso da nota fiscal quando disponível
     const pesoNotaFiscal = notaFiscalData?.pesoTotal || '0 Kg';
+    const cidadeCompleta = `${volume.cidade} - ${volume.uf}`;
     
     return {
       fornecedor: volume.remetente || notaFiscalData?.fornecedor || notaFiscalData?.emitenteRazaoSocial || notaFiscalData?.emitente || '',
       destinatario: volume.destinatario || notaFiscalData?.destinatario || notaFiscalData?.destinatarioRazaoSocial || '',
       endereco: volume.endereco || notaFiscalData?.endereco || notaFiscalData?.enderecoDestinatario || notaFiscalData?.destinatarioEndereco || '',
       cidade: volume.cidade || notaFiscalData?.cidade || notaFiscalData?.cidadeDestinatario || notaFiscalData?.destinatarioCidade || '',
-      cidadeCompleta: volume.cidadeCompleta || notaFiscalData?.cidadeCompleta || `${notaFiscalData?.cidadeDestinatario || ''} - ${notaFiscalData?.ufDestinatario || ''}` || notaFiscalData?.destinatarioCidadeCompleta || '',
+      cidadeCompleta: cidadeCompleta || notaFiscalData?.cidadeCompleta || `${notaFiscalData?.cidadeDestinatario || ''} - ${notaFiscalData?.ufDestinatario || ''}` || notaFiscalData?.destinatarioCidadeCompleta || '',
       uf: volume.uf || notaFiscalData?.uf || notaFiscalData?.ufDestinatario || notaFiscalData?.destinatarioUF || '',
       pesoTotal: pesoNotaFiscal, // Usar o peso da nota fiscal
       chaveNF: volume.chaveNF || notaFiscalData?.chaveNF || '',

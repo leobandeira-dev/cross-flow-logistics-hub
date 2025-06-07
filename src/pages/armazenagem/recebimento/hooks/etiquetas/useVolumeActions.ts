@@ -1,129 +1,98 @@
 
-
-import { useState } from 'react';
-import { Volume } from './useVolumeState'; // Use the correct Volume interface
+import { Volume } from '../../components/etiquetas/VolumesTable';
+import { toast } from '@/hooks/use-toast';
 
 export const useVolumeActions = () => {
-  const [volumes, setVolumes] = useState<Volume[]>([]);
-  const [generatedVolumes, setGeneratedVolumes] = useState<Volume[]>([]);
+  // Função para gerar ID sem segundos/minutos
+  const generateVolumeId = (notaFiscal: string, volumeNumber: number, totalVolumes: number) => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    
+    // Formato: NF123456-001-002-20240605-14 (sem minutos e segundos)
+    return `${notaFiscal}-${String(volumeNumber).padStart(3, '0')}-${String(totalVolumes).padStart(3, '0')}-${year}${month}${day}-${hour}`;
+  };
 
-  // Função para gerar volumes com base nas informações da NF
   const generateVolumes = (
     notaFiscal: string,
-    quantidadeVolumes: number,
-    pesoTotal: string,
+    volumesTotal: number,
+    pesoTotalBruto: string,
     notaFiscalData: any,
     tipoVolume: 'geral' | 'quimico' = 'geral',
-    codigoONU?: string,
-    codigoRisco?: string,
-    classificacaoQuimica?: 'nao_perigosa' | 'perigosa' | 'nao_classificada',
-    area?: string
+    codigoONU: string = '',
+    codigoRisco: string = ''
   ): Volume[] => {
-    if (!notaFiscal || quantidadeVolumes <= 0) return [];
+    console.log('🔄 Gerando volumes:', { notaFiscal, volumesTotal, tipoVolume });
     
-    // Usar o peso da nota fiscal diretamente quando disponível
-    let pesoNumerico = 0;
-    if (pesoTotal) {
-      pesoNumerico = parseFloat(pesoTotal.replace(/[^\d,.-]/g, '').replace(',', '.'));
+    if (!notaFiscal || volumesTotal <= 0) {
+      toast({
+        title: "Erro na geração",
+        description: "Nota fiscal e número de volumes são obrigatórios.",
+        variant: "destructive",
+      });
+      return [];
     }
-    const pesoMedio = pesoNumerico / quantidadeVolumes;
-    
-    // Limpar caracteres especiais do número da nota fiscal
-    const cleanNotaFiscal = notaFiscal.replace(/[^\w]/g, '');
-    
-    // Obter data e hora atual
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = String(now.getFullYear()).slice(-2); // Últimos 2 dígitos do ano
-    const hour = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    
-    // Formato de data/hora: ddmmaahhmmss
-    const dateTimeStr = `${day}${month}${year}${hour}${minutes}${seconds}`;
-    
-    // Gerar volumes
+
     const volumes: Volume[] = [];
     
-    for (let i = 1; i <= quantidadeVolumes; i++) {
-      // Formato: {numeroNF}-{numeroVolume}-{ddmmaahhmmss}
-      const volumeNumberStr = i.toString().padStart(3, '0');
-      const id = `${cleanNotaFiscal}-${volumeNumberStr}-${dateTimeStr}`;
+    for (let i = 1; i <= volumesTotal; i++) {
+      const volumeId = generateVolumeId(notaFiscal, i, volumesTotal);
       
-      volumes.push({
-        id,
-        notaFiscal,
-        quantidade: 1,
-        etiquetado: false, // Campo obrigatório presente na interface
-        // Sempre fornecer descrição obrigatória
-        descricao: `Volume ${i}/${quantidadeVolumes}`,
-        remetente: notaFiscalData?.fornecedor || '',
-        destinatario: notaFiscalData?.destinatario || '',
-        endereco: notaFiscalData?.endereco || '',
-        cidade: notaFiscalData?.cidade || '',
-        cidadeCompleta: `${notaFiscalData?.cidade || ''} - ${notaFiscalData?.uf || ''}`,
-        uf: notaFiscalData?.uf || '',
-        pesoTotal: `${pesoMedio.toFixed(2)} Kg`, // String formatada
-        chaveNF: notaFiscalData?.chaveNF || '',
-        tipoVolume,
-        codigoONU,
-        codigoRisco,
-        classificacaoQuimica: tipoVolume === 'quimico' ? classificacaoQuimica || 'nao_classificada' : undefined,
-        etiquetaMae: '',
-        area: area || '01',
-        // Números de volume corretos
+      const volume: Volume = {
+        id: volumeId,
+        notaFiscal: notaFiscal,
         volumeNumber: i,
-        totalVolumes: quantidadeVolumes
-      });
+        totalVolumes: volumesTotal,
+        descricao: `Volume ${i}/${volumesTotal}`,
+        pesoTotal: pesoTotalBruto,
+        remetente: notaFiscalData?.emitente_razao_social || notaFiscalData?.remetente || 'REMETENTE',
+        destinatario: notaFiscalData?.destinatario_razao_social || notaFiscalData?.destinatario || 'DESTINATÁRIO',
+        endereco: notaFiscalData?.destinatario_endereco || notaFiscalData?.endereco || '',
+        cidade: notaFiscalData?.destinatario_cidade || notaFiscalData?.cidade || 'CIDADE',
+        uf: notaFiscalData?.destinatario_uf || notaFiscalData?.uf || 'UF',
+        transportadora: notaFiscalData?.transportadora || '',
+        chaveNF: notaFiscalData?.chave_acesso || notaFiscal,
+        numeroPedido: notaFiscalData?.numero_pedido || '',
+        quantidade: 1,
+        area: '',
+        classificacaoQuimica: tipoVolume === 'quimico' ? 'perigosa' : 'nao_perigosa',
+        codigoONU: tipoVolume === 'quimico' ? codigoONU : '',
+        codigoRisco: tipoVolume === 'quimico' ? codigoRisco : '',
+        etiquetado: false,
+        impresso: false,
+        dataGeracao: new Date().toISOString(),
+      };
+      
+      volumes.push(volume);
     }
     
+    console.log(`✅ ${volumes.length} volumes gerados com sucesso`);
     return volumes;
   };
 
-  // Função para classificar um volume
-  const classifyVolume = (
-    volume: Volume, 
-    formData: any, 
-    volumesArray: Volume[]
-  ): Volume[] => {
-    return volumesArray.map(vol => {
-      if (vol.id === volume.id) {
-        return {
-          ...vol,
-          tipoVolume: formData.tipoVolume,
-          codigoONU: formData.codigoONU,
-          codigoRisco: formData.codigoRisco,
-          classificacaoQuimica: formData.tipoVolume === 'quimico' ? formData.classificacaoQuimica : undefined,
-          area: formData.area
-        };
-      }
-      return vol;
-    });
+  const classifyVolume = (volume: Volume, area: string, classificacaoQuimica?: string) => {
+    console.log('🏷️ Classificando volume:', volume.id, 'para área:', area);
+    
+    return {
+      ...volume,
+      area,
+      classificacaoQuimica: classificacaoQuimica || volume.classificacaoQuimica
+    };
   };
 
-  // Função para vincular volumes a uma etiqueta mãe
-  const vincularVolumes = (
-    etiquetaMaeId: string,
-    volumeIds: string[],
-    volumesArray: Volume[]
-  ): Volume[] => {
-    return volumesArray.map(vol => {
-      if (volumeIds.includes(vol.id)) {
-        return {
-          ...vol,
-          etiquetaMae: etiquetaMaeId
-        };
-      }
-      return vol;
-    });
+  const vincularVolumes = (etiquetaMaeId: string, volumeIds: string[], volumes: Volume[]): Volume[] => {
+    console.log('🔗 Vinculando volumes à etiqueta mãe:', etiquetaMaeId);
+    
+    return volumes.map(volume => 
+      volumeIds.includes(volume.id) 
+        ? { ...volume, etiquetaMae: etiquetaMaeId }
+        : volume
+    );
   };
 
   return {
-    volumes,
-    generatedVolumes,
-    setVolumes,
-    setGeneratedVolumes,
     generateVolumes,
     classifyVolume,
     vincularVolumes
