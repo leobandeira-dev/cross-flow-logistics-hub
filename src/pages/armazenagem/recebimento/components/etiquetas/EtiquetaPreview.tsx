@@ -7,6 +7,8 @@ import EnhancedPreview from './preview/EnhancedPreview';
 import PortraitPreview from './preview/PortraitPreview';
 import EnhancedContrastPreview from './preview/EnhancedContrastPreview';
 import PortraitContrastPreview from './preview/PortraitContrastPreview';
+import TransulEnhancedPreview from './preview/TransulEnhancedPreview';
+import TransulContrastPreview from './preview/TransulContrastPreview';
 import EtiquetaInfoList from './preview/EtiquetaInfoList';
 import PrinterSelector from './preview/PrinterSelector';
 import LogoUploadField from './preview/LogoUploadField';
@@ -65,6 +67,10 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
         return <EnhancedContrastPreview {...commonProps} />;
       case 'portrait_contrast':
         return <PortraitContrastPreview {...commonProps} />;
+      case 'transul_enhanced':
+        return <TransulEnhancedPreview {...commonProps} />;
+      case 'transul_contrast':
+        return <TransulContrastPreview {...commonProps} />;
       default:
         return <EnhancedPreview {...commonProps} />;
     }
@@ -87,6 +93,8 @@ const EtiquetaPreview: React.FC<EtiquetaPreviewProps> = ({
               <SelectItem value="portrait">Retrato (Itens Grandes)</SelectItem>
               <SelectItem value="enhanced_contrast">Alta Legibilidade (Alto Contraste)</SelectItem>
               <SelectItem value="portrait_contrast">Retrato (Alto Contraste)</SelectItem>
+              <SelectItem value="transul_enhanced">Transul Alta Legibilidade</SelectItem>
+              <SelectItem value="transul_contrast">Transul Alto Contraste</SelectItem>
             </SelectContent>
           </Select>
         </div>

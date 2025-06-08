@@ -1,9 +1,10 @@
-
 export type LayoutStyle = 
-  | 'enhanced'
-  | 'portrait'
-  | 'enhanced_contrast'
-  | 'portrait_contrast';
+  | 'enhanced' 
+  | 'portrait' 
+  | 'enhanced_contrast' 
+  | 'portrait_contrast'
+  | 'transul_enhanced'
+  | 'transul_contrast';
 
 export interface GenerationOptions {
   formatoImpressao?: string;

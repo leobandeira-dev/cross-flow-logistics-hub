@@ -46,6 +46,8 @@ const PrintConfigFields: React.FC<PrintConfigFieldsProps> = ({ form }) => {
             <SelectItem value="portrait">Retrato (Itens Grandes)</SelectItem>
             <SelectItem value="enhanced_contrast">Alta Legibilidade (Alto Contraste)</SelectItem>
             <SelectItem value="portrait_contrast">Retrato (Alto Contraste)</SelectItem>
+            <SelectItem value="transul_enhanced">Transul Alta Legibilidade</SelectItem>
+            <SelectItem value="transul_contrast">Transul Alto Contraste</SelectItem>
           </SelectContent>
         </Select>
       </div>

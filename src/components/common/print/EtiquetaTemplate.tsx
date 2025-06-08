@@ -5,6 +5,8 @@ import EnhancedReadabilityLayout from './etiquetas/EnhancedReadabilityLayout';
 import PortraitLayout from './etiquetas/PortraitLayout';
 import EnhancedContrastLayout from './etiquetas/EnhancedContrastLayout';
 import PortraitContrastLayout from './etiquetas/PortraitContrastLayout';
+import TransulEnhancedLayout from './etiquetas/TransulEnhancedLayout';
+import TransulContrastLayout from './etiquetas/TransulContrastLayout';
 import EtiquetaMaeHeader from './etiquetas/EtiquetaMaeHeader';
 import QuimicoIcon from './etiquetas/QuimicoIcon';
 import { getClassificacaoText, getDisplayCidade } from './etiquetas/utils';
@@ -15,8 +17,21 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
     // Define width based on format
     const isA4 = format === 'a4';
     const isPortrait = layoutStyle.includes('portrait');
-    const width = isA4 ? 'max-w-[800px]' : isPortrait ? 'max-w-[400px]' : 'max-w-[500px]';
-    const height = isPortrait ? 'min-h-[600px]' : '';
+    const isTransul = layoutStyle.includes('transul');
+    
+    let width = 'max-w-[500px]';
+    let height = '';
+    
+    if (isA4) {
+      width = 'max-w-[800px]';
+    } else if (isPortrait) {
+      width = 'max-w-[400px]';
+      height = 'min-h-[600px]';
+    } else if (isTransul) {
+      width = 'max-w-[600px]';
+      height = 'min-h-[400px]';
+    }
+    
     const isQuimico = volumeData.tipoVolume === 'quimico';
     const isMae = tipo === 'mae';
     const displayCidade = getDisplayCidade(volumeData);
@@ -42,6 +57,10 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
           return <PortraitContrastLayout {...layoutProps} />;
         case 'enhanced_contrast':
           return <EnhancedContrastLayout {...layoutProps} />;
+        case 'transul_enhanced':
+          return <TransulEnhancedLayout {...layoutProps} />;
+        case 'transul_contrast':
+          return <TransulContrastLayout {...layoutProps} />;
         case 'enhanced':
         default:
           return <EnhancedReadabilityLayout {...layoutProps} />;
@@ -57,15 +76,15 @@ const EtiquetaTemplate = React.forwardRef<HTMLDivElement, EtiquetaProps>(
           pageBreakAfter: 'always',
         }}
       >
-        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-${(layoutStyle === 'enhanced_contrast' || layoutStyle.includes('portrait')) ? '0' : '3'} ${(layoutStyle === 'enhanced_contrast' || layoutStyle.includes('portrait')) ? 'overflow-hidden' : ''} relative ${height}`}>
-          {isMae && layoutStyle !== 'enhanced_contrast' && !layoutStyle.includes('portrait') && (
+        <Card className={`border-2 ${isMae ? 'border-red-500' : 'border-black'} p-${(layoutStyle === 'enhanced_contrast' || layoutStyle.includes('portrait') || layoutStyle.includes('transul')) ? '0' : '3'} ${(layoutStyle === 'enhanced_contrast' || layoutStyle.includes('portrait') || layoutStyle.includes('transul')) ? 'overflow-hidden' : ''} relative ${height}`}>
+          {isMae && !layoutStyle.includes('contrast') && !layoutStyle.includes('portrait') && !layoutStyle.includes('transul') && (
             <EtiquetaMaeHeader 
               etiquetaMaeId={volumeData.etiquetaMae} 
               descricao={volumeData.descricao} 
             />
           )}
           
-          {isQuimico && layoutStyle !== 'enhanced_contrast' && !layoutStyle.includes('portrait') && <QuimicoIcon />}
+          {isQuimico && !layoutStyle.includes('contrast') && !layoutStyle.includes('portrait') && !layoutStyle.includes('transul') && <QuimicoIcon />}
           
           {renderLayout()}
         </Card>
