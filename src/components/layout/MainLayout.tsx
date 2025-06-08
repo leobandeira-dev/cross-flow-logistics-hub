@@ -1,7 +1,6 @@
 
 import React from 'react';
-import Sidebar from './Sidebar';
-import Header from './Header';
+import NewMainLayout from './NewMainLayout';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -9,19 +8,7 @@ interface MainLayoutProps {
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Dashboard" }) => {
-  return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar />
-      
-      <div className="flex-1 ml-64 flex flex-col">
-        <Header title={title} />
-        
-        <main className="flex-1 p-6 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+  return <NewMainLayout title={title}>{children}</NewMainLayout>;
 };
 
 export default MainLayout;
