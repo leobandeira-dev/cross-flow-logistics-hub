@@ -1,5 +1,4 @@
 
-
 import { toast } from '@/hooks/use-toast';
 import { Volume } from '../../components/etiquetas/VolumesTable';
 import { useEtiquetasGenerator } from '@/hooks/etiquetas';
@@ -12,6 +11,16 @@ import { useEtiquetaUtils } from './useEtiquetaUtils';
 export const useEtiquetaPrint = () => {
   const { generateEtiquetasPDF, generateEtiquetaMaePDF, isGenerating } = useEtiquetasGenerator();
   const { calculateTotalPeso, prepareNotaData } = useEtiquetaUtils();
+
+  /**
+   * Function to get transportadora name based on layout style
+   */
+  const getTransportadoraName = (layoutStyle: LayoutStyle, volume: Volume, notaData: any) => {
+    if (layoutStyle.includes('transul')) {
+      return 'Transul Transporte';
+    }
+    return volume.transportadora || notaData?.transportadora || 'Transportadora não especificada';
+  };
 
   /**
    * Function to handle printing etiquetas for selected volumes
@@ -29,8 +38,21 @@ export const useEtiquetaPrint = () => {
     // Prepare nota data for the etiquetas
     const notaData = prepareNotaData(volume, notaFiscalData);
     
+    // Update transportadora name based on layout
+    const transportadoraName = getTransportadoraName(layoutStyle, volume, notaData);
+    const updatedNotaData = {
+      ...notaData,
+      transportadora: transportadoraName
+    };
+    
+    // Update volumes with correct transportadora name
+    const updatedVolumes = volumesNota.map(vol => ({
+      ...vol,
+      transportadora: transportadoraName
+    }));
+    
     // Generate etiquetas for all volumes of this nota fiscal
-    const result = generateEtiquetasPDF(volumesNota, notaData, formatoImpressao, 'volume', layoutStyle);
+    const result = generateEtiquetasPDF(updatedVolumes, updatedNotaData, formatoImpressao, 'volume', layoutStyle);
     
     return result;
   };
@@ -50,7 +72,20 @@ export const useEtiquetaPrint = () => {
     
     const notaData = prepareNotaData(volume, notaFiscalData);
     
-    generateEtiquetasPDF(volumeEspecifico, notaData, formatoImpressao, 'volume', layoutStyle);
+    // Update transportadora name based on layout
+    const transportadoraName = getTransportadoraName(layoutStyle, volume, notaData);
+    const updatedNotaData = {
+      ...notaData,
+      transportadora: transportadoraName
+    };
+    
+    // Update volume with correct transportadora name
+    const updatedVolume = [{
+      ...volume,
+      transportadora: transportadoraName
+    }];
+    
+    generateEtiquetasPDF(updatedVolume, updatedNotaData, formatoImpressao, 'volume', layoutStyle);
     
     toast({
       title: "Etiqueta Reimpressa",
@@ -68,6 +103,11 @@ export const useEtiquetaPrint = () => {
     formatoImpressao: string,
     layoutStyle: LayoutStyle
   ) => {
+    // Determine transportadora name based on layout
+    const transportadoraName = layoutStyle.includes('transul') 
+      ? 'Transul Transporte' 
+      : 'Transportadora não especificada';
+
     // Create a standalone master etiqueta not attached to any nota fiscal
     const dummyMasterVolume: Volume[] = [{
       id: etiquetaMaeId,
@@ -86,7 +126,7 @@ export const useEtiquetaPrint = () => {
       codigoONU: '',
       codigoRisco: '',
       classificacaoQuimica: 'nao_classificada',
-      transportadora: 'Transportadora não especificada',
+      transportadora: transportadoraName,
       impresso: false,
       dataGeracao: new Date().toISOString(),
       volumeNumber: 1,
@@ -106,7 +146,7 @@ export const useEtiquetaPrint = () => {
       pesoTotal: '0 Kg',
       chaveNF: '',
       tipoEtiquetaMae: tipoEtiquetaMae,
-      transportadora: 'Transportadora não especificada'
+      transportadora: transportadoraName
     };
     
     // Generate master etiqueta
@@ -134,6 +174,11 @@ export const useEtiquetaPrint = () => {
     // For etiqueta mãe that's already created and possibly linked to volumes
     const linkedVolumes = volumes.filter(vol => vol.etiquetaMae === etiquetaMae.id);
     
+    // Determine transportadora name based on layout
+    const transportadoraName = layoutStyle.includes('transul') 
+      ? 'Transul Transporte' 
+      : (linkedVolumes.length > 0 ? linkedVolumes[0].transportadora : 'Transportadora não especificada');
+    
     // Prepare nota data based on the first linked volume or use generic info
     const cidadeCompleta = linkedVolumes.length > 0 ? `${linkedVolumes[0].cidade} - ${linkedVolumes[0].uf}` : '';
     
@@ -146,7 +191,7 @@ export const useEtiquetaPrint = () => {
       uf: linkedVolumes[0].uf || '',
       pesoTotal: calculateTotalPeso(linkedVolumes),
       chaveNF: linkedVolumes[0].chaveNF || '',
-      transportadora: linkedVolumes[0].transportadora || 'Transportadora não especificada'
+      transportadora: transportadoraName
     } : {
       fornecedor: '',
       destinatario: '',
@@ -156,7 +201,7 @@ export const useEtiquetaPrint = () => {
       uf: '',
       pesoTotal: '0 Kg',
       chaveNF: '',
-      transportadora: 'Transportadora não especificada'
+      transportadora: transportadoraName
     };
     
     // Create a dummy volume to represent the master etiqueta
@@ -177,7 +222,7 @@ export const useEtiquetaPrint = () => {
       codigoONU: '',
       codigoRisco: '',
       classificacaoQuimica: 'nao_classificada',
-      transportadora: notaData.transportadora,
+      transportadora: transportadoraName,
       impresso: false,
       dataGeracao: new Date().toISOString(),
       volumeNumber: 1,
@@ -205,4 +250,3 @@ export const useEtiquetaPrint = () => {
     createAndPrintEtiquetaMae
   };
 };
-

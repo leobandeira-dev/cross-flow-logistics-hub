@@ -1,7 +1,13 @@
 
 import { ReactNode } from 'react';
 
-export type LayoutStyle = 'enhanced' | 'portrait' | 'enhanced_contrast' | 'portrait_contrast';
+export type LayoutStyle = 
+  | 'enhanced' 
+  | 'portrait' 
+  | 'enhanced_contrast' 
+  | 'portrait_contrast'
+  | 'transul_enhanced'
+  | 'transul_contrast';
 
 export interface VolumeData {
   id: string;

@@ -16,8 +16,16 @@ export const usePDFGeneration = () => {
   const { generateEtiquetaHTML } = useEtiquetaHTML();
   const { generatePDF } = usePDFGenerator();
 
+  // Function to determine transportadora name based on layout
+  const getTransportadoraName = (layoutStyle: LayoutStyle, notaData: any, volumeData: any) => {
+    if (layoutStyle.includes('transul')) {
+      return 'Transul Transporte';
+    }
+    return volumeData.transportadora || notaData?.transportadora || 'Transportadora não especificada';
+  };
+
   // Function to prepare volumes for printing
-  const prepareVolumesForPrinting = async (volumes: any[], notaData: any) => {
+  const prepareVolumesForPrinting = async (volumes: any[], notaData: any, layoutStyle: LayoutStyle = 'enhanced') => {
     const preparedVolumes = [];
     
     for (const vol of volumes) {
@@ -27,6 +35,9 @@ export const usePDFGeneration = () => {
       // Generate QR code for the volume ID
       const qrCodeDataURL = await generateQRCodeDataURL(preparedVolume.id);
       
+      // Get transportadora name based on layout
+      const transportadoraName = getTransportadoraName(layoutStyle, notaData, preparedVolume);
+      
       // Add additional printing-related data
       preparedVolumes.push({
         ...preparedVolume,
@@ -35,17 +46,17 @@ export const usePDFGeneration = () => {
         cidade: preparedVolume.cidade || notaData?.cidade || '',
         cidadeCompleta: preparedVolume.cidadeCompleta || notaData?.cidadeCompleta || '',
         uf: preparedVolume.uf || notaData?.uf || '',
-        pesoTotal: notaData?.pesoTotal || preparedVolume.pesoTotal || '0 Kg', // Use nota fiscal weight when available
-        transportadora: preparedVolume.transportadora || notaData?.transportadora || 'N/D',
+        pesoTotal: notaData?.pesoTotal || preparedVolume.pesoTotal || '0 Kg',
+        transportadora: transportadoraName, // Use the determined transportadora name
         codigoONU: preparedVolume.codigoONU || notaData?.codigoONU || '',
         codigoRisco: preparedVolume.codigoRisco || notaData?.codigoRisco || '',
         classificacaoQuimica: preparedVolume.classificacaoQuimica || 'nao_classificada',
-        area: preparedVolume.area || '01', // Garantir que a área seja incluída
-        quantidade: preparedVolume.quantidade || 1, // Garantir que a quantidade seja incluída
-        volumeNumber: preparedVolume.volumeNumber || vol.volumeNumber || 1, // Garantir número do volume
-        totalVolumes: preparedVolume.totalVolumes || vol.totalVolumes || 1, // Garantir total de volumes
+        area: preparedVolume.area || '01',
+        quantidade: preparedVolume.quantidade || 1,
+        volumeNumber: preparedVolume.volumeNumber || vol.volumeNumber || 1,
+        totalVolumes: preparedVolume.totalVolumes || vol.totalVolumes || 1,
         qrCode: qrCodeDataURL
-      } as VolumeData);  // Type assertion to make TypeScript recognize all properties
+      } as VolumeData);
     }
     
     return preparedVolumes;
@@ -68,10 +79,10 @@ export const usePDFGeneration = () => {
       const formats = getFormats();
       const formato = formats[formatoImpressao] || formats['100x100'];
 
-      // Prepare volumes for printing
-      const volumesParaImprimir = await prepareVolumesForPrinting(volumes, notaData);
+      // Prepare volumes for printing with layout-specific transportadora
+      const volumesParaImprimir = await prepareVolumesForPrinting(volumes, notaData, layoutStyle);
       
-      // Generate HTML for each volume with the logo
+      // Generate HTML for each volume with the logo and correct transportadora name
       const etiquetasHTML = volumesParaImprimir.map(vol => 
         generateEtiquetaHTML(vol, tipoEtiqueta, layoutStyle, transportadoraLogo)
       );
