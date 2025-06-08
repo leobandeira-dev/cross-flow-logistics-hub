@@ -11,7 +11,7 @@ import { usePrintValidation } from './usePrintValidation';
  */
 export const usePrintProcess = (
   volumes: Volume[],
-  setVolumes: (volumes: Volume[]) => void,
+  setVolumes: React.Dispatch<React.SetStateAction<Volume[]>>,
   printEtiquetas: any,
   reimprimirEtiquetas: any,
   handlePrintEtiquetas: any,
