@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,8 +11,8 @@ import { ItemConferencia } from '@/components/carregamento/types/conferencia.typ
 import VolumesTable from '@/components/carregamento/VolumesTable';
 import BarcodeScannerSection from '@/components/carregamento/BarcodeScannerSection';
 import { useEnderecamentoReal } from '@/hooks/carregamento/useEnderecamentoReal';
-import Sidebar from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
+import Sidebar from "@/components/layout/Sidebar"; // Corrigido
+import { Header } from "@/components/layout/Header"; // Corrigido
 
 const ConferenciaCarga: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -128,10 +128,5 @@ const ConferenciaCarga: React.FC = () => {
     toast({
       title: "Volume removido",
       description: `Volume ${volumeId} foi removido da conferência.`,
-    });
-  };
-
-  const handleScanVolume = (codigo: string) => {
-    const volume = volumes.find(v =>
       
 export default ConferenciaCarga;
