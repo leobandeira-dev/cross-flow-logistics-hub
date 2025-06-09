@@ -133,3 +133,5 @@ const ConferenciaCarga: React.FC = () => {
 
   const handleScanVolume = (codigo: string) => {
     const volume = volumes.find(v =>
+      
+export default ConferenciaCarga;
