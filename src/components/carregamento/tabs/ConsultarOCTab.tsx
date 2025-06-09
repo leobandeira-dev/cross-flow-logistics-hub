@@ -18,7 +18,7 @@ const ConsultarOCTab: React.FC = () => {
   const [showNotasDialog, setShowNotasDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { ordensCarregamento, fetchOrdensCarregamento } = useOrdemCarregamento();
+  const { ordensCarregamento, fetchOrdensCarregamento, buscarOrdemPorNumero } = useOrdemCarregamento();
 
   const handleBuscarOC = async () => {
     if (!numeroOC.trim()) {
@@ -32,15 +32,11 @@ const ConsultarOCTab: React.FC = () => {
 
     setIsLoading(true);
     try {
-      // Simular busca da ordem
-      await fetchOrdensCarregamento();
-      const ordem = ordensCarregamento.find(oc => oc.id === numeroOC);
+      const ordem = await buscarOrdemPorNumero(numeroOC);
       
       if (ordem) {
         setOrdemEncontrada(ordem);
-        // Simular busca das notas fiscais vinculadas
-        const notasVinculadas: NotaFiscal[] = ordem.notasFiscais || [];
-        setNotasFiscaisVinculadas(notasVinculadas);
+        setNotasFiscaisVinculadas(ordem.notasFiscais || []);
         
         toast({
           title: "Ordem de Carregamento encontrada",
@@ -76,16 +72,19 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'id',
       header: 'Número OC',
+      accessor: 'id',
       accessorKey: 'id',
     },
     {
       id: 'cliente',
       header: 'Cliente',
+      accessor: 'cliente',
       accessorKey: 'cliente',
     },
     {
       id: 'status',
       header: 'Status',
+      accessor: 'status',
       accessorKey: 'status',
       cell: ({ row }: any) => {
         const status = row.getValue('status');
@@ -100,11 +99,13 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'dataCarregamento',
       header: 'Data Carregamento',
+      accessor: 'dataCarregamento',
       accessorKey: 'dataCarregamento',
     },
     {
       id: 'acoes',
       header: 'Ações',
+      accessor: () => '',
       cell: ({ row }: any) => {
         const ordem = row.original;
         return (

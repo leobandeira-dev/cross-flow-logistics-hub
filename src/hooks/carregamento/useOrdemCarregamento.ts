@@ -16,7 +16,9 @@ export const useOrdemCarregamento = () => {
     fetchNotasFiscaisDisponiveis,
     createOrdemCarregamento,
     importarNotasFiscais,
-    iniciarCarregamento
+    iniciarCarregamento,
+    buscarOrdemPorNumero,
+    contarVolumesOrdem
   } = useOrdemCarregamentoReal();
 
   return {
@@ -27,6 +29,8 @@ export const useOrdemCarregamento = () => {
     fetchNotasFiscaisDisponiveis,
     importarNotasFiscais,
     fetchOrdensCarregamento,
-    iniciarCarregamento
+    iniciarCarregamento,
+    buscarOrdemPorNumero,
+    contarVolumesOrdem
   };
 };

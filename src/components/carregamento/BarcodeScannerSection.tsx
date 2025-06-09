@@ -1,21 +1,20 @@
 
 import React from 'react';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Barcode, FileText, Package, FileBarChart } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { QrCode, Package } from 'lucide-react';
+import { OrdemCarregamento } from '@/hooks/carregamento/types';
 
-interface BarcodeScannerSectionProps {
+export interface BarcodeScannerSectionProps {
   codigoVolume: string;
   setCodigoVolume: (codigo: string) => void;
   codigoNF: string;
   setCodigoNF: (codigo: string) => void;
-  codigoEtiquetaMae: string;
-  setCodigoEtiquetaMae: (codigo: string) => void;
-  handleVerificarPorVolume: () => void;
-  handleVerificarPorNF: () => void;
-  handleVerificarPorEtiquetaMae: () => void;
-  verificadosCount: number;
-  totalCount: number;
+  onScanVolume: (codigo: string) => void;
+  onScanNF: (codigo: string) => void;
+  ordemSelecionada: OrdemCarregamento;
 }
 
 const BarcodeScannerSection: React.FC<BarcodeScannerSectionProps> = ({
@@ -23,109 +22,84 @@ const BarcodeScannerSection: React.FC<BarcodeScannerSectionProps> = ({
   setCodigoVolume,
   codigoNF,
   setCodigoNF,
-  codigoEtiquetaMae,
-  setCodigoEtiquetaMae,
-  handleVerificarPorVolume,
-  handleVerificarPorNF,
-  handleVerificarPorEtiquetaMae,
-  verificadosCount,
-  totalCount
+  onScanVolume,
+  onScanNF,
+  ordemSelecionada
 }) => {
+  const handleScanVolume = () => {
+    if (codigoVolume.trim()) {
+      onScanVolume(codigoVolume);
+    }
+  };
+
+  const handleScanNF = () => {
+    if (codigoNF.trim()) {
+      onScanNF(codigoNF);
+    }
+  };
+
   return (
-    <>
-      <div className="mt-4 pt-4 border-t">
-        <h3 className="font-medium mb-2">Leitura de Códigos</h3>
-        
-        <div className="space-y-4">
-          {/* Leitura por Volume */}
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <div className="text-sm text-gray-500 mb-1 flex items-center">
-                <Package size={14} className="mr-1" />
-                Leitura de código por Volume
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center">
+          <QrCode className="mr-2 text-cross-blue" size={20} />
+          Leitura de Códigos de Barras
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="codigoVolume">Código do Volume</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="codigoVolume"
+                  placeholder="Escaneie ou digite o código do volume"
+                  value={codigoVolume}
+                  onChange={(e) => setCodigoVolume(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleScanVolume()}
+                />
+                <Button 
+                  onClick={handleScanVolume}
+                  disabled={!codigoVolume.trim()}
+                  className="bg-cross-blue hover:bg-cross-blue/90"
+                >
+                  <Package className="h-4 w-4" />
+                </Button>
               </div>
-              <Input 
-                placeholder="Escaneie ou digite o código do volume" 
-                className="flex-1" 
-                value={codigoVolume}
-                onChange={(e) => setCodigoVolume(e.target.value)}
-              />
             </div>
-            <Button 
-              variant="outline" 
-              onClick={handleVerificarPorVolume}
-              className="bg-cross-blue text-white hover:bg-cross-blue/90"
-            >
-              <Barcode size={16} className="mr-2" />
-              Ler
-            </Button>
           </div>
-          
-          {/* Leitura por Nota Fiscal */}
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <div className="text-sm text-gray-500 mb-1 flex items-center">
-                <FileText size={14} className="mr-1" />
-                Leitura de código por Nota Fiscal
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="codigoNF">Código da Nota Fiscal</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="codigoNF"
+                  placeholder="Escaneie ou digite o código da NF"
+                  value={codigoNF}
+                  onChange={(e) => setCodigoNF(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleScanNF()}
+                />
+                <Button 
+                  onClick={handleScanNF}
+                  disabled={!codigoNF.trim()}
+                  className="bg-cross-blue hover:bg-cross-blue/90"
+                >
+                  <QrCode className="h-4 w-4" />
+                </Button>
               </div>
-              <Input 
-                placeholder="Escaneie ou digite o código da NF" 
-                className="flex-1" 
-                value={codigoNF}
-                onChange={(e) => setCodigoNF(e.target.value)}
-              />
             </div>
-            <Button 
-              variant="outline" 
-              onClick={handleVerificarPorNF}
-              className="bg-cross-blue text-white hover:bg-cross-blue/90"
-            >
-              <FileBarChart size={16} className="mr-2" />
-              Ler
-            </Button>
-          </div>
-          
-          {/* Leitura por Etiqueta Mãe */}
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <div className="text-sm text-gray-500 mb-1 flex items-center">
-                <Package size={14} className="mr-1" />
-                Leitura de código por Etiqueta Mãe
-              </div>
-              <Input 
-                placeholder="Escaneie ou digite o código da etiqueta" 
-                className="flex-1" 
-                value={codigoEtiquetaMae}
-                onChange={(e) => setCodigoEtiquetaMae(e.target.value)}
-              />
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={handleVerificarPorEtiquetaMae}
-              className="bg-cross-blue text-white hover:bg-cross-blue/90"
-            >
-              <Barcode size={16} className="mr-2" />
-              Ler
-            </Button>
           </div>
         </div>
-      </div>
-      
-      <div className="mt-4 pt-4 border-t">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-medium">Progresso</h3>
-          <span className="text-sm">
-            {verificadosCount} / {totalCount}
-          </span>
+
+        <div className="mt-4 p-3 border rounded-lg bg-blue-50">
+          <p className="text-sm text-gray-600">
+            <strong>Ordem selecionada:</strong> {ordemSelecionada.id} - {ordemSelecionada.cliente}
+          </p>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
-          <div 
-            className="bg-cross-blue h-2.5 rounded-full" 
-            style={{ width: `${(verificadosCount / totalCount) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-    </>
+      </CardContent>
+    </Card>
   );
 };
 

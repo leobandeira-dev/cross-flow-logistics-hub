@@ -11,6 +11,7 @@ import { OrdemCarregamento } from '@/hooks/carregamento/types';
 import { ItemConferencia } from '@/components/carregamento/types/conferencia.types';
 import VolumesTable from '@/components/carregamento/VolumesTable';
 import BarcodeScannerSection from '@/components/carregamento/BarcodeScannerSection';
+import { useEnderecamentoReal } from '@/hooks/carregamento/useEnderecamentoReal';
 
 const ConferenciaCarga: React.FC = () => {
   const [numeroOC, setNumeroOC] = useState('');
@@ -20,7 +21,8 @@ const ConferenciaCarga: React.FC = () => {
   const [codigoNF, setCodigoNF] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { buscarOrdemPorNumero, contarVolumesOrdem } = useOrdemCarregamento();
+  const { buscarOrdemPorNumero } = useOrdemCarregamento();
+  const { buscarVolumesParaEnderecamento, atualizarStatusVolume } = useEnderecamentoReal();
 
   const buscarOrdemCarregamento = async () => {
     if (!numeroOC.trim()) {
@@ -67,39 +69,23 @@ const ConferenciaCarga: React.FC = () => {
 
   const carregarVolumesOrdem = async (numeroOrdem: string) => {
     try {
-      // Simular busca de volumes das notas fiscais da ordem
-      const volumesMock: ItemConferencia[] = [
-        {
-          id: 'VOL-001',
-          produto: 'Produto A',
-          quantidade: 10,
-          verificado: false,
-          etiquetaMae: 'ETQ-MAE-001',
-          notaFiscal: 'NF-12345'
-        },
-        {
-          id: 'VOL-002',
-          produto: 'Produto B',
-          quantidade: 5,
-          verificado: false,
-          etiquetaMae: 'ETQ-MAE-002',
-          notaFiscal: 'NF-12346'
-        },
-        {
-          id: 'VOL-003',
-          produto: 'Produto C',
-          quantidade: 8,
-          verificado: true,
-          etiquetaMae: 'ETQ-MAE-003',
-          notaFiscal: 'NF-12347'
-        }
-      ];
+      const volumesEncontrados = await buscarVolumesParaEnderecamento(numeroOrdem);
+      
+      // Converter volumes para formato de ItemConferencia
+      const volumesConferencia: ItemConferencia[] = volumesEncontrados.map(volume => ({
+        id: volume.id,
+        produto: volume.produto,
+        quantidade: 1,
+        verificado: volume.posicaoAtual !== undefined,
+        etiquetaMae: volume.codigo,
+        notaFiscal: volume.notaFiscal
+      }));
 
-      setVolumes(volumesMock);
+      setVolumes(volumesConferencia);
       
       toast({
         title: "Volumes carregados",
-        description: `${volumesMock.length} volumes encontrados para conferência.`,
+        description: `${volumesConferencia.length} volumes encontrados para conferência.`,
       });
     } catch (error) {
       console.error('Erro ao carregar volumes:', error);
@@ -111,7 +97,7 @@ const ConferenciaCarga: React.FC = () => {
     }
   };
 
-  const handleVerificarVolume = (volumeId: string) => {
+  const handleVerificarVolume = async (volumeId: string) => {
     setVolumes(prevVolumes =>
       prevVolumes.map(volume =>
         volume.id === volumeId
@@ -119,6 +105,9 @@ const ConferenciaCarga: React.FC = () => {
           : volume
       )
     );
+
+    // Atualizar status no banco de dados
+    await atualizarStatusVolume(volumeId, 'verificado');
 
     toast({
       title: "Volume verificado",
@@ -137,39 +126,39 @@ const ConferenciaCarga: React.FC = () => {
     });
   };
 
-  const handleScanBarcode = (codigo: string, tipo: 'volume' | 'nf') => {
-    if (tipo === 'volume') {
-      const volume = volumes.find(v => v.id === codigo || v.etiquetaMae === codigo);
-      if (volume) {
-        handleVerificarVolume(volume.id);
-        setCodigoVolume('');
-      } else {
-        toast({
-          title: "Volume não encontrado",
-          description: `Volume com código ${codigo} não encontrado nesta ordem.`,
-          variant: "destructive",
-        });
-      }
+  const handleScanVolume = (codigo: string) => {
+    const volume = volumes.find(v => v.id === codigo || v.etiquetaMae === codigo);
+    if (volume) {
+      handleVerificarVolume(volume.id);
+      setCodigoVolume('');
     } else {
-      const volumesNF = volumes.filter(v => v.notaFiscal === codigo);
-      if (volumesNF.length > 0) {
-        volumesNF.forEach(volume => {
-          if (!volume.verificado) {
-            handleVerificarVolume(volume.id);
-          }
-        });
-        setCodigoNF('');
-        toast({
-          title: "Volumes da NF verificados",
-          description: `${volumesNF.length} volumes da NF ${codigo} foram verificados.`,
-        });
-      } else {
-        toast({
-          title: "Nota Fiscal não encontrada",
-          description: `Nenhum volume encontrado para a NF ${codigo}.`,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Volume não encontrado",
+        description: `Volume com código ${codigo} não encontrado nesta ordem.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleScanNF = (codigo: string) => {
+    const volumesNF = volumes.filter(v => v.notaFiscal === codigo);
+    if (volumesNF.length > 0) {
+      volumesNF.forEach(volume => {
+        if (!volume.verificado) {
+          handleVerificarVolume(volume.id);
+        }
+      });
+      setCodigoNF('');
+      toast({
+        title: "Volumes da NF verificados",
+        description: `${volumesNF.length} volumes da NF ${codigo} foram verificados.`,
+      });
+    } else {
+      toast({
+        title: "Nota Fiscal não encontrada",
+        description: `Nenhum volume encontrado para a NF ${codigo}.`,
+        variant: "destructive",
+      });
     }
   };
 
@@ -258,7 +247,8 @@ const ConferenciaCarga: React.FC = () => {
             setCodigoVolume={setCodigoVolume}
             codigoNF={codigoNF}
             setCodigoNF={setCodigoNF}
-            onScan={handleScanBarcode}
+            onScanVolume={handleScanVolume}
+            onScanNF={handleScanNF}
             ordemSelecionada={ordemSelecionada}
           />
 

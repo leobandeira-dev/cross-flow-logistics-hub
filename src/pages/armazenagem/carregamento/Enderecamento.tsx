@@ -4,16 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, MapPin, Package, Truck } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useOrdemCarregamento } from '@/hooks/carregamento';
 import { OrdemCarregamento } from '@/hooks/carregamento/types';
+import { useEnderecamentoReal } from '@/hooks/carregamento/useEnderecamentoReal';
 import TruckLayoutGrid from '@/components/carregamento/enderecamento/TruckLayoutGrid';
 import VolumeList from '@/components/carregamento/enderecamento/VolumeList';
 import InstructionsCard from '@/components/carregamento/enderecamento/InstructionsCard';
 
-interface Volume {
+// Interface local para volumes de endereçamento
+interface VolumeEnderecamento {
   id: string;
   codigo: string;
   notaFiscal: string;
@@ -22,18 +23,27 @@ interface Volume {
   dimensoes: string;
   fragil: boolean;
   posicaoAtual?: string;
+  descricao: string;
+  posicionado: boolean;
+  etiquetaMae: string;
+  fornecedor: string;
 }
 
 const Enderecamento: React.FC = () => {
   const [numeroOC, setNumeroOC] = useState('');
   const [ordemSelecionada, setOrdemSelecionada] = useState<OrdemCarregamento | null>(null);
-  const [volumes, setVolumes] = useState<Volume[]>([]);
-  const [volumeSelecionado, setVolumeSelecionado] = useState<Volume | null>(null);
+  const [volumes, setVolumes] = useState<VolumeEnderecamento[]>([]);
+  const [volumeSelecionado, setVolumeSelecionado] = useState<VolumeEnderecamento | null>(null);
   const [posicaoSelecionada, setPosicaoSelecionada] = useState<string | null>(null);
   const [filtroVolume, setFiltroVolume] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const { buscarOrdemPorNumero } = useOrdemCarregamento();
+  const { 
+    buscarVolumesParaEnderecamento, 
+    buscarPosicoesDisponiveis, 
+    endercarVolume 
+  } = useEnderecamentoReal();
 
   const buscarOrdemCarregamento = async () => {
     if (!numeroOC.trim()) {
@@ -80,43 +90,29 @@ const Enderecamento: React.FC = () => {
 
   const carregarVolumesParaEnderecamento = async (numeroOrdem: string) => {
     try {
-      // Simular busca de volumes prontos para endereçamento
-      const volumesMock: Volume[] = [
-        {
-          id: 'VOL-001',
-          codigo: 'ETQ-001',
-          notaFiscal: 'NF-12345',
-          produto: 'Produto A',
-          peso: 15.5,
-          dimensoes: '30x20x15cm',
-          fragil: false
-        },
-        {
-          id: 'VOL-002',
-          codigo: 'ETQ-002',
-          notaFiscal: 'NF-12345',
-          produto: 'Produto B - Frágil',
-          peso: 8.2,
-          dimensoes: '25x25x10cm',
-          fragil: true
-        },
-        {
-          id: 'VOL-003',
-          codigo: 'ETQ-003',
-          notaFiscal: 'NF-12346',
-          produto: 'Produto C',
-          peso: 22.8,
-          dimensoes: '40x30x20cm',
-          fragil: false,
-          posicaoAtual: 'A1'
-        }
-      ];
+      const volumesEncontrados = await buscarVolumesParaEnderecamento(numeroOrdem);
+      
+      // Converter volumes para o formato esperado pelo componente
+      const volumesFormatados: VolumeEnderecamento[] = volumesEncontrados.map(volume => ({
+        id: volume.id,
+        codigo: volume.codigo,
+        notaFiscal: volume.notaFiscal,
+        produto: volume.produto,
+        peso: volume.peso,
+        dimensoes: volume.dimensoes,
+        fragil: volume.fragil,
+        posicaoAtual: volume.posicaoAtual,
+        descricao: volume.produto,
+        posicionado: !!volume.posicaoAtual,
+        etiquetaMae: volume.codigo,
+        fornecedor: 'Fornecedor padrão'
+      }));
 
-      setVolumes(volumesMock);
+      setVolumes(volumesFormatados);
       
       toast({
         title: "Volumes carregados",
-        description: `${volumesMock.length} volumes disponíveis para endereçamento.`,
+        description: `${volumesFormatados.length} volumes disponíveis para endereçamento.`,
       });
     } catch (error) {
       console.error('Erro ao carregar volumes:', error);
@@ -128,7 +124,7 @@ const Enderecamento: React.FC = () => {
     }
   };
 
-  const handleSelecionarVolume = (volume: Volume) => {
+  const handleSelecionarVolume = (volume: VolumeEnderecamento) => {
     setVolumeSelecionado(volume);
     setPosicaoSelecionada(null);
   };
@@ -137,8 +133,8 @@ const Enderecamento: React.FC = () => {
     setPosicaoSelecionada(posicao);
   };
 
-  const handleConfirmarEnderecamento = () => {
-    if (!volumeSelecionado || !posicaoSelecionada) {
+  const handleConfirmarEnderecamento = async () => {
+    if (!volumeSelecionado || !posicaoSelecionada || !ordemSelecionada) {
       toast({
         title: "Seleção incompleta",
         description: "Selecione um volume e uma posição para confirmar o endereçamento.",
@@ -147,23 +143,31 @@ const Enderecamento: React.FC = () => {
       return;
     }
 
-    // Atualizar o volume com a nova posição
-    setVolumes(prevVolumes =>
-      prevVolumes.map(volume =>
-        volume.id === volumeSelecionado.id
-          ? { ...volume, posicaoAtual: posicaoSelecionada }
-          : volume
-      )
-    );
+    try {
+      const sucesso = await endercarVolume(volumeSelecionado.id, posicaoSelecionada, ordemSelecionada.id);
+      
+      if (sucesso) {
+        // Atualizar o volume com a nova posição
+        setVolumes(prevVolumes =>
+          prevVolumes.map(volume =>
+            volume.id === volumeSelecionado.id
+              ? { ...volume, posicaoAtual: posicaoSelecionada, posicionado: true }
+              : volume
+          )
+        );
 
-    toast({
-      title: "Endereçamento confirmado",
-      description: `Volume ${volumeSelecionado.codigo} endereçado para posição ${posicaoSelecionada}.`,
-    });
-
-    // Limpar seleções
-    setVolumeSelecionado(null);
-    setPosicaoSelecionada(null);
+        // Limpar seleções
+        setVolumeSelecionado(null);
+        setPosicaoSelecionada(null);
+      }
+    } catch (error) {
+      console.error('Erro ao endereçar volume:', error);
+      toast({
+        title: "Erro no endereçamento",
+        description: "Ocorreu um erro ao endereçar o volume.",
+        variant: "destructive",
+      });
+    }
   };
 
   const volumesFiltrados = volumes.filter(volume =>
@@ -174,6 +178,17 @@ const Enderecamento: React.FC = () => {
 
   const volumesEndereçados = volumes.filter(v => v.posicaoAtual);
   const volumesPendentes = volumes.filter(v => !v.posicaoAtual);
+
+  // Criar layout de células para o TruckLayoutGrid
+  const layoutCelulas = Array.from({ length: 20 }, (_, i) => {
+    const linha = i + 1;
+    return ['esquerda', 'centro', 'direita'].map(coluna => ({
+      id: `${coluna}-${linha}`,
+      coluna: coluna as 'esquerda' | 'centro' | 'direita',
+      linha,
+      volumes: volumes.filter(v => v.posicaoAtual === `${coluna.charAt(0).toUpperCase()}${linha}`)
+    }));
+  }).flat();
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -280,40 +295,51 @@ const Enderecamento: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center justify-between">
-                  <span>Layout do Caminhão</span>
-                  {volumeSelecionado && (
-                    <Button
-                      onClick={handleConfirmarEnderecamento}
-                      disabled={!posicaoSelecionada}
-                      className="bg-cross-blue hover:bg-cross-blue/90"
-                    >
-                      Confirmar Endereçamento
-                    </Button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {volumeSelecionado && (
-                  <div className="mb-4 p-3 border rounded-lg bg-blue-50">
+            <TruckLayoutGrid
+              orderNumber={ordemSelecionada.id}
+              layout={layoutCelulas}
+              totalVolumes={volumes.length}
+              positionedVolumes={volumesEndereçados.length}
+              onCellClick={handleSelecionarPosicao}
+              onRemoveVolume={(volumeId: string) => {
+                setVolumes(prev => prev.map(v => 
+                  v.id === volumeId ? { ...v, posicaoAtual: undefined, posicionado: false } : v
+                ));
+              }}
+              hasSelectedVolumes={!!volumeSelecionado}
+              onSaveLayout={() => {}}
+              allVolumesPositioned={volumesPendentes.length === 0}
+              onPrintLayout={() => {}}
+            />
+
+            {volumeSelecionado && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Volume Selecionado</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="p-3 border rounded-lg bg-blue-50">
                     <p className="text-sm font-medium">Volume selecionado:</p>
                     <p className="text-lg">{volumeSelecionado.codigo} - {volumeSelecionado.produto}</p>
                     <p className="text-sm text-gray-600">
                       Peso: {volumeSelecionado.peso}kg | {volumeSelecionado.dimensoes}
                       {volumeSelecionado.fragil && " | FRÁGIL"}
                     </p>
+                    {posicaoSelecionada && (
+                      <div className="mt-2">
+                        <p className="text-sm font-medium">Posição selecionada: {posicaoSelecionada}</p>
+                        <Button
+                          onClick={handleConfirmarEnderecamento}
+                          className="mt-2 bg-cross-blue hover:bg-cross-blue/90"
+                        >
+                          Confirmar Endereçamento
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                <TruckLayoutGrid
-                  volumes={volumes}
-                  posicaoSelecionada={posicaoSelecionada}
-                  onSelecionarPosicao={handleSelecionarPosicao}
-                />
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       )}
