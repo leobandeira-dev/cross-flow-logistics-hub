@@ -1,52 +1,73 @@
+
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/components/ui/use-toast';
+import { Plus, FileText, Search } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { useOrdemCarregamento } from '@/hooks/carregamento';
-
-const tiposCarregamento = [
-  { value: 'entrega', label: 'Entrega' },
-  { value: 'transferencia', label: 'Transferência' },
-  { value: 'devolucao', label: 'Devolução' },
-];
+import ImportarNotasDialog from '../ImportarNotasDialog';
 
 const CriarOCTab: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { createOrdemCarregamento } = useOrdemCarregamento();
-  
-  const form = useForm({
-    defaultValues: {
-      cliente: '',
-      tipoCarregamento: '',
-      dataCarregamento: '',
-      transportadora: '',
-      placaVeiculo: '',
-      motorista: '',
-      observacoes: '',
-    }
+  const [formData, setFormData] = useState({
+    cliente: '',
+    tipoCarregamento: '',
+    dataCarregamento: '',
+    transportadora: '',
+    placaVeiculo: '',
+    motorista: '',
+    observacoes: ''
   });
+  
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [ordemCriada, setOrdemCriada] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = async (data: any) => {
+  const { 
+    createOrdemCarregamento, 
+    notasFiscaisDisponiveis, 
+    fetchNotasFiscaisDisponiveis,
+    importarNotasFiscais 
+  } = useOrdemCarregamento();
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.cliente || !formData.tipoCarregamento || !formData.dataCarregamento) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const result = await createOrdemCarregamento(data);
-      if (result) {
-        form.reset();
+      const novaOrdem = await createOrdemCarregamento(formData);
+      if (novaOrdem) {
+        setOrdemCriada(novaOrdem.id);
         toast({
-          title: "Ordem de Carregamento criada",
-          description: `OC ${result.id} criada com sucesso.`,
+          title: "Ordem criada com sucesso",
+          description: `OC ${novaOrdem.id} foi criada. Agora você pode importar notas fiscais.`,
         });
       }
     } catch (error) {
-      console.error('Error creating OC:', error);
+      console.error('Erro ao criar ordem:', error);
       toast({
-        title: "Erro ao criar Ordem de Carregamento",
-        description: "Ocorreu um erro ao criar a OC. Tente novamente.",
+        title: "Erro ao criar ordem",
+        description: "Ocorreu um erro ao criar a Ordem de Carregamento.",
         variant: "destructive",
       });
     } finally {
@@ -54,145 +75,139 @@ const CriarOCTab: React.FC = () => {
     }
   };
 
+  const handleImportarNotas = async () => {
+    if (!ordemCriada) return;
+    
+    await fetchNotasFiscaisDisponiveis();
+    setShowImportDialog(true);
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-lg">Nova Ordem de Carregamento</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="cliente"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cliente</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome do cliente" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center">
+            <Plus className="mr-2 text-cross-blue" size={20} />
+            Nova Ordem de Carregamento
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cliente">Cliente *</Label>
+                <Input
+                  id="cliente"
+                  placeholder="Nome do cliente"
+                  value={formData.cliente}
+                  onChange={(e) => handleInputChange('cliente', e.target.value)}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="tipoCarregamento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo de Carregamento</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o tipo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {tiposCarregamento.map((tipo) => (
-                          <SelectItem key={tipo.value} value={tipo.value}>
-                            {tipo.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="tipoCarregamento">Tipo de Carregamento *</Label>
+                <Select value={formData.tipoCarregamento} onValueChange={(value) => handleInputChange('tipoCarregamento', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="express">Express</SelectItem>
+                    <SelectItem value="transferencia">Transferência</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <FormField
-                control={form.control}
-                name="dataCarregamento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data de Carregamento</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="dataCarregamento">Data de Carregamento *</Label>
+                <Input
+                  id="dataCarregamento"
+                  type="datetime-local"
+                  value={formData.dataCarregamento}
+                  onChange={(e) => handleInputChange('dataCarregamento', e.target.value)}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="transportadora"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Transportadora</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome da transportadora" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="transportadora">Transportadora</Label>
+                <Input
+                  id="transportadora"
+                  placeholder="Nome da transportadora"
+                  value={formData.transportadora}
+                  onChange={(e) => handleInputChange('transportadora', e.target.value)}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="placaVeiculo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Placa do Veículo</FormLabel>
-                    <FormControl>
-                      <Input placeholder="ABC-1234" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="placaVeiculo">Placa do Veículo</Label>
+                <Input
+                  id="placaVeiculo"
+                  placeholder="ABC-1234"
+                  value={formData.placaVeiculo}
+                  onChange={(e) => handleInputChange('placaVeiculo', e.target.value)}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="motorista"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Motorista</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome do motorista" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <div className="space-y-2">
+                <Label htmlFor="motorista">Motorista</Label>
+                <Input
+                  id="motorista"
+                  placeholder="Nome do motorista"
+                  value={formData.motorista}
+                  onChange={(e) => handleInputChange('motorista', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea
+                id="observacoes"
+                placeholder="Observações adicionais..."
+                value={formData.observacoes}
+                onChange={(e) => handleInputChange('observacoes', e.target.value)}
+                rows={3}
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="observacoes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observações</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Observações adicionais" 
-                      className="min-h-[100px]"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end">
+            <div className="flex gap-2">
               <Button 
                 type="submit" 
-                className="bg-cross-blue hover:bg-cross-blue/90"
                 disabled={isLoading}
+                className="bg-cross-blue hover:bg-cross-blue/90"
               >
-                {isLoading ? "Criando..." : "Criar Ordem de Carregamento"}
+                <Plus className="h-4 w-4 mr-2" />
+                {isLoading ? 'Criando...' : 'Criar Ordem'}
               </Button>
+
+              {ordemCriada && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleImportarNotas}
+                  className="border-cross-blue text-cross-blue hover:bg-cross-blue/10"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Importar Notas Fiscais
+                </Button>
+              )}
             </div>
           </form>
-        </Form>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <ImportarNotasDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onImport={(notasIds: string[]) => {
+          if (ordemCriada) {
+            importarNotasFiscais(ordemCriada, notasIds);
+          }
+        }}
+        notasFiscaisDisponiveis={notasFiscaisDisponiveis}
+        isLoading={false}
+      />
+    </div>
   );
 };
 

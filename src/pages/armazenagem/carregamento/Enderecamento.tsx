@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,13 +13,13 @@ import TruckLayoutGrid from '@/components/carregamento/enderecamento/TruckLayout
 import VolumeList from '@/components/carregamento/enderecamento/VolumeList';
 import InstructionsCard from '@/components/carregamento/enderecamento/InstructionsCard';
 
-// Interface local para volumes de endereçamento - alinhada com o tipo Volume esperado
+// Interface local para volumes de endereçamento
 interface VolumeEnderecamento {
   id: string;
   codigo: string;
   notaFiscal: string;
   produto: string;
-  peso: string; // Mudando para string para compatibilidade
+  peso: string;
   dimensoes: string;
   fragil: boolean;
   posicaoAtual?: string;
@@ -26,7 +27,7 @@ interface VolumeEnderecamento {
   posicionado: boolean;
   etiquetaMae: string;
   fornecedor: string;
-  quantidade: number; // Adicionando propriedades faltantes
+  quantidade: number;
   etiquetado: boolean;
 }
 
@@ -99,7 +100,7 @@ const Enderecamento: React.FC = () => {
         codigo: volume.codigo,
         notaFiscal: volume.notaFiscal,
         produto: volume.produto,
-        peso: volume.peso.toString(), // Convertendo para string
+        peso: volume.peso.toString(),
         dimensoes: volume.dimensoes,
         fragil: volume.fragil,
         posicaoAtual: volume.posicaoAtual,
@@ -107,7 +108,7 @@ const Enderecamento: React.FC = () => {
         posicionado: !!volume.posicaoAtual,
         etiquetaMae: volume.codigo,
         fornecedor: 'Fornecedor padrão',
-        quantidade: 1, // Valores padrão para as propriedades faltantes
+        quantidade: 1,
         etiquetado: true
       }));
 
