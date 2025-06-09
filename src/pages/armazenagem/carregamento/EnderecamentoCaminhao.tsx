@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 // Hook atualizado para usar dados reais
 import { useEnderecamentoReal } from '@/hooks/useEnderecamentoReal';
+import { initializeLayout } from '@/utils/layoutUtils';
 
 // Components
 import HistoricoLayout from '@/components/carregamento/enderecamento/HistoricoLayout';
@@ -30,6 +31,28 @@ const EnderecamentoCaminhao: React.FC = () => {
     saveLayout,
     allVolumesPositioned
   } = useEnderecamentoReal();
+
+  // Converter o caminhaoLayout (objeto) para o formato esperado pelo TruckLayoutGrid (array)
+  const layoutArray = React.useMemo(() => {
+    const baseLayout = initializeLayout();
+    
+    // Mapear os volumes do caminhaoLayout para o formato de células
+    return baseLayout.map(celula => ({
+      ...celula,
+      volumes: Object.entries(caminhaoLayout)
+        .filter(([posicao]) => posicao === celula.id)
+        .map(([, volume]) => ({
+          id: volume!.id,
+          descricao: volume!.codigo,
+          peso: volume!.peso,
+          fragil: false,
+          posicionado: true,
+          etiquetaMae: '',
+          notaFiscal: volume!.notaFiscal,
+          fornecedor: volume!.destinatario
+        }))
+    }));
+  }, [caminhaoLayout]);
   
   return (
     <MainLayout title="Endereçamento no Caminhão">
@@ -50,7 +73,7 @@ const EnderecamentoCaminhao: React.FC = () => {
             volumes={volumes}
             volumesFiltrados={volumesFiltrados}
             selecionados={selecionados}
-            caminhaoLayout={caminhaoLayout}
+            caminhaoLayout={layoutArray}
             loading={isLoading}
             onOrderFormSubmit={handleOrderFormSubmit}
             onFilter={filtrarVolumes}
