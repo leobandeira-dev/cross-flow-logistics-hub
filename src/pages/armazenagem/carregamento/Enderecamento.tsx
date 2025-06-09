@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +34,7 @@ const Enderecamento: React.FC = () => {
   const [numeroOC, setNumeroOC] = useState('');
   const [ordemSelecionada, setOrdemSelecionada] = useState<OrdemCarregamento | null>(null);
   const [volumes, setVolumes] = useState<VolumeEnderecamento[]>([]);
-  const [volumeSelecionado, setVolumeSelecionado] = useState<VolumeEnderecamento | null>(null);
+  const [volumesSelecionados, setVolumesSelecionados] = useState<string[]>([]);
   const [posicaoSelecionada, setPosicaoSelecionada] = useState<string | null>(null);
   const [filtroVolume, setFiltroVolume] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -128,9 +127,24 @@ const Enderecamento: React.FC = () => {
     }
   };
 
-  const handleSelecionarVolume = (volume: VolumeEnderecamento) => {
-    setVolumeSelecionado(volume);
+  const handleSelecionarVolume = (volumeId: string) => {
+    setVolumesSelecionados(prev => {
+      if (prev.includes(volumeId)) {
+        return prev.filter(id => id !== volumeId);
+      } else {
+        return [...prev, volumeId];
+      }
+    });
     setPosicaoSelecionada(null);
+  };
+
+  const handleSelecionarTodos = () => {
+    const volumesNaoPosicionados = volumes.filter(v => !v.posicaoAtual);
+    if (volumesSelecionados.length === volumesNaoPosicionados.length) {
+      setVolumesSelecionados([]);
+    } else {
+      setVolumesSelecionados(volumesNaoPosicionados.map(v => v.id));
+    }
   };
 
   const handleSelecionarPosicao = (posicao: string) => {
@@ -138,30 +152,32 @@ const Enderecamento: React.FC = () => {
   };
 
   const handleConfirmarEnderecamento = async () => {
-    if (!volumeSelecionado || !posicaoSelecionada || !ordemSelecionada) {
+    if (volumesSelecionados.length === 0 || !posicaoSelecionada || !ordemSelecionada) {
       toast({
         title: "Seleção incompleta",
-        description: "Selecione um volume e uma posição para confirmar o endereçamento.",
+        description: "Selecione pelo menos um volume e uma posição para confirmar o endereçamento.",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      const sucesso = await endercarVolume(volumeSelecionado.id, posicaoSelecionada, ordemSelecionada.id);
+      // Endereçar apenas o primeiro volume selecionado por vez
+      const volumeId = volumesSelecionados[0];
+      const sucesso = await endercarVolume(volumeId, posicaoSelecionada, ordemSelecionada.id);
       
       if (sucesso) {
         // Atualizar o volume com a nova posição
         setVolumes(prevVolumes =>
           prevVolumes.map(volume =>
-            volume.id === volumeSelecionado.id
+            volume.id === volumeId
               ? { ...volume, posicaoAtual: posicaoSelecionada, posicionado: true }
               : volume
           )
         );
 
-        // Limpar seleções
-        setVolumeSelecionado(null);
+        // Remover volume da seleção
+        setVolumesSelecionados(prev => prev.filter(id => id !== volumeId));
         setPosicaoSelecionada(null);
       }
     } catch (error) {
@@ -289,8 +305,9 @@ const Enderecamento: React.FC = () => {
               <CardContent>
                 <VolumeList
                   volumes={volumesFiltrados}
-                  volumeSelecionado={volumeSelecionado}
-                  onSelecionarVolume={handleSelecionarVolume}
+                  selecionados={volumesSelecionados}
+                  onSelectionToggle={handleSelecionarVolume}
+                  onSelectAll={handleSelecionarTodos}
                 />
               </CardContent>
             </Card>
@@ -310,25 +327,34 @@ const Enderecamento: React.FC = () => {
                   v.id === volumeId ? { ...v, posicaoAtual: undefined, posicionado: false } : v
                 ));
               }}
-              hasSelectedVolumes={!!volumeSelecionado}
+              hasSelectedVolumes={volumesSelecionados.length > 0}
               onSaveLayout={() => {}}
               allVolumesPositioned={volumesPendentes.length === 0}
               onPrintLayout={() => {}}
             />
 
-            {volumeSelecionado && (
+            {volumesSelecionados.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Volume Selecionado</CardTitle>
+                  <CardTitle className="text-lg">Volumes Selecionados</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="p-3 border rounded-lg bg-blue-50">
-                    <p className="text-sm font-medium">Volume selecionado:</p>
-                    <p className="text-lg">{volumeSelecionado.codigo} - {volumeSelecionado.produto}</p>
-                    <p className="text-sm text-gray-600">
-                      Peso: {volumeSelecionado.peso}kg | {volumeSelecionado.dimensoes}
-                      {volumeSelecionado.fragil && " | FRÁGIL"}
+                    <p className="text-sm font-medium">
+                      {volumesSelecionados.length} volume(s) selecionado(s)
                     </p>
+                    {volumesSelecionados.map(volumeId => {
+                      const volume = volumes.find(v => v.id === volumeId);
+                      return volume ? (
+                        <div key={volumeId} className="mt-2">
+                          <p className="text-sm">{volume.codigo} - {volume.produto}</p>
+                          <p className="text-xs text-gray-600">
+                            Peso: {volume.peso}kg | {volume.dimensoes}
+                            {volume.fragil && " | FRÁGIL"}
+                          </p>
+                        </div>
+                      ) : null;
+                    })}
                     {posicaoSelecionada && (
                       <div className="mt-2">
                         <p className="text-sm font-medium">Posição selecionada: {posicaoSelecionada}</p>
