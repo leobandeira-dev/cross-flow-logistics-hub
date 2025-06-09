@@ -12,20 +12,22 @@ interface OrderDetailsFormProps {
   ordemSelecionada: OrdemCarregamento | null;
   onImportInvoices?: (notas: NotaFiscal[]) => void;
   showImportButton?: boolean;
+  loading?: boolean;
 }
 
 const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ 
   onSubmit, 
   ordemSelecionada,
   onImportInvoices,
-  showImportButton = false 
+  showImportButton = false,
+  loading = false 
 }) => {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleImportInvoices = () => {
     if (!ordemSelecionada || !onImportInvoices) return;
     
-    setLoading(true);
+    setIsLoading(true);
     
     // Simulate API call to get invoices data
     setTimeout(() => {
@@ -60,7 +62,7 @@ const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
         description: `${mockInvoices.length} notas fiscais foram importadas da OC ${ordemSelecionada.id}.`
       });
       
-      setLoading(false);
+      setIsLoading(false);
     }, 1500);
   };
 
@@ -80,7 +82,7 @@ const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
             order={ordemSelecionada}
             onImportInvoices={handleImportInvoices}
             showImportButton={showImportButton}
-            loading={loading}
+            loading={isLoading || loading}
           />
         )}
       </CardContent>

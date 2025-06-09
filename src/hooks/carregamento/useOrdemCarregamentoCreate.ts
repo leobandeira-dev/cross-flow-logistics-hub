@@ -18,6 +18,8 @@ export const useOrdemCarregamentoCreate = () => {
         id: `OC-${Math.floor(1000 + Math.random() * 9000)}`,
         ...data,
         status: 'pending',
+        volumesTotal: 0,
+        volumesVerificados: 0
       };
       
       toast({

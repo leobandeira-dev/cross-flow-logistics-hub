@@ -23,6 +23,10 @@ export interface OrdemCarregamento {
   notasFiscais?: NotaFiscal[];
   volumesTotal: number;
   volumesVerificados: number;
+  destinatario?: string;
+  conferenteResponsavel?: string;
+  inicioConferencia?: string;
+  fimConferencia?: string;
 }
 
 export interface CreateOCFormData {

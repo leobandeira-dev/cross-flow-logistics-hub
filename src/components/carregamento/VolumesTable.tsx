@@ -18,6 +18,7 @@ interface VolumesTableProps {
   handleVerificarItem: (id: string) => void;
   handleRemoverItem?: (id: string) => void;
   tipoVisualizacao: 'conferir' | 'emConferencia' | 'conferidas';
+  loading?: boolean;
 }
 
 const VolumesTable: React.FC<VolumesTableProps> = ({ 
@@ -25,7 +26,8 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
   itens, 
   handleVerificarItem, 
   handleRemoverItem,
-  tipoVisualizacao
+  tipoVisualizacao,
+  loading = false
 }) => {
   const [itemParaRemover, setItemParaRemover] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -80,7 +82,7 @@ const VolumesTable: React.FC<VolumesTableProps> = ({
           <div className="flex justify-end mt-4">
             <Button 
               className="bg-cross-blue hover:bg-cross-blue/90"
-              disabled={itens.some(item => !item.verificado)}
+              disabled={itens.some(item => !item.verificado) || loading}
             >
               Finalizar Conferência
             </Button>

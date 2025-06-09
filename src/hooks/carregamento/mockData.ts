@@ -46,7 +46,9 @@ export const mockOrdensCarregamento: OrdemCarregamento[] = [
     placaVeiculo: 'ABC1234',
     motorista: 'João Silva',
     observacoes: 'Entregar com urgência',
-    status: 'pending'
+    status: 'pending',
+    volumesTotal: 10,
+    volumesVerificados: 3
   },
   { 
     id: 'OC-2023-002', 
@@ -56,7 +58,9 @@ export const mockOrdensCarregamento: OrdemCarregamento[] = [
     transportadora: 'Transportadora B',
     placaVeiculo: 'DEF5678',
     motorista: 'Maria Oliveira',
-    status: 'processing'
+    status: 'processing',
+    volumesTotal: 15,
+    volumesVerificados: 8
   },
   { 
     id: 'OC-2023-003', 
@@ -67,6 +71,8 @@ export const mockOrdensCarregamento: OrdemCarregamento[] = [
     placaVeiculo: 'GHI9012',
     motorista: 'Carlos Santos',
     observacoes: 'Material com defeito',
-    status: 'completed'
+    status: 'completed',
+    volumesTotal: 8,
+    volumesVerificados: 8
   },
 ];
