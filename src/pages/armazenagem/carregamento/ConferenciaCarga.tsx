@@ -7,6 +7,7 @@ import BarcodeScannerSection from '@/components/carregamento/BarcodeScannerSecti
 import VolumesTable from '@/components/carregamento/VolumesTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useConferenciaCargaReal } from '@/hooks/carregamento/useConferenciaCargaReal';
+import { OrdemCarregamento } from '@/hooks/carregamento/types';
 
 const ConferenciaCarga: React.FC = () => {
   const [codigoVolume, setCodigoVolume] = useState('');
@@ -89,15 +90,65 @@ const ConferenciaCarga: React.FC = () => {
   const verificadosCount = itensConferencia.filter(i => i.verificado).length;
   const totalCount = itensConferencia.length;
 
-  // Função para obter os dados com base na tab ativa
-  const getOrdensParaTab = () => {
+  // Função para obter os dados com base na tab ativa e convertê-los para OrdemCarregamento
+  const getOrdensParaTab = (): OrdemCarregamento | null => {
     switch(tabAtiva) {
       case 'conferir':
-        return ordemSelecionada;
+        if (!ordemSelecionada) return null;
+        return {
+          id: ordemSelecionada.id,
+          cliente: ordemSelecionada.cliente,
+          tipoCarregamento: 'normal', // valor padrão
+          dataCarregamento: ordemSelecionada.dataCarregamento,
+          transportadora: 'Transportadora Padrão', // valor padrão
+          placaVeiculo: 'Não definido', // valor padrão
+          motorista: 'Não definido', // valor padrão
+          status: ordemSelecionada.status,
+          volumesTotal: ordemSelecionada.volumesTotal,
+          volumesVerificados: ordemSelecionada.volumesVerificados,
+          destinatario: ordemSelecionada.destinatario,
+          conferenteResponsavel: ordemSelecionada.conferenteResponsavel,
+          inicioConferencia: ordemSelecionada.inicioConferencia,
+          fimConferencia: ordemSelecionada.fimConferencia
+        };
       case 'emConferencia':
-        return ordensEmConferencia[0] || null;
+        if (!ordensEmConferencia[0]) return null;
+        const ordemEmConf = ordensEmConferencia[0];
+        return {
+          id: ordemEmConf.id,
+          cliente: ordemEmConf.cliente,
+          tipoCarregamento: 'normal',
+          dataCarregamento: ordemEmConf.dataCarregamento,
+          transportadora: 'Transportadora Padrão',
+          placaVeiculo: 'Não definido',
+          motorista: 'Não definido',
+          status: ordemEmConf.status,
+          volumesTotal: ordemEmConf.volumesTotal,
+          volumesVerificados: ordemEmConf.volumesVerificados,
+          destinatario: ordemEmConf.destinatario,
+          conferenteResponsavel: ordemEmConf.conferenteResponsavel,
+          inicioConferencia: ordemEmConf.inicioConferencia,
+          fimConferencia: ordemEmConf.fimConferencia
+        };
       case 'conferidas':
-        return ordensConferidas[0] || null;
+        if (!ordensConferidas[0]) return null;
+        const ordemConf = ordensConferidas[0];
+        return {
+          id: ordemConf.id,
+          cliente: ordemConf.cliente,
+          tipoCarregamento: 'normal',
+          dataCarregamento: ordemConf.dataCarregamento,
+          transportadora: 'Transportadora Padrão',
+          placaVeiculo: 'Não definido',
+          motorista: 'Não definido',
+          status: ordemConf.status,
+          volumesTotal: ordemConf.volumesTotal,
+          volumesVerificados: ordemConf.volumesVerificados,
+          destinatario: ordemConf.destinatario,
+          conferenteResponsavel: ordemConf.conferenteResponsavel,
+          inicioConferencia: ordemConf.inicioConferencia,
+          fimConferencia: ordemConf.fimConferencia
+        };
       default:
         return null;
     }
@@ -155,7 +206,6 @@ const ConferenciaCarga: React.FC = () => {
                 handleVerificarPorEtiquetaMae={handleVerificarPorEtiquetaMae}
                 verificadosCount={verificadosCount}
                 totalCount={totalCount}
-                loading={isLoading}
               />
             </div>
           )}

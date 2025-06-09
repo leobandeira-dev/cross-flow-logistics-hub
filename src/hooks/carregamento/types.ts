@@ -21,6 +21,8 @@ export interface OrdemCarregamento {
   observacoes?: string;
   status: 'pending' | 'processing' | 'completed';
   notasFiscais?: NotaFiscal[];
+  volumesTotal: number;
+  volumesVerificados: number;
 }
 
 export interface CreateOCFormData {
