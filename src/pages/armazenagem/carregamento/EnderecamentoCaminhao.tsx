@@ -74,7 +74,6 @@ const EnderecamentoCaminhao: React.FC = () => {
             volumesFiltrados={volumesFiltrados}
             selecionados={selecionados}
             caminhaoLayout={layoutArray}
-            loading={isLoading}
             onOrderFormSubmit={handleOrderFormSubmit}
             onFilter={filtrarVolumes}
             onSelectionToggle={toggleSelecao}
