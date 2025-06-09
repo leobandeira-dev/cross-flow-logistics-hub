@@ -1,9 +1,10 @@
+
 import React from 'react';
 import MainLayout from '../../../components/layout/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
-// Hooks
-import { useEnderecamento } from '@/hooks/useEnderecamento';
+// Hook atualizado para usar dados reais
+import { useEnderecamentoReal } from '@/hooks/useEnderecamentoReal';
 
 // Components
 import HistoricoLayout from '@/components/carregamento/enderecamento/HistoricoLayout';
@@ -18,6 +19,7 @@ const EnderecamentoCaminhao: React.FC = () => {
     selecionados,
     caminhaoLayout,
     confirmDialogOpen,
+    isLoading,
     setConfirmDialogOpen,
     handleOrderFormSubmit,
     filtrarVolumes,
@@ -27,7 +29,7 @@ const EnderecamentoCaminhao: React.FC = () => {
     removerVolume,
     saveLayout,
     allVolumesPositioned
-  } = useEnderecamento();
+  } = useEnderecamentoReal();
   
   return (
     <MainLayout title="Endereçamento no Caminhão">
@@ -49,6 +51,7 @@ const EnderecamentoCaminhao: React.FC = () => {
             volumesFiltrados={volumesFiltrados}
             selecionados={selecionados}
             caminhaoLayout={caminhaoLayout}
+            loading={isLoading}
             onOrderFormSubmit={handleOrderFormSubmit}
             onFilter={filtrarVolumes}
             onSelectionToggle={toggleSelecao}
@@ -72,6 +75,7 @@ const EnderecamentoCaminhao: React.FC = () => {
         onConfirm={() => {
           // Adicionar lógica de confirmação aqui
           console.log('Confirmação realizada');
+          setConfirmDialogOpen(false);
         }}
       />
     </MainLayout>

@@ -7,12 +7,10 @@ import StatusBadge from '@/components/common/StatusBadge';
 import SearchFilter from '@/components/common/SearchFilter';
 import { FileText, Truck } from 'lucide-react';
 import { FilterConfig } from '@/components/common/SearchFilter';
-import { useOrdemCarregamento } from '@/hooks/carregamento';
-import { useSearchParams } from 'react-router-dom';
+import { useOrdemCarregamentoReal } from '@/hooks/carregamento/useOrdemCarregamentoReal';
 import ImportarNotasDialog from '@/components/carregamento/ImportarNotasDialog';
 
 const ConsultarOCTab: React.FC = () => {
-  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     status: 'all',
@@ -29,17 +27,17 @@ const ConsultarOCTab: React.FC = () => {
     fetchNotasFiscaisDisponiveis,
     importarNotasFiscais,
     iniciarCarregamento
-  } = useOrdemCarregamento();
+  } = useOrdemCarregamentoReal();
 
   useEffect(() => {
-    // Fetch data when component mounts
+    // Buscar dados quando o componente for montado
     fetchOrdensCarregamento();
   }, [fetchOrdensCarregamento]);
 
   const handleSearch = (term: string, filters?: Record<string, string[]>) => {
     setSearchTerm(term);
     if (filters) {
-      // Update filters if needed
+      // Atualizar filtros se necessário
       const newFilters: Record<string, string> = {};
       Object.keys(filters).forEach(key => {
         newFilters[key] = filters[key][0] || 'all';
@@ -61,7 +59,7 @@ const ConsultarOCTab: React.FC = () => {
     }
   };
 
-  // Filter configuration for the search component
+  // Configuração de filtros para o componente de pesquisa
   const filters: FilterConfig[] = [
     {
       id: "status",
@@ -85,6 +83,20 @@ const ConsultarOCTab: React.FC = () => {
     }
   ];
 
+  // Filtrar dados baseado na pesquisa e filtros ativos
+  const dadosFiltrados = ordensCarregamento.filter(ordem => {
+    // Aplicar filtro de pesquisa
+    const matchesSearch = !searchTerm || 
+      ordem.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ordem.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ordem.destinatario.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Aplicar filtro de status
+    const matchesStatus = activeFilters.status === 'all' || ordem.status === activeFilters.status;
+
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -106,7 +118,8 @@ const ConsultarOCTab: React.FC = () => {
                 const tipoMap: Record<string, string> = {
                   'entrega': 'Entrega',
                   'transferencia': 'Transferência',
-                  'devolucao': 'Devolução'
+                  'devolucao': 'Devolução',
+                  'normal': 'Normal'
                 };
                 return tipoMap[row.tipoCarregamento] || row.tipoCarregamento;
               }
@@ -118,11 +131,14 @@ const ConsultarOCTab: React.FC = () => {
               accessor: 'status',
               cell: (row) => {
                 const statusMap: any = {
+                  'pendente': { type: 'warning', text: 'Pendente' },
                   'pending': { type: 'warning', text: 'Pendente' },
+                  'em_carregamento': { type: 'info', text: 'Em Carregamento' },
                   'processing': { type: 'info', text: 'Em Carregamento' },
+                  'concluida': { type: 'success', text: 'Concluído' },
                   'completed': { type: 'success', text: 'Concluído' },
                 };
-                const status = statusMap[row.status];
+                const status = statusMap[row.status] || { type: 'warning', text: 'Pendente' };
                 return <StatusBadge status={status.type} text={status.text} />;
               }
             },
@@ -141,23 +157,25 @@ const ConsultarOCTab: React.FC = () => {
                     <FileText size={16} className="mr-1" />
                     Detalhes
                   </Button>
-                  {row.status !== 'completed' && (
+                  {row.status !== 'completed' && row.status !== 'concluida' && (
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="bg-cross-blue text-white hover:bg-cross-blue/90"
                       onClick={() => iniciarCarregamento(row.id)}
+                      disabled={isLoading}
                     >
                       <Truck size={16} className="mr-1" />
-                      Iniciar
+                      {isLoading ? 'Iniciando...' : 'Iniciar'}
                     </Button>
                   )}
-                  {row.status === 'pending' && (
+                  {(row.status === 'pending' || row.status === 'pendente') && (
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="border-green-600 text-green-600 hover:bg-green-50"
                       onClick={() => handleImportClick(row.id)}
+                      disabled={isLoading}
                     >
                       <FileText size={16} className="mr-1" />
                       Importar NFs
@@ -167,7 +185,8 @@ const ConsultarOCTab: React.FC = () => {
               )
             }
           ]}
-          data={ordensCarregamento}
+          data={dadosFiltrados}
+          loading={isLoading}
         />
       </CardContent>
 

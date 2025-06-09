@@ -1,40 +1,26 @@
 
 import { useState } from "react";
-import { useOrdemCarregamentoCreate } from "./useOrdemCarregamentoCreate";
-import { useNotasFiscais } from "./useNotasFiscais";
-import { useOrdensCarregamentoQuery } from "./useOrdensCarregamentoQuery";
+import { useOrdemCarregamentoReal } from "./useOrdemCarregamentoReal";
 import { NotaFiscal, OrdemCarregamento } from "./types";
 
+// Re-exportar os tipos
 export type { NotaFiscal, OrdemCarregamento } from "./types";
 
 export const useOrdemCarregamento = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  
+  // Usar a versão real em vez da mock
   const {
+    isLoading,
     ordensCarregamento,
-    setOrdensCarregamento,
-    fetchOrdensCarregamento,
-    iniciarCarregamento,
-    isLoading: isLoadingOrdens
-  } = useOrdensCarregamentoQuery();
-  
-  const { 
-    createOrdemCarregamento,
-    isLoading: isLoadingCreate 
-  } = useOrdemCarregamentoCreate();
-  
-  const {
     notasFiscaisDisponiveis,
+    fetchOrdensCarregamento,
     fetchNotasFiscaisDisponiveis,
+    createOrdemCarregamento,
     importarNotasFiscais,
-    isLoading: isLoadingNotas
-  } = useNotasFiscais(setOrdensCarregamento);
-
-  // Combine loading states from all hooks
-  const combinedIsLoading = isLoading || isLoadingOrdens || isLoadingCreate || isLoadingNotas;
+    iniciarCarregamento
+  } = useOrdemCarregamentoReal();
 
   return {
-    isLoading: combinedIsLoading,
+    isLoading,
     ordensCarregamento,
     notasFiscaisDisponiveis,
     createOrdemCarregamento,

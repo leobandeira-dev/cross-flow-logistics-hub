@@ -72,6 +72,10 @@ const ImportarNotasDialog: React.FC<ImportarNotasDialogProps> = ({
             {notasFiscaisDisponiveis.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 Nenhuma nota fiscal disponível para importação.
+                <br />
+                <small className="text-xs">
+                  As notas devem estar com status "pendente" e não vinculadas a outras ordens.
+                </small>
               </div>
             ) : (
               <div className="space-y-2">
@@ -87,6 +91,11 @@ const ImportarNotasDialog: React.FC<ImportarNotasDialogProps> = ({
                       <div className="text-sm text-gray-500">
                         Cliente: {nota.cliente} • Valor: R$ {nota.valor.toFixed(2)} • Data: {nota.dataEmissao}
                       </div>
+                      {nota.pesoBruto > 0 && (
+                        <div className="text-xs text-gray-400">
+                          Peso: {nota.pesoBruto} kg
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -102,7 +111,14 @@ const ImportarNotasDialog: React.FC<ImportarNotasDialogProps> = ({
             disabled={selectedNotas.length === 0 || isLoading}
             className="bg-cross-blue hover:bg-cross-blue/90"
           >
-            Importar Selecionadas ({selectedNotas.length})
+            {isLoading ? (
+              <>
+                <Loader className="animate-spin h-4 w-4 mr-2" />
+                Importando...
+              </>
+            ) : (
+              `Importar Selecionadas (${selectedNotas.length})`
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
