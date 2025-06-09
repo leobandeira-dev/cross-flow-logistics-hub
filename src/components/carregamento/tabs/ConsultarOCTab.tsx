@@ -105,7 +105,7 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'acoes',
       header: 'Ações',
-      accessor: () => '',
+      accessor: 'acoes',
       cell: ({ row }: any) => {
         const ordem = row.original;
         return (

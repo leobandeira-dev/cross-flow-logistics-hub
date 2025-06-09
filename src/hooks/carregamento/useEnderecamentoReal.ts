@@ -216,12 +216,39 @@ export const useEnderecamentoReal = () => {
     }
   }, []);
 
+  // Atualizar status do volume
+  const atualizarStatusVolume = useCallback(async (volumeId: string, novoStatus: string) => {
+    try {
+      console.log('Atualizando status do volume:', { volumeId, novoStatus });
+      
+      const { error } = await supabase
+        .from('etiquetas')
+        .update({ status: novoStatus })
+        .eq('id', volumeId);
+
+      if (error) {
+        throw new Error(`Erro ao atualizar status: ${error.message}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao atualizar status do volume:', error);
+      toast({
+        title: "Erro ao atualizar status",
+        description: "Ocorreu um erro ao atualizar o status do volume.",
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, []);
+
   return {
     isLoading,
     volumes,
     posicoes,
     buscarVolumesParaEnderecamento,
     buscarPosicoesDisponiveis,
-    endercarVolume
+    endercarVolume,
+    atualizarStatusVolume
   };
 };

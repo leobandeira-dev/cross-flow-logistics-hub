@@ -13,13 +13,13 @@ import TruckLayoutGrid from '@/components/carregamento/enderecamento/TruckLayout
 import VolumeList from '@/components/carregamento/enderecamento/VolumeList';
 import InstructionsCard from '@/components/carregamento/enderecamento/InstructionsCard';
 
-// Interface local para volumes de endereçamento
+// Interface local para volumes de endereçamento - alinhada com o tipo Volume esperado
 interface VolumeEnderecamento {
   id: string;
   codigo: string;
   notaFiscal: string;
   produto: string;
-  peso: number;
+  peso: string; // Mudando para string para compatibilidade
   dimensoes: string;
   fragil: boolean;
   posicaoAtual?: string;
@@ -27,6 +27,8 @@ interface VolumeEnderecamento {
   posicionado: boolean;
   etiquetaMae: string;
   fornecedor: string;
+  quantidade: number; // Adicionando propriedades faltantes
+  etiquetado: boolean;
 }
 
 const Enderecamento: React.FC = () => {
@@ -98,14 +100,16 @@ const Enderecamento: React.FC = () => {
         codigo: volume.codigo,
         notaFiscal: volume.notaFiscal,
         produto: volume.produto,
-        peso: volume.peso,
+        peso: volume.peso.toString(), // Convertendo para string
         dimensoes: volume.dimensoes,
         fragil: volume.fragil,
         posicaoAtual: volume.posicaoAtual,
         descricao: volume.produto,
         posicionado: !!volume.posicaoAtual,
         etiquetaMae: volume.codigo,
-        fornecedor: 'Fornecedor padrão'
+        fornecedor: 'Fornecedor padrão',
+        quantidade: 1, // Valores padrão para as propriedades faltantes
+        etiquetado: true
       }));
 
       setVolumes(volumesFormatados);
