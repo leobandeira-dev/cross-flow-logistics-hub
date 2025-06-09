@@ -27,7 +27,42 @@ export const useEnderecamentoReal = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Buscar volumes de uma ordem de carregamento
+  // CREATE - Criar nova ordem de carregamento (se necessário)
+  const criarOrdemCarregamento = useCallback(async (dadosOrdem: any) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('ordens_carregamento')
+        .insert({
+          numero_ordem: dadosOrdem.numeroOrdem,
+          tipo_carregamento: dadosOrdem.tipoCarregamento || 'normal',
+          empresa_cliente_id: dadosOrdem.clienteId,
+          status: 'pendente'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Ordem criada",
+        description: `Ordem ${dadosOrdem.numeroOrdem} criada com sucesso.`,
+      });
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao criar ordem:', error);
+      toast({
+        title: "Erro ao criar ordem",
+        description: "Ocorreu um erro ao criar a ordem de carregamento.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // READ - Buscar volumes de uma ordem de carregamento
   const buscarVolumesOrdem = useCallback(async (numeroOrdem: string) => {
     setIsLoading(true);
     try {
@@ -96,6 +131,9 @@ export const useEnderecamentoReal = () => {
       setVolumes(volumesFormatados);
       setVolumesFiltrados(volumesFormatados);
 
+      // Buscar layout existente se houver
+      await buscarLayoutExistente(ordem.id);
+
     } catch (error) {
       console.error('Erro ao buscar volumes:', error);
       toast({
@@ -107,6 +145,121 @@ export const useEnderecamentoReal = () => {
       setVolumesFiltrados([]);
     } finally {
       setIsLoading(false);
+    }
+  }, []);
+
+  // READ - Buscar layout existente do carregamento
+  const buscarLayoutExistente = useCallback(async (ordemId: string) => {
+    try {
+      // Buscar carregamento da ordem
+      const { data: carregamento, error: errorCarregamento } = await supabase
+        .from('carregamentos')
+        .select('id')
+        .eq('ordem_carregamento_id', ordemId)
+        .maybeSingle();
+
+      if (errorCarregamento || !carregamento) {
+        return;
+      }
+
+      // Buscar endereçamentos do carregamento
+      const { data: enderecamentos, error: errorEnderecamentos } = await supabase
+        .from('enderecamento_caminhao')
+        .select(`
+          posicao,
+          etiqueta_id,
+          etiquetas (
+            id,
+            codigo,
+            nota_fiscal_id,
+            destinatario,
+            cidade,
+            uf,
+            peso
+          )
+        `)
+        .eq('carregamento_id', carregamento.id);
+
+      if (errorEnderecamentos) {
+        throw errorEnderecamentos;
+      }
+
+      if (enderecamentos && enderecamentos.length > 0) {
+        const layoutExistente: CaminhaoLayout = {};
+        
+        enderecamentos.forEach(end => {
+          if (end.etiquetas) {
+            const etiqueta = end.etiquetas as any;
+            layoutExistente[end.posicao] = {
+              id: etiqueta.id,
+              codigo: etiqueta.codigo,
+              notaFiscal: '', // Será preenchido se necessário
+              destinatario: etiqueta.destinatario || '',
+              cidade: etiqueta.cidade ? `${etiqueta.cidade} - ${etiqueta.uf}` : '',
+              peso: etiqueta.peso?.toString() || '0',
+              status: 'posicionado',
+              posicao: end.posicao
+            };
+          }
+        });
+
+        setCaminhaoLayout(layoutExistente);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar layout existente:', error);
+    }
+  }, []);
+
+  // UPDATE - Atualizar status da ordem
+  const atualizarStatusOrdem = useCallback(async (numeroOrdem: string, novoStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('ordens_carregamento')
+        .update({ status: novoStatus })
+        .eq('numero_ordem', numeroOrdem);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status atualizado",
+        description: `Status da ordem ${numeroOrdem} atualizado para ${novoStatus}.`,
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+      toast({
+        title: "Erro ao atualizar status",
+        description: "Ocorreu um erro ao atualizar o status da ordem.",
+        variant: "destructive",
+      });
+    }
+  }, []);
+
+  // UPDATE - Atualizar status do volume
+  const atualizarStatusVolume = useCallback(async (volumeId: string, novoStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('etiquetas')
+        .update({ status: novoStatus })
+        .eq('id', volumeId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Erro ao atualizar status do volume:', error);
+    }
+  }, []);
+
+  // DELETE - Remover endereçamento
+  const removerEnderecamento = useCallback(async (carregamentoId: string, etiquetaId: string) => {
+    try {
+      const { error } = await supabase
+        .from('enderecamento_caminhao')
+        .delete()
+        .eq('carregamento_id', carregamentoId)
+        .eq('etiqueta_id', etiquetaId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Erro ao remover endereçamento:', error);
     }
   }, []);
 
@@ -165,6 +318,8 @@ export const useEnderecamentoReal = () => {
       if (volume) {
         const posicaoFinal = selecionados.length > 1 ? `${posicao}-${index + 1}` : posicao;
         novoLayout[posicaoFinal] = { ...volume, posicao: posicaoFinal };
+        // Atualizar status do volume
+        atualizarStatusVolume(volumeId, 'posicionado');
       }
     });
 
@@ -175,10 +330,16 @@ export const useEnderecamentoReal = () => {
       title: "Volumes posicionados",
       description: `${selecionados.length} volume(s) posicionado(s) em ${posicao}.`,
     });
-  }, [selecionados, volumes, caminhaoLayout]);
+  }, [selecionados, volumes, caminhaoLayout, atualizarStatusVolume]);
 
   // Remover volume do caminhão
   const removerVolume = useCallback((posicao: string) => {
+    const volume = caminhaoLayout[posicao];
+    if (volume) {
+      // Atualizar status do volume
+      atualizarStatusVolume(volume.id, 'disponivel');
+    }
+
     const novoLayout = { ...caminhaoLayout };
     delete novoLayout[posicao];
     setCaminhaoLayout(novoLayout);
@@ -187,9 +348,9 @@ export const useEnderecamentoReal = () => {
       title: "Volume removido",
       description: `Volume removido da posição ${posicao}.`,
     });
-  }, [caminhaoLayout]);
+  }, [caminhaoLayout, atualizarStatusVolume]);
 
-  // Salvar layout no banco de dados
+  // CREATE/UPDATE - Salvar layout no banco de dados
   const saveLayout = useCallback(async () => {
     if (!ordemSelecionada) {
       toast({
@@ -225,7 +386,7 @@ export const useEnderecamentoReal = () => {
       let carregamentoId = carregamento?.id;
 
       if (!carregamentoId) {
-        // Criar novo carregamento
+        // CREATE - Criar novo carregamento
         const { data: novoCarregamento, error: errorNovoCarregamento } = await supabase
           .from('carregamentos')
           .insert({
@@ -241,15 +402,24 @@ export const useEnderecamentoReal = () => {
         }
 
         carregamentoId = novoCarregamento.id;
+      } else {
+        // UPDATE - Atualizar carregamento existente
+        await supabase
+          .from('carregamentos')
+          .update({
+            quantidade_volumes: Object.keys(caminhaoLayout).length,
+            status: 'em_andamento'
+          })
+          .eq('id', carregamentoId);
       }
 
-      // Limpar endereçamentos anteriores
+      // DELETE - Limpar endereçamentos anteriores
       await supabase
         .from('enderecamento_caminhao')
         .delete()
         .eq('carregamento_id', carregamentoId);
 
-      // Inserir novos endereçamentos
+      // CREATE - Inserir novos endereçamentos
       const enderecamentos = Object.entries(caminhaoLayout).map(([posicao, volume], index) => ({
         carregamento_id: carregamentoId,
         etiqueta_id: volume!.id,
@@ -267,6 +437,9 @@ export const useEnderecamentoReal = () => {
         }
       }
 
+      // UPDATE - Atualizar status da ordem para em carregamento
+      await atualizarStatusOrdem(ordemSelecionada, 'em_carregamento');
+
       toast({
         title: "Layout salvo",
         description: "Layout do carregamento salvo com sucesso!",
@@ -282,7 +455,66 @@ export const useEnderecamentoReal = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [ordemSelecionada, caminhaoLayout]);
+  }, [ordemSelecionada, caminhaoLayout, atualizarStatusOrdem]);
+
+  // DELETE - Cancelar carregamento
+  const cancelarCarregamento = useCallback(async (numeroOrdem: string) => {
+    setIsLoading(true);
+    try {
+      // Buscar a ordem
+      const { data: ordem, error: errorOrdem } = await supabase
+        .from('ordens_carregamento')
+        .select('id')
+        .eq('numero_ordem', numeroOrdem)
+        .single();
+
+      if (errorOrdem || !ordem) {
+        throw new Error('Ordem não encontrada');
+      }
+
+      // Buscar carregamento
+      const { data: carregamento, error: errorCarregamento } = await supabase
+        .from('carregamentos')
+        .select('id')
+        .eq('ordem_carregamento_id', ordem.id)
+        .maybeSingle();
+
+      if (carregamento) {
+        // DELETE - Remover todos os endereçamentos
+        await supabase
+          .from('enderecamento_caminhao')
+          .delete()
+          .eq('carregamento_id', carregamento.id);
+
+        // DELETE - Remover carregamento
+        await supabase
+          .from('carregamentos')
+          .delete()
+          .eq('id', carregamento.id);
+      }
+
+      // UPDATE - Voltar status da ordem para pendente
+      await atualizarStatusOrdem(numeroOrdem, 'pendente');
+
+      // Limpar layout local
+      setCaminhaoLayout({});
+      
+      toast({
+        title: "Carregamento cancelado",
+        description: "O carregamento foi cancelado com sucesso.",
+      });
+
+    } catch (error) {
+      console.error('Erro ao cancelar carregamento:', error);
+      toast({
+        title: "Erro ao cancelar",
+        description: "Ocorreu um erro ao cancelar o carregamento.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [atualizarStatusOrdem]);
 
   // Verificar se todos os volumes estão posicionados
   const allVolumesPositioned = volumes.length > 0 && 
@@ -304,6 +536,13 @@ export const useEnderecamentoReal = () => {
     moverVolumesSelecionados,
     removerVolume,
     saveLayout,
-    allVolumesPositioned
+    allVolumesPositioned,
+    // Novas funções CRUD
+    criarOrdemCarregamento,
+    buscarVolumesOrdem,
+    atualizarStatusOrdem,
+    atualizarStatusVolume,
+    cancelarCarregamento,
+    buscarLayoutExistente
   };
 };
