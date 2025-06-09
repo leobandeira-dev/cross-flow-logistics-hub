@@ -1,4 +1,3 @@
-
 export interface NotaFiscal {
   id: string;
   numero: string;
@@ -8,6 +7,7 @@ export interface NotaFiscal {
   dataEmissao: string;
   valor: number;
   pesoBruto: number;
+  status?: string;
 }
 
 export interface OrdemCarregamento {

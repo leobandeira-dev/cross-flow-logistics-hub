@@ -178,18 +178,58 @@ export const useOrdemCarregamentoReal = () => {
     }
   }, []);
 
-  // READ - Buscar notas fiscais disponíveis para importação
-  const fetchNotasFiscaisDisponiveis = useCallback(async () => {
+  // READ - Buscar notas fiscais disponíveis para importação com filtros aprimorados
+  const fetchNotasFiscaisDisponiveis = useCallback(async (filtros?: {
+    status?: string;
+    fornecedor?: string;
+    dataInicio?: string;
+    dataFim?: string;
+    valorMinimo?: number;
+    valorMaximo?: number;
+    termo?: string;
+  }) => {
     setIsLoading(true);
     try {
-      console.log('Buscando notas fiscais disponíveis...');
+      console.log('Buscando notas fiscais disponíveis com filtros:', filtros);
       
-      const { data, error } = await supabase
+      let query = supabase
         .from('notas_fiscais')
         .select('*')
         .is('ordem_carregamento_id', null) // Notas que ainda não estão em uma ordem
-        .eq('status', 'pendente')
-        .order('created_at', { ascending: false });
+        .order('data_inclusao', { ascending: false });
+
+      // Aplicar filtros se fornecidos
+      if (filtros?.status && filtros.status !== 'all') {
+        query = query.eq('status', filtros.status);
+      } else {
+        query = query.eq('status', 'pendente'); // Default para pendente
+      }
+
+      if (filtros?.fornecedor) {
+        query = query.ilike('emitente_razao_social', `%${filtros.fornecedor}%`);
+      }
+
+      if (filtros?.dataInicio) {
+        query = query.gte('data_emissao', filtros.dataInicio);
+      }
+
+      if (filtros?.dataFim) {
+        query = query.lte('data_emissao', filtros.dataFim);
+      }
+
+      if (filtros?.valorMinimo) {
+        query = query.gte('valor_total', filtros.valorMinimo);
+      }
+
+      if (filtros?.valorMaximo) {
+        query = query.lte('valor_total', filtros.valorMaximo);
+      }
+
+      if (filtros?.termo) {
+        query = query.or(`numero.ilike.%${filtros.termo}%,emitente_razao_social.ilike.%${filtros.termo}%,destinatario_razao_social.ilike.%${filtros.termo}%`);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Erro ao buscar notas fiscais:', error);
@@ -206,8 +246,9 @@ export const useOrdemCarregamentoReal = () => {
         cliente: nota.destinatario_razao_social || 'Cliente não identificado',
         pedido: nota.numero_pedido || '',
         dataEmissao: new Date(nota.data_emissao).toLocaleDateString('pt-BR'),
-        valor: nota.valor_total,
-        pesoBruto: nota.peso_bruto || 0
+        valor: nota.valor_total || 0,
+        pesoBruto: nota.peso_bruto || 0,
+        status: nota.status || 'pendente'
       }));
 
       setNotasFiscaisDisponiveis(notasFormatadas);
