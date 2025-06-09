@@ -89,7 +89,7 @@ const ConsultarOCTab: React.FC = () => {
     const matchesSearch = !searchTerm || 
       ordem.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ordem.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ordem.destinatario.toLowerCase().includes(searchTerm.toLowerCase());
+      ordem.placaVeiculo.toLowerCase().includes(searchTerm.toLowerCase());
 
     // Aplicar filtro de status
     const matchesStatus = activeFilters.status === 'all' || ordem.status === activeFilters.status;
@@ -104,7 +104,7 @@ const ConsultarOCTab: React.FC = () => {
       </CardHeader>
       <CardContent>
         <SearchFilter 
-          placeholder="Buscar por ID, cliente ou destino..." 
+          placeholder="Buscar por ID, cliente ou placa..." 
           filters={filters}
           onSearch={handleSearch}
         />
@@ -186,8 +186,13 @@ const ConsultarOCTab: React.FC = () => {
             }
           ]}
           data={dadosFiltrados}
-          loading={isLoading}
         />
+
+        {isLoading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="text-gray-500">Carregando...</div>
+          </div>
+        )}
       </CardContent>
 
       <ImportarNotasDialog 

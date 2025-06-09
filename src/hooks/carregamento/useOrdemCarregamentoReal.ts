@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -36,11 +35,11 @@ export const useOrdemCarregamentoReal = () => {
       const ordensFormatadas: OrdemCarregamento[] = (data || []).map(ordem => ({
         id: ordem.numero_ordem,
         cliente: ordem.empresa_cliente?.razao_social || 'Cliente não identificado',
-        destinatario: 'Destinatário Padrão', // Pode ser calculado baseado nas notas fiscais
         tipoCarregamento: ordem.tipo_carregamento || 'normal',
         dataCarregamento: new Date(ordem.data_programada || ordem.created_at).toLocaleDateString('pt-BR'),
+        transportadora: 'Transportadora Padrão', // Campo obrigatório na interface
+        placaVeiculo: ordem.veiculo?.placa || 'Não definido', // Campo obrigatório na interface
         motorista: ordem.motorista?.nome || 'Não definido',
-        veiculo: ordem.veiculo ? `${ordem.veiculo.placa} - ${ordem.veiculo.modelo}` : 'Não definido',
         status: ordem.status as 'pending' | 'processing' | 'completed',
         volumesTotal: 0, // Será calculado baseado nas etiquetas
         volumesVerificados: 0,
@@ -86,6 +85,7 @@ export const useOrdemCarregamentoReal = () => {
       const notasFormatadas: NotaFiscal[] = (data || []).map(nota => ({
         id: nota.id,
         numero: nota.numero,
+        remetente: nota.emitente_razao_social || 'Remetente não identificado', // Campo obrigatório
         cliente: nota.destinatario_razao_social || 'Cliente não identificado',
         pedido: nota.numero_pedido || '',
         dataEmissao: new Date(nota.data_emissao).toLocaleDateString('pt-BR'),
