@@ -1,208 +1,224 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Search, Eye, FileText } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { useOrdemCarregamento } from '@/hooks/carregamento';
 import DataTable from '@/components/common/DataTable';
-import StatusBadge from '@/components/common/StatusBadge';
-import SearchFilter from '@/components/common/SearchFilter';
-import { FileText, Truck } from 'lucide-react';
-import { FilterConfig } from '@/components/common/SearchFilter';
-import { useOrdemCarregamentoReal } from '@/hooks/carregamento/useOrdemCarregamentoReal';
-import ImportarNotasDialog from '@/components/carregamento/ImportarNotasDialog';
+import { OrdemCarregamento, NotaFiscal } from '@/hooks/carregamento/types';
+import ImportarNotasDialog from '../ImportarNotasDialog';
 
 const ConsultarOCTab: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
-    status: 'all',
-    periodo: 'all'
-  });
-  const [importModalOpen, setImportModalOpen] = useState(false);
-  const [selectedOrdemId, setSelectedOrdemId] = useState<string | null>(null);
+  const [numeroOC, setNumeroOC] = useState('');
+  const [ordemEncontrada, setOrdemEncontrada] = useState<OrdemCarregamento | null>(null);
+  const [notasFiscaisVinculadas, setNotasFiscaisVinculadas] = useState<NotaFiscal[]>([]);
+  const [showNotasDialog, setShowNotasDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { 
-    isLoading,
-    ordensCarregamento, 
-    notasFiscaisDisponiveis, 
-    fetchOrdensCarregamento,
-    fetchNotasFiscaisDisponiveis,
-    importarNotasFiscais,
-    iniciarCarregamento
-  } = useOrdemCarregamentoReal();
+  const { ordensCarregamento, fetchOrdensCarregamento } = useOrdemCarregamento();
 
-  useEffect(() => {
-    // Buscar dados quando o componente for montado
-    fetchOrdensCarregamento();
-  }, [fetchOrdensCarregamento]);
-
-  const handleSearch = (term: string, filters?: Record<string, string[]>) => {
-    setSearchTerm(term);
-    if (filters) {
-      // Atualizar filtros se necessário
-      const newFilters: Record<string, string> = {};
-      Object.keys(filters).forEach(key => {
-        newFilters[key] = filters[key][0] || 'all';
+  const handleBuscarOC = async () => {
+    if (!numeroOC.trim()) {
+      toast({
+        title: "Número da OC é obrigatório",
+        description: "Por favor, informe o número da Ordem de Carregamento.",
+        variant: "destructive",
       });
-      setActiveFilters(newFilters);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Simular busca da ordem
+      await fetchOrdensCarregamento();
+      const ordem = ordensCarregamento.find(oc => oc.id === numeroOC);
+      
+      if (ordem) {
+        setOrdemEncontrada(ordem);
+        // Simular busca das notas fiscais vinculadas
+        const notasVinculadas: NotaFiscal[] = ordem.notasFiscais || [];
+        setNotasFiscaisVinculadas(notasVinculadas);
+        
+        toast({
+          title: "Ordem de Carregamento encontrada",
+          description: `OC ${numeroOC} localizada com sucesso.`,
+        });
+      } else {
+        setOrdemEncontrada(null);
+        setNotasFiscaisVinculadas([]);
+        toast({
+          title: "Ordem não encontrada",
+          description: `Nenhuma OC encontrada com o número ${numeroOC}.`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao buscar OC:', error);
+      toast({
+        title: "Erro na busca",
+        description: "Ocorreu um erro ao buscar a Ordem de Carregamento.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleImportClick = async (ordemId: string) => {
-    setSelectedOrdemId(ordemId);
-    await fetchNotasFiscaisDisponiveis();
-    setImportModalOpen(true);
+  const handleVisualizarNotas = () => {
+    if (!ordemEncontrada) return;
+    setShowNotasDialog(true);
   };
 
-  const handleImportNotas = (notasIds: string[]) => {
-    if (selectedOrdemId) {
-      importarNotasFiscais(selectedOrdemId, notasIds);
-      setImportModalOpen(false);
-    }
-  };
-
-  // Configuração de filtros para o componente de pesquisa
-  const filters: FilterConfig[] = [
+  const ordensColumns = [
     {
-      id: "status",
-      label: "Status",
-      options: [
-        { id: "all", label: "Todos" },
-        { id: "pending", label: "Pendente" },
-        { id: "processing", label: "Em Carregamento" },
-        { id: "completed", label: "Concluído" }
-      ]
+      id: 'id',
+      header: 'Número OC',
+      accessorKey: 'id',
     },
     {
-      id: "periodo",
-      label: "Período",
-      options: [
-        { id: "all", label: "Todos" },
-        { id: "today", label: "Hoje" },
-        { id: "tomorrow", label: "Amanhã" },
-        { id: "thisWeek", label: "Esta semana" }
-      ]
+      id: 'cliente',
+      header: 'Cliente',
+      accessorKey: 'cliente',
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      accessorKey: 'status',
+      cell: ({ row }: any) => {
+        const status = row.getValue('status');
+        const statusMap = {
+          'pending': 'Pendente',
+          'processing': 'Em Andamento',
+          'completed': 'Concluída'
+        };
+        return statusMap[status as keyof typeof statusMap] || status;
+      }
+    },
+    {
+      id: 'dataCarregamento',
+      header: 'Data Carregamento',
+      accessorKey: 'dataCarregamento',
+    },
+    {
+      id: 'acoes',
+      header: 'Ações',
+      cell: ({ row }: any) => {
+        const ordem = row.original;
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setOrdemEncontrada(ordem);
+              setNotasFiscaisVinculadas(ordem.notasFiscais || []);
+              handleVisualizarNotas();
+            }}
+            className="flex items-center"
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            Visualizar
+          </Button>
+        );
+      }
     }
   ];
 
-  // Filtrar dados baseado na pesquisa e filtros ativos
-  const dadosFiltrados = ordensCarregamento.filter(ordem => {
-    // Aplicar filtro de pesquisa
-    const matchesSearch = !searchTerm || 
-      ordem.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ordem.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ordem.placaVeiculo.toLowerCase().includes(searchTerm.toLowerCase());
-
-    // Aplicar filtro de status
-    const matchesStatus = activeFilters.status === 'all' || ordem.status === activeFilters.status;
-
-    return matchesSearch && matchesStatus;
-  });
-
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-lg">Ordens de Carregamento</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <SearchFilter 
-          placeholder="Buscar por ID, cliente ou placa..." 
-          filters={filters}
-          onSearch={handleSearch}
-        />
-        
-        <DataTable
-          columns={[
-            { header: 'ID', accessor: 'id' },
-            { header: 'Cliente', accessor: 'cliente' },
-            { header: 'Tipo', accessor: 'tipoCarregamento', 
-              cell: (row) => {
-                const tipoMap: Record<string, string> = {
-                  'entrega': 'Entrega',
-                  'transferencia': 'Transferência',
-                  'devolucao': 'Devolução',
-                  'normal': 'Normal'
-                };
-                return tipoMap[row.tipoCarregamento] || row.tipoCarregamento;
-              }
-            },
-            { header: 'Data', accessor: 'dataCarregamento' },
-            { header: 'Motorista', accessor: 'motorista' },
-            { 
-              header: 'Status', 
-              accessor: 'status',
-              cell: (row) => {
-                const statusMap: any = {
-                  'pendente': { type: 'warning', text: 'Pendente' },
-                  'pending': { type: 'warning', text: 'Pendente' },
-                  'em_carregamento': { type: 'info', text: 'Em Carregamento' },
-                  'processing': { type: 'info', text: 'Em Carregamento' },
-                  'concluida': { type: 'success', text: 'Concluído' },
-                  'completed': { type: 'success', text: 'Concluído' },
-                };
-                const status = statusMap[row.status] || { type: 'warning', text: 'Pendente' };
-                return <StatusBadge status={status.type} text={status.text} />;
-              }
-            },
-            {
-              header: 'Ações',
-              accessor: 'actions', 
-              cell: (row) => (
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => {
-                      console.log("Visualizando detalhes da OC", row.id);
-                    }}
-                  >
-                    <FileText size={16} className="mr-1" />
-                    Detalhes
-                  </Button>
-                  {row.status !== 'completed' && row.status !== 'concluida' && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="bg-cross-blue text-white hover:bg-cross-blue/90"
-                      onClick={() => iniciarCarregamento(row.id)}
-                      disabled={isLoading}
-                    >
-                      <Truck size={16} className="mr-1" />
-                      {isLoading ? 'Iniciando...' : 'Iniciar'}
-                    </Button>
-                  )}
-                  {(row.status === 'pending' || row.status === 'pendente') && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="border-green-600 text-green-600 hover:bg-green-50"
-                      onClick={() => handleImportClick(row.id)}
-                      disabled={isLoading}
-                    >
-                      <FileText size={16} className="mr-1" />
-                      Importar NFs
-                    </Button>
-                  )}
-                </div>
-              )
-            }
-          ]}
-          data={dadosFiltrados}
-        />
-
-        {isLoading && (
-          <div className="flex justify-center items-center py-8">
-            <div className="text-gray-500">Carregando...</div>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center">
+            <Search className="mr-2 text-cross-blue" size={20} />
+            Buscar Ordem de Carregamento
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="numeroOC">Número da OC</Label>
+              <Input
+                id="numeroOC"
+                placeholder="Digite o número da Ordem de Carregamento"
+                value={numeroOC}
+                onChange={(e) => setNumeroOC(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleBuscarOC()}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button 
+                onClick={handleBuscarOC}
+                disabled={isLoading}
+                className="bg-cross-blue hover:bg-cross-blue/90"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                {isLoading ? 'Buscando...' : 'Buscar'}
+              </Button>
+            </div>
           </div>
-        )}
-      </CardContent>
 
-      <ImportarNotasDialog 
-        open={importModalOpen}
-        onOpenChange={setImportModalOpen}
-        onImport={handleImportNotas}
-        notasFiscaisDisponiveis={notasFiscaisDisponiveis}
-        isLoading={isLoading}
+          {ordemEncontrada && (
+            <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="font-semibold text-lg">OC {ordemEncontrada.id}</h3>
+                  <p className="text-sm text-gray-600">Cliente: {ordemEncontrada.cliente}</p>
+                  <p className="text-sm text-gray-600">Status: {ordemEncontrada.status}</p>
+                </div>
+                <Button
+                  onClick={handleVisualizarNotas}
+                  className="bg-cross-blue hover:bg-cross-blue/90"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Visualizar Notas Fiscais
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Tipo:</span>
+                  <p>{ordemEncontrada.tipoCarregamento}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Data:</span>
+                  <p>{ordemEncontrada.dataCarregamento}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Transportadora:</span>
+                  <p>{ordemEncontrada.transportadora}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Motorista:</span>
+                  <p>{ordemEncontrada.motorista}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Todas as Ordens de Carregamento</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={ordensColumns}
+            data={ordensCarregamento}
+          />
+        </CardContent>
+      </Card>
+
+      <ImportarNotasDialog
+        open={showNotasDialog}
+        onOpenChange={setShowNotasDialog}
+        onImport={() => {}}
+        notasFiscaisDisponiveis={notasFiscaisVinculadas}
+        isLoading={false}
       />
-    </Card>
+    </div>
   );
 };
 

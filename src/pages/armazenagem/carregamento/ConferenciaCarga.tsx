@@ -1,247 +1,277 @@
 
 import React, { useState, useEffect } from 'react';
-import MainLayout from '../../../components/layout/MainLayout';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import OrderDetailsForm from '@/components/carregamento/OrderDetailsForm';
-import BarcodeScannerSection from '@/components/carregamento/BarcodeScannerSection';
-import VolumesTable from '@/components/carregamento/VolumesTable';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useConferenciaCargaReal } from '@/hooks/carregamento/useConferenciaCargaReal';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Search, CheckCircle, Package, AlertCircle } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { useOrdemCarregamento } from '@/hooks/carregamento';
 import { OrdemCarregamento } from '@/hooks/carregamento/types';
+import { ItemConferencia } from '@/components/carregamento/types/conferencia.types';
+import VolumesTable from '@/components/carregamento/VolumesTable';
+import BarcodeScannerSection from '@/components/carregamento/BarcodeScannerSection';
 
 const ConferenciaCarga: React.FC = () => {
+  const [numeroOC, setNumeroOC] = useState('');
+  const [ordemSelecionada, setOrdemSelecionada] = useState<OrdemCarregamento | null>(null);
+  const [volumes, setVolumes] = useState<ItemConferencia[]>([]);
   const [codigoVolume, setCodigoVolume] = useState('');
   const [codigoNF, setCodigoNF] = useState('');
-  const [codigoEtiquetaMae, setCodigoEtiquetaMae] = useState('');
-  const [tabAtiva, setTabAtiva] = useState('conferir');
-  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    isLoading,
-    ordemSelecionada,
-    itensConferencia,
-    ordensEmConferencia,
-    ordensConferidas,
-    buscarOrdemParaConferencia,
-    verificarItemPorVolume,
-    verificarItensPorNF,
-    verificarItensPorEtiquetaMae,
-    buscarOrdensEmConferencia,
-    buscarOrdensConferidas,
-    removerItemConferencia
-  } = useConferenciaCargaReal();
+  const { buscarOrdemPorNumero, contarVolumesOrdem } = useOrdemCarregamento();
 
-  // Carregar dados quando a tab muda
-  useEffect(() => {
-    if (tabAtiva === 'emConferencia') {
-      buscarOrdensEmConferencia();
-    } else if (tabAtiva === 'conferidas') {
-      buscarOrdensConferidas();
+  const buscarOrdemCarregamento = async () => {
+    if (!numeroOC.trim()) {
+      toast({
+        title: "Número da OC é obrigatório",
+        description: "Por favor, informe o número da Ordem de Carregamento.",
+        variant: "destructive",
+      });
+      return;
     }
-  }, [tabAtiva, buscarOrdensEmConferencia, buscarOrdensConferidas]);
 
-  const handleSubmit = (data: any) => {
-    console.log('Form data submitted:', data);
-    const numeroOC = data.numeroOC;
-    
-    if (numeroOC) {
-      buscarOrdemParaConferencia(numeroOC);
-      setTabAtiva('conferir');
-    }
-  };
-
-  const handleVerificarItem = (id: string) => {
-    // A verificação já é feita pelos métodos específicos
-    // Esta função mantém compatibilidade com a interface existente
-    console.log('Item verificado:', id);
-  };
-
-  const handleRemoverItem = (id: string) => {
-    removerItemConferencia(id);
-  };
-
-  const handleVerificarPorVolume = async () => {
-    if (!codigoVolume) return;
-    
-    const sucesso = await verificarItemPorVolume(codigoVolume);
-    if (sucesso) {
-      setCodigoVolume('');
+    setIsLoading(true);
+    try {
+      const ordem = await buscarOrdemPorNumero(numeroOC);
+      
+      if (ordem) {
+        setOrdemSelecionada(ordem);
+        await carregarVolumesOrdem(ordem.id);
+        
+        toast({
+          title: "Ordem de Carregamento encontrada",
+          description: `OC ${numeroOC} carregada para conferência.`,
+        });
+      } else {
+        setOrdemSelecionada(null);
+        setVolumes([]);
+        toast({
+          title: "Ordem não encontrada",
+          description: `Nenhuma OC encontrada com o número ${numeroOC}.`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao buscar ordem:', error);
+      toast({
+        title: "Erro na busca",
+        description: "Ocorreu um erro ao buscar a Ordem de Carregamento.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleVerificarPorNF = async () => {
-    if (!codigoNF) return;
-    
-    const sucesso = await verificarItensPorNF(codigoNF);
-    if (sucesso) {
-      setCodigoNF('');
+  const carregarVolumesOrdem = async (numeroOrdem: string) => {
+    try {
+      // Simular busca de volumes das notas fiscais da ordem
+      const volumesMock: ItemConferencia[] = [
+        {
+          id: 'VOL-001',
+          produto: 'Produto A',
+          quantidade: 10,
+          verificado: false,
+          etiquetaMae: 'ETQ-MAE-001',
+          notaFiscal: 'NF-12345'
+        },
+        {
+          id: 'VOL-002',
+          produto: 'Produto B',
+          quantidade: 5,
+          verificado: false,
+          etiquetaMae: 'ETQ-MAE-002',
+          notaFiscal: 'NF-12346'
+        },
+        {
+          id: 'VOL-003',
+          produto: 'Produto C',
+          quantidade: 8,
+          verificado: true,
+          etiquetaMae: 'ETQ-MAE-003',
+          notaFiscal: 'NF-12347'
+        }
+      ];
+
+      setVolumes(volumesMock);
+      
+      toast({
+        title: "Volumes carregados",
+        description: `${volumesMock.length} volumes encontrados para conferência.`,
+      });
+    } catch (error) {
+      console.error('Erro ao carregar volumes:', error);
+      toast({
+        title: "Erro ao carregar volumes",
+        description: "Ocorreu um erro ao buscar os volumes da ordem.",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleVerificarPorEtiquetaMae = async () => {
-    if (!codigoEtiquetaMae) return;
-    
-    const sucesso = await verificarItensPorEtiquetaMae(codigoEtiquetaMae);
-    if (sucesso) {
-      setCodigoEtiquetaMae('');
+  const handleVerificarVolume = (volumeId: string) => {
+    setVolumes(prevVolumes =>
+      prevVolumes.map(volume =>
+        volume.id === volumeId
+          ? { ...volume, verificado: true }
+          : volume
+      )
+    );
+
+    toast({
+      title: "Volume verificado",
+      description: `Volume ${volumeId} foi marcado como verificado.`,
+    });
+  };
+
+  const handleRemoverVolume = (volumeId: string) => {
+    setVolumes(prevVolumes =>
+      prevVolumes.filter(volume => volume.id !== volumeId)
+    );
+
+    toast({
+      title: "Volume removido",
+      description: `Volume ${volumeId} foi removido da conferência.`,
+    });
+  };
+
+  const handleScanBarcode = (codigo: string, tipo: 'volume' | 'nf') => {
+    if (tipo === 'volume') {
+      const volume = volumes.find(v => v.id === codigo || v.etiquetaMae === codigo);
+      if (volume) {
+        handleVerificarVolume(volume.id);
+        setCodigoVolume('');
+      } else {
+        toast({
+          title: "Volume não encontrado",
+          description: `Volume com código ${codigo} não encontrado nesta ordem.`,
+          variant: "destructive",
+        });
+      }
+    } else {
+      const volumesNF = volumes.filter(v => v.notaFiscal === codigo);
+      if (volumesNF.length > 0) {
+        volumesNF.forEach(volume => {
+          if (!volume.verificado) {
+            handleVerificarVolume(volume.id);
+          }
+        });
+        setCodigoNF('');
+        toast({
+          title: "Volumes da NF verificados",
+          description: `${volumesNF.length} volumes da NF ${codigo} foram verificados.`,
+        });
+      } else {
+        toast({
+          title: "Nota Fiscal não encontrada",
+          description: `Nenhum volume encontrado para a NF ${codigo}.`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const verificadosCount = itensConferencia.filter(i => i.verificado).length;
-  const totalCount = itensConferencia.length;
-
-  // Função para obter os dados com base na tab ativa e convertê-los para OrdemCarregamento
-  const getOrdensParaTab = (): OrdemCarregamento | null => {
-    switch(tabAtiva) {
-      case 'conferir':
-        if (!ordemSelecionada) return null;
-        return {
-          id: ordemSelecionada.id,
-          cliente: ordemSelecionada.cliente,
-          tipoCarregamento: 'normal', // valor padrão
-          dataCarregamento: ordemSelecionada.dataCarregamento,
-          transportadora: 'Transportadora Padrão', // valor padrão
-          placaVeiculo: 'Não definido', // valor padrão
-          motorista: 'Não definido', // valor padrão
-          status: ordemSelecionada.status,
-          volumesTotal: ordemSelecionada.volumesTotal,
-          volumesVerificados: ordemSelecionada.volumesVerificados,
-          destinatario: ordemSelecionada.destinatario,
-          conferenteResponsavel: ordemSelecionada.conferenteResponsavel,
-          inicioConferencia: ordemSelecionada.inicioConferencia,
-          fimConferencia: ordemSelecionada.fimConferencia
-        };
-      case 'emConferencia':
-        if (!ordensEmConferencia[0]) return null;
-        const ordemEmConf = ordensEmConferencia[0];
-        return {
-          id: ordemEmConf.id,
-          cliente: ordemEmConf.cliente,
-          tipoCarregamento: 'normal',
-          dataCarregamento: ordemEmConf.dataCarregamento,
-          transportadora: 'Transportadora Padrão',
-          placaVeiculo: 'Não definido',
-          motorista: 'Não definido',
-          status: ordemEmConf.status,
-          volumesTotal: ordemEmConf.volumesTotal,
-          volumesVerificados: ordemEmConf.volumesVerificados,
-          destinatario: ordemEmConf.destinatario,
-          conferenteResponsavel: ordemEmConf.conferenteResponsavel,
-          inicioConferencia: ordemEmConf.inicioConferencia,
-          fimConferencia: ordemEmConf.fimConferencia
-        };
-      case 'conferidas':
-        if (!ordensConferidas[0]) return null;
-        const ordemConf = ordensConferidas[0];
-        return {
-          id: ordemConf.id,
-          cliente: ordemConf.cliente,
-          tipoCarregamento: 'normal',
-          dataCarregamento: ordemConf.dataCarregamento,
-          transportadora: 'Transportadora Padrão',
-          placaVeiculo: 'Não definido',
-          motorista: 'Não definido',
-          status: ordemConf.status,
-          volumesTotal: ordemConf.volumesTotal,
-          volumesVerificados: ordemConf.volumesVerificados,
-          destinatario: ordemConf.destinatario,
-          conferenteResponsavel: ordemConf.conferenteResponsavel,
-          inicioConferencia: ordemConf.inicioConferencia,
-          fimConferencia: ordemConf.fimConferencia
-        };
-      default:
-        return null;
-    }
-  };
-
-  const getItensParaTab = () => {
-    switch(tabAtiva) {
-      case 'conferir':
-        return itensConferencia;
-      case 'emConferencia':
-        // Para ordens em conferência, mostrar dados reais se disponível
-        return itensConferencia.length > 0 ? itensConferencia : [];
-      case 'conferidas':
-        // Para ordens conferidas, mostrar dados reais se disponível
-        return itensConferencia.length > 0 ? itensConferencia : [];
-      default:
-        return [];
-    }
-  };
+  const volumesNaoVerificados = volumes.filter(v => !v.verificado);
+  const volumesVerificados = volumes.filter(v => v.verificado);
 
   return (
-    <MainLayout title="Conferência de Carga">
-      <div className="mb-6">
-        <h2 className="text-2xl font-heading mb-2">Conferência de Carga</h2>
-        <p className="text-gray-600">Realize a conferência de itens para carregamento por volume, nota fiscal ou etiqueta mãe</p>
-      </div>
-      
-      <Tabs defaultValue="conferir" value={tabAtiva} onValueChange={setTabAtiva} className="mb-6">
-        <TabsList className="grid grid-cols-3 w-full max-w-lg">
-          <TabsTrigger value="conferir">Cargas a Conferir</TabsTrigger>
-          <TabsTrigger value="emConferencia">Em Conferência</TabsTrigger>
-          <TabsTrigger value="conferidas">Cargas Conferidas</TabsTrigger>
-        </TabsList>
-      </Tabs>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div>
-          <OrderDetailsForm 
-            onSubmit={handleSubmit} 
-            ordemSelecionada={getOrdensParaTab()}
-            loading={isLoading}
-          />
-          
-          {tabAtiva === 'conferir' && ordemSelecionada && (
-            <div className="mt-4 border rounded-md p-4">
-              <BarcodeScannerSection 
-                codigoVolume={codigoVolume}
-                setCodigoVolume={setCodigoVolume}
-                codigoNF={codigoNF}
-                setCodigoNF={setCodigoNF}
-                codigoEtiquetaMae={codigoEtiquetaMae}
-                setCodigoEtiquetaMae={setCodigoEtiquetaMae}
-                handleVerificarPorVolume={handleVerificarPorVolume}
-                handleVerificarPorNF={handleVerificarPorNF}
-                handleVerificarPorEtiquetaMae={handleVerificarPorEtiquetaMae}
-                verificadosCount={verificadosCount}
-                totalCount={totalCount}
+    <div className="container mx-auto p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center">
+            <CheckCircle className="mr-2 text-cross-blue" size={24} />
+            Conferência de Carga
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="space-y-2">
+              <Label htmlFor="numeroOC">Número da OC</Label>
+              <Input
+                id="numeroOC"
+                placeholder="Digite o número da Ordem de Carregamento"
+                value={numeroOC}
+                onChange={(e) => setNumeroOC(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && buscarOrdemCarregamento()}
               />
             </div>
-          )}
-        </div>
-        
-        <div className="lg:col-span-2">
-          <VolumesTable 
-            ordemSelecionada={getOrdensParaTab()} 
-            itens={getItensParaTab()}
-            handleVerificarItem={handleVerificarItem}
-            handleRemoverItem={tabAtiva === 'conferir' ? handleRemoverItem : undefined}
-            tipoVisualizacao={tabAtiva as 'conferir' | 'emConferencia' | 'conferidas'}
-            loading={isLoading}
-          />
-        </div>
-      </div>
+            <div className="flex items-end">
+              <Button 
+                onClick={buscarOrdemCarregamento}
+                disabled={isLoading}
+                className="bg-cross-blue hover:bg-cross-blue/90"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                {isLoading ? 'Buscando...' : 'Buscar Ordem'}
+              </Button>
+            </div>
+          </div>
 
-      <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Volume não relacionado</AlertDialogTitle>
-            <AlertDialogDescription>
-              O volume informado não está relacionado a esta ordem de carregamento.
-              <br /><br />
-              Deseja adicionar este item à ordem atual?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction className="bg-cross-blue hover:bg-cross-blue/90">
-              Adicionar à Ordem
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </MainLayout>
+          {ordemSelecionada && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <Package className="h-5 w-5 text-blue-500" />
+                    <div>
+                      <p className="text-sm font-medium">Total de Volumes</p>
+                      <p className="text-2xl font-bold">{volumes.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <div>
+                      <p className="text-sm font-medium">Verificados</p>
+                      <p className="text-2xl font-bold">{volumesVerificados.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="h-5 w-5 text-yellow-500" />
+                    <div>
+                      <p className="text-sm font-medium">Pendentes</p>
+                      <p className="text-2xl font-bold">{volumesNaoVerificados.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {ordemSelecionada && (
+        <>
+          <BarcodeScannerSection
+            codigoVolume={codigoVolume}
+            setCodigoVolume={setCodigoVolume}
+            codigoNF={codigoNF}
+            setCodigoNF={setCodigoNF}
+            onScan={handleScanBarcode}
+            ordemSelecionada={ordemSelecionada}
+          />
+
+          <VolumesTable
+            ordemSelecionada={ordemSelecionada}
+            itens={volumes}
+            handleVerificarItem={handleVerificarVolume}
+            handleRemoverItem={handleRemoverVolume}
+            tipoVisualizacao="conferir"
+          />
+        </>
+      )}
+    </div>
   );
 };
 
