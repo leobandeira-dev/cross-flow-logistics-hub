@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -228,6 +227,8 @@ export const useOrdemCarregamentoReal = () => {
   // READ - Buscar volumes vinculados às notas fiscais de uma ordem AGRUPADOS POR NOTA FISCAL
   const buscarVolumesVinculados = useCallback(async (numeroOrdem: string) => {
     try {
+      console.log('Buscando volumes vinculados para ordem:', numeroOrdem);
+
       // Buscar a ordem
       const { data: ordem, error: errorOrdem } = await supabase
         .from('ordens_carregamento')
@@ -236,8 +237,11 @@ export const useOrdemCarregamentoReal = () => {
         .single();
 
       if (errorOrdem || !ordem) {
+        console.error('Ordem não encontrada:', errorOrdem);
         return [];
       }
+
+      console.log('Ordem encontrada:', ordem);
 
       // Buscar notas fiscais da ordem
       const { data: notasFiscais, error: errorNotas } = await supabase
@@ -246,22 +250,23 @@ export const useOrdemCarregamentoReal = () => {
         .eq('ordem_carregamento_id', ordem.id);
 
       if (errorNotas || !notasFiscais) {
+        console.error('Erro ao buscar notas fiscais:', errorNotas);
         return [];
       }
+
+      console.log('Notas fiscais encontradas:', notasFiscais);
 
       const notasFiscaisIds = notasFiscais.map(nf => nf.id);
 
       if (notasFiscaisIds.length === 0) {
+        console.log('Nenhuma nota fiscal encontrada para a ordem');
         return [];
       }
 
       // Buscar volumes (etiquetas) vinculados às notas fiscais
       const { data: volumes, error: errorVolumes } = await supabase
         .from('etiquetas')
-        .select(`
-          *,
-          nota_fiscal:nota_fiscal_id(numero, emitente_razao_social)
-        `)
+        .select('*')
         .in('nota_fiscal_id', notasFiscaisIds)
         .eq('tipo', 'volume')
         .order('created_at', { ascending: false });
@@ -271,17 +276,24 @@ export const useOrdemCarregamentoReal = () => {
         return [];
       }
 
-      // Agrupar volumes por nota fiscal
-      const volumesAgrupados = (volumes || []).map(volume => {
+      console.log('Etiquetas/volumes encontrados:', volumes);
+
+      // Transformar volumes para incluir informações da nota fiscal
+      const volumesFormatados = (volumes || []).map(volume => {
         const notaFiscal = notasFiscais.find(nf => nf.id === volume.nota_fiscal_id);
         return {
-          ...volume,
+          id: volume.id,
+          codigo: volume.codigo,
+          descricao: volume.descricao || 'Volume sem descrição',
+          peso: volume.peso || 0,
+          status: volume.status || 'disponivel',
           notaFiscalNumero: notaFiscal?.numero || 'N/A',
           notaFiscalRemetente: notaFiscal?.emitente_razao_social || 'N/A'
         };
       });
 
-      return volumesAgrupados;
+      console.log('Volumes formatados:', volumesFormatados);
+      return volumesFormatados;
     } catch (error) {
       console.error('Erro ao buscar volumes vinculados:', error);
       return [];
@@ -591,6 +603,8 @@ export const useOrdemCarregamentoReal = () => {
   // READ - Buscar ordem específica
   const buscarOrdemPorNumero = useCallback(async (numeroOrdem: string) => {
     try {
+      console.log('Buscando ordem por número:', numeroOrdem);
+      
       const { data, error } = await supabase
         .from('ordens_carregamento')
         .select(`
@@ -606,6 +620,8 @@ export const useOrdemCarregamentoReal = () => {
         console.error('Erro ao buscar ordem:', error);
         return null;
       }
+
+      console.log('Dados da ordem encontrada:', data);
 
       const ordemFormatada: OrdemCarregamento = {
         id: data.numero_ordem,
@@ -629,6 +645,7 @@ export const useOrdemCarregamentoReal = () => {
       const notasVinculadas = await buscarNotasFiscaisVinculadas(numeroOrdem);
       ordemFormatada.notasFiscais = notasVinculadas;
 
+      console.log('Ordem formatada:', ordemFormatada);
       return ordemFormatada;
     } catch (error) {
       console.error('Erro ao buscar ordem por número:', error);
@@ -651,7 +668,9 @@ export const useOrdemCarregamentoReal = () => {
     createOrdemCarregamento,
     // UPDATE operations
     importarNotasFiscais,
+    iniciarCarregamento,
+    finalizarCarregamento,
     // DELETE operations
-    // cancelarOrdemCarregamento
+    cancelarOrdemCarregamento
   };
 };

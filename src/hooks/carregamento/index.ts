@@ -5,3 +5,4 @@ export * from './types';
 export * from './useNotasFiscais';
 export * from './useOrdensCarregamentoQuery';
 export * from './useOrdemCarregamentoCreate';
+export * from './useOrdemCarregamentoReal';

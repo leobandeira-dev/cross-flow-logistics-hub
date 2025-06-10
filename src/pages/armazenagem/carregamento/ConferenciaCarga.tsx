@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Search, CheckCircle, Package, AlertCircle, FileText } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { useOrdemCarregamento } from '@/hooks/carregamento';
+import { useOrdemCarregamentoReal } from '@/hooks/carregamento/useOrdemCarregamentoReal';
 import { OrdemCarregamento } from '@/hooks/carregamento/types';
 import DataTable from '@/components/common/DataTable';
 
@@ -28,7 +28,7 @@ const ConferenciaCarga: React.FC = () => {
   const [codigoVolume, setCodigoVolume] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { buscarOrdemPorNumero, buscarVolumesVinculados } = useOrdemCarregamento();
+  const { buscarOrdemPorNumero, buscarVolumesVinculados } = useOrdemCarregamentoReal();
 
   const buscarOrdemCarregamento = async () => {
     if (!numeroOC.trim()) {
@@ -42,11 +42,13 @@ const ConferenciaCarga: React.FC = () => {
 
     setIsLoading(true);
     try {
+      console.log('Buscando ordem de carregamento:', numeroOC);
       const ordem = await buscarOrdemPorNumero(numeroOC);
       
       if (ordem) {
         setOrdemSelecionada(ordem);
-        await carregarVolumesOrdem(ordem.id);
+        console.log('Ordem encontrada:', ordem);
+        await carregarVolumesOrdem(numeroOC);
         
         toast({
           title: "Ordem de Carregamento encontrada",
@@ -75,20 +77,23 @@ const ConferenciaCarga: React.FC = () => {
 
   const carregarVolumesOrdem = async (numeroOrdem: string) => {
     try {
+      console.log('Carregando volumes para ordem:', numeroOrdem);
       const volumesEncontrados = await buscarVolumesVinculados(numeroOrdem);
+      console.log('Volumes encontrados:', volumesEncontrados);
       
       // Converter volumes para formato agrupado
-      const volumesAgrupados: VolumeAgrupado[] = volumesEncontrados.map(volume => ({
+      const volumesAgrupados: VolumeAgrupado[] = volumesEncontrados.map((volume: any) => ({
         id: volume.id,
         codigo: volume.codigo,
-        descricao: volume.descricao || 'Descrição não informada',
+        descricao: volume.descricao || 'Volume sem descrição',
         peso: volume.peso || 0,
         status: volume.status,
-        notaFiscalNumero: volume.notaFiscalNumero,
-        notaFiscalRemetente: volume.notaFiscalRemetente,
+        notaFiscalNumero: volume.notaFiscalNumero || 'N/A',
+        notaFiscalRemetente: volume.notaFiscalRemetente || 'N/A',
         verificado: volume.status === 'verificado' || volume.status === 'posicionado'
       }));
 
+      console.log('Volumes agrupados:', volumesAgrupados);
       setVolumes(volumesAgrupados);
       
       toast({
@@ -106,6 +111,7 @@ const ConferenciaCarga: React.FC = () => {
   };
 
   const handleVerificarVolume = async (volumeId: string) => {
+    console.log('Verificando volume:', volumeId);
     setVolumes(prevVolumes =>
       prevVolumes.map(volume =>
         volume.id === volumeId
@@ -116,11 +122,12 @@ const ConferenciaCarga: React.FC = () => {
 
     toast({
       title: "Volume verificado",
-      description: `Volume ${volumeId} foi marcado como verificado.`,
+      description: `Volume foi marcado como verificado.`,
     });
   };
 
   const handleScanVolume = (codigo: string) => {
+    console.log('Escaneando volume:', codigo);
     const volume = volumes.find(v => v.codigo === codigo);
     if (volume) {
       if (!volume.verificado) {
