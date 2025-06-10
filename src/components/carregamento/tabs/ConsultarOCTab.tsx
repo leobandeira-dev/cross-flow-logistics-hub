@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Search, Eye, FileText } from 'lucide-react';
+import { Search, Eye, FileText, Package } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useOrdemCarregamento } from '@/hooks/carregamento';
 import DataTable from '@/components/common/DataTable';
@@ -15,10 +15,18 @@ const ConsultarOCTab: React.FC = () => {
   const [numeroOC, setNumeroOC] = useState('');
   const [ordemEncontrada, setOrdemEncontrada] = useState<OrdemCarregamento | null>(null);
   const [notasFiscaisVinculadas, setNotasFiscaisVinculadas] = useState<NotaFiscal[]>([]);
+  const [volumesVinculados, setVolumesVinculados] = useState<any[]>([]);
   const [showNotasDialog, setShowNotasDialog] = useState(false);
+  const [showVolumesDialog, setShowVolumesDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { ordensCarregamento, fetchOrdensCarregamento, buscarOrdemPorNumero } = useOrdemCarregamento();
+  const { 
+    ordensCarregamento, 
+    fetchOrdensCarregamento, 
+    buscarOrdemPorNumero,
+    buscarNotasFiscaisVinculadas,
+    buscarVolumesVinculados
+  } = useOrdemCarregamento();
 
   const handleBuscarOC = async () => {
     if (!numeroOC.trim()) {
@@ -36,15 +44,23 @@ const ConsultarOCTab: React.FC = () => {
       
       if (ordem) {
         setOrdemEncontrada(ordem);
-        setNotasFiscaisVinculadas(ordem.notasFiscais || []);
+        
+        // Buscar notas fiscais vinculadas
+        const notas = await buscarNotasFiscaisVinculadas(numeroOC);
+        setNotasFiscaisVinculadas(notas);
+        
+        // Buscar volumes vinculados
+        const volumes = await buscarVolumesVinculados(numeroOC);
+        setVolumesVinculados(volumes);
         
         toast({
           title: "Ordem de Carregamento encontrada",
-          description: `OC ${numeroOC} localizada com sucesso.`,
+          description: `OC ${numeroOC} localizada com ${notas.length} notas fiscais e ${volumes.length} volumes.`,
         });
       } else {
         setOrdemEncontrada(null);
         setNotasFiscaisVinculadas([]);
+        setVolumesVinculados([]);
         toast({
           title: "Ordem não encontrada",
           description: `Nenhuma OC encontrada com o número ${numeroOC}.`,
@@ -68,23 +84,25 @@ const ConsultarOCTab: React.FC = () => {
     setShowNotasDialog(true);
   };
 
+  const handleVisualizarVolumes = () => {
+    if (!ordemEncontrada) return;
+    setShowVolumesDialog(true);
+  };
+
   const ordensColumns = [
     {
       id: 'id',
       header: 'Número OC',
-      accessor: 'id',
       accessorKey: 'id',
     },
     {
       id: 'cliente',
       header: 'Cliente',
-      accessor: 'cliente',
       accessorKey: 'cliente',
     },
     {
       id: 'status',
       header: 'Status',
-      accessor: 'status',
       accessorKey: 'status',
       cell: ({ row }: any) => {
         const status = row.getValue('status');
@@ -99,22 +117,23 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'dataCarregamento',
       header: 'Data Carregamento',
-      accessor: 'dataCarregamento',
       accessorKey: 'dataCarregamento',
     },
     {
       id: 'acoes',
       header: 'Ações',
-      accessor: 'acoes',
       cell: ({ row }: any) => {
         const ordem = row.original;
         return (
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
+            onClick={async () => {
               setOrdemEncontrada(ordem);
-              setNotasFiscaisVinculadas(ordem.notasFiscais || []);
+              const notas = await buscarNotasFiscaisVinculadas(ordem.id);
+              setNotasFiscaisVinculadas(notas);
+              const volumes = await buscarVolumesVinculados(ordem.id);
+              setVolumesVinculados(volumes);
               handleVisualizarNotas();
             }}
             className="flex items-center"
@@ -125,6 +144,72 @@ const ConsultarOCTab: React.FC = () => {
         );
       }
     }
+  ];
+
+  const notasColumns = [
+    {
+      id: 'numero',
+      header: 'Número NF',
+      accessorKey: 'numero',
+    },
+    {
+      id: 'remetente',
+      header: 'Remetente',
+      accessorKey: 'remetente',
+    },
+    {
+      id: 'cliente',
+      header: 'Cliente',
+      accessorKey: 'cliente',
+    },
+    {
+      id: 'valor',
+      header: 'Valor',
+      accessorKey: 'valor',
+      cell: ({ row }: any) => {
+        const valor = row.getValue('valor');
+        return new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        }).format(valor);
+      }
+    },
+    {
+      id: 'pesoBruto',
+      header: 'Peso (kg)',
+      accessorKey: 'pesoBruto',
+    },
+  ];
+
+  const volumesColumns = [
+    {
+      id: 'codigo',
+      header: 'Código Volume',
+      accessorKey: 'codigo',
+    },
+    {
+      id: 'descricao',
+      header: 'Descrição',
+      accessorKey: 'descricao',
+    },
+    {
+      id: 'peso',
+      header: 'Peso (kg)',
+      accessorKey: 'peso',
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      accessorKey: 'status',
+    },
+    {
+      id: 'nota_fiscal',
+      header: 'Nota Fiscal',
+      cell: ({ row }: any) => {
+        const volume = row.original;
+        return volume.nota_fiscal?.numero || 'N/A';
+      }
+    },
   ];
 
   return (
@@ -167,14 +252,26 @@ const ConsultarOCTab: React.FC = () => {
                   <h3 className="font-semibold text-lg">OC {ordemEncontrada.id}</h3>
                   <p className="text-sm text-gray-600">Cliente: {ordemEncontrada.cliente}</p>
                   <p className="text-sm text-gray-600">Status: {ordemEncontrada.status}</p>
+                  <p className="text-sm text-gray-600">Notas Fiscais: {notasFiscaisVinculadas.length}</p>
+                  <p className="text-sm text-gray-600">Volumes: {volumesVinculados.length}</p>
                 </div>
-                <Button
-                  onClick={handleVisualizarNotas}
-                  className="bg-cross-blue hover:bg-cross-blue/90"
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Visualizar Notas Fiscais
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleVisualizarNotas}
+                    className="bg-cross-blue hover:bg-cross-blue/90"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Visualizar Notas Fiscais
+                  </Button>
+                  <Button
+                    onClick={handleVisualizarVolumes}
+                    variant="outline"
+                    className="border-cross-blue text-cross-blue hover:bg-cross-blue/10"
+                  >
+                    <Package className="h-4 w-4 mr-2" />
+                    Visualizar Volumes
+                  </Button>
+                </div>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -212,13 +309,55 @@ const ConsultarOCTab: React.FC = () => {
         </CardContent>
       </Card>
 
-      <ImportarNotasDialog
-        open={showNotasDialog}
-        onOpenChange={setShowNotasDialog}
-        onImport={() => {}}
-        notasFiscaisDisponiveis={notasFiscaisVinculadas}
-        isLoading={false}
-      />
+      {/* Dialog para Notas Fiscais */}
+      {showNotasDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden m-4">
+            <div className="p-6 border-b">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Notas Fiscais - OC {ordemEncontrada?.id}</h2>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowNotasDialog(false)}
+                >
+                  Fechar
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <DataTable
+                columns={notasColumns}
+                data={notasFiscaisVinculadas}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog para Volumes */}
+      {showVolumesDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[80vh] overflow-hidden m-4">
+            <div className="p-6 border-b">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Volumes - OC {ordemEncontrada?.id}</h2>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowVolumesDialog(false)}
+                >
+                  Fechar
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <DataTable
+                columns={volumesColumns}
+                data={volumesVinculados}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

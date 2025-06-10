@@ -81,7 +81,7 @@ const Sidebar: React.FC = () => {
   };
   
   return (
-    <aside className="w-64 bg-sidebar h-screen flex flex-col fixed left-0 top-0">
+    <aside className="w-64 bg-sidebar h-screen flex flex-col fixed left-0 top-0 z-50">
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center">
           <div className="w-10 h-10 bg-cross-blue rounded flex items-center justify-center text-white font-heading text-xl">
@@ -139,7 +139,7 @@ const Sidebar: React.FC = () => {
             <SidebarItem icon={Box} label="Endereçamento" href="/armazenagem/movimentacoes/enderecamento" />
           </SubMenu>
           
-          {/* Carregamento (Loading) */}
+          {/* Carregamento (Loading) - Movido para logo após Movimentações */}
           <SubMenu icon={Truck} label="Carregamento" defaultOpen={false}>
             <SidebarItem icon={Truck} label="Visão Geral" href="/armazenagem/carregamento" />
             <SidebarItem icon={FileText} label="Ordem" href="/armazenagem/carregamento/ordem" />

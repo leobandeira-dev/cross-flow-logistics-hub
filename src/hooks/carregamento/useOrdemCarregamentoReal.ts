@@ -178,6 +178,105 @@ export const useOrdemCarregamentoReal = () => {
     }
   }, []);
 
+  // READ - Buscar notas fiscais vinculadas a uma ordem específica
+  const buscarNotasFiscaisVinculadas = useCallback(async (numeroOrdem: string) => {
+    try {
+      // Buscar a ordem
+      const { data: ordem, error: errorOrdem } = await supabase
+        .from('ordens_carregamento')
+        .select('id')
+        .eq('numero_ordem', numeroOrdem)
+        .single();
+
+      if (errorOrdem || !ordem) {
+        return [];
+      }
+
+      // Buscar notas fiscais vinculadas
+      const { data: notasFiscais, error: errorNotas } = await supabase
+        .from('notas_fiscais')
+        .select('*')
+        .eq('ordem_carregamento_id', ordem.id)
+        .order('data_inclusao', { ascending: false });
+
+      if (errorNotas) {
+        console.error('Erro ao buscar notas fiscais vinculadas:', errorNotas);
+        return [];
+      }
+
+      // Transformar dados para o formato esperado
+      const notasFormatadas: NotaFiscal[] = (notasFiscais || []).map(nota => ({
+        id: nota.id,
+        numero: nota.numero,
+        remetente: nota.emitente_razao_social || 'Remetente não identificado',
+        cliente: nota.destinatario_razao_social || 'Cliente não identificado',
+        pedido: nota.numero_pedido || '',
+        dataEmissao: new Date(nota.data_emissao).toLocaleDateString('pt-BR'),
+        valor: nota.valor_total || 0,
+        pesoBruto: nota.peso_bruto || 0,
+        status: nota.status || 'pendente'
+      }));
+
+      return notasFormatadas;
+    } catch (error) {
+      console.error('Erro ao buscar notas fiscais vinculadas:', error);
+      return [];
+    }
+  }, []);
+
+  // READ - Buscar volumes vinculados às notas fiscais de uma ordem
+  const buscarVolumesVinculados = useCallback(async (numeroOrdem: string) => {
+    try {
+      // Buscar a ordem
+      const { data: ordem, error: errorOrdem } = await supabase
+        .from('ordens_carregamento')
+        .select('id')
+        .eq('numero_ordem', numeroOrdem)
+        .single();
+
+      if (errorOrdem || !ordem) {
+        return [];
+      }
+
+      // Buscar notas fiscais da ordem
+      const { data: notasFiscais, error: errorNotas } = await supabase
+        .from('notas_fiscais')
+        .select('id')
+        .eq('ordem_carregamento_id', ordem.id);
+
+      if (errorNotas || !notasFiscais) {
+        return [];
+      }
+
+      const notasFiscaisIds = notasFiscais.map(nf => nf.id);
+
+      if (notasFiscaisIds.length === 0) {
+        return [];
+      }
+
+      // Buscar volumes (etiquetas) vinculados às notas fiscais
+      const { data: volumes, error: errorVolumes } = await supabase
+        .from('etiquetas')
+        .select(`
+          *,
+          nota_fiscal:nota_fiscal_id(numero, emitente_razao_social)
+        `)
+        .in('nota_fiscal_id', notasFiscaisIds)
+        .eq('tipo', 'volume')
+        .order('created_at', { ascending: false });
+
+      if (errorVolumes) {
+        console.error('Erro ao buscar volumes:', errorVolumes);
+        return [];
+      }
+
+      return volumes || [];
+    } catch (error) {
+      console.error('Erro ao buscar volumes vinculados:', error);
+      return [];
+    }
+  }, []);
+
   // READ - Buscar notas fiscais disponíveis para importação com filtros aprimorados
   const fetchNotasFiscaisDisponiveis = useCallback(async (filtros?: {
     status?: string;
@@ -512,12 +611,16 @@ export const useOrdemCarregamentoReal = () => {
       ordemFormatada.volumesTotal = volumeCount.total;
       ordemFormatada.volumesVerificados = volumeCount.verificados;
 
+      // Buscar notas fiscais vinculadas
+      const notasVinculadas = await buscarNotasFiscaisVinculadas(numeroOrdem);
+      ordemFormatada.notasFiscais = notasVinculadas;
+
       return ordemFormatada;
     } catch (error) {
       console.error('Erro ao buscar ordem por número:', error);
       return null;
     }
-  }, [contarVolumesOrdem]);
+  }, [contarVolumesOrdem, buscarNotasFiscaisVinculadas]);
 
   return {
     isLoading,
@@ -528,6 +631,8 @@ export const useOrdemCarregamentoReal = () => {
     fetchNotasFiscaisDisponiveis,
     buscarOrdemPorNumero,
     contarVolumesOrdem,
+    buscarNotasFiscaisVinculadas,
+    buscarVolumesVinculados,
     // CREATE operations
     createOrdemCarregamento,
     // UPDATE operations
@@ -535,6 +640,6 @@ export const useOrdemCarregamentoReal = () => {
     iniciarCarregamento,
     finalizarCarregamento,
     // DELETE operations
-    cancelarOrdemCarregamento
+    // cancelarOrdemCarregamento
   };
 };
