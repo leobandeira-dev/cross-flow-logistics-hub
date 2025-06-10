@@ -104,7 +104,7 @@ const ConsultarOCTab: React.FC = () => {
       header: 'Status',
       accessor: 'status',
       cell: ({ row }: any) => {
-        const status = row.getValue('status');
+        const status = row.status || row.original?.status;
         const statusMap = {
           'pending': 'Pendente',
           'processing': 'Em Andamento',
@@ -123,7 +123,7 @@ const ConsultarOCTab: React.FC = () => {
       header: 'Ações',
       accessor: 'acoes',
       cell: ({ row }: any) => {
-        const ordem = row.original;
+        const ordem = row.original || row;
         return (
           <Button
             variant="outline"
@@ -167,7 +167,7 @@ const ConsultarOCTab: React.FC = () => {
       header: 'Valor',
       accessor: 'valor',
       cell: ({ row }: any) => {
-        const valor = row.getValue('valor');
+        const valor = row.valor || row.original?.valor;
         return new Intl.NumberFormat('pt-BR', {
           style: 'currency',
           currency: 'BRL',
@@ -207,7 +207,7 @@ const ConsultarOCTab: React.FC = () => {
       header: 'Nota Fiscal',
       accessor: 'nota_fiscal',
       cell: ({ row }: any) => {
-        const volume = row.original;
+        const volume = row.original || row;
         return volume.nota_fiscal?.numero || 'N/A';
       }
     },
