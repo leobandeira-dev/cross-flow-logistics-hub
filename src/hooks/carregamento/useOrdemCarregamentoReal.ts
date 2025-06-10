@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -224,7 +225,7 @@ export const useOrdemCarregamentoReal = () => {
     }
   }, []);
 
-  // READ - Buscar volumes vinculados às notas fiscais de uma ordem
+  // READ - Buscar volumes vinculados às notas fiscais de uma ordem AGRUPADOS POR NOTA FISCAL
   const buscarVolumesVinculados = useCallback(async (numeroOrdem: string) => {
     try {
       // Buscar a ordem
@@ -241,7 +242,7 @@ export const useOrdemCarregamentoReal = () => {
       // Buscar notas fiscais da ordem
       const { data: notasFiscais, error: errorNotas } = await supabase
         .from('notas_fiscais')
-        .select('id')
+        .select('id, numero, emitente_razao_social')
         .eq('ordem_carregamento_id', ordem.id);
 
       if (errorNotas || !notasFiscais) {
@@ -270,14 +271,24 @@ export const useOrdemCarregamentoReal = () => {
         return [];
       }
 
-      return volumes || [];
+      // Agrupar volumes por nota fiscal
+      const volumesAgrupados = (volumes || []).map(volume => {
+        const notaFiscal = notasFiscais.find(nf => nf.id === volume.nota_fiscal_id);
+        return {
+          ...volume,
+          notaFiscalNumero: notaFiscal?.numero || 'N/A',
+          notaFiscalRemetente: notaFiscal?.emitente_razao_social || 'N/A'
+        };
+      });
+
+      return volumesAgrupados;
     } catch (error) {
       console.error('Erro ao buscar volumes vinculados:', error);
       return [];
     }
   }, []);
 
-  // READ - Buscar notas fiscais disponíveis para importação com filtros aprimorados
+  // READ - Buscar notas fiscais disponíveis para importação (que não estão vinculadas a nenhuma ordem)
   const fetchNotasFiscaisDisponiveis = useCallback(async (filtros?: {
     status?: string;
     fornecedor?: string;
@@ -294,7 +305,7 @@ export const useOrdemCarregamentoReal = () => {
       let query = supabase
         .from('notas_fiscais')
         .select('*')
-        .is('ordem_carregamento_id', null) // Notas que ainda não estão em uma ordem
+        .is('ordem_carregamento_id', null) // IMPORTANTE: Notas que ainda não estão em uma ordem
         .order('data_inclusao', { ascending: false });
 
       // Aplicar filtros se fornecidos
@@ -335,7 +346,7 @@ export const useOrdemCarregamentoReal = () => {
         throw error;
       }
 
-      console.log('Notas fiscais encontradas:', data);
+      console.log('Notas fiscais disponíveis encontradas:', data);
 
       // Transformar dados para o formato esperado
       const notasFormatadas: NotaFiscal[] = (data || []).map(nota => ({
@@ -385,7 +396,10 @@ export const useOrdemCarregamentoReal = () => {
       // UPDATE - Atualizar as notas fiscais para referenciar esta ordem
       const { error: errorUpdate } = await supabase
         .from('notas_fiscais')
-        .update({ ordem_carregamento_id: ordem.id })
+        .update({ 
+          ordem_carregamento_id: ordem.id,
+          status: 'vinculada' // Atualizar status para indicar que foi vinculada
+        })
         .in('id', notasIds);
 
       if (errorUpdate) {
@@ -637,8 +651,6 @@ export const useOrdemCarregamentoReal = () => {
     createOrdemCarregamento,
     // UPDATE operations
     importarNotasFiscais,
-    iniciarCarregamento,
-    finalizarCarregamento,
     // DELETE operations
     // cancelarOrdemCarregamento
   };
