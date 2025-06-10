@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -93,17 +92,17 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'id',
       header: 'Número OC',
-      accessorKey: 'id',
+      accessor: 'id',
     },
     {
       id: 'cliente',
       header: 'Cliente',
-      accessorKey: 'cliente',
+      accessor: 'cliente',
     },
     {
       id: 'status',
       header: 'Status',
-      accessorKey: 'status',
+      accessor: 'status',
       cell: ({ row }: any) => {
         const status = row.getValue('status');
         const statusMap = {
@@ -117,11 +116,12 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'dataCarregamento',
       header: 'Data Carregamento',
-      accessorKey: 'dataCarregamento',
+      accessor: 'dataCarregamento',
     },
     {
       id: 'acoes',
       header: 'Ações',
+      accessor: 'acoes',
       cell: ({ row }: any) => {
         const ordem = row.original;
         return (
@@ -150,22 +150,22 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'numero',
       header: 'Número NF',
-      accessorKey: 'numero',
+      accessor: 'numero',
     },
     {
       id: 'remetente',
       header: 'Remetente',
-      accessorKey: 'remetente',
+      accessor: 'remetente',
     },
     {
       id: 'cliente',
       header: 'Cliente',
-      accessorKey: 'cliente',
+      accessor: 'cliente',
     },
     {
       id: 'valor',
       header: 'Valor',
-      accessorKey: 'valor',
+      accessor: 'valor',
       cell: ({ row }: any) => {
         const valor = row.getValue('valor');
         return new Intl.NumberFormat('pt-BR', {
@@ -177,7 +177,7 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'pesoBruto',
       header: 'Peso (kg)',
-      accessorKey: 'pesoBruto',
+      accessor: 'pesoBruto',
     },
   ];
 
@@ -185,26 +185,27 @@ const ConsultarOCTab: React.FC = () => {
     {
       id: 'codigo',
       header: 'Código Volume',
-      accessorKey: 'codigo',
+      accessor: 'codigo',
     },
     {
       id: 'descricao',
       header: 'Descrição',
-      accessorKey: 'descricao',
+      accessor: 'descricao',
     },
     {
       id: 'peso',
       header: 'Peso (kg)',
-      accessorKey: 'peso',
+      accessor: 'peso',
     },
     {
       id: 'status',
       header: 'Status',
-      accessorKey: 'status',
+      accessor: 'status',
     },
     {
       id: 'nota_fiscal',
       header: 'Nota Fiscal',
+      accessor: 'nota_fiscal',
       cell: ({ row }: any) => {
         const volume = row.original;
         return volume.nota_fiscal?.numero || 'N/A';
