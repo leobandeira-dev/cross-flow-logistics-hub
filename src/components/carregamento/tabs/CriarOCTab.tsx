@@ -23,16 +23,10 @@ const CriarOCTab: React.FC = () => {
     observacoes: ''
   });
   
-  const [showImportDialog, setShowImportDialog] = useState(false);
   const [ordemCriada, setOrdemCriada] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { 
-    createOrdemCarregamento, 
-    notasFiscaisDisponiveis, 
-    fetchNotasFiscaisDisponiveis,
-    importarNotasFiscais 
-  } = useOrdemCarregamento();
+  const { createOrdemCarregamento } = useOrdemCarregamento();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -75,11 +69,11 @@ const CriarOCTab: React.FC = () => {
     }
   };
 
-  const handleImportarNotas = async () => {
-    if (!ordemCriada) return;
-    
-    await fetchNotasFiscaisDisponiveis();
-    setShowImportDialog(true);
+  const handleImportComplete = () => {
+    toast({
+      title: "Notas fiscais importadas",
+      description: "As notas fiscais foram importadas com sucesso para a ordem de carregamento.",
+    });
   };
 
   return (
@@ -181,32 +175,15 @@ const CriarOCTab: React.FC = () => {
               </Button>
 
               {ordemCriada && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleImportarNotas}
-                  className="border-cross-blue text-cross-blue hover:bg-cross-blue/10"
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Importar Notas Fiscais
-                </Button>
+                <ImportarNotasDialog
+                  ordemId={ordemCriada}
+                  onImportComplete={handleImportComplete}
+                />
               )}
             </div>
           </form>
         </CardContent>
       </Card>
-
-      <ImportarNotasDialog
-        open={showImportDialog}
-        onOpenChange={setShowImportDialog}
-        onImport={(notasIds: string[]) => {
-          if (ordemCriada) {
-            importarNotasFiscais(ordemCriada, notasIds);
-          }
-        }}
-        notasFiscaisDisponiveis={notasFiscaisDisponiveis}
-        isLoading={false}
-      />
     </div>
   );
 };

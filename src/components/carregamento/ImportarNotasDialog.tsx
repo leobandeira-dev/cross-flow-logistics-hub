@@ -150,7 +150,6 @@ const ImportarNotasDialog: React.FC<ImportarNotasDialogProps> = ({ ordemId, onIm
           <DataTable
             columns={columns}
             data={filteredNotas}
-            isLoading={isLoading}
           />
 
           <div className="flex justify-end space-x-2 pt-4">
