@@ -13,7 +13,6 @@ const NewMainLayout: React.FC<NewMainLayoutProps> = ({ children, title = "Dashbo
   const location = useLocation();
   
   // Rotas que devem exibir apenas a topbar (sem sidebar lateral)
-  // Usando uma verificação mais precisa para todas as rotas de carregamento
   const shouldShowOnlyTopbar = location.pathname.includes('/armazenagem/carregamento');
 
   if (shouldShowOnlyTopbar) {

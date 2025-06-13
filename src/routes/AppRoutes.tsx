@@ -1,11 +1,9 @@
 
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { Routes, Route } from 'react-router-dom';
 import NotFound from '../pages/NotFound';
 
 // Feature Routes
 import CoreRoutes from './features/CoreRoutes';
-import AuthRoutes from './features/AuthRoutes';
 import ArmazenagemRoutes from './features/ArmazenagemRoutes';
 import ExpedicaoRoutes from './features/ExpedicaoRoutes';
 import SACRoutes from './features/SACRoutes';
@@ -16,15 +14,10 @@ import ConfiguracoesRoutes from './features/ConfiguracoesRoutes';
 import AdminRoutes from './features/AdminRoutes';
 
 const AppRoutes = () => {
-  const { user } = useAuth();
-  
-  console.log('AppRoutes rendering, user authenticated:', !!user);
-  
   return (
     <Routes>
       {/* Feature routes - spreading the array of routes returned by each feature */}
       {CoreRoutes()}
-      {AuthRoutes()}
       {ArmazenagemRoutes()}
       {ExpedicaoRoutes()}
       {SACRoutes()}
@@ -32,7 +25,7 @@ const AppRoutes = () => {
       {RelatoriosRoutes()}
       {CadastrosRoutes()}
       {ConfiguracoesRoutes()}
-      {AdminRoutes()} {/* Add the Admin routes here */}
+      {AdminRoutes()}
       
       {/* NotFound */}
       <Route path="*" element={<NotFound />} />

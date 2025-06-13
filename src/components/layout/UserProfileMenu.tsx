@@ -2,7 +2,6 @@
 import React from 'react';
 import { LogOut, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useUserProfile } from '@/hooks/useUserProfile';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,16 +11,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 
 export const UserProfileMenu: React.FC = () => {
-  const { profile } = useUserProfile();
-  const { signOut } = useAuth();
   const navigate = useNavigate();
 
-  if (!profile) return null;
+  // Mock user profile data
+  const profile = {
+    name: 'Usuário Sistema',
+    email: 'usuario@sistema.com',
+    avatar: null
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -32,27 +33,18 @@ export const UserProfileMenu: React.FC = () => {
       .toUpperCase();
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/auth');
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-    }
+  const handleLogout = () => {
+    // Just navigate to dashboard since there's no real authentication
+    navigate('/dashboard');
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="rounded-full h-10 w-10 p-0">
-          {profile.avatar ? (
-            <Avatar>
-              <AvatarImage src={profile.avatar} alt={profile.name} />
-              <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
-            </Avatar>
-          ) : (
-            <User size={20} />
-          )}
+          <Avatar>
+            <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
+          </Avatar>
         </Button>
       </DropdownMenuTrigger>
       

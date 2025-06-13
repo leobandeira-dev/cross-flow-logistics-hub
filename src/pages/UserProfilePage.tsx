@@ -1,7 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import ProfileForm from '@/components/profile/ProfileForm';
 import ProfileHeader from '@/components/profile/ProfileHeader';
@@ -10,30 +8,22 @@ import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
 import { Card, CardContent } from '@/components/ui/card';
 
 const UserProfilePage = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   
-  useEffect(() => {
-    // Redirect if no user is logged in and loading is complete
-    if (!user && !loading) {
-      navigate('/auth');
-    }
-  }, [user, loading, navigate]);
-
-  if (loading) {
-    return (
-      <MainLayout title="Perfil do Usuário">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  if (!user) {
-    return null; // Will redirect due to useEffect
-  }
+  // Mock user data since authentication is removed
+  const user = {
+    id: '1',
+    email: 'usuario@sistema.com',
+    nome: 'Usuário Sistema',
+    telefone: '(11) 99999-9999',
+    avatar_url: null,
+    empresa_id: '1',
+    perfil_id: '1',
+    status: 'ativo',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    funcao: 'administrador'
+  };
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
