@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
   Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
@@ -72,14 +71,11 @@ const NavItem: React.FC<NavItemProps> = ({ icon: Icon, label, href, children, ac
 };
 
 const TopNavbar: React.FC = () => {
-  const { signOut } = useAuth();
+  const navigate = useNavigate();
   
-  const handleLogout = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
+  const handleLogout = () => {
+    // Simple navigation to dashboard since there's no authentication
+    navigate('/dashboard');
   };
 
   return (
