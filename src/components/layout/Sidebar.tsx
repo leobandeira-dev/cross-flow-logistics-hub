@@ -1,7 +1,5 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Truck, PackageOpen, LayoutDashboard, MessageSquare, FileText, 
   Users, Settings, ChevronDown, LogOut, Package, Archive, Box, Map, Building, MapPin,
@@ -69,15 +67,11 @@ const SubMenu: React.FC<SubMenuProps> = ({ label, icon: Icon, children, defaultO
 };
 
 const Sidebar: React.FC = () => {
-  const { signOut } = useAuth();
+  const navigate = useNavigate();
   
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      // Redirect will be handled automatically by the AuthContext
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
+  const handleLogout = () => {
+    // Simple navigation to dashboard since there's no authentication
+    navigate('/dashboard');
   };
   
   return (
